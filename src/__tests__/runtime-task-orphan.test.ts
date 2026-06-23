@@ -24,7 +24,7 @@ vi.mock('../team/model-contract.js', () => ({
   getWorkerEnv: vi.fn(() => ({})),
   isPromptModeAgent: vi.fn(() => false),
   getPromptModeArgs: vi.fn(() => []),
-  resolveClaudeWorkerModel: vi.fn(() => undefined),
+  resolveQoderWorkerModel: vi.fn(() => undefined),
   assertHeadlessSupported: vi.fn(() => {}),
   isHeadlessSupportedOnPlatform: vi.fn(() => true),
 }));
@@ -99,7 +99,7 @@ describe('spawnWorkerForTask task orphan prevention', () => {
       config: {
         teamName,
         workerCount: 1,
-        agentTypes: ['claude' as const],
+        agentTypes: ['qoder' as const],
         tasks: [{ subject: 'Test task', description: 'Test description' }],
         cwd: tmpDir,
       },
@@ -107,7 +107,7 @@ describe('spawnWorkerForTask task orphan prevention', () => {
       workerPaneIds: [] as string[],
       activeWorkers: new Map(),
       cwd: tmpDir,
-      resolvedBinaryPaths: { claude: '/usr/bin/claude' },
+      resolvedBinaryPaths: { qoder: '/usr/bin/claude' },
     };
 
     const result = await spawnWorkerForTask(runtime, 'worker-1', taskIndex);

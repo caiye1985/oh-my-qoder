@@ -110,7 +110,7 @@ function resolveTierToModelId(tier: TeamRoleTier, cfg: PluginConfig): string {
 }
 
 /**
- * Resolve a user-supplied `model` value for a Claude worker.
+ * Resolve a user-supplied `model` value for a Qoder worker.
  * Tier names expand to model IDs; explicit IDs pass through;
  * undefined falls back to the role's default tier.
  */
@@ -163,9 +163,9 @@ function resolveExternalModel(
  *   1. Normalize role via `normalizeDelegationRole` (handles aliases like
  *      "quality-reviewer" → "code-reviewer", "reviewer" → "code-reviewer").
  *   2. Read explicit spec from `cfg.team.roleRouting[role]` if present.
- *   3. Orchestrator: provider is always pinned to 'claude' (user cannot
+ *   3. Orchestrator: provider is always pinned to 'qoder' (user cannot
  *      override, per Option E).
- *   4. Fill in defaults: provider='claude', model=role-default-tier,
+ *   4. Fill in defaults: provider='qoder', model=role-default-tier,
  *      agent=canonical agent for the role.
  */
 export function resolveRoleAssignment(
@@ -182,15 +182,15 @@ export function resolveRoleAssignment(
 
   const isOrchestrator = canonical === 'orchestrator';
   const provider: TeamRoleProvider = isOrchestrator
-    ? 'claude'
-    : (spec?.provider ?? 'claude');
+    ? 'qoder'
+    : (spec?.provider ?? 'qoder');
   if (provider === 'cursor' && !CURSOR_EXECUTOR_TEAM_ROLE_SET.has(canonical)) {
     throw new Error(
       `team.roleRouting.${canonical}.provider: cursor is only supported for executor-style roles (${[...CURSOR_EXECUTOR_TEAM_ROLE_SET].join(', ')})`,
     );
   }
 
-  const model = provider === 'claude'
+  const model = provider === 'qoder'
     ? resolveClaudeModel(canonical, spec?.model, cfg)
     : resolveExternalModel(provider, spec?.model, cfg);
   const agent: KnownAgentName = spec?.agent ?? ROLE_TO_AGENT[canonical];
@@ -205,7 +205,7 @@ function isCanonicalRole(value: string): value is CanonicalTeamRole {
 /**
  * Pre-resolve EVERY canonical role into a `{ primary, fallback }` pair.
  *
- * Fallback is always a Claude worker with the same model + agent as primary,
+ * Fallback is always a Qoder worker with the same model + agent as primary,
  * used when the primary provider's CLI binary is missing at spawn time
  * (AC-8). Persisted to `TeamConfig.resolved_routing` at team creation by
  * `startTeamV2`; read (never re-resolved) by spawn / scaleUp / restart paths.
@@ -220,19 +220,19 @@ export function buildResolvedRoutingSnapshot(
 
   for (const role of CANONICAL_TEAM_ROLES) {
     const primary = resolveRoleAssignment(role, cfg);
-    // Fallback is always a Claude worker. Its model is the Claude-tier
+    // Fallback is always a Qoder worker. Its model is the Claude-tier
     // resolution of the role's spec (so tier stickiness survives fallback),
     // NOT primary.model (which may be a codex/gemini model ID).
     // When primary is external and spec.model is an explicit non-tier id
     // (e.g., 'gpt-5.3-codex'), drop it for fallback so claude doesn't
     // receive an external model id; tier names always survive.
     const spec = getRoleRoutingSpec(roleRouting, role);
-    const isExternalPrimary = primary.provider !== 'claude';
+    const isExternalPrimary = primary.provider !== 'qoder';
     const fallbackModelInput = isExternalPrimary && spec?.model && !isTier(spec.model)
       ? undefined
       : spec?.model;
     const fallback: RoleAssignment = {
-      provider: 'claude',
+      provider: 'qoder',
       model: resolveClaudeModel(role, fallbackModelInput, cfg),
       agent: primary.agent,
     };

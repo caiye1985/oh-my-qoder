@@ -71,7 +71,7 @@ describe('runAutoresearchSetupSession', () => {
 
     expect(result.slug).toBe('launch-flow');
     expect(result.readyToLaunch).toBe(true);
-    expect(vi.mocked(spawnSync).mock.calls[0]?.[0]).toBe('claude');
+    expect(vi.mocked(spawnSync).mock.calls[0]?.[0]).toBe('qoder');
     expect(vi.mocked(spawnSync).mock.calls[0]?.[1]).toEqual(['-p', expect.any(String)]);
   });
 
@@ -102,7 +102,7 @@ describe('runAutoresearchSetupSession', () => {
 
     runAutoresearchSetupSession({ repoRoot: '/repo', missionText: 'Improve launch flow' });
 
-    expect(vi.mocked(spawnSync)).toHaveBeenCalledWith('claude', ['-p', expect.any(String)], expect.objectContaining({
+    expect(vi.mocked(spawnSync)).toHaveBeenCalledWith('qoder', ['-p', expect.any(String)], expect.objectContaining({
       cwd: '/repo',
       encoding: 'utf-8',
       shell: true,

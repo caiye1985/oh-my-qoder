@@ -5,19 +5,19 @@ import { tmpdir } from 'os';
 import { createBuiltinSkills, getBuiltinSkill, listBuiltinSkillNames, clearSkillsCache, renderBundledSkillBody } from '../features/builtin-skills/skills.js';
 
 describe('Builtin Skills', () => {
-  const originalPluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  const originalPluginRoot = process.env.QODER_PLUGIN_ROOT;
   const originalPath = process.env.PATH;
   const originalUserType = process.env.USER_TYPE;
-  const originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
+  const originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
   const originalCwd = process.cwd();
   let tempDirs: string[] = [];
 
   // Clear cache before each test to ensure fresh loads
   beforeEach(() => {
     if (originalPluginRoot === undefined) {
-      delete process.env.CLAUDE_PLUGIN_ROOT;
+      delete process.env.QODER_PLUGIN_ROOT;
     } else {
-      process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+      process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
     }
     if (originalPath === undefined) {
       delete process.env.PATH;
@@ -30,9 +30,9 @@ describe('Builtin Skills', () => {
       process.env.USER_TYPE = originalUserType;
     }
     if (originalClaudeConfigDir === undefined) {
-      delete process.env.CLAUDE_CONFIG_DIR;
+      delete process.env.QODER_CONFIG_DIR;
     } else {
-      process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+      process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
     }
     process.chdir(originalCwd);
     tempDirs = [];
@@ -41,9 +41,9 @@ describe('Builtin Skills', () => {
 
   afterEach(() => {
     if (originalPluginRoot === undefined) {
-      delete process.env.CLAUDE_PLUGIN_ROOT;
+      delete process.env.QODER_PLUGIN_ROOT;
     } else {
-      process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+      process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
     }
     if (originalPath === undefined) {
       delete process.env.PATH;
@@ -56,9 +56,9 @@ describe('Builtin Skills', () => {
       process.env.USER_TYPE = originalUserType;
     }
     if (originalClaudeConfigDir === undefined) {
-      delete process.env.CLAUDE_CONFIG_DIR;
+      delete process.env.QODER_CONFIG_DIR;
     } else {
-      process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+      process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
     }
     process.chdir(originalCwd);
     for (const dir of tempDirs) {
@@ -265,7 +265,7 @@ describe('Builtin Skills', () => {
       expect(skill).toBeDefined();
       expect(skill?.description).toContain('install/update routing');
       expect(skill?.template).toContain('Process the request by the **first argument only**');
-      expect(skill?.template).toContain('/oh-my-claudecode:setup doctor --json');
+      expect(skill?.template).toContain('/oh-my-qoder:setup doctor --json');
       expect(skill?.template).not.toContain('{{ARGUMENTS_AFTER_DOCTOR}}');
     });
 
@@ -325,7 +325,7 @@ describe('Builtin Skills', () => {
       expect(skill?.template).toContain('personal-config/shared-config/external/project-scoped');
       expect(skill?.template).toContain('Cross-boundary MOVE candidates MUST have `Default? = no`');
       // Verify pipeline handoff is fully wired (B1 fix)
-      expect(skill?.template).toContain('Skill("oh-my-claudecode:autopilot")');
+      expect(skill?.template).toContain('Skill("oh-my-qoder:autopilot")');
       expect(skill?.template).toContain('consensus plan as Phase 0+1 output');
       // Verify Phase 5 workflow pre-flight guards issue/worktree-driven project guidance (#2926)
       expect(skill?.template).toContain('Workflow Pre-Flight');
@@ -361,8 +361,8 @@ describe('Builtin Skills', () => {
       expect(skill?.template).toContain('unless the user explicitly approves that next step');
       expect(skill?.template).not.toContain('Pipeline: `deep-interview → plan → autopilot`');
       expect(skill?.template).not.toContain('Next skill: `plan`');
-      expect(skill?.template).not.toContain('3. Invoke Skill("oh-my-claudecode:plan")');
-      expect(skill?.template).toContain('Only after the user selects this option, invoke `Skill("oh-my-claudecode:plan")`');
+      expect(skill?.template).not.toContain('3. Invoke Skill("oh-my-qoder:plan")');
+      expect(skill?.template).toContain('Only after the user selects this option, invoke `Skill("oh-my-qoder:plan")`');
       expect(skill?.template).toContain('do not automatically invoke autopilot or any other execution skill');
       expect(skill?.template).toContain('`.omc/specs/deep-interview-{slug}.md`');
       expect(skill?.template).toContain('Why now: {one_sentence_targeting_rationale}');
@@ -371,7 +371,7 @@ describe('Builtin Skills', () => {
       expect(skill?.template).toContain('Every round explicitly names the weakest dimension and why it is the next target');
       expect(skill?.argumentHint).toContain('--autoresearch');
       expect(skill?.template).toContain('zero-learning-curve setup lane for the stateful `autoresearch` skill');
-      expect(skill?.template).toContain('Skill("oh-my-claudecode:autoresearch")');
+      expect(skill?.template).toContain('Skill("oh-my-qoder:autoresearch")');
     });
 
     it('documents deep-interview Round 0 topology locking and multi-component scoring (issue #2919)', () => {
@@ -413,7 +413,7 @@ describe('Builtin Skills', () => {
       const projectDir = mkdtempSync(join(tmpdir(), 'omc-skill-project-'));
       tempDirs.push(profileDir, projectDir);
 
-      process.env.CLAUDE_CONFIG_DIR = profileDir;
+      process.env.QODER_CONFIG_DIR = profileDir;
       writeFileSync(
         join(profileDir, 'settings.json'),
         JSON.stringify({ omc: { deepInterview: { ambiguityThreshold: 0.15 } } }),
@@ -431,12 +431,12 @@ describe('Builtin Skills', () => {
       const skill = getBuiltinSkill('deep-interview');
       expect(skill).toBeDefined();
       expect(skill?.template).toContain('Phase 0: Resolve Ambiguity Threshold (blocking prerequisite)');
-      expect(skill?.template).toContain('Deep Interview threshold: 12% (source: ./.claude/settings.json)');
+      expect(skill?.template).toContain('Deep Interview threshold: 12% (source: ./.qoder/settings.json)');
       expect(skill?.template).toContain('"threshold": 0.12,');
-      expect(skill?.template).toContain('"threshold_source": "./.claude/settings.json",');
+      expect(skill?.template).toContain('"threshold_source": "./.qoder/settings.json",');
       expect(skill?.template).toContain('drops below 12%.');
-      expect(skill?.template).toContain('- Threshold Source: ./.claude/settings.json');
-      expect(skill?.template).not.toContain('3.5. **Load runtime settings** from `~/.claude/settings.json`');
+      expect(skill?.template).toContain('- Threshold Source: ./.qoder/settings.json');
+      expect(skill?.template).not.toContain('3.5. **Load runtime settings** from `~/.qoder/settings.json`');
       expect(skill?.template).toContain('settings files were read, threshold was resolved');
       expect(skill?.template?.indexOf('Phase 0: Resolve Ambiguity Threshold')).toBeLessThan(
         skill?.template?.indexOf('Initialize state') ?? Number.POSITIVE_INFINITY,
@@ -456,9 +456,9 @@ describe('Builtin Skills', () => {
       );
 
       const first = getBuiltinSkill('deep-interview');
-      expect(first?.template).toContain('Deep Interview threshold: 12% (source: ./.claude/settings.json)');
+      expect(first?.template).toContain('Deep Interview threshold: 12% (source: ./.qoder/settings.json)');
       expect(first?.template).toContain('"threshold": 0.12,');
-      expect(first?.template).toContain('"threshold_source": "./.claude/settings.json",');
+      expect(first?.template).toContain('"threshold_source": "./.qoder/settings.json",');
 
       writeFileSync(
         join(projectDir, '.claude', 'settings.json'),
@@ -466,9 +466,9 @@ describe('Builtin Skills', () => {
       );
 
       const second = getBuiltinSkill('deep-interview');
-      expect(second?.template).toContain('Deep Interview threshold: 33% (source: ./.claude/settings.json)');
+      expect(second?.template).toContain('Deep Interview threshold: 33% (source: ./.qoder/settings.json)');
       expect(second?.template).toContain('"threshold": 0.33,');
-      expect(second?.template).toContain('"threshold_source": "./.claude/settings.json",');
+      expect(second?.template).toContain('"threshold_source": "./.qoder/settings.json",');
       expect(second?.template).not.toContain('Deep Interview threshold: 12%');
       expect(second?.template).not.toContain('"threshold": 0.12,');
     });
@@ -477,7 +477,7 @@ describe('Builtin Skills', () => {
       const profileDir = mkdtempSync(join(tmpdir(), 'omc-skill-2545-'));
       tempDirs.push(profileDir);
 
-      process.env.CLAUDE_CONFIG_DIR = profileDir;
+      process.env.QODER_CONFIG_DIR = profileDir;
       writeFileSync(
         join(profileDir, 'settings.json'),
         JSON.stringify({ omc: { deepInterview: { ambiguityThreshold: 0.15 } } }),
@@ -490,9 +490,9 @@ describe('Builtin Skills', () => {
       const t = skill!.template;
 
       // Previously-fixed references (regression guard)
-      expect(t).toContain('Deep Interview threshold: 15% (source: [$CLAUDE_CONFIG_DIR|~/.claude]/settings.json)');
+      expect(t).toContain('Deep Interview threshold: 15% (source: [$QODER_CONFIG_DIR|~/.qoder]/settings.json)');
       expect(t).toContain('"threshold": 0.15,');
-      expect(t).toContain('"threshold_source": "[$CLAUDE_CONFIG_DIR|~/.claude]/settings.json",');
+      expect(t).toContain('"threshold_source": "[$QODER_CONFIG_DIR|~/.qoder]/settings.json",');
       expect(t).toContain('drops below 15%.');
 
       expect(t).toContain('resolved threshold for this run'); // Purpose/Execution_Policy
@@ -513,14 +513,14 @@ describe('Builtin Skills', () => {
     it('ships a config-aware deep-interview SKILL.md for native skill-loader paths (issues #2723, #3030)', () => {
       const raw = readFileSync(join(originalCwd, 'skills', 'deep-interview', 'SKILL.md'), 'utf-8');
       expect(raw).toContain('Native Plugin Invocation Guard (Issue #3030)');
-      expect(raw).toContain('`/oh-my-claudecode:deep-interview` or `Skill("oh-my-claudecode:deep-interview")`');
+      expect(raw).toContain('`/oh-my-qoder:deep-interview` or `Skill("oh-my-qoder:deep-interview")`');
       expect(raw).toContain('The user-facing preferred invocation is `/deep-interview`');
-      expect(raw).toContain('do not recommend or advertise `/oh-my-claudecode:deep-interview`');
+      expect(raw).toContain('do not recommend or advertise `/oh-my-qoder:deep-interview`');
       expect(raw).toContain('Phase 0 below remains blocking');
       expect(raw).toContain('must resolve `omc.deepInterview.ambiguityThreshold` from settings');
       expect(raw).toContain('Phase 0: Resolve Ambiguity Threshold (blocking prerequisite)');
-      expect(raw).toContain('User settings: `[$CLAUDE_CONFIG_DIR|~/.claude]/settings.json`');
-      expect(raw).toContain('Project settings: `./.claude/settings.json`');
+      expect(raw).toContain('User settings: `[$QODER_CONFIG_DIR|~/.qoder]/settings.json`');
+      expect(raw).toContain('Project settings: `./.qoder/settings.json`');
       expect(raw).toContain('"threshold": <resolvedThreshold>,');
       expect(raw).toContain('"threshold_source": "<resolvedThresholdSource>",');
       expect(raw).toContain('Deep Interview threshold: <resolvedThresholdPercent> (source: <resolvedThresholdSource>)');
@@ -574,7 +574,7 @@ describe('Builtin Skills', () => {
       const profileDir = mkdtempSync(join(tmpdir(), 'omc-skill-3030-'));
       tempDirs.push(profileDir);
 
-      process.env.CLAUDE_CONFIG_DIR = profileDir;
+      process.env.QODER_CONFIG_DIR = profileDir;
       writeFileSync(
         join(profileDir, 'settings.json'),
         JSON.stringify({ omc: { deepInterview: { ambiguityThreshold: 0.17 } } }),
@@ -582,7 +582,7 @@ describe('Builtin Skills', () => {
       clearSkillsCache();
 
       const rendered = renderBundledSkillBody(
-        'oh-my-claudecode:deep-interview',
+        'oh-my-qoder:deep-interview',
         [
           'State:',
           '"threshold": 0.2,',
@@ -610,7 +610,7 @@ describe('Builtin Skills', () => {
       const projectDir = mkdtempSync(join(tmpdir(), 'omc-deep-dive-project-'));
       tempDirs.push(profileDir, projectDir);
 
-      process.env.CLAUDE_CONFIG_DIR = profileDir;
+      process.env.QODER_CONFIG_DIR = profileDir;
       writeFileSync(
         join(profileDir, 'settings.json'),
         JSON.stringify({ omc: { deepInterview: { ambiguityThreshold: 0.18 } } }),
@@ -646,7 +646,7 @@ describe('Builtin Skills', () => {
       const raw = readFileSync(join(originalCwd, 'skills', 'deep-dive', 'SKILL.md'), 'utf-8');
 
       expect(raw).toContain('Load runtime settings');
-      expect(raw).toContain('Read `[$CLAUDE_CONFIG_DIR|~/.claude]/settings.json` and `./.claude/settings.json`');
+      expect(raw).toContain('Read `[$QODER_CONFIG_DIR|~/.qoder]/settings.json` and `./.qoder/settings.json`');
       expect(raw).toContain('Resolve `omc.deepInterview.ambiguityThreshold` into `<resolvedThreshold>`');
       expect(raw).toContain('"threshold": <resolvedThreshold>,');
       expect(raw).toContain('Gate: ≤<resolvedThresholdPercent> ambiguity');
@@ -680,17 +680,17 @@ describe('Builtin Skills', () => {
     });
 
     it('rewrites built-in skill command examples to plugin-safe bridge invocations when omc is unavailable', () => {
-      process.env.CLAUDE_PLUGIN_ROOT = '/plugin-root';
+      process.env.QODER_PLUGIN_ROOT = '/plugin-root';
       process.env.PATH = '';
       // Simulate a non-Claude-session context: the ask-skill rewriter only keeps
-      // `omc ask` form when running *inside* an active Claude session, so we must
+      // `omc ask` form when running *inside* an active Qoder session, so we must
       // clear the session-detection vars that may leak in from the test runner.
-      const savedClaudeCode = process.env.CLAUDECODE;
+      const savedClaudeCode = process.env.QODER;
       const savedSessionId = process.env.CLAUDE_SESSION_ID;
-      const savedCodeSessionId = process.env.CLAUDECODE_SESSION_ID;
-      delete process.env.CLAUDECODE;
+      const savedCodeSessionId = process.env.QODER_SESSION_ID;
+      delete process.env.QODER;
       delete process.env.CLAUDE_SESSION_ID;
-      delete process.env.CLAUDECODE_SESSION_ID;
+      delete process.env.QODER_SESSION_ID;
       clearSkillsCache();
 
       try {
@@ -700,16 +700,16 @@ describe('Builtin Skills', () => {
         expect(deepInterviewSkill?.template)
           .toContain('zero-learning-curve setup lane for the stateful `autoresearch` skill');
         expect(deepInterviewSkill?.template)
-          .toContain('Skill("oh-my-claudecode:autoresearch")');
+          .toContain('Skill("oh-my-qoder:autoresearch")');
         expect(askSkill?.template)
-          .toContain('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs ask {{ARGUMENTS}}');
+          .toContain('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs ask {{ARGUMENTS}}');
       } finally {
-        if (savedClaudeCode === undefined) delete process.env.CLAUDECODE;
-        else process.env.CLAUDECODE = savedClaudeCode;
+        if (savedClaudeCode === undefined) delete process.env.QODER;
+        else process.env.QODER = savedClaudeCode;
         if (savedSessionId === undefined) delete process.env.CLAUDE_SESSION_ID;
         else process.env.CLAUDE_SESSION_ID = savedSessionId;
-        if (savedCodeSessionId === undefined) delete process.env.CLAUDECODE_SESSION_ID;
-        else process.env.CLAUDECODE_SESSION_ID = savedCodeSessionId;
+        if (savedCodeSessionId === undefined) delete process.env.QODER_SESSION_ID;
+        else process.env.QODER_SESSION_ID = savedCodeSessionId;
       }
     });
 
@@ -738,8 +738,8 @@ describe('Builtin Skills', () => {
       expect(skill?.template).toContain('This stage is approval-gated');
       expect(skill?.template).toContain('unless the user explicitly approves that next step');
       expect(skill?.template).not.toContain('Next skill: `autopilot`');
-      expect(skill?.template).not.toContain('Skill("oh-my-claudecode:autopilot")');
-      expect(skill?.template).not.toContain('3. Invoke Skill("oh-my-claudecode:autopilot")');
+      expect(skill?.template).not.toContain('Skill("oh-my-qoder:autopilot")');
+      expect(skill?.template).not.toContain('3. Invoke Skill("oh-my-qoder:autopilot")');
       expect(skill?.template).toContain('`.omc/plans/ralplan-*.md`');
     });
 
@@ -794,7 +794,7 @@ describe('Builtin Skills', () => {
       expect(skill).toBeDefined();
       expect(skill?.template).toContain('/omc-teams` only supports **`claude`**, **`codex`**, **`gemini`**, **`antigravity`**, **`grok`**, and **`cursor`**');
       expect(skill?.template).toContain('unsupported type such as `expert`');
-      expect(skill?.template).toContain('/oh-my-claudecode:team');
+      expect(skill?.template).toContain('/oh-my-qoder:team');
       expect(skill?.template).toContain('Cursor workers as executor-style only');
       expect(skill?.template).toContain('cursor-agent');
     });

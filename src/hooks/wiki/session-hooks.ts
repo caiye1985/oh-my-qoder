@@ -10,7 +10,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { getOmcRoot } from '../../lib/worktree-paths.js';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 import {
   getWikiDir,
   readIndex,
@@ -33,8 +33,8 @@ import type { WikiConfig } from './types.js';
 function loadWikiConfig(root: string): WikiConfig {
   try {
     const configPath = join(getOmcRoot(root), '.omc-config.json');
-    // Try active Claude config too
-    const activeConfigPath = join(getClaudeConfigDir(), '.omc-config.json');
+    // Try active Qoder config too
+    const activeConfigPath = join(getQoderConfigDir(), '.omc-config.json');
 
     for (const path of [configPath, activeConfigPath]) {
       if (existsSync(path)) {

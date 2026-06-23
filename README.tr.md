@@ -1,19 +1,19 @@
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Tiếng Việt](README.vi.md) | [Português](README.pt.md) | [Русский](README.ru.md) | Türkçe | [Deutsch](README.de.md) | [Français](README.fr.md) | [Italiano](README.it.md)
 
-# oh-my-claudecode
+# oh-my-qoder
 
-[![npm version](https://img.shields.io/npm/v/oh-my-claude-sisyphus?color=cb3837)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![npm downloads](https://img.shields.io/npm/dm/oh-my-claude-sisyphus?color=blue)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-claudecode?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-claudecode/stargazers)
+[![npm version](https://img.shields.io/npm/v/oh-my-qoder?color=cb3837)](https://www.npmjs.com/package/oh-my-qoder)
+[![npm downloads](https://img.shields.io/npm/dm/oh-my-qoder?color=blue)](https://www.npmjs.com/package/oh-my-qoder)
+[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-qoder?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-qoder/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Sponsor](https://img.shields.io/badge/Sponsor-❤️-red?style=flat&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 [![Discord](https://img.shields.io/discord/1452487457085063218?color=5865F2&logo=discord&logoColor=white&label=Discord)](https://discord.gg/sj4exxQ9v)
 
-**Claude Code için çoklu ajan orkestrasyonu. Sıfır öğrenme eğrisi.**
+**Qoder için çoklu ajan orkestrasyonu. Sıfır öğrenme eğrisi.**
 
-_Claude Code'u öğrenmeyin. Sadece OMC kullanın._
+_Qoder'u öğrenmeyin. Sadece OMC kullanın._
 
-[Başlangıç](#hızlı-başlangıç) • [Dokümantasyon](https://yeachan-heo.github.io/oh-my-claudecode-website) • [Geçiş Rehberi](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
+[Başlangıç](#hızlı-başlangıç) • [Dokümantasyon](https://yeachan-heo.github.io/oh-my-qoder-website) • [Geçiş Rehberi](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
 
 ---
 
@@ -22,17 +22,17 @@ _Claude Code'u öğrenmeyin. Sadece OMC kullanın._
 **Adım 1: Kurulum**
 
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 ```
 
 **Adım 2: Yapılandırma**
 
 ```bash
-/oh-my-claudecode:omc-setup
+/oh-my-qoder:omc-setup
 ```
 
-OMC'yi `omc --plugin-dir <path>` veya `claude --plugin-dir <path>` aracılığıyla çalıştırıyorsanız, `omc setup`'a `--plugin-dir-mode` ekleyin (veya `OMC_PLUGIN_ROOT`'u önceden dışa aktarın) böylece plugin zaten çalışma zamanında sağlayan beceri/ajanları duplike etmez. Tam karar matrisi ve mevcut tüm bayraklar için [REFERENCE.md'deki Plugin directory flags bölümüne](./docs/REFERENCE.md#plugin-directory-flags) bakın.
+OMC'yi `omc --plugin-dir <path>` veya `qodercli --plugin-dir <path>` aracılığıyla çalıştırıyorsanız, `omc setup`'a `--plugin-dir-mode` ekleyin (veya `OMC_PLUGIN_ROOT`'u önceden dışa aktarın) böylece plugin zaten çalışma zamanında sağlayan beceri/ajanları duplike etmez. Tam karar matrisi ve mevcut tüm bayraklar için [REFERENCE.md'deki Plugin directory flags bölümüne](./docs/REFERENCE.md#plugin-directory-flags) bakın.
 
 <!-- TODO(i18n): verify translation -->
 
@@ -49,52 +49,52 @@ Bu kadar. Geri kalan her şey otomatik.
 **v4.1.7** sürümünden itibaren, **Team** OMC'deki kanonik orkestrasyon yüzeyidir. **swarm** ve **ultrapilot** gibi eski giriş noktaları hâlâ desteklenmektedir, ancak artık **arka planda Team'e yönlendirilmektedir**.
 
 ```bash
-/oh-my-claudecode:team 3:executor "fix all TypeScript errors"
+/oh-my-qoder:team 3:executor "fix all TypeScript errors"
 ```
 
 Team aşamalı bir pipeline olarak çalışır:
 
 `team-plan → team-prd → team-exec → team-verify → team-fix (loop)`
 
-Claude Code native teams'i `~/.claude/settings.json` dosyasında etkinleştirin:
+Qoder native teams'i `~/.qoder/settings.json` dosyasında etkinleştirin:
 
 ```json
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "QODER_EXPERIMENTAL_AGENT_TEAMS": "1"
   }
 }
 ```
 
 > Teams devre dışıysa, OMC sizi uyaracak ve mümkün olduğunda Team olmadan çalışmaya geçecektir.
 
-> **Not: Paket adlandırması** — Proje **oh-my-claudecode** markasını kullanır (repo, plugin, komutlar), ancak npm paketi [`oh-my-claude-sisyphus`](https://www.npmjs.com/package/oh-my-claude-sisyphus) olarak yayınlanmaktadır. CLI araçlarını npm/bun ile kuruyorsanız, `npm install -g oh-my-claude-sisyphus` kullanın.
+> **Not: Paket adlandırması** — Proje **oh-my-qoder** markasını kullanır (repo, plugin, komutlar), ancak npm paketi [`oh-my-qoder`](https://www.npmjs.com/package/oh-my-qoder) olarak yayınlanmaktadır. CLI araçlarını npm/bun ile kuruyorsanız, `npm install -g oh-my-qoder` kullanın.
 
 ### Güncelleme
 
 ```bash
 # 1. Plugin'i güncelleyin
-/plugin install oh-my-claudecode
+/plugin install oh-my-qoder
 
 # 2. Yapılandırmayı yenilemek için setup'ı tekrar çalıştırın
-/oh-my-claudecode:omc-setup
+/oh-my-qoder:omc-setup
 ```
 
 Güncellemeden sonra sorun yaşarsanız, eski plugin önbelleğini temizleyin:
 
 ```bash
-/oh-my-claudecode:omc-doctor
+/oh-my-qoder:omc-doctor
 ```
 
 <h1 align="center">Claude'unuz süper güçlere kavuştu.</h1>
 
 <p align="center">
-  <img src="assets/omc-character.jpg" alt="oh-my-claudecode" width="400" />
+  <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
 </p>
 
 ---
 
-## Neden oh-my-claudecode?
+## Neden oh-my-qoder?
 
 - **Sıfır yapılandırma** — Akıllı varsayılanlarla kutudan çıktığı gibi çalışır
 - **Team-first orkestrasyon** — Team, kanonik çoklu ajan yüzeyidir (swarm/ultrapilot uyumluluk cephesidir)
@@ -111,7 +111,7 @@ Güncellemeden sonra sorun yaşarsanız, eski plugin önbelleğini temizleyin:
 
 ### Orkestrasyon Modları
 
-Farklı kullanım senaryoları için birden fazla strateji — Team destekli orkestrasyondan token-verimli yeniden düzenlemeye. [Daha fazla bilgi →](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#execution-modes)
+Farklı kullanım senaryoları için birden fazla strateji — Team destekli orkestrasyondan token-verimli yeniden düzenlemeye. [Daha fazla bilgi →](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#execution-modes)
 
 | Mod                           | Nedir                                                                                  | Kullanım Alanı                                                    |
 | ----------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
@@ -133,7 +133,7 @@ Farklı kullanım senaryoları için birden fazla strateji — Team destekli ork
 
 - **Sihirli anahtar kelimeler** — Açık kontrol için `ralph`, `ulw`, `eco`, `plan`
 - **HUD statusline** — Durum çubuğunuzda gerçek zamanlı orkestrasyon metrikleri
-  - Claude Code'u doğrudan `claude --plugin-dir <path>` ile başlatıyorsanız (`omc` shim'i atlayarak), shell'de `OMC_PLUGIN_ROOT=<path>` dışa aktarın, böylece HUD paketi plugin yükleyici ile aynı checkout'a çözülür. Ayrıntılar için [REFERENCE.md'deki Plugin directory flags bölümüne](./docs/REFERENCE.md#plugin-directory-flags) bakın.
+  - Qoder'u doğrudan `qodercli --plugin-dir <path>` ile başlatıyorsanız (`omc` shim'i atlayarak), shell'de `OMC_PLUGIN_ROOT=<path>` dışa aktarın, böylece HUD paketi plugin yükleyici ile aynı checkout'a çözülür. Ayrıntılar için [REFERENCE.md'deki Plugin directory flags bölümüne](./docs/REFERENCE.md#plugin-directory-flags) bakın.
 
   <!-- TODO(i18n): verify translation -->
 - **Beceri öğrenimi** — Oturumlarınızdan yeniden kullanılabilir kalıplar çıkarın
@@ -180,7 +180,7 @@ server.py:42'deki handler'ı try/except ClientDisconnectedError ile sarın...
 
 | Anahtar Kelime | Etki                                     | Örnek                                                           |
 | -------------- | ---------------------------------------- | --------------------------------------------------------------- |
-| `team`         | Kanonik Team orkestrasyonu               | `/oh-my-claudecode:team 3:executor "fix all TypeScript errors"` |
+| `team`         | Kanonik Team orkestrasyonu               | `/oh-my-qoder:team 3:executor "fix all TypeScript errors"` |
 | `autopilot`    | Tam otonom yürütme                       | `autopilot: build a todo app`                                   |
 | `ralph`        | Kalıcılık modu                           | `ralph: refactor auth`                                          |
 | `ulw`          | Maksimum paralellik                      | `ulw fix all errors`                                            |
@@ -199,7 +199,7 @@ server.py:42'deki handler'ı try/except ClientDisconnectedError ile sarın...
 
 ### Rate Limit Bekleme
 
-Rate limitler sıfırlandığında Claude Code oturumlarını otomatik olarak devam ettirir.
+Rate limitler sıfırlandığında Qoder oturumlarını otomatik olarak devam ettirir.
 
 ```bash
 omc wait          # Durumu kontrol et, rehberlik al
@@ -232,16 +232,16 @@ Etiket davranışı:
 
 ### OpenClaw Entegrasyonu
 
-Claude Code oturum olaylarını bir [OpenClaw](https://openclaw.ai/) ağ geçidine ileterek OpenClaw ajanınız aracılığıyla otomatik yanıtlar ve iş akışları oluşturun.
+Qoder oturum olaylarını bir [OpenClaw](https://openclaw.ai/) ağ geçidine ileterek OpenClaw ajanınız aracılığıyla otomatik yanıtlar ve iş akışları oluşturun.
 
 **Hızlı kurulum (önerilen):**
 
 ```bash
-/oh-my-claudecode:configure-notifications
+/oh-my-qoder:configure-notifications
 # → İstendiğinde "openclaw" yazın → "OpenClaw Gateway" seçin
 ```
 
-**Manuel kurulum:** `~/.claude/omc_config.openclaw.json` dosyasını oluşturun:
+**Manuel kurulum:** `~/.qoder/omc_config.openclaw.json` dosyasını oluşturun:
 
 ```json
 {
@@ -296,7 +296,7 @@ OpenClaw yüklerini özel bir HTTPS otomasyon uç noktasına ileten bir referans
 
 - **[Tam Referans](docs/REFERENCE.md)** — Kapsamlı özellik dokümantasyonu
 - **[Performans İzleme](docs/PERFORMANCE-MONITORING.md)** — Ajan takibi, hata ayıklama ve optimizasyon
-- **[Web Sitesi](https://yeachan-heo.github.io/oh-my-claudecode-website)** — İnteraktif rehberler ve örnekler
+- **[Web Sitesi](https://yeachan-heo.github.io/oh-my-qoder-website)** — İnteraktif rehberler ve örnekler
 - **[Geçiş Rehberi](docs/MIGRATION.md)** — v2.x'den yükseltme
 - **[Mimari](docs/ARCHITECTURE.md)** — Arka planda nasıl çalıştığı
 
@@ -304,8 +304,8 @@ OpenClaw yüklerini özel bir HTTPS otomasyon uç noktasına ileten bir referans
 
 ## Gereksinimler
 
-- [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- Claude Max/Pro aboneliği VEYA Anthropic API anahtarı
+- [Qoder](https://docs.anthropic.com/claude-code) CLI
+- Qoder Max/Pro aboneliği VEYA Anthropic API anahtarı
 
 ### İsteğe Bağlı: Çoklu AI Orkestrasyonu
 
@@ -316,7 +316,7 @@ OMC, çapraz doğrulama ve tasarım tutarlılığı için isteğe bağlı olarak
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` | Tasarım incelemesi, UI tutarlılığı (1M token bağlam) |
 | [Codex CLI](https://github.com/openai/codex)              | `npm install -g @openai/codex`      | Mimari doğrulama, kod incelemesi çapraz kontrolü     |
 
-**Maliyet:** 3 Pro plan (Claude + Gemini + ChatGPT) her şeyi aylık ~$60'a karşılar.
+**Maliyet:** 3 Pro plan (Qoder + Gemini + ChatGPT) her şeyi aylık ~$60'a karşılar.
 
 ---
 
@@ -336,11 +336,11 @@ MIT
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)
 
 ## 💖 Bu Projeyi Destekleyin
 
-Oh-My-ClaudeCode iş akışınıza yardımcı oluyorsa, sponsorluk yapmayı düşünün:
+Oh-My-Qoder iş akışınıza yardımcı oluyorsa, sponsorluk yapmayı düşünün:
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-❤️-red?style=for-the-badge&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 

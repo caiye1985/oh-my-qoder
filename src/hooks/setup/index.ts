@@ -11,7 +11,7 @@ import { existsSync, mkdirSync, readdirSync, statSync, lstatSync, unlinkSync, re
 import { join } from 'path';
 
 import { registerBeadsContext } from '../beads-context/index.js';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 import { getOmcRoot } from '../../lib/worktree-paths.js';
 
 // ============================================================================
@@ -132,18 +132,18 @@ export function setEnvironmentVariables(): string[] {
  *
  * The sh->find-node.sh->node chain introduced in v4.3.4 (issue #892) is only
  * needed on Unix where nvm/fnm may not expose `node` on PATH in non-interactive
- * shells.  On Windows (MSYS2 / Git Bash) the same chain triggers Claude Code UI
+ * shells.  On Windows (MSYS2 / Git Bash) the same chain triggers Qoder UI
  * bug #17088, which mislabels every successful hook as an error.
  *
  * This function reads the plugin's hooks.json and rewrites every command of the
  * current form:
- *   sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/X.mjs [args]
+ *   sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/X.mjs [args]
  * or stale absolute-shell cache form:
- *   "/bin/sh" "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/X.mjs [args]
+ *   "/bin/sh" "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/X.mjs [args]
  * or legacy form:
- *   sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" "${CLAUDE_PLUGIN_ROOT}/scripts/X.mjs" [args]
+ *   sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" "${QODER_PLUGIN_ROOT}/scripts/X.mjs" [args]
  * to:
- *   node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/X.mjs [args]
+ *   node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/X.mjs [args]
  *
  * The file is only written when at least one command was actually changed, so
  * the function is safe to call on every init (idempotent after first patch).
@@ -159,15 +159,15 @@ export function patchHooksJsonForWindows(pluginRoot: string): void {
     };
 
     // Matches current hooks.json:
-    // sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/X.mjs [optional args]
+    // sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/X.mjs [optional args]
     // Also matches older hotfix cache entries that hardcoded "/bin/sh".
     const currentPattern =
-      /^(?:"\/bin\/sh"|sh) "\$CLAUDE_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs "\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+      /^(?:"\/bin\/sh"|sh) "\$QODER_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs "\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
 
     // Matches legacy hooks.json:
-    // sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" "${CLAUDE_PLUGIN_ROOT}/scripts/X.mjs" [optional args]
+    // sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" "${QODER_PLUGIN_ROOT}/scripts/X.mjs" [optional args]
     const legacyPattern =
-      /^sh "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
+      /^sh "\$\{QODER_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{QODER_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
 
     let patched = false;
     for (const groups of Object.values(data.hooks ?? {})) {
@@ -176,7 +176,7 @@ export function patchHooksJsonForWindows(pluginRoot: string): void {
           if (typeof hook.command === 'string') {
             const m = hook.command.match(currentPattern) ?? hook.command.match(legacyPattern);
             if (m) {
-              hook.command = `node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/${m[1]}${m[2]}`;
+              hook.command = `node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/${m[1]}${m[2]}`;
               patched = true;
             }
           }
@@ -193,7 +193,7 @@ export function patchHooksJsonForWindows(pluginRoot: string): void {
 }
 
 /**
- * Ensure ~/.claude/hooks/lib/stdin.mjs points to the current plugin version.
+ * Ensure ~/.qoder/hooks/lib/stdin.mjs points to the current plugin version.
  *
  * This fixes a silent breakage that occurs when OMC upgrades to a new version:
  * the symlink stays pointing at the old version's cache dir, so hooks that
@@ -205,7 +205,7 @@ export function patchHooksJsonForWindows(pluginRoot: string): void {
  * Falls back to copy if symlink is unavailable on the platform.
  */
 export function ensureStdinSymlink(pluginRoot: string): void {
-  const libDstDir = join(getClaudeConfigDir(), 'hooks/lib');
+  const libDstDir = join(getQoderConfigDir(), 'hooks/lib');
   const libSrc = join(pluginRoot, 'templates/hooks/lib');
   const stdinSrc = join(libSrc, 'stdin.mjs');
   const stdinDst = join(libDstDir, 'stdin.mjs');
@@ -290,10 +290,10 @@ export async function processSetupInit(input: SetupInput): Promise<HookOutput> {
   };
 
   // On Windows, patch hooks.json to use direct node invocation (no sh wrapper).
-  // The sh->find-node.sh->node chain triggers Claude Code UI bug #17088 on
+  // The sh->find-node.sh->node chain triggers Qoder UI bug #17088 on
   // MSYS2/Git Bash, mislabeling every successful hook as an error (issue #899).
   // find-node.sh is only needed on Unix for nvm/fnm PATH discovery.
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  const pluginRoot = process.env.QODER_PLUGIN_ROOT;
   if (process.platform === 'win32') {
     if (pluginRoot) {
       patchHooksJsonForWindows(pluginRoot);

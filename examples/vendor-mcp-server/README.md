@@ -16,7 +16,7 @@ From the repo root:
 node examples/vendor-mcp-server/server.mjs
 ```
 
-## Register with Claude Code
+## Register with Qoder
 
 ```bash
 claude mcp add company-context -- node examples/vendor-mcp-server/server.mjs

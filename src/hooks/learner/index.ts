@@ -192,7 +192,7 @@ export function getAllSkills(projectRoot: string | null): LearnedSkill[] {
 }
 
 /**
- * Create the learned skills hook for Claude Code.
+ * Create the learned skills hook for Qoder.
  */
 export function createLearnedSkillsHook(projectRoot: string | null) {
   return {

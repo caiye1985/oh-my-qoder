@@ -44,7 +44,7 @@
 //   3. `extendLeaderBootstrapPrompt` produces a directive that is appended to
 //      the leader inbox file at startup; it is NOT injected into a leader-pane
 //      spawn prompt because v2 has no leader-pane prompt hook. The v2 leader
-//      runs in the parent Claude Code session and discovers the inbox via the
+//      runs in the parent Qoder session and discovers the inbox via the
 //      file path that gets written into the leader inbox itself.
 //
 //   4. Sentinel forgeability: `.hook-paused` is a plain file in the worktree
@@ -361,7 +361,7 @@ export async function startMergeOrchestrator(
   ensureMergerWorktree(config.repoRoot, mergerPath, config.leaderBranch);
   await ensureLeaderInbox(config.teamName, config.cwd);
 
-  // Stop harness overlay files (AGENTS.md, .claude/**) from blocking the
+  // Stop harness overlay files (AGENTS.md, .qoder/**) from blocking the
   // auto-merge/auto-rebase fan-out on infrastructure unrelated to the task.
   // Applies across the merger worktree and every worker worktree because they
   // share the common git dir (#3224).

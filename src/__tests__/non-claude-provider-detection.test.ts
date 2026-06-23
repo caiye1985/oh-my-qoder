@@ -15,18 +15,18 @@ import { loadConfig } from '../config/loader.js';
 describe('isNonClaudeProvider (issue #1201)', () => {
   const savedEnv: Record<string, string | undefined> = {};
   const envKeys = [
-    'CLAUDE_MODEL',
+    'QODER_MODEL',
     'ANTHROPIC_MODEL',
     'ANTHROPIC_BASE_URL',
     'OMC_ROUTING_FORCE_INHERIT',
-    'CLAUDE_CODE_USE_BEDROCK',
-    'CLAUDE_CODE_USE_VERTEX',
+    'QODER_USE_BEDROCK',
+    'QODER_USE_VERTEX',
     'OMC_MODEL_HIGH',
     'OMC_MODEL_MEDIUM',
     'OMC_MODEL_LOW',
-    'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-    'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-    'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+    'QODER_BEDROCK_OPUS_MODEL',
+    'QODER_BEDROCK_SONNET_MODEL',
+    'QODER_BEDROCK_HAIKU_MODEL',
     'ANTHROPIC_DEFAULT_OPUS_MODEL',
     'ANTHROPIC_DEFAULT_SONNET_MODEL',
     'ANTHROPIC_DEFAULT_HAIKU_MODEL',
@@ -53,8 +53,8 @@ describe('isNonClaudeProvider (issue #1201)', () => {
     expect(isNonClaudeProvider()).toBe(false);
   });
 
-  it('returns true when CLAUDE_MODEL is a non-Claude model', () => {
-    process.env.CLAUDE_MODEL = 'glm-5';
+  it('returns true when QODER_MODEL is a non-Claude model', () => {
+    process.env.QODER_MODEL = 'glm-5';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
@@ -63,8 +63,8 @@ describe('isNonClaudeProvider (issue #1201)', () => {
     expect(isNonClaudeProvider()).toBe(true);
   });
 
-  it('returns false when CLAUDE_MODEL contains "claude"', () => {
-    process.env.CLAUDE_MODEL = 'claude-sonnet-4-6';
+  it('returns false when QODER_MODEL contains "qoder"', () => {
+    process.env.QODER_MODEL = 'claude-sonnet-4-6';
     expect(isNonClaudeProvider()).toBe(false);
   });
 
@@ -84,12 +84,12 @@ describe('isNonClaudeProvider (issue #1201)', () => {
   });
 
   it('detects kimi model as non-Claude', () => {
-    process.env.CLAUDE_MODEL = 'kimi-k2';
+    process.env.QODER_MODEL = 'kimi-k2';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
-  it('is case-insensitive for Claude detection in model name', () => {
-    process.env.CLAUDE_MODEL = 'Claude-Sonnet-4-6';
+  it('is case-insensitive for Qoder detection in model name', () => {
+    process.env.QODER_MODEL = 'Claude-Sonnet-4-6';
     expect(isNonClaudeProvider()).toBe(false);
   });
 
@@ -105,18 +105,18 @@ describe('isNonClaudeProvider (issue #1201)', () => {
 
   // --- Bedrock detection ---
 
-  it('returns true when CLAUDE_CODE_USE_BEDROCK=1', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+  it('returns true when QODER_USE_BEDROCK=1', () => {
+    process.env.QODER_USE_BEDROCK = '1';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
   it('returns true for Bedrock model ID with us.anthropic prefix', () => {
-    process.env.CLAUDE_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
+    process.env.QODER_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
   it('returns true for Bedrock model ID with global.anthropic prefix', () => {
-    process.env.CLAUDE_MODEL = 'global.anthropic.claude-3-5-sonnet-20241022-v2:0';
+    process.env.QODER_MODEL = 'global.anthropic.claude-3-5-sonnet-20241022-v2:0';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
@@ -126,26 +126,26 @@ describe('isNonClaudeProvider (issue #1201)', () => {
   });
 
   it('returns true for Bedrock model ID with eu.anthropic prefix', () => {
-    process.env.CLAUDE_MODEL = 'eu.anthropic.claude-sonnet-4-6-v1:0';
+    process.env.QODER_MODEL = 'eu.anthropic.claude-sonnet-4-6-v1:0';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
   // --- Vertex AI detection ---
 
-  it('returns true when CLAUDE_CODE_USE_VERTEX=1', () => {
-    process.env.CLAUDE_CODE_USE_VERTEX = '1';
+  it('returns true when QODER_USE_VERTEX=1', () => {
+    process.env.QODER_USE_VERTEX = '1';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
   it('returns true for Vertex model ID with vertex_ai/ prefix', () => {
-    process.env.CLAUDE_MODEL = 'vertex_ai/claude-sonnet-4-5';
+    process.env.QODER_MODEL = 'vertex_ai/claude-sonnet-4-5';
     expect(isNonClaudeProvider()).toBe(true);
   });
 });
 
 describe('isBedrock()', () => {
   const savedEnv: Record<string, string | undefined> = {};
-  const envKeys = ['CLAUDE_CODE_USE_BEDROCK', 'CLAUDE_MODEL', 'ANTHROPIC_MODEL'];
+  const envKeys = ['QODER_USE_BEDROCK', 'QODER_MODEL', 'ANTHROPIC_MODEL'];
 
   beforeEach(() => {
     for (const key of envKeys) {
@@ -164,22 +164,22 @@ describe('isBedrock()', () => {
     }
   });
 
-  it('returns true when CLAUDE_CODE_USE_BEDROCK=1', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+  it('returns true when QODER_USE_BEDROCK=1', () => {
+    process.env.QODER_USE_BEDROCK = '1';
     expect(isBedrock()).toBe(true);
   });
 
-  it('returns false when CLAUDE_CODE_USE_BEDROCK is not set', () => {
+  it('returns false when QODER_USE_BEDROCK is not set', () => {
     expect(isBedrock()).toBe(false);
   });
 
-  it('returns false when CLAUDE_CODE_USE_BEDROCK=0', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '0';
+  it('returns false when QODER_USE_BEDROCK=0', () => {
+    process.env.QODER_USE_BEDROCK = '0';
     expect(isBedrock()).toBe(false);
   });
 
   it('detects us.anthropic.claude model ID pattern', () => {
-    process.env.CLAUDE_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
+    process.env.QODER_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
     expect(isBedrock()).toBe(true);
   });
 
@@ -189,12 +189,12 @@ describe('isBedrock()', () => {
   });
 
   it('detects bare anthropic.claude model ID pattern', () => {
-    process.env.CLAUDE_MODEL = 'anthropic.claude-3-haiku-20240307-v1:0';
+    process.env.QODER_MODEL = 'anthropic.claude-3-haiku-20240307-v1:0';
     expect(isBedrock()).toBe(true);
   });
 
   it('detects eu.anthropic.claude model ID pattern', () => {
-    process.env.CLAUDE_MODEL = 'eu.anthropic.claude-opus-4-6-v1:0';
+    process.env.QODER_MODEL = 'eu.anthropic.claude-opus-4-6-v1:0';
     expect(isBedrock()).toBe(true);
   });
 
@@ -204,12 +204,12 @@ describe('isBedrock()', () => {
   });
 
   it('does not match standard Claude model IDs', () => {
-    process.env.CLAUDE_MODEL = 'claude-sonnet-4-6';
+    process.env.QODER_MODEL = 'claude-sonnet-4-6';
     expect(isBedrock()).toBe(false);
   });
 
   it('does not match non-Claude model IDs', () => {
-    process.env.CLAUDE_MODEL = 'glm-5';
+    process.env.QODER_MODEL = 'glm-5';
     expect(isBedrock()).toBe(false);
   });
 
@@ -221,7 +221,7 @@ describe('isBedrock()', () => {
 
 describe('isVertexAI()', () => {
   const savedEnv: Record<string, string | undefined> = {};
-  const envKeys = ['CLAUDE_CODE_USE_VERTEX', 'CLAUDE_MODEL', 'ANTHROPIC_MODEL'];
+  const envKeys = ['QODER_USE_VERTEX', 'QODER_MODEL', 'ANTHROPIC_MODEL'];
 
   beforeEach(() => {
     for (const key of envKeys) {
@@ -240,22 +240,22 @@ describe('isVertexAI()', () => {
     }
   });
 
-  it('returns true when CLAUDE_CODE_USE_VERTEX=1', () => {
-    process.env.CLAUDE_CODE_USE_VERTEX = '1';
+  it('returns true when QODER_USE_VERTEX=1', () => {
+    process.env.QODER_USE_VERTEX = '1';
     expect(isVertexAI()).toBe(true);
   });
 
-  it('returns false when CLAUDE_CODE_USE_VERTEX is not set', () => {
+  it('returns false when QODER_USE_VERTEX is not set', () => {
     expect(isVertexAI()).toBe(false);
   });
 
-  it('returns false when CLAUDE_CODE_USE_VERTEX=0', () => {
-    process.env.CLAUDE_CODE_USE_VERTEX = '0';
+  it('returns false when QODER_USE_VERTEX=0', () => {
+    process.env.QODER_USE_VERTEX = '0';
     expect(isVertexAI()).toBe(false);
   });
 
-  it('detects vertex_ai/ prefix in CLAUDE_MODEL', () => {
-    process.env.CLAUDE_MODEL = 'vertex_ai/claude-sonnet-4-5';
+  it('detects vertex_ai/ prefix in QODER_MODEL', () => {
+    process.env.QODER_MODEL = 'vertex_ai/claude-sonnet-4-5';
     expect(isVertexAI()).toBe(true);
   });
 
@@ -265,17 +265,17 @@ describe('isVertexAI()', () => {
   });
 
   it('is case-insensitive for vertex_ai/ prefix', () => {
-    process.env.CLAUDE_MODEL = 'Vertex_AI/claude-sonnet-4-5';
+    process.env.QODER_MODEL = 'Vertex_AI/claude-sonnet-4-5';
     expect(isVertexAI()).toBe(true);
   });
 
   it('does not match standard Claude model IDs', () => {
-    process.env.CLAUDE_MODEL = 'claude-sonnet-4-6';
+    process.env.QODER_MODEL = 'claude-sonnet-4-6';
     expect(isVertexAI()).toBe(false);
   });
 
   it('does not match Bedrock model IDs', () => {
-    process.env.CLAUDE_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
+    process.env.QODER_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
     expect(isVertexAI()).toBe(false);
   });
 });
@@ -283,18 +283,18 @@ describe('isVertexAI()', () => {
 describe('loadConfig auto-enables forceInherit for non-Claude providers (issue #1201)', () => {
   const savedEnv: Record<string, string | undefined> = {};
   const envKeys = [
-    'CLAUDE_MODEL',
+    'QODER_MODEL',
     'ANTHROPIC_MODEL',
     'ANTHROPIC_BASE_URL',
     'OMC_ROUTING_FORCE_INHERIT',
-    'CLAUDE_CODE_USE_BEDROCK',
-    'CLAUDE_CODE_USE_VERTEX',
+    'QODER_USE_BEDROCK',
+    'QODER_USE_VERTEX',
     'OMC_MODEL_HIGH',
     'OMC_MODEL_MEDIUM',
     'OMC_MODEL_LOW',
-    'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-    'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-    'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+    'QODER_BEDROCK_OPUS_MODEL',
+    'QODER_BEDROCK_SONNET_MODEL',
+    'QODER_BEDROCK_HAIKU_MODEL',
     'ANTHROPIC_DEFAULT_OPUS_MODEL',
     'ANTHROPIC_DEFAULT_SONNET_MODEL',
     'ANTHROPIC_DEFAULT_HAIKU_MODEL',
@@ -317,8 +317,8 @@ describe('loadConfig auto-enables forceInherit for non-Claude providers (issue #
     }
   });
 
-  it('auto-enables forceInherit when CLAUDE_MODEL is non-Claude', () => {
-    process.env.CLAUDE_MODEL = 'glm-5';
+  it('auto-enables forceInherit when QODER_MODEL is non-Claude', () => {
+    process.env.QODER_MODEL = 'glm-5';
     const config = loadConfig();
     expect(config.routing?.forceInherit).toBe(true);
   });
@@ -344,7 +344,7 @@ describe('loadConfig auto-enables forceInherit for non-Claude providers (issue #
   });
 
   it('respects explicit OMC_ROUTING_FORCE_INHERIT=false even with non-Claude model', () => {
-    process.env.CLAUDE_MODEL = 'glm-5';
+    process.env.QODER_MODEL = 'glm-5';
     process.env.OMC_ROUTING_FORCE_INHERIT = 'false';
     const config = loadConfig();
     // User explicitly set forceInherit=false, but our auto-detection
@@ -362,8 +362,8 @@ describe('loadConfig auto-enables forceInherit for non-Claude providers (issue #
 
   // --- Bedrock integration ---
 
-  it('auto-enables forceInherit when CLAUDE_CODE_USE_BEDROCK=1', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+  it('auto-enables forceInherit when QODER_USE_BEDROCK=1', () => {
+    process.env.QODER_USE_BEDROCK = '1';
     const config = loadConfig();
     expect(config.routing?.forceInherit).toBe(true);
   });
@@ -375,7 +375,7 @@ describe('loadConfig auto-enables forceInherit for non-Claude providers (issue #
   });
 
   it('respects explicit OMC_ROUTING_FORCE_INHERIT=false even on Bedrock', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+    process.env.QODER_USE_BEDROCK = '1';
     process.env.OMC_ROUTING_FORCE_INHERIT = 'false';
     const config = loadConfig();
     expect(config.routing?.forceInherit).toBe(false);
@@ -383,14 +383,14 @@ describe('loadConfig auto-enables forceInherit for non-Claude providers (issue #
 
   // --- Vertex AI integration ---
 
-  it('auto-enables forceInherit when CLAUDE_CODE_USE_VERTEX=1', () => {
-    process.env.CLAUDE_CODE_USE_VERTEX = '1';
+  it('auto-enables forceInherit when QODER_USE_VERTEX=1', () => {
+    process.env.QODER_USE_VERTEX = '1';
     const config = loadConfig();
     expect(config.routing?.forceInherit).toBe(true);
   });
 
   it('auto-enables forceInherit when Vertex model ID is detected', () => {
-    process.env.CLAUDE_MODEL = 'vertex_ai/claude-sonnet-4-5';
+    process.env.QODER_MODEL = 'vertex_ai/claude-sonnet-4-5';
     const config = loadConfig();
     expect(config.routing?.forceInherit).toBe(true);
   });

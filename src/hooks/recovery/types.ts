@@ -1,7 +1,7 @@
 /**
  * Unified Recovery Types
  *
- * Type definitions for all recovery mechanisms in Claude Code.
+ * Type definitions for all recovery mechanisms in Qoder.
  */
 
 /**

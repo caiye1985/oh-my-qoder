@@ -1,21 +1,21 @@
 [English](README.md) | 한국어 | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Tiếng Việt](README.vi.md) | [Português](README.pt.md)
 
-# oh-my-claudecode
+# oh-my-qoder
 
-[![npm version](https://img.shields.io/npm/v/oh-my-claude-sisyphus?color=cb3837)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![npm downloads](https://img.shields.io/npm/dm/oh-my-claude-sisyphus?color=blue)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-claudecode?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-claudecode/stargazers)
+[![npm version](https://img.shields.io/npm/v/oh-my-qoder?color=cb3837)](https://www.npmjs.com/package/oh-my-qoder)
+[![npm downloads](https://img.shields.io/npm/dm/oh-my-qoder?color=blue)](https://www.npmjs.com/package/oh-my-qoder)
+[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-qoder?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-qoder/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Sponsor](https://img.shields.io/badge/Sponsor-❤️-red?style=flat&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 [![Discord](https://img.shields.io/discord/1452487457085063218?color=5865F2&logo=discord&logoColor=white&label=Discord)](https://discord.gg/sj4exxQ9v)
 
 > **Codex 사용자분들께:** [oh-my-codex](https://github.com/Yeachan-Heo/oh-my-codex)를 확인해보세요 — OpenAI Codex CLI를 위한 동일한 오케스트레이션 경험을 제공합니다.
 
-**Claude Code를 위한 멀티 에이전트 오케스트레이션. 학습 곡선 제로.**
+**Qoder를 위한 멀티 에이전트 오케스트레이션. 학습 곡선 제로.**
 
-*Claude Code를 배우지 마세요. 그냥 OMC를 쓰세요.*
+*Qoder를 배우지 마세요. 그냥 OMC를 쓰세요.*
 
-[시작하기](#빠른-시작) • [문서](https://yeachan-heo.github.io/oh-my-claudecode-website) • [CLI 레퍼런스](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#cli-reference) • [워크플로우](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#workflows) • [마이그레이션 가이드](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
+[시작하기](#빠른-시작) • [문서](https://yeachan-heo.github.io/oh-my-qoder-website) • [CLI 레퍼런스](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#cli-reference) • [워크플로우](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#workflows) • [마이그레이션 가이드](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
 
 ---
 
@@ -23,8 +23,8 @@
 
 **Step 1: 설치**
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 ```
 
 **Step 2: 설정**
@@ -32,7 +32,7 @@
 /omc-setup
 ```
 
-`omc --plugin-dir <path>` 또는 `claude --plugin-dir <path>`를 통해 OMC를 실행하는 경우 `omc setup`에 `--plugin-dir-mode`를 추가합니다(또는 미리 `OMC_PLUGIN_ROOT` 내보내기). 이렇게 하면 플러그인이 이미 런타임에 제공하는 스킬/에이전트가 중복되지 않습니다. 완전한 결정 매트릭스 및 사용 가능한 모든 플래그는 [REFERENCE.md의 Plugin directory flags 섹션](./docs/REFERENCE.md#plugin-directory-flags)을 참조하세요.
+`omc --plugin-dir <path>` 또는 `qodercli --plugin-dir <path>`를 통해 OMC를 실행하는 경우 `omc setup`에 `--plugin-dir-mode`를 추가합니다(또는 미리 `OMC_PLUGIN_ROOT` 내보내기). 이렇게 하면 플러그인이 이미 런타임에 제공하는 스킬/에이전트가 중복되지 않습니다. 완전한 결정 매트릭스 및 사용 가능한 모든 플래그는 [REFERENCE.md의 Plugin directory flags 섹션](./docs/REFERENCE.md#plugin-directory-flags)을 참조하세요.
 
 <!-- TODO(i18n): verify translation -->
 
@@ -65,12 +65,12 @@ Team은 단계별 파이프라인으로 실행됩니다:
 
 `team-plan → team-prd → team-exec → team-verify → team-fix (loop)`
 
-`~/.claude/settings.json`에서 Claude Code 네이티브 팀을 활성화하세요:
+`~/.qoder/settings.json`에서 Qoder 네이티브 팀을 활성화하세요:
 
 ```json
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "QODER_EXPERIMENTAL_AGENT_TEAMS": "1"
   }
 }
 ```
@@ -84,7 +84,7 @@ Team은 단계별 파이프라인으로 실행됩니다:
 ```bash
 omc team 2:codex "review auth module for security issues"
 omc team 2:gemini "redesign UI components for accessibility"
-omc team 1:claude "implement the payment flow"
+omc team 1:qoder "implement the payment flow"
 omc team status auth-review
 omc team shutdown auth-review
 ```
@@ -101,12 +101,12 @@ omc team shutdown auth-review
 |-------|---------|----------|
 | `omc team N:codex "..."` | N개 Codex CLI 창 | 코드 리뷰, 보안 분석, 아키텍처 |
 | `omc team N:gemini "..."` | N개 Gemini CLI 창 | UI/UX 디자인, 문서, 대용량 컨텍스트 |
-| `omc team N:claude "..."` | N개 Claude CLI 창 | tmux에서 Claude CLI를 통한 일반 작업 |
+| `omc team N:qoder "..."` | N개 Qoder CLI 창 | tmux에서 Qoder CLI를 통한 일반 작업 |
 | `/ccg` | ask-codex + ask-gemini | Codex+Gemini 조언을 Claude가 통합 |
 
 워커는 요청 시 생성되고 작업 완료 후 종료됩니다 — 유휴 리소스 낭비 없음. `codex` / `gemini` CLI가 설치되어 있고 활성 tmux 세션이 필요합니다.
 
-> **참고: 패키지 이름** — 프로젝트 브랜드명은 **oh-my-claudecode** (저장소, 플러그인, 명령어)이지만, npm 패키지는 [`oh-my-claude-sisyphus`](https://www.npmjs.com/package/oh-my-claude-sisyphus)로 배포됩니다. npm/bun으로 CLI 도구를 설치할 때는 `npm install -g oh-my-claude-sisyphus`를 사용하세요.
+> **참고: 패키지 이름** — 프로젝트 브랜드명은 **oh-my-qoder** (저장소, 플러그인, 명령어)이지만, npm 패키지는 [`oh-my-qoder`](https://www.npmjs.com/package/oh-my-qoder)로 배포됩니다. npm/bun으로 CLI 도구를 설치할 때는 `npm install -g oh-my-qoder`를 사용하세요.
 
 ### 업데이트
 
@@ -129,12 +129,12 @@ omc team shutdown auth-review
 <h1 align="center">당신의 Claude가 스테로이드를 맞았습니다.</h1>
 
 <p align="center">
-  <img src="assets/omc-character.jpg" alt="oh-my-claudecode" width="400" />
+  <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
 </p>
 
 ---
 
-## 왜 oh-my-claudecode인가?
+## 왜 oh-my-qoder인가?
 
 - **설정 불필요** - 똑똑한 기본값으로 바로 작동합니다
 - **Team 우선 오케스트레이션** - Team은 표준 멀티 에이전트 인터페이스입니다 (swarm/ultrapilot은 호환성 파사드)
@@ -150,7 +150,7 @@ omc team shutdown auth-review
 ## 기능
 
 ### 실행 모드
-다양한 사용 사례를 위한 여러 전략 - 완전 자율 빌드부터 토큰 효율적인 리팩토링까지. [자세히 보기 →](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#execution-modes)
+다양한 사용 사례를 위한 여러 전략 - 완전 자율 빌드부터 토큰 효율적인 리팩토링까지. [자세히 보기 →](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#execution-modes)
 
 | 모드 | 특징 | 용도 |
 |------|---------|---------|
@@ -173,7 +173,7 @@ omc team shutdown auth-review
 
 - **매직 키워드** - 명시적 제어를 위한 `ralph`, `ulw`, `team`
 - **HUD 상태바** - 상태바에서 실시간 오케스트레이션 메트릭 확인
-  - Claude Code를 `claude --plugin-dir <path>`로 직접 시작하는 경우 (OMC shim 우회), shell에서 `OMC_PLUGIN_ROOT=<path>`를 내보내 HUD 번들이 plugin 로더와 동일한 checkout으로 확인되도록 하세요. 자세한 내용은 [REFERENCE.md의 Plugin directory flags 섹션](./docs/REFERENCE.md#plugin-directory-flags)을 참조하세요.
+  - Qoder를 `qodercli --plugin-dir <path>`로 직접 시작하는 경우 (OMC shim 우회), shell에서 `OMC_PLUGIN_ROOT=<path>`를 내보내 HUD 번들이 plugin 로더와 동일한 checkout으로 확인되도록 하세요. 자세한 내용은 [REFERENCE.md의 Plugin directory flags 섹션](./docs/REFERENCE.md#plugin-directory-flags)을 참조하세요.
 
   <!-- TODO(i18n): verify translation -->
 - **스킬 학습** - 세션에서 재사용 가능한 패턴 추출
@@ -243,7 +243,7 @@ server.py:42의 핸들러를 try/except ClientDisconnectedError로 감싸세요.
 
 ### Rate Limit Wait
 
-속도 제한이 리셋될 때 Claude Code 세션을 자동 재개합니다.
+속도 제한이 리셋될 때 Qoder 세션을 자동 재개합니다.
 
 ```bash
 omc wait          # 상태 확인, 가이드 받기
@@ -277,16 +277,16 @@ omc config-stop-callback discord --clear-tags
 
 ### OpenClaw 연동
 
-Claude Code 세션 이벤트를 [OpenClaw](https://openclaw.ai/) 게이트웨이로 전달하여 OpenClaw 에이전트를 통한 자동화된 응답 및 워크플로우를 구성할 수 있습니다.
+Qoder 세션 이벤트를 [OpenClaw](https://openclaw.ai/) 게이트웨이로 전달하여 OpenClaw 에이전트를 통한 자동화된 응답 및 워크플로우를 구성할 수 있습니다.
 
 **빠른 설정 (권장):**
 
 ```bash
-/oh-my-claudecode:configure-notifications
+/oh-my-qoder:configure-notifications
 # → 프롬프트에서 "openclaw" 입력 → "OpenClaw Gateway" 선택
 ```
 
-**수동 설정:** `~/.claude/omc_config.openclaw.json` 파일을 생성합니다:
+**수동 설정:** `~/.qoder/omc_config.openclaw.json` 파일을 생성합니다:
 
 ```json
 {
@@ -340,11 +340,11 @@ OpenClaw 페이로드를 사용자 지정 HTTPS 자동화 엔드포인트로 전
 ## 문서
 
 - **[전체 레퍼런스](docs/REFERENCE.md)** - 완전한 기능 문서
-- **[CLI 레퍼런스](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#cli-reference)** - 모든 `omc` 명령어, 플래그 및 도구
-- **[알림 가이드](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#notifications)** - Discord, Telegram, Slack 및 webhook 설정
-- **[추천 워크플로우](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#workflows)** - 일반 작업을 위한 검증된 스킬 체인
-- **[릴리스 노트](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#release-notes)** - 각 버전의 새로운 기능
-- **[웹사이트](https://yeachan-heo.github.io/oh-my-claudecode-website)** - 인터랙티브 가이드와 예제
+- **[CLI 레퍼런스](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#cli-reference)** - 모든 `omc` 명령어, 플래그 및 도구
+- **[알림 가이드](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#notifications)** - Discord, Telegram, Slack 및 webhook 설정
+- **[추천 워크플로우](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#workflows)** - 일반 작업을 위한 검증된 스킬 체인
+- **[릴리스 노트](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#release-notes)** - 각 버전의 새로운 기능
+- **[웹사이트](https://yeachan-heo.github.io/oh-my-qoder-website)** - 인터랙티브 가이드와 예제
 - **[마이그레이션 가이드](docs/MIGRATION.md)** - v2.x에서 업그레이드
 - **[아키텍처](docs/ARCHITECTURE.md)** - 내부 작동 원리
 - **[성능 모니터링](docs/PERFORMANCE-MONITORING.md)** - 에이전트 추적, 디버깅 및 최적화
@@ -353,8 +353,8 @@ OpenClaw 페이로드를 사용자 지정 HTTPS 자동화 엔드포인트로 전
 
 ## 요구사항
 
-- [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- Claude Max/Pro 구독 또는 Anthropic API 키
+- [Qoder](https://docs.anthropic.com/claude-code) CLI
+- Qoder Max/Pro 구독 또는 Anthropic API 키
 
 ### 선택사항: 멀티 AI 오케스트레이션
 
@@ -365,7 +365,7 @@ OMC는 교차 검증과 디자인 일관성을 위해 외부 AI 제공자를 선
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` | 디자인 리뷰, UI 일관성 (1M 토큰 컨텍스트) |
 | [Codex CLI](https://github.com/openai/codex) | `npm install -g @openai/codex` | 아키텍처 검증, 코드 리뷰 교차 확인 |
 
-**비용:** 3개 Pro 플랜 (Claude + Gemini + ChatGPT)으로 월 ~$60에 모든 것을 커버합니다.
+**비용:** 3개 Pro 플랜 (Qoder + Gemini + ChatGPT)으로 월 ~$60에 모든 것을 커버합니다.
 
 ---
 
@@ -385,11 +385,11 @@ MIT
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)
 
 ## 💖 이 프로젝트 후원하기
 
-Oh-My-ClaudeCode가 당신의 워크플로우에 도움이 된다면, 후원을 고려해주세요:
+Oh-My-Qoder가 당신의 워크플로우에 도움이 된다면, 후원을 고려해주세요:
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-❤️-red?style=for-the-badge&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 

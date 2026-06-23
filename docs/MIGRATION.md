@@ -1,6 +1,6 @@
 # Migration Guide
 
-This guide covers all migration paths for oh-my-claudecode. Find your current version below.
+This guide covers all migration paths for oh-my-qoder. Find your current version below.
 
 ---
 
@@ -123,30 +123,30 @@ The following skills have been **completely removed** in v3.5.3:
 
 | Removed Skill        | Replacement                            |
 | -------------------- | -------------------------------------- |
-| `cancel-autopilot`   | `/oh-my-claudecode:cancel`             |
-| `cancel-ralph`       | `/oh-my-claudecode:cancel`             |
-| `cancel-ultrawork`   | `/oh-my-claudecode:cancel`             |
-| `cancel-ultraqa`     | `/oh-my-claudecode:cancel`             |
-| `omc-default`        | `/oh-my-claudecode:omc-setup --local`  |
-| `omc-default-global` | `/oh-my-claudecode:omc-setup --global` |
-| `planner`            | `/oh-my-claudecode:plan`               |
+| `cancel-autopilot`   | `/oh-my-qoder:cancel`             |
+| `cancel-ralph`       | `/oh-my-qoder:cancel`             |
+| `cancel-ultrawork`   | `/oh-my-qoder:cancel`             |
+| `cancel-ultraqa`     | `/oh-my-qoder:cancel`             |
+| `omc-default`        | `/oh-my-qoder:omc-setup --local`  |
+| `omc-default-global` | `/oh-my-qoder:omc-setup --global` |
+| `planner`            | `/oh-my-qoder:plan`               |
 
 ### What Changed
 
 **Before v3.5.3:**
 
 ```bash
-/oh-my-claudecode:cancel-ralph      # Cancel ralph specifically
-/oh-my-claudecode:omc-default       # Configure local project
-/oh-my-claudecode:planner "task"    # Start planning
+/oh-my-qoder:cancel-ralph      # Cancel ralph specifically
+/oh-my-qoder:omc-default       # Configure local project
+/oh-my-qoder:planner "task"    # Start planning
 ```
 
 **After v3.5.3:**
 
 ```bash
-/oh-my-claudecode:cancel            # Auto-detects and cancels any active mode
-/oh-my-claudecode:omc-setup --local # Configure local project
-/oh-my-claudecode:plan "task"       # Start planning (includes interview mode)
+/oh-my-qoder:cancel            # Auto-detects and cancels any active mode
+/oh-my-qoder:omc-setup --local # Configure local project
+/oh-my-qoder:plan "task"       # Start planning (includes interview mode)
 ```
 
 ### New Features
@@ -160,15 +160,15 @@ The following skills have been **completely removed** in v3.5.3:
 **Plan skill now supports consensus mode:**
 
 ```bash
-/oh-my-claudecode:plan --consensus "task"  # Iterative planning with Critic review
-/oh-my-claudecode:ralplan "task"           # Alias for plan --consensus
+/oh-my-qoder:plan --consensus "task"  # Iterative planning with Critic review
+/oh-my-qoder:ralplan "task"           # Alias for plan --consensus
 ```
 
 ### Migration Steps
 
 1. **No action required** - The unified `/cancel` command already worked in v3.5
 2. **Update any scripts** that reference removed commands
-3. **Re-run `/omc-setup`** if you want to update your CLAUDE.md configuration
+3. **Re-run `/omc-setup`** if you want to update your AGENTS.md configuration
 
 ### Skill Count
 
@@ -183,7 +183,7 @@ The following skills have been **completely removed** in v3.5.3:
 
 Your old commands still work! But now you don't need them.
 
-**Before 3.0:** Explicitly invoke 25+ commands like `/oh-my-claudecode:ralph "task"`, `/oh-my-claudecode:ultrawork "task"`
+**Before 3.0:** Explicitly invoke 25+ commands like `/oh-my-qoder:ralph "task"`, `/oh-my-qoder:ultrawork "task"`
 
 **After 3.0:** Just work naturally - Claude auto-activates the right behaviors. One-time setup: just say "setup omc"
 
@@ -191,15 +191,15 @@ Your old commands still work! But now you don't need them.
 
 The project was rebranded to better reflect its purpose and improve discoverability.
 
-- **Project/brand name**: `oh-my-claudecode` (GitHub repo, plugin name, commands)
-- **npm package name**: `oh-my-claude-sisyphus` (unchanged)
+- **Project/brand name**: `oh-my-qoder` (GitHub repo, plugin name, commands)
+- **npm package name**: `oh-my-qoder` (unchanged)
 
-> **Why the difference?** The npm package name `oh-my-claude-sisyphus` was kept for backward compatibility with existing installations. The project, GitHub repository, plugin, and all commands use `oh-my-claudecode`.
+> **Why the difference?** The npm package name `oh-my-qoder` was kept for backward compatibility with existing installations. The project, GitHub repository, plugin, and all commands use `oh-my-qoder`.
 
 #### NPM Install Command (unchanged)
 
 ```bash
-npm i -g oh-my-claude-sisyphus@latest
+npm i -g oh-my-qoder@latest
 ```
 
 ### What Changed
@@ -210,13 +210,13 @@ You had to remember and explicitly invoke specific commands for each mode:
 
 ```bash
 # 2.x workflow: Multiple commands, lots to remember
-/oh-my-claudecode:ralph "implement user authentication"       # Persistence mode
-/oh-my-claudecode:ultrawork "refactor the API layer"          # Maximum parallelism
-/oh-my-claudecode:planner "plan the new dashboard"            # Planning interview
-/oh-my-claudecode:deepsearch "find database schema files"     # Deep search
-/oh-my-claudecode:git-master "commit these changes"           # Git expertise
-/oh-my-claudecode:deepinit ./src                              # Index codebase
-/oh-my-claudecode:analyze "why is this test failing?"         # Deep analysis
+/oh-my-qoder:ralph "implement user authentication"       # Persistence mode
+/oh-my-qoder:ultrawork "refactor the API layer"          # Maximum parallelism
+/oh-my-qoder:planner "plan the new dashboard"            # Planning interview
+/oh-my-qoder:deepsearch "find database schema files"     # Deep search
+/oh-my-qoder:git-master "commit these changes"           # Git expertise
+/oh-my-qoder:deepinit ./src                              # Index codebase
+/oh-my-qoder:analyze "why is this test failing?"         # Deep analysis
 ```
 
 #### After (3.0): Auto-Activation + Keywords
@@ -247,7 +247,7 @@ Only update genuinely legacy or custom paths that predate the OMC layout:
 
 | Area | Old | New |
 | ---- | --- | --- |
-| Config file | `~/.claude/omc/mnemosyne.json` | `~/.claude/omc/learner.json` |
+| Config file | `~/.qoder/omc/mnemosyne.json` | `~/.qoder/omc/learner.json` |
 
 Environment variables that already use the `OMC_` prefix do not need renaming. Continue using the existing documented variables such as `OMC_LSP_TOOLS`, `OMC_PARALLEL_EXECUTION`, and `OMC_DEBUG`.
 
@@ -257,20 +257,20 @@ All 2.x commands continue to work. Here's what changed:
 
 | 2.x Command                            | 3.0 Equivalent                                     | Works?                 |
 | -------------------------------------- | -------------------------------------------------- | ---------------------- |
-| `/oh-my-claudecode:ralph "task"`       | Say "don't stop until done" OR use `ralph` keyword | ✅ YES (both ways)     |
-| `/oh-my-claudecode:ultrawork "task"`   | Say "fast" or "parallel" OR use `ulw` keyword      | ✅ YES (both ways)     |
-| `/oh-my-claudecode:ultrawork-ralph`    | Say "ralph ulw:" prefix                            | ✅ YES (keyword combo) |
-| `/oh-my-claudecode:planner "task"`     | Say "plan this" OR use `plan` keyword              | ✅ YES (both ways)     |
-| `/oh-my-claudecode:plan "description"` | Start planning naturally                           | ✅ YES                 |
-| `/oh-my-claudecode:review [path]`      | Invoke normally                                    | ✅ YES (unchanged)     |
-| `/oh-my-claudecode:deepsearch "query"` | Say "find" or "search"                             | ✅ YES (auto-detect)   |
-| `/oh-my-claudecode:analyze "target"`   | Say "analyze" — routes to debugger/architect agent | ✅ YES (keyword route) |
-| `/oh-my-claudecode:deepinit [path]`    | Invoke normally                                    | ✅ YES (unchanged)     |
-| `/oh-my-claudecode:git-master`         | Say "git", "commit", "atomic commit"               | ✅ YES (auto-detect)   |
-| `/oh-my-claudecode:frontend-ui-ux`     | Say "UI", "styling", "component", "design"         | ✅ YES (auto-detect)   |
-| `/oh-my-claudecode:note "content"`     | Say "remember this" or "save this"                 | ✅ YES (auto-detect)   |
-| `/oh-my-claudecode:cancel-ralph`       | Say "stop", "cancel", or "abort"                   | ✅ YES (auto-detect)   |
-| `/oh-my-claudecode:omc-doctor`         | Invoke normally                                    | ✅ YES (unchanged)     |
+| `/oh-my-qoder:ralph "task"`       | Say "don't stop until done" OR use `ralph` keyword | ✅ YES (both ways)     |
+| `/oh-my-qoder:ultrawork "task"`   | Say "fast" or "parallel" OR use `ulw` keyword      | ✅ YES (both ways)     |
+| `/oh-my-qoder:ultrawork-ralph`    | Say "ralph ulw:" prefix                            | ✅ YES (keyword combo) |
+| `/oh-my-qoder:planner "task"`     | Say "plan this" OR use `plan` keyword              | ✅ YES (both ways)     |
+| `/oh-my-qoder:plan "description"` | Start planning naturally                           | ✅ YES                 |
+| `/oh-my-qoder:review [path]`      | Invoke normally                                    | ✅ YES (unchanged)     |
+| `/oh-my-qoder:deepsearch "query"` | Say "find" or "search"                             | ✅ YES (auto-detect)   |
+| `/oh-my-qoder:analyze "target"`   | Say "analyze" — routes to debugger/architect agent | ✅ YES (keyword route) |
+| `/oh-my-qoder:deepinit [path]`    | Invoke normally                                    | ✅ YES (unchanged)     |
+| `/oh-my-qoder:git-master`         | Say "git", "commit", "atomic commit"               | ✅ YES (auto-detect)   |
+| `/oh-my-qoder:frontend-ui-ux`     | Say "UI", "styling", "component", "design"         | ✅ YES (auto-detect)   |
+| `/oh-my-qoder:note "content"`     | Say "remember this" or "save this"                 | ✅ YES (auto-detect)   |
+| `/oh-my-qoder:cancel-ralph`       | Say "stop", "cancel", or "abort"                   | ✅ YES (auto-detect)   |
+| `/oh-my-qoder:omc-doctor`         | Invoke normally                                    | ✅ YES (unchanged)     |
 | All other commands                     | Work exactly as before                             | ✅ YES                 |
 
 ### Magic Keywords
@@ -320,7 +320,7 @@ If in planning       → End planning interview
 If multiple active   → Stop the most recent
 ```
 
-No more `/oh-my-claudecode:cancel-ralph` - just say "cancel"!
+No more `/oh-my-qoder:cancel-ralph` - just say "cancel"!
 
 ### Migration Steps
 
@@ -329,18 +329,18 @@ Follow these steps to migrate your existing setup:
 #### 1. Uninstall Old Package (if installed via npm)
 
 ```bash
-npm uninstall -g oh-my-claude-sisyphus
+npm uninstall -g oh-my-qoder
 ```
 
 #### 2. Install via Plugin System
 
 ```bash
-# In Claude Code:
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+# In Qoder:
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 ```
 
-> **Note**: npm/bun global installs no longer provide the in-session plugin surface by themselves. Use the plugin system for slash commands, hooks, and skills; use the published npm package `oh-my-claude-sisyphus` when you need the terminal `omc` CLI.
+> **Note**: npm/bun global installs no longer provide the in-session plugin surface by themselves. Use the plugin system for slash commands, hooks, and skills; use the published npm package `oh-my-qoder` when you need the terminal `omc` CLI.
 
 #### 3. Preserve Existing OMC Directories
 
@@ -351,20 +351,20 @@ Do not rename current OMC directories. Existing project state in `.omc/` and glo
 If you still have the pre-3.0 learner config filename, rename only that file:
 
 ```bash
-mv ~/.claude/omc/mnemosyne.json ~/.claude/omc/learner.json
+mv ~/.qoder/omc/mnemosyne.json ~/.qoder/omc/learner.json
 ```
 
 #### 5. Review Scripts and Configurations
 
-Search your local scripts and docs for stale references to removed commands or the old config filename. Keep the npm package name as `oh-my-claude-sisyphus` for npm/bun installs; do not rewrite it to the project/plugin brand name.
+Search your local scripts and docs for stale references to removed commands or the old config filename. Keep the npm package name as `oh-my-qoder` for npm/bun installs; do not rewrite it to the project/plugin brand name.
 
 #### 6. Run One-Time Setup
 
-In Claude Code, just say "setup omc", "omc setup", or any natural language equivalent.
+In Qoder, just say "setup omc", "omc setup", or any natural language equivalent.
 
 This:
 
-- Downloads latest CLAUDE.md
+- Downloads latest AGENTS.md
 - Configures 32 agents
 - Enables auto-behavior detection
 - Activates continuation enforcement
@@ -377,7 +377,7 @@ After migration, verify your setup:
 1. **Check CLI installation, if you use the npm CLI surface**:
 
    ```bash
-   npm list -g oh-my-claude-sisyphus
+   npm list -g oh-my-qoder
    ```
 
 2. **Verify directories exist**:
@@ -388,7 +388,7 @@ After migration, verify your setup:
    ```
 
 3. **Test a simple command**:
-   Run `/oh-my-claudecode:omc-help` in Claude Code to ensure the plugin is loaded correctly.
+   Run `/oh-my-qoder:omc-help` in Qoder to ensure the plugin is loaded correctly.
 
 ### New Features in 3.0
 
@@ -397,7 +397,7 @@ After migration, verify your setup:
 **No commands to memorize.** Work naturally:
 
 ```
-Before: "OK, I need to use /oh-my-claudecode:ultrawork for speed..."
+Before: "OK, I need to use /oh-my-qoder:ultrawork for speed..."
 After:  "I'm in a hurry, go fast!"
         ↓
         Claude: "I'm activating ultrawork mode..."
@@ -419,9 +419,9 @@ Your request              Claude's action
 
 You don't ask for delegation - it happens automatically.
 
-#### 3. Learned Skills (`/oh-my-claudecode:skillify`)
+#### 3. Learned Skills (`/oh-my-qoder:skillify`)
 
-Extract reusable insights from problem-solving. `/oh-my-claudecode:learner` remains as a deprecated compatibility alias:
+Extract reusable insights from problem-solving. `/oh-my-qoder:learner` remains as a deprecated compatibility alias:
 
 ```bash
 # After solving a tricky bug:
@@ -435,7 +435,7 @@ Next time keywords match → Solution auto-injects
 Storage:
 
 - **Project-level**: `.omc/skills/` (intended to be committed with the repo; uncommitted worktree-local skills disappear when that worktree is removed)
-- **User-level**: `~/.claude/skills/omc-learned/` (portable)
+- **User-level**: `~/.qoder/skills/omc-learned/` (portable)
 
 #### 4. HUD Statusline (Real-Time Orchestration)
 
@@ -445,7 +445,7 @@ See what Claude is doing in the status bar:
 [OMC] ralph:3/10 | US-002 | ultrawork skill:planner | ctx:67% | agents:2 | todos:2/5
 ```
 
-Run `/oh-my-claudecode:hud setup` to install. Presets: minimal, focused, full.
+Run `/oh-my-qoder:hud setup` to install. Presets: minimal, focused, full.
 
 #### 5. Three-Tier Memory System
 
@@ -459,10 +459,10 @@ Permanently loaded on session start
 Never lost through compaction
 ```
 
-Or use `/oh-my-claudecode:note` to save discoveries manually:
+Or use `/oh-my-qoder:note` to save discoveries manually:
 
 ```bash
-/oh-my-claudecode:note Project uses PostgreSQL with Prisma ORM
+/oh-my-qoder:note Project uses PostgreSQL with Prisma ORM
 ```
 
 #### 6. Structured Task Tracking (PRD Support)
@@ -470,7 +470,7 @@ Or use `/oh-my-claudecode:note` to save discoveries manually:
 **Ralph Loop now uses Product Requirements Documents:**
 
 ```bash
-/oh-my-claudecode:ralph-init "implement OAuth with multiple providers"
+/oh-my-qoder:ralph-init "implement OAuth with multiple providers"
     ↓
 Auto-creates PRD with user stories
     ↓
@@ -565,7 +565,7 @@ Background agents can be resumed with full context via `resume-session` tool.
 Version 3.1 is a drop-in upgrade. No migration required!
 
 ```bash
-npm update -g oh-my-claude-sisyphus
+npm update -g oh-my-qoder
 ```
 
 All existing configurations, plans, and workflows continue working unchanged.
@@ -594,7 +594,7 @@ Version 3.4.0 introduces powerful parallel execution modes and advanced workflow
 Chain agents with data passing between stages:
 
 ```bash
-/oh-my-claudecode:pipeline explore:haiku -> architect:opus -> executor:sonnet
+/oh-my-qoder:pipeline explore:haiku -> architect:opus -> executor:sonnet
 ```
 
 **Built-in Presets:**
@@ -611,7 +611,7 @@ Chain agents with data passing between stages:
 Smart cancellation that auto-detects active mode:
 
 ```bash
-/oh-my-claudecode:cancel
+/oh-my-qoder:cancel
 # Or just say: "stop", "cancel", "abort"
 ```
 
@@ -620,12 +620,12 @@ Smart cancellation that auto-detects active mode:
 **Deprecation Notice:**
 Individual cancel commands are deprecated but still work:
 
-- `/oh-my-claudecode:cancel-ralph` (deprecated)
-- `/oh-my-claudecode:cancel-ultraqa` (deprecated)
-- `/oh-my-claudecode:cancel-ultrawork` (deprecated)
-- `/oh-my-claudecode:cancel-autopilot` (deprecated)
+- `/oh-my-qoder:cancel-ralph` (deprecated)
+- `/oh-my-qoder:cancel-ultraqa` (deprecated)
+- `/oh-my-qoder:cancel-ultrawork` (deprecated)
+- `/oh-my-qoder:cancel-autopilot` (deprecated)
 
-Use `/oh-my-claudecode:cancel` instead.
+Use `/oh-my-qoder:cancel` instead.
 
 #### 6. Explore-High Agent
 
@@ -633,7 +633,7 @@ Opus-powered architectural search for complex codebase exploration:
 
 ```typescript
 Task(
-  (subagent_type = "oh-my-claudecode:explore-high"),
+  (subagent_type = "oh-my-qoder:explore-high"),
   (model = "opus"),
   (prompt = "Find all authentication-related code patterns..."),
 );
@@ -666,14 +666,14 @@ When multiple execution mode keywords are present:
 **Explicit mode keywords:** `ulw`, `ultrawork`
 **Generic keywords:** `fast`, `parallel`
 
-Users set their default mode preference via `/oh-my-claudecode:omc-setup`.
+Users set their default mode preference via `/oh-my-qoder:omc-setup`.
 
 ### Migration Steps
 
 Version 3.4.0 is a drop-in upgrade. No migration required!
 
 ```bash
-npm update -g oh-my-claude-sisyphus
+npm update -g oh-my-qoder
 ```
 
 All existing configurations, plans, and workflows continue working unchanged.
@@ -682,7 +682,7 @@ All existing configurations, plans, and workflows continue working unchanged.
 
 #### Default Execution Mode
 
-Set your preferred execution mode in `~/.claude/.omc-config.json`:
+Set your preferred execution mode in `~/.qoder/.omc-config.json`:
 
 ```json
 {
@@ -742,13 +742,13 @@ After upgrading, verify new features:
 1. **Check CLI installation, if you use the npm CLI surface**:
 
    ```bash
-   npm list -g oh-my-claude-sisyphus
+   npm list -g oh-my-qoder
    ```
 
 2. **Test unified cancel**:
 
    ```bash
-   /oh-my-claudecode:cancel
+   /oh-my-qoder:cancel
    ```
 
 3. **Check state directory**:
@@ -797,7 +797,7 @@ Expected timeline: Q1 2026
 
 ### Stay Updated
 
-- Watch the [GitHub repository](https://github.com/Yeachan-Heo/oh-my-claudecode) for announcements
+- Watch the [GitHub repository](https://github.com/Yeachan-Heo/oh-my-qoder) for announcements
 - Check [CHANGELOG.md](../CHANGELOG.md) for detailed release notes
 - Join discussions in GitHub Issues
 
@@ -810,7 +810,7 @@ Expected timeline: Q1 2026
 **2.x Workflow:**
 
 ```
-/oh-my-claudecode:ultrawork "implement the todo list feature"
+/oh-my-qoder:ultrawork "implement the todo list feature"
 ```
 
 **3.0+ Workflow:**
@@ -828,7 +828,7 @@ Claude: "I'm activating ultrawork for maximum parallelism"
 **2.x Workflow:**
 
 ```
-/oh-my-claudecode:ralph "debug the memory leak"
+/oh-my-qoder:ralph "debug the memory leak"
 ```
 
 **3.0+ Workflow:**
@@ -846,7 +846,7 @@ Claude: "I'm activating ralph-loop to ensure completion"
 **2.x Workflow:**
 
 ```
-/oh-my-claudecode:planner "design the new authentication system"
+/oh-my-qoder:planner "design the new authentication system"
 ```
 
 **3.0+ Workflow:**
@@ -866,7 +866,7 @@ Interview begins automatically
 **2.x Workflow:**
 
 ```
-/oh-my-claudecode:cancel-ralph
+/oh-my-qoder:cancel-ralph
 ```
 
 **3.0+ Workflow:**
@@ -883,23 +883,23 @@ Interview begins automatically
 
 ### Project-Scoped Configuration (Recommended)
 
-Apply oh-my-claudecode to current project only:
+Apply oh-my-qoder to current project only:
 
 ```
-/oh-my-claudecode:omc-default
+/oh-my-qoder:omc-default
 ```
 
-Creates: `./.claude/CLAUDE.md`
+Creates: `./.qoder/AGENTS.md`
 
 ### Global Configuration
 
-Apply to all Claude Code sessions:
+Apply to all Qoder sessions:
 
 ```
-/oh-my-claudecode:omc-default-global
+/oh-my-qoder:omc-default-global
 ```
 
-Creates: `~/.claude/CLAUDE.md`
+Creates: `~/.qoder/AGENTS.md`
 
 **Precedence:** Project config overrides global if both exist.
 
@@ -914,10 +914,10 @@ A: No. Keywords are optional shortcuts. Claude auto-detects intent without them.
 A: No. All commands continue to work across minor versions (3.0 → 3.1). Major version changes (3.x → 4.0) will provide migration paths.
 
 **Q: What if I like explicit commands?**
-A: Keep using them! `/oh-my-claudecode:ralph`, `/oh-my-claudecode:ultrawork`, and `/oh-my-claudecode:plan` work. Note: `/oh-my-claudecode:planner` now redirects to `/oh-my-claudecode:plan`.
+A: Keep using them! `/oh-my-qoder:ralph`, `/oh-my-qoder:ultrawork`, and `/oh-my-qoder:plan` work. Note: `/oh-my-qoder:planner` now redirects to `/oh-my-qoder:plan`.
 
 **Q: How do I know what Claude is doing?**
-A: Claude announces major behaviors: "I'm activating ralph-loop..." or set up `/oh-my-claudecode:hud` for real-time status.
+A: Claude announces major behaviors: "I'm activating ralph-loop..." or set up `/oh-my-qoder:hud` for real-time status.
 
 **Q: Where's the full command list?**
 A: See [README.md](../README.md) for full command reference. All commands still work.
@@ -929,11 +929,11 @@ A: Keywords are explicit shortcuts. Natural language triggers auto-detection. Bo
 
 ## Need Help?
 
-- **Diagnose issues**: Run `/oh-my-claudecode:omc-doctor`
-- **See all commands**: Run `/oh-my-claudecode:omc-help`
-- **View real-time status**: Run `/oh-my-claudecode:hud setup`
+- **Diagnose issues**: Run `/oh-my-qoder:omc-doctor`
+- **See all commands**: Run `/oh-my-qoder:omc-help`
+- **View real-time status**: Run `/oh-my-qoder:hud setup`
 - **Review detailed changelog**: See [CHANGELOG.md](../CHANGELOG.md)
-- **Report bugs**: [GitHub Issues](https://github.com/Yeachan-Heo/oh-my-claudecode/issues)
+- **Report bugs**: [GitHub Issues](https://github.com/Yeachan-Heo/oh-my-qoder/issues)
 
 ---
 
@@ -942,8 +942,8 @@ A: Keywords are explicit shortcuts. Natural language triggers auto-detection. Bo
 Now that you understand the migration:
 
 1. **For immediate impact**: Start using keywords (`ralph`, `ulw`, `plan`) in your work
-2. **For full power**: Read [docs/CLAUDE.md](CLAUDE.md) to understand orchestration
+2. **For full power**: Read [docs/AGENTS.md](AGENTS.md) to understand orchestration
 3. **For advanced usage**: Check [docs/ARCHITECTURE.md](ARCHITECTURE.md) for deep dives
 4. **For team onboarding**: Share this guide with teammates
 
-Welcome to oh-my-claudecode!
+Welcome to oh-my-qoder!

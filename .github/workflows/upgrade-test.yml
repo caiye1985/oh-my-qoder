@@ -37,8 +37,8 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      # ── 2. Install Claude Code ────────────────────────────────────────────────
-      # Keep Claude Code installed in CI so the upgrade path still runs in a
+      # ── 2. Install Qoder ────────────────────────────────────────────────
+      # Keep Qoder installed in CI so the upgrade path still runs in a
       # realistic environment, but avoid relying on Claude runtime behavior for
       # hook verification. Step 6 validates the installed SessionStart hook
       # directly from repo-owned artifacts and therefore runs on push + PR.
@@ -50,12 +50,12 @@ jobs:
       # install fails with
       #   npm error ENOTEMPTY: directory not empty, rename
       #     '.../@anthropic-ai/claude-code' -> '.../@anthropic-ai/.claude-code-XXXX'
-      # (observed in run 27492794574). Install Claude Code into an isolated npm
+      # (observed in run 27492794574). Install Qoder into an isolated npm
       # global prefix under RUNNER_TEMP so the install never depends on or
       # mutates the shared toolcache global dir, and retry with a fresh prefix to
       # absorb any residual rename race. A persistent failure still exits
       # non-zero (we never swallow the final failure).
-      - name: Install Claude Code
+      - name: Install Qoder
         run: |
           set -euo pipefail
 
@@ -88,13 +88,13 @@ jobs:
           fi
 
           # Expose the isolated prefix bin dir to this and subsequent steps so
-          # `claude` resolves on PATH (e.g. the "Verify Claude Code is on PATH"
+          # `claude` resolves on PATH (e.g. the "Verify Qoder is on PATH"
           # step's `which claude`).
           echo "$CLAUDE_CODE_PREFIX/bin" >> "$GITHUB_PATH"
           export PATH="$CLAUDE_CODE_PREFIX/bin:$PATH"
-          claude --version
+          qodercli --version
 
-      - name: Verify Claude Code is on PATH
+      - name: Verify Qoder is on PATH
         run: which claude
 
       # ── 3. Install omc@4.9.3 via npm ────────────────────────────────────────
@@ -103,10 +103,10 @@ jobs:
       # ENOTEMPTY hardening: the global node_modules dir is reused across runs on
       # GitHub-hosted runners (and within the GitHub-hosted tool cache). A
       # previously interrupted `npm install -g` can leave behind the resolved
-      # package dir and/or npm's staging temp dirs (`.oh-my-claude-sisyphus-*`),
+      # package dir and/or npm's staging temp dirs (`.oh-my-qoder-*`),
       # which makes the next install fail with
-      #   npm ERR! ENOTEMPTY: directory not empty, rename '.../oh-my-claude-sisyphus'
-      #     -> '.../.oh-my-claude-sisyphus-XXXXXXXX'
+      #   npm ERR! ENOTEMPTY: directory not empty, rename '.../oh-my-qoder'
+      #     -> '.../.oh-my-qoder-XXXXXXXX'
       # and, on rerun, appear to hang. Remove any stale global package + npm
       # staging dirs before installing, then retry the install a few times so a
       # transient rename race does not fail the run. Persistent install failures
@@ -116,7 +116,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          PKG=oh-my-claude-sisyphus
+          PKG=oh-my-qoder
           GLOBAL_ROOT="$(npm root -g)"
 
           clean_stale_global_pkg() {
@@ -168,7 +168,7 @@ jobs:
       #   - Produce zero stderr
       # Any npm warnings, git warnings, or sync messages to stderr are failures.
       # Note: syncMarketplaceClone() is best-effort and skips gracefully when
-      # the marketplace clone (~/.claude/plugins/marketplaces/omc/) doesn't exist,
+      # the marketplace clone (~/.qoder/plugins/marketplaces/omc/) doesn't exist,
       # so CI runners with a fresh home directory are handled correctly.
       #
       # dev can legitimately carry a package/release-notes version bump before
@@ -196,13 +196,13 @@ jobs:
             echo "OMC_UPGRADE_TEST_TARBALL=$RUNNER_TEMP/$TARBALL_NAME"
           } >> "$GITHUB_ENV"
 
-          if npm view "oh-my-claude-sisyphus@$CURRENT_PACKAGE_VERSION" version >/dev/null 2>&1; then
+          if npm view "oh-my-qoder@$CURRENT_PACKAGE_VERSION" version >/dev/null 2>&1; then
             set +e
             GITHUB_LATEST_VERSION="$(node -e '
               const headers = { "User-Agent": "omc-upgrade-test" };
               if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
 
-              fetch("https://api.github.com/repos/Yeachan-Heo/oh-my-claudecode/releases/latest", { headers })
+              fetch("https://api.github.com/repos/Yeachan-Heo/oh-my-qoder/releases/latest", { headers })
                 .then(async response => {
                   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
                   const release = await response.json();
@@ -332,14 +332,14 @@ jobs:
       #   - the hook script runs successfully on representative SessionStart JSON
       #
       # This keeps upgrade coverage inside OMC-owned artifacts and avoids relying
-      # on external Claude CLI print-mode behavior in headless CI.
+      # on external Qoder CLI print-mode behavior in headless CI.
       - name: Verify SessionStart hook wiring and script
         run: |
           set -o pipefail
 
-          CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-          SESSION_HOOK="$CLAUDE_CONFIG_DIR/hooks/session-start.mjs"
-          SETTINGS_PATH="$CLAUDE_CONFIG_DIR/settings.json"
+          QODER_CONFIG_DIR="${QODER_CONFIG_DIR:-$HOME/.claude}"
+          SESSION_HOOK="$QODER_CONFIG_DIR/hooks/session-start.mjs"
+          SETTINGS_PATH="$QODER_CONFIG_DIR/settings.json"
 
           if [ ! -f "$SESSION_HOOK" ]; then
             echo "FAIL: missing SessionStart hook script at $SESSION_HOOK"

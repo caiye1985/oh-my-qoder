@@ -9,7 +9,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { getOmcRoot } from '../lib/worktree-paths.js';
 import type { McpWorkerMember, ConfigProbeResult } from './types.js';
 import { sanitizeName } from './tmux-session.js';
@@ -19,8 +19,8 @@ import { withFileLockSync } from '../lib/file-lock.js';
 // --- Config paths ---
 
 function configPath(teamName: string): string {
-  const result = join(getClaudeConfigDir(), 'teams', sanitizeName(teamName), 'config.json');
-  validateResolvedPath(result, join(getClaudeConfigDir(), 'teams'));
+  const result = join(getQoderConfigDir(), 'teams', sanitizeName(teamName), 'config.json');
+  validateResolvedPath(result, join(getQoderConfigDir(), 'teams'));
   return result;
 }
 
@@ -78,7 +78,7 @@ export function getRegistrationStrategy(workingDirectory: string): 'config' | 's
 export function registerMcpWorker(
   teamName: string,
   workerName: string,
-  provider: 'codex' | 'gemini' | 'claude',
+  provider: 'codex' | 'gemini' | 'qoder',
   model: string,
   tmuxTarget: string,
   cwd: string,

@@ -62,8 +62,8 @@ describe('omc ultragoal CLI', () => {
       await ultragoalCommand(['create-goals', '- First story\n- Second story']);
       expect(process.exitCode).toBe(0);
 
-      const goals = JSON.parse(await readFile(join(cwd, '.omc/ultragoal/goals.json'), 'utf-8')) as { goals: Array<{ id: string }>; claudeGoalMode: string };
-      expect(goals.claudeGoalMode).toBe('aggregate');
+      const goals = JSON.parse(await readFile(join(cwd, '.omc/ultragoal/goals.json'), 'utf-8')) as { goals: Array<{ id: string }>; qoderGoalMode: string };
+      expect(goals.qoderGoalMode).toBe('aggregate');
       expect(goals.goals.map((g) => g.id)).toEqual(['G001-first-story', 'G002-second-story']);
 
       const brief = await readFile(join(cwd, '.omc/ultragoal/brief.md'), 'utf-8');
@@ -75,7 +75,7 @@ describe('omc ultragoal CLI', () => {
     });
   });
 
-  it('complete-goals emits Claude /goal handoff text for the active story', async () => {
+  it('complete-goals emits Qoder /goal handoff text for the active story', async () => {
     await withTempCwd(async () => {
       await ultragoalCommand([
         'create-goals',
@@ -90,14 +90,14 @@ describe('omc ultragoal CLI', () => {
       const joined = captured.out.join('\n');
       expect(joined).toMatch(/Ultragoal aggregate-goal handoff/);
       expect(joined).toMatch(/invoke \/goal/);
-      expect(joined).toMatch(/--claude-goal-json/);
+      expect(joined).toMatch(/--qoder-goal-json/);
       expect(joined).toMatch(/Complete first milestone/);
       expect(joined).not.toMatch(/\bomx\b/);
       expect(joined).not.toMatch(/get_goal|create_goal|update_goal/);
     });
   });
 
-  it('checkpoint accepts a Claude /goal snapshot via inline JSON', async () => {
+  it('checkpoint accepts a Qoder /goal snapshot via inline JSON', async () => {
     await withTempCwd(async (cwd) => {
       await ultragoalCommand([
         'create-goals',
@@ -105,18 +105,18 @@ describe('omc ultragoal CLI', () => {
         '--goal', 'First::Complete first milestone.',
         '--goal', 'Second::Complete second milestone.',
       ]);
-      const plan = JSON.parse(await readFile(join(cwd, '.omc/ultragoal/goals.json'), 'utf-8')) as { claudeObjective: string };
+      const plan = JSON.parse(await readFile(join(cwd, '.omc/ultragoal/goals.json'), 'utf-8')) as { qoderObjective: string };
 
       await ultragoalCommand(['complete-goals']);
       captured.out.length = 0;
 
-      const snapshot = JSON.stringify({ goal: { objective: plan.claudeObjective, status: 'active' } });
+      const snapshot = JSON.stringify({ goal: { objective: plan.qoderObjective, status: 'active' } });
       await ultragoalCommand([
         'checkpoint',
         '--goal-id', 'G001-first',
         '--status', 'complete',
         '--evidence', 'unit tests passed',
-        '--claude-goal-json', snapshot,
+        '--qoder-goal-json', snapshot,
       ]);
       expect(process.exitCode).toBe(0);
 
@@ -126,18 +126,18 @@ describe('omc ultragoal CLI', () => {
     });
   });
 
-  it('checkpoint accepts a Claude /goal snapshot file path', async () => {
+  it('checkpoint accepts a Qoder /goal snapshot file path', async () => {
     await withTempCwd(async (cwd) => {
       await ultragoalCommand([
         'create-goals',
         '--brief', 'brief',
         '--goal', 'First::Complete first milestone.',
       ]);
-      const plan = JSON.parse(await readFile(join(cwd, '.omc/ultragoal/goals.json'), 'utf-8')) as { claudeObjective: string };
+      const plan = JSON.parse(await readFile(join(cwd, '.omc/ultragoal/goals.json'), 'utf-8')) as { qoderObjective: string };
       await ultragoalCommand(['complete-goals']);
 
       const snapshotPath = join(cwd, 'goal-snapshot.json');
-      await writeFile(snapshotPath, JSON.stringify({ goal: { objective: plan.claudeObjective, status: 'complete' } }));
+      await writeFile(snapshotPath, JSON.stringify({ goal: { objective: plan.qoderObjective, status: 'complete' } }));
       const qualityGate = {
         aiSlopCleaner: { status: 'passed', evidence: 'cleaner ran' },
         verification: { status: 'passed', commands: ['npm test'], evidence: 'tests passed' },
@@ -152,7 +152,7 @@ describe('omc ultragoal CLI', () => {
         '--goal-id', 'G001-first',
         '--status', 'complete',
         '--evidence', 'final gates passed',
-        '--claude-goal-json', 'goal-snapshot.json',
+        '--qoder-goal-json', 'goal-snapshot.json',
         '--quality-gate-json', 'quality.json',
       ]);
       expect(process.exitCode).toBe(0);

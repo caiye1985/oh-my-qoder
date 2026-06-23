@@ -6,7 +6,7 @@ import type { CliAgentType } from '../model-contract.js';
 
 const resolvedRouting = buildResolvedRoutingSnapshot({});
 const binaries: Partial<Record<CliAgentType, string>> = {
-  claude: '/usr/bin/claude',
+  qoder: '/usr/bin/claude',
   cursor: '/usr/bin/cursor-agent',
 };
 

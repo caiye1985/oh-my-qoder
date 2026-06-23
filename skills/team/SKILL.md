@@ -1,6 +1,6 @@
 ---
 name: team
-description: N coordinated agents on shared task list using Claude Code implicit agent teams
+description: N coordinated agents on shared task list using Qoder implicit agent teams
 argument-hint: "[N:agent-type] [ralph] <task description>"
 aliases: []
 level: 4
@@ -8,16 +8,16 @@ level: 4
 
 # Team Skill
 
-Spawn N coordinated agents working on a shared task list using Claude Code's implicit agent team. Claude Code 2.1.178+ removed native `TeamCreate`/`TeamDelete`; with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, each session has one implicit team and teammates are spawned directly with the Agent/Task tool using distinct `name` values. This skill still preserves OMC's legacy tmux/CLI worker orchestration where documented (`omc team` / `/omc-teams`).
+Spawn N coordinated agents working on a shared task list using Qoder's implicit agent team. Qoder 2.1.178+ removed native `TeamCreate`/`TeamDelete`; with `QODER_EXPERIMENTAL_AGENT_TEAMS=1`, each session has one implicit team and teammates are spawned directly with the Agent/Task tool using distinct `name` values. This skill still preserves OMC's legacy tmux/CLI worker orchestration where documented (`omc team` / `/omc-teams`).
 
 The `swarm` compatibility alias was removed in #1131.
 
 ## Usage
 
 ```
-/oh-my-claudecode:team N:agent-type "task description"
-/oh-my-claudecode:team "task description"
-/oh-my-claudecode:team ralph "task description"
+/oh-my-qoder:team N:agent-type "task description"
+/oh-my-qoder:team "task description"
+/oh-my-qoder:team ralph "task description"
 ```
 
 ### Parameters
@@ -52,7 +52,7 @@ User: "/team 3:executor fix all TypeScript errors"
               v
       [TEAM ORCHESTRATOR (Lead)]
               |
-              +-- Use the session's implicit Claude Code team
+              +-- Use the session's implicit Qoder team
               |       -> no TeamCreate call; lead remains current session
               |
               +-- Analyze & decompose task into subtasks
@@ -79,18 +79,18 @@ User: "/team 3:executor fix all TypeScript errors"
                       -> rm .omc/state/team-state.json
 ```
 
-**Native Claude Code team model (2.1.178+):**
+**Native Qoder team model (2.1.178+):**
 
 ```
-- No per-team ~/.claude/teams/<name>/ directory is created by this skill.
+- No per-team ~/.qoder/teams/<name>/ directory is created by this skill.
 - No TeamCreate/TeamDelete calls are available.
-- `team_name` is accepted by native Claude Code only as ignored legacy metadata; do not rely on it for routing.
+- `team_name` is accepted by native Qoder only as ignored legacy metadata; do not rely on it for routing.
 - Spawn teammates directly via Agent/Task with `name="worker-N"`.
 ```
 
 ## Goal Workflow Relationship
 
-Team is the OMC authority for parallel, staged execution. Use the deterministic conflict policies `refuse`, `adopt_existing`, and `artifact_only` rather than non-deterministic warning handling. If a task mentions Claude Code `/goal`, Ralph, UltraQA, or artifact-only Ultragoal, keep Team as the primary loop authority unless the leader explicitly hands off. Use `/goal` only as a documented native Claude Code handoff target or as visible evidence from the lead session; do not claim the `/goal` evaluator independently runs commands, reads files, or replaces `team-verify` / `team-fix`. Artifact-only Ultragoal references should be treated as durable goal ledger/checkpoint/evidence artifacts, not as worker execution by themselves.
+Team is the OMC authority for parallel, staged execution. Use the deterministic conflict policies `refuse`, `adopt_existing`, and `artifact_only` rather than non-deterministic warning handling. If a task mentions Qoder `/goal`, Ralph, UltraQA, or artifact-only Ultragoal, keep Team as the primary loop authority unless the leader explicitly hands off. Use `/goal` only as a documented native Qoder handoff target or as visible evidence from the lead session; do not claim the `/goal` evaluator independently runs commands, reads files, or replaces `team-verify` / `team-fix`. Artifact-only Ultragoal references should be treated as durable goal ledger/checkpoint/evidence artifacts, not as worker execution by themselves.
 
 ## Staged Pipeline (Canonical Team Runtime)
 
@@ -174,7 +174,7 @@ The lead writes handoffs to `.omc/handoffs/<stage-name>.md`.
 
 1. **Lead reads previous handoff BEFORE spawning next stage's agents.** The handoff content is included in the next stage's agent spawn prompts, ensuring agents start with full context.
 2. **Handoffs accumulate.** The verify stage can read all prior handoffs (plan → prd → exec) for full decision history.
-3. **On team cancellation, handoffs survive** in `.omc/handoffs/` for session resume. They are not deleted by native Claude Code team cleanup; no `TeamDelete` call exists in Claude Code 2.1.178+.
+3. **On team cancellation, handoffs survive** in `.omc/handoffs/` for session resume. They are not deleted by native Qoder team cleanup; no `TeamDelete` call exists in Qoder 2.1.178+.
 4. **Handoffs are lightweight.** 10-20 lines max. They capture decisions and rationale, not full specifications (those live in deliverable files like DESIGN.md).
 
 #### Example
@@ -192,7 +192,7 @@ The lead writes handoffs to `.omc/handoffs/<stage-name>.md`.
 ### Resume and Cancel Semantics
 
 - **Resume:** restart from the last non-terminal stage using staged state + live task status. Read `.omc/handoffs/` to recover stage transition context.
-- **Cancel:** `/oh-my-claudecode:cancel` requests teammate shutdown, waits for responses (best effort), marks phase `cancelled` with `active=false`, captures cancellation metadata, then deletes team resources and clears/preserves Team state per policy. Handoff files in `.omc/handoffs/` are preserved for potential resume.
+- **Cancel:** `/oh-my-qoder:cancel` requests teammate shutdown, waits for responses (best effort), marks phase `cancelled` with `active=false`, captures cancellation metadata, then deletes team resources and clears/preserves Team state per policy. Handoff files in `.omc/handoffs/` are preserved for potential resume.
 - Terminal states are `complete`, `failed`, and `cancelled`.
 
 ## Windows psmux tmux-compatible gate
@@ -225,9 +225,9 @@ Use `explore` or `architect` (via MCP or agent) to analyze the codebase and brea
 
 ### Phase 3: Initialize Team State
 
-Use the session's implicit Claude Code team. Do **not** call `TeamCreate`; Claude Code 2.1.178+ removed that tool and automatically gives the session one implicit team when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is enabled.
+Use the session's implicit Qoder team. Do **not** call `TeamCreate`; Qoder 2.1.178+ removed that tool and automatically gives the session one implicit team when `QODER_EXPERIMENTAL_AGENT_TEAMS=1` is enabled.
 
-Derive a slug such as `fix-ts-errors` for OMC state, prompt labels, handoffs, and human-readable reporting only. Native Claude Code may accept `team_name` as legacy metadata, but it is ignored for routing.
+Derive a slug such as `fix-ts-errors` for OMC state, prompt labels, handoffs, and human-readable reporting only. Native Qoder may accept `team_name` as legacy metadata, but it is ignored for routing.
 
 Write OMC state using the `state_write` MCP tool for proper session-scoped persistence:
 
@@ -252,7 +252,7 @@ state_write(mode="team", active=true, current_phase="team-plan", state={
 | ---------------- | ------- | --------------------------------------------------------------------------------------- |
 | `active`         | boolean | Whether team mode is active                                                             |
 | `current_phase`  | string  | Current pipeline stage: `team-plan`, `team-prd`, `team-exec`, `team-verify`, `team-fix` |
-| `team_name`      | string  | OMC slug for state, handoffs, and reporting; ignored by native Claude Code routing |
+| `team_name`      | string  | OMC slug for state, handoffs, and reporting; ignored by native Qoder routing |
 | `agent_count`    | number  | Number of worker agents                                                                 |
 | `agent_types`    | string  | Comma-separated agent types used in team-exec                                           |
 | `task`           | string  | Original task description                                                               |
@@ -327,11 +327,11 @@ For tasks with dependencies, update the active task-list entries after creation:
 
 ### Phase 5: Spawn Teammates
 
-Spawn N teammates directly using the Agent/Task tool with distinct `name` values. Each teammate gets the team worker preamble (see below) plus their specific assignment. Do **not** call `TeamCreate`, and do **not** rely on `team_name`; Claude Code 2.1.178+ ignores it for native routing.
+Spawn N teammates directly using the Agent/Task tool with distinct `name` values. Each teammate gets the team worker preamble (see below) plus their specific assignment. Do **not** call `TeamCreate`, and do **not** rely on `team_name`; Qoder 2.1.178+ ignores it for native routing.
 
 ```json
 {
-  "subagent_type": "oh-my-claudecode:executor",
+  "subagent_type": "oh-my-qoder:executor",
   "name": "worker-1",
   "prompt": "<worker-preamble + assigned tasks>"
 }
@@ -348,7 +348,7 @@ Spawn N teammates directly using the Agent/Task tool with distinct `name` values
 
 **Side effects:**
 
-- Teammate is spawned into the session's implicit Claude Code team
+- Teammate is spawned into the session's implicit Qoder team
 - An **internal task** is auto-created (with `metadata._internal: true`) tracking the agent lifecycle
 - Internal tasks may appear in task-list output -- filter them when counting real tasks
 
@@ -421,7 +421,7 @@ When all real tasks (non-internal) are completed or failed:
    }
    ```
 3. **Await responses** -- Each teammate responds with `shutdown_response(approve: true)` and terminates
-4. **Clean up native team state** -- Claude Code 2.1.178+ has no `TeamDelete`; after teammates acknowledge shutdown, clear OMC state and any local task bookkeeping.
+4. **Clean up native team state** -- Qoder 2.1.178+ has no `TeamDelete`; after teammates acknowledge shutdown, clear OMC state and any local task bookkeeping.
 5. **Clean OMC state** -- Remove `.omc/state/team-state.json`
 6. **Report summary** -- Present results to the user
 
@@ -479,7 +479,7 @@ Do NOT mark the task as completed. Leave it in_progress so the lead can reassign
 
 When composing teammate prompts, append a short addendum based on worker type:
 
-- `claude_worker`: Emphasize strict TodoWrite/task-list updates, active team/conversation messages, and no orchestration commands.
+- `qoder_worker`: Emphasize strict TodoWrite/task-list updates, active team/conversation messages, and no orchestration commands.
 - `codex_worker`: Emphasize CLI API lifecycle (`omc team api ... --json`) and explicit failure ACKs with stderr.
 - `gemini_worker`: Emphasize bounded file ownership and milestone ACKs after each completed sub-step.
 - `antigravity_worker`: Same expectations as `gemini_worker`; emphasize bounded file ownership and milestone ACKs after each completed sub-step.
@@ -558,18 +558,18 @@ Verify via TodoWrite or the active task-list surface — all real tasks (non-int
 }
 ```
 
-After approval, the teammate terminates or stops accepting new work. Claude Code 2.1.178+ does not expose per-team config membership or TeamDelete cleanup; track acknowledgements in OMC state/reporting instead.
+After approval, the teammate terminates or stops accepting new work. Qoder 2.1.178+ does not expose per-team config membership or TeamDelete cleanup; track acknowledgements in OMC state/reporting instead.
 
 **Step 4: Clear OMC team state — only after ALL teammates confirmed or timed out**
 
-Claude Code 2.1.178+ has no `TeamDelete`. Clear OMC team state and local task bookkeeping after the blocking shutdown pass completes.
+Qoder 2.1.178+ has no `TeamDelete`. Clear OMC team state and local task bookkeeping after the blocking shutdown pass completes.
 
 **Step 5: Orphan scan for OMC tmux/CLI workers only**
 
 For legacy OMC tmux/CLI worker runs (`omc team` / `/omc-teams`), check for worker processes that survived cleanup:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-orphans.mjs" --team-name fix-ts-errors
+node "${QODER_PLUGIN_ROOT}/scripts/cleanup-orphans.mjs" --team-name fix-ts-errors
 ```
 
 This scans for OMC worker processes matching the team name and terminates stale orphans (SIGTERM → 5s wait → SIGKILL). Supports `--dry-run` for inspection.
@@ -591,7 +591,7 @@ Tasks are tagged with an execution mode during decomposition:
 
 | Execution Mode  | Provider               | Capabilities                                                                                                                                                                               |
 | --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `claude_worker` | Claude agent           | Full Claude Code tool access (Read/Write/Edit/Bash/Task). Best for tasks needing Claude's reasoning + iterative tool use.                                                                  |
+| `qoder_worker` | Claude agent           | Full Qoder tool access (Read/Write/Edit/Bash/Task). Best for tasks needing Claude's reasoning + iterative tool use.                                                                  |
 | `codex_worker`  | Codex CLI (tmux pane)  | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for code review, security analysis, refactoring, architecture. Requires `npm install -g @openai/codex`. |
 | `gemini_worker`      | Gemini CLI (tmux pane)      | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for UI/design work, documentation, large-context tasks. Requires `npm install -g @google/gemini-cli` (enterprise/API-key tier). |
 | `antigravity_worker` | Antigravity CLI (tmux pane) | Full filesystem access in working_directory. Runs autonomously via tmux pane. Same strengths as gemini_worker; Google's successor to the Gemini CLI. Install per the [official instructions](https://antigravity.google) (`agy` binary). |
@@ -608,8 +608,8 @@ Tmux CLI workers run in dedicated tmux panes with filesystem access. They are **
 
 **Key difference from Claude teammates:**
 
-- CLI workers operate via tmux, not Claude Code's tool system
-- They cannot use Claude Code's native task-list or team messaging surfaces
+- CLI workers operate via tmux, not Qoder's tool system
+- They cannot use Qoder's native task-list or team messaging surfaces
 - They run as one-shot autonomous jobs, not persistent teammates
 - The lead manages their lifecycle (spawn, monitor, collect results)
 
@@ -634,8 +634,8 @@ Tmux CLI workers run in dedicated tmux panes with filesystem access. They are **
 Task decomposition:
 #1 [codex_worker] Security review of current auth code -> output to .omc/research/auth-security.md
 #2 [codex_worker] Refactor auth/login.ts and auth/session.ts (uses #1 findings)
-#3 [claude_worker:designer] Redesign auth UI components (login form, session indicator)
-#4 [claude_worker] Update auth tests + fix integration issues
+#3 [qoder_worker:designer] Redesign auth UI components (login form, session indicator)
+#4 [qoder_worker] Update auth tests + fix integration issues
 #5 [gemini_worker] Final code review of all changes
 ```
 
@@ -645,7 +645,7 @@ The lead runs #1 (Codex security analysis), then #2 and #3 in parallel (Codex re
 
 For large ambiguous tasks, run analysis before team creation:
 
-1. Spawn `Task(subagent_type="oh-my-claudecode:planner", ...)` with task description + codebase context
+1. Spawn `Task(subagent_type="oh-my-qoder:planner", ...)` with task description + codebase context
 2. Use the analysis to produce better task decomposition
 3. Create team and tasks with enriched context
 
@@ -709,7 +709,7 @@ if (status.taskSummary.pending === 0 && status.taskSummary.inProgress === 0) {
 | `shutdown_ack`  | Worker acknowledged shutdown -- safe to remove from team                                    |
 | `heartbeat`     | Update liveness tracking (redundant with heartbeat files but useful for latency monitoring) |
 
-This approach complements native team/conversation messaging by providing a pull-based mechanism for MCP workers that cannot use Claude Code's team messaging tools.
+This approach complements native team/conversation messaging by providing a pull-based mechanism for MCP workers that cannot use Qoder's team messaging tools.
 
 ## Error Handling
 
@@ -751,7 +751,7 @@ When the user invokes `/team ralph`, says "team ralph", or combines both keyword
 
 Team+Ralph activates when:
 
-1. User invokes `/team ralph "task"` or `/oh-my-claudecode:team ralph "task"`
+1. User invokes `/team ralph "task"` or `/oh-my-qoder:team ralph "task"`
 2. Keyword detector finds both `team` and `ralph` in the prompt
 3. Hook detects `MAGIC KEYWORD: RALPH` alongside team context
 
@@ -779,7 +779,7 @@ state_write(mode="ralph", active=true, iteration=1, max_iterations=10, current_p
 1. Ralph outer loop starts (iteration 1)
 2. Team pipeline runs: `team-plan -> team-prd -> team-exec -> team-verify`
 3. If `team-verify` passes: Ralph runs architect verification (STANDARD tier minimum)
-4. If architect approves: both modes complete, run `/oh-my-claudecode:cancel`
+4. If architect approves: both modes complete, run `/oh-my-qoder:cancel`
 5. If `team-verify` fails OR architect rejects: team enters `team-fix`, then loops back to `team-exec -> team-verify`
 6. If fix loop exceeds `max_fix_loops`: Ralph increments iteration and retries the full pipeline
 7. If Ralph exceeds `max_iterations`: terminal `failed` state
@@ -806,9 +806,9 @@ This prevents duplicate worker spawns and allows graceful recovery from lead fai
 
 ## Comparison: Team vs Legacy Swarm
 
-| Aspect                  | Team (Native Claude Code 2.1.178+)                              | Swarm (Legacy SQLite)                  |
+| Aspect                  | Team (Native Qoder 2.1.178+)                              | Swarm (Legacy SQLite)                  |
 | ----------------------- | ---------------------------------------------------------------- | -------------------------------------- |
-| **Storage**             | OMC state/handoffs plus Claude Code's current task-list surface   | SQLite in `.omc/state/swarm.db`        |
+| **Storage**             | OMC state/handoffs plus Qoder's current task-list surface   | SQLite in `.omc/state/swarm.db`        |
 | **Dependencies**        | `better-sqlite3` not needed                                      | Requires `better-sqlite3` npm package  |
 | **Task claiming**       | Lead pre-assigns named workers through task-list/TodoWrite state  | SQLite IMMEDIATE transaction -- atomic |
 | **Race conditions**     | Possible if two agents claim same task (mitigate by pre-assigning) | None (SQLite transactions)             |
@@ -822,11 +822,11 @@ This prevents duplicate worker spawns and allows graceful recovery from lead fai
 | **Crash recovery**      | Lead detects via missing messages, reassigns                      | Auto-release after 5-min lease timeout |
 | **State cleanup**       | Clear OMC team state after teammate shutdown                      | Manual `rm` of SQLite database         |
 
-**When to use Team over Swarm:** Always prefer `/team` for new native Claude Code work. It uses Claude Code's implicit agent team, requires no external dependencies, supports inter-agent coordination, and has task dependency management.
+**When to use Team over Swarm:** Always prefer `/team` for new native Qoder work. It uses Qoder's implicit agent team, requires no external dependencies, supports inter-agent coordination, and has task dependency management.
 
 ## Cancellation
 
-The `/oh-my-claudecode:cancel` skill handles team cleanup:
+The `/oh-my-qoder:cancel` skill handles team cleanup:
 
 1. Read team state via `state_read(mode="team")` to get `team_name` and `linked_ralph`
 2. Request shutdown from all active named teammates through the active team surface
@@ -867,14 +867,14 @@ When `OMC_TEAM_SCALING_ENABLED=1` is set, the team supports mid-session scaling:
 
 ## Configuration
 
-Optional settings live in `.claude/omc.jsonc` (project) or `~/.config/claude-omc/config.jsonc` (user). Project values override user values; `OMC_TEAM_ROLE_OVERRIDES` (env JSON) supersedes both.
+Optional settings live in `.qoder/omc.jsonc` (project) or `~/.config/qoder-omc/config.jsonc` (user). Project values override user values; `OMC_TEAM_ROLE_OVERRIDES` (env JSON) supersedes both.
 
 ```jsonc
 {
   "team": {
     "ops": {
       "maxAgents": 20,
-      "defaultAgentType": "claude",
+      "defaultAgentType": "qoder",
       "monitorIntervalMs": 30000,
       "shutdownTimeoutMs": 15000,
     },
@@ -887,7 +887,7 @@ Optional settings live in `.claude/omc.jsonc` (project) or `~/.config/claude-omc
 - **ops.monitorIntervalMs** - How often to review TodoWrite or the active task-list surface (default: 30s)
 - **ops.shutdownTimeoutMs** - How long to wait for shutdown responses (default: 15s)
 
-> **Note:** Team members do not have a hardcoded model default. Each teammate is a separate Claude Code session that inherits the user's configured model. Since teammates can spawn their own subagents, the session model acts as the orchestration layer while subagents can use any model tier.
+> **Note:** Team members do not have a hardcoded model default. Each teammate is a separate Qoder session that inherits the user's configured model. Since teammates can spawn their own subagents, the session model acts as the orchestration layer while subagents can use any model tier.
 
 ## Per-Role Provider & Model Routing
 
@@ -898,14 +898,14 @@ Declare which provider (`claude`, `codex`, `gemini`, `antigravity`, `grok`, `cur
 ### Example — user target mapping
 
 ```jsonc
-// .claude/omc.jsonc
+// .qoder/omc.jsonc
 {
   "team": {
     "roleRouting": {
       "orchestrator": { "model": "inherit" },
-      "planner": { "provider": "claude", "model": "HIGH" },
-      "analyst": { "provider": "claude", "model": "HIGH" },
-      "executor": { "provider": "claude", "model": "MEDIUM" },
+      "planner": { "provider": "qoder", "model": "HIGH" },
+      "analyst": { "provider": "qoder", "model": "HIGH" },
+      "executor": { "provider": "qoder", "model": "MEDIUM" },
       "debugger": { "provider": "cursor" },
       "critic": { "provider": "codex" },
       "code-reviewer": { "provider": "gemini" },
@@ -934,7 +934,7 @@ User-friendly aliases normalize via `normalizeDelegationRole()` — e.g. `review
 
 ### Spec fields (`TeamRoleAssignmentSpec`)
 
-- **provider** — `"claude" | "codex" | "gemini" | "antigravity" | "grok" | "cursor"`. Omitted → defaults to `claude`.
+- **provider** — `"qoder" | "codex" | "gemini" | "antigravity" | "grok" | "cursor"`. Omitted → defaults to `claude`.
 - **model** — tier name (`"HIGH" | "MEDIUM" | "LOW"`) or an explicit model ID. Tiers resolve through `routing.tierModels`.
 - **agent** — optional Claude agent name (e.g. `"critic"`, `"executor"`). Only honored when the resolved provider is `claude`.
 
@@ -948,11 +948,11 @@ User-friendly aliases normalize via `normalizeDelegationRole()` — e.g. `review
 OMC_TEAM_ROLE_OVERRIDES='{"critic":{"provider":"codex"},"code-reviewer":{"provider":"gemini"}}'
 ```
 
-Precedence: `OMC_TEAM_ROLE_OVERRIDES` > `.claude/omc.jsonc` (project) > `~/.config/claude-omc/config.jsonc` (user) > built-in defaults. Invalid JSON logs a warning and is ignored — env overrides are best-effort and never abort the run.
+Precedence: `OMC_TEAM_ROLE_OVERRIDES` > `.qoder/omc.jsonc` (project) > `~/.config/qoder-omc/config.jsonc` (user) > built-in defaults. Invalid JSON logs a warning and is ignored — env overrides are best-effort and never abort the run.
 
 ### Fallback when a CLI is missing
 
-If the CLI for a configured provider is absent from `PATH` at spawn time, `buildLaunchArgs()` throws, the team lead emits a visible team/conversation warning, and the runtime falls back to a deterministic Claude assignment pre-computed by `buildResolvedRoutingSnapshot` (same tier + same agent, `provider: "claude"`). Fallback is loud by design — silent fallback is a test failure. Probe provider availability with `omc doctor --team-routing`.
+If the CLI for a configured provider is absent from `PATH` at spawn time, `buildLaunchArgs()` throws, the team lead emits a visible team/conversation warning, and the runtime falls back to a deterministic Claude assignment pre-computed by `buildResolvedRoutingSnapshot` (same tier + same agent, `provider: "qoder"`). Fallback is loud by design — silent fallback is a test failure. Probe provider availability with `omc doctor --team-routing`.
 
 ### Stickiness — resolved once, reused everywhere
 
@@ -966,7 +966,7 @@ An empty `team.roleRouting` preserves pre-patch behavior: every worker is Claude
 
 On successful completion:
 
-1. Native Claude Code 2.1.178+ has no per-team `TeamDelete` cleanup. After shutdown is confirmed or timed out, clear OMC state via MCP tools:
+1. Native Qoder 2.1.178+ has no per-team `TeamDelete` cleanup. After shutdown is confirmed or timed out, clear OMC state via MCP tools:
    ```
    state_clear(mode="team")
    ```
@@ -975,7 +975,7 @@ On successful completion:
    state_clear(mode="ralph")
    ```
 2. For legacy OMC tmux/CLI workers, run the documented `omc team shutdown` / cleanup path.
-3. Or run `/oh-my-claudecode:cancel` which handles OMC state cleanup automatically.
+3. Or run `/oh-my-qoder:cancel` which handles OMC state cleanup automatically.
 
 **IMPORTANT:** Clear OMC team state only AFTER all teammates have been shut down or timed out.
 
@@ -1014,19 +1014,19 @@ MCP workers can operate in isolated git worktrees to prevent file conflicts betw
 
 ## Gotchas
 
-1. **Internal/lifecycle task entries may pollute task-list output** -- If Claude Code reports internal lifecycle entries for spawned teammates, filter them when counting real task progress. The subject of an internal task is often the teammate's name.
+1. **Internal/lifecycle task entries may pollute task-list output** -- If Qoder reports internal lifecycle entries for spawned teammates, filter them when counting real task progress. The subject of an internal task is often the teammate's name.
 
 2. **No atomic claiming** -- Unlike SQLite swarm, native task-list/TodoWrite state does not provide transactional claiming. Two teammates could race to claim the same task. **Mitigation:** The lead should pre-assign owners before spawning teammates. Teammates should only work on tasks assigned to them.
 
 3. **Task IDs are strings when exposed by task-list tools** -- IDs may be auto-incrementing strings ("1", "2", "3"), not integers. Always pass string values to `taskId` fields when using task-list tools.
 
-4. **No TeamDelete cleanup** -- Claude Code 2.1.178+ removed `TeamDelete`; use shutdown messages plus OMC state cleanup.
+4. **No TeamDelete cleanup** -- Qoder 2.1.178+ removed `TeamDelete`; use shutdown messages plus OMC state cleanup.
 
 5. **Messages are auto-delivered** -- Teammate messages arrive to the lead as new conversation turns. No polling or inbox-checking is needed for inbound messages. However, if the lead is mid-turn (processing), messages queue and deliver when the turn ends.
 
 6. **Do not put secrets in teammate prompts** -- Prompts can be retained in logs, state, or conversation history. Keep credentials and sensitive data out of teammate prompts.
 
-7. **Shutdown acknowledgements are state/reporting events** -- After a teammate approves shutdown and terminates, track that acknowledgement in OMC state/reporting. Do not expect a Claude Code team membership config to update.
+7. **Shutdown acknowledgements are state/reporting events** -- After a teammate approves shutdown and terminates, track that acknowledgement in OMC state/reporting. Do not expect a Qoder team membership config to update.
 
 8. **shutdown_response needs request_id** -- The teammate must extract the `request_id` from the incoming shutdown request JSON and pass it back. The format is `shutdown-{timestamp}@{worker-name}`. Fabricating this ID will cause the shutdown to fail silently.
 
@@ -1034,7 +1034,7 @@ MCP workers can operate in isolated git worktrees to prevent file conflicts betw
 
 10. **Broadcast is expensive** -- Each broadcast sends a separate message to every teammate. Use `message` (DM) by default. Only broadcast for truly team-wide critical alerts.
 
-11. **CLI workers are one-shot, not persistent** -- Tmux CLI workers have full filesystem access and CAN make code changes. However, they run as autonomous one-shot jobs -- they cannot use Claude Code's native task-list or team messaging surfaces. The lead must manage their lifecycle: write prompt_file, spawn CLI worker, read output_file, mark task complete. They don't participate in team communication like Claude teammates do.
+11. **CLI workers are one-shot, not persistent** -- Tmux CLI workers have full filesystem access and CAN make code changes. However, they run as autonomous one-shot jobs -- they cannot use Qoder's native task-list or team messaging surfaces. The lead must manage their lifecycle: write prompt_file, spawn CLI worker, read output_file, mark task complete. They don't participate in team communication like Claude teammates do.
 
 ## Parallel session caveats
 

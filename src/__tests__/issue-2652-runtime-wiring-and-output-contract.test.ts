@@ -47,7 +47,7 @@ describe('issue #2652 runtime wiring and output contract', () => {
         encoding: 'utf-8',
         env: {
           ...process.env,
-          CLAUDE_PLUGIN_ROOT: pluginRoot,
+          QODER_PLUGIN_ROOT: pluginRoot,
           HOME: join(tempRoot, 'home'),
           OMC_STATE_DIR: join(tempRoot, 'state'),
           IDLE_MARKER_PATH: markerPath,

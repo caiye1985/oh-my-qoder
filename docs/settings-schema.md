@@ -2,8 +2,8 @@
 
 This page documents OMC-owned configuration keys in the standard OMC config files:
 
-- Project: `.claude/omc.jsonc`
-- User: `~/.config/claude-omc/config.jsonc`
+- Project: `.qoder/omc.jsonc`
+- User: `~/.config/qoder-omc/config.jsonc`
 
 Project config overrides user config.
 

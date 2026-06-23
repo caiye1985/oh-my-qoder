@@ -1,7 +1,7 @@
 #!/bin/sh
 # OMC HUD cached statusLine launcher.
 #
-# Claude Code invokes statusLine commands for every render. Starting Node and
+# Qoder invokes statusLine commands for every render. Starting Node and
 # importing the HUD bundle each time can take hundreds of milliseconds, which
 # makes the first frame blank/flickery. This POSIX wrapper keeps the statusLine
 # protocol unchanged (stdin JSON in, one line out) while making the hot path a
@@ -13,7 +13,7 @@ case "$0" in
   *) SCRIPT_DIR=. ;;
 esac
 SCRIPT_DIR=$(cd "$SCRIPT_DIR" 2>/dev/null && pwd -P) || SCRIPT_DIR=.
-CONFIG_DIR=${CLAUDE_CONFIG_DIR:-$(cd "$SCRIPT_DIR/.." 2>/dev/null && pwd -P)}
+CONFIG_DIR=${QODER_CONFIG_DIR:-$(cd "$SCRIPT_DIR/.." 2>/dev/null && pwd -P)}
 CACHE_DIR=${OMC_HUD_CACHE_DIR:-"$CONFIG_DIR/hud/cache"}
 HUD_SCRIPT=${1:-"$SCRIPT_DIR/omc-hud.mjs"}
 INPUT_TMP="$CACHE_DIR/stdin.$$.tmp"
@@ -75,8 +75,8 @@ SESSION_KEY=$(extract_json_string session_id)
 if [ -z "$SESSION_KEY" ] && [ -n "${CLAUDE_SESSION_ID:-}" ]; then
   SESSION_KEY=$CLAUDE_SESSION_ID
 fi
-if [ -z "$SESSION_KEY" ] && [ -n "${CLAUDECODE_SESSION_ID:-}" ]; then
-  SESSION_KEY=$CLAUDECODE_SESSION_ID
+if [ -z "$SESSION_KEY" ] && [ -n "${QODER_SESSION_ID:-}" ]; then
+  SESSION_KEY=$QODER_SESSION_ID
 fi
 TRANSCRIPT_PATH=$(extract_json_string transcript_path)
 if [ -z "$SESSION_KEY" ] && [ -n "$TRANSCRIPT_PATH" ]; then
@@ -167,7 +167,7 @@ if [ -s "$OUTPUT_FILE" ]; then
 fi
 
 # First render for this session: do a synchronous refresh so the user
-# sees the real HUD from the first frame. Claude Code v2.1.x does not
+# sees the real HUD from the first frame. Qoder v2.1.x does not
 # re-poll the statusLine until user interaction, so an async background
 # refresh leaves the pane stuck on "[OMC] Starting..." until they type.
 if [ -s "$INPUT_FILE" ] && try_acquire_lock; then

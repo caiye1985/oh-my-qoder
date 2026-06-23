@@ -9,7 +9,7 @@
  * ```bash
  * #!/bin/bash
  * INPUT=$(cat)
- * echo "$INPUT" | node ~/.claude/omc/hook-bridge.mjs --hook=keyword-detector
+ * echo "$INPUT" | node ~/.qoder/omc/hook-bridge.mjs --hook=keyword-detector
  * ```
  */
 
@@ -354,7 +354,7 @@ function cleanupMissionStateForSession(directory: string, sessionId: string): vo
 /**
  * Return true only when SessionStart has durable abandonment evidence.
  *
- * Claude Code SessionStart input currently provides session metadata such as
+ * Qoder SessionStart input currently provides session metadata such as
  * session_id, transcript_path, cwd, source, model, and agent_type, but no
  * stable owner process for the interactive session. In installed OMC hooks the
  * immediate hook parent belongs to scripts/run.cjs and is intentionally
@@ -369,7 +369,7 @@ function hasDurableAbandonmentEvidence(marker: SessionStartedMarker): boolean {
     return true;
   }
 
-  // Same-boot hard-kill cleanup requires a durable owner signal. Claude Code
+  // Same-boot hard-kill cleanup requires a durable owner signal. Qoder
   // does not currently provide one to hooks, so keep active state rather than
   // guessing from hook-runner process ancestry or transcript metadata.
   return false;
@@ -1104,7 +1104,7 @@ function validateHookInput<T>(
 }
 
 /**
- * Input format from Claude Code hooks (via stdin)
+ * Input format from Qoder hooks (via stdin)
  */
 export interface HookInput {
   /** Session identifier */
@@ -1135,7 +1135,7 @@ export interface HookInput {
 }
 
 /**
- * Output format for Claude Code hooks (to stdout)
+ * Output format for Qoder hooks (to stdout)
  */
 export interface HookOutput {
   /** Whether to continue with the operation */
@@ -1159,7 +1159,7 @@ function hasInjectableText(value: unknown): value is string {
 }
 
 /**
- * Strip empty hook text fields before serializing to Claude Code.
+ * Strip empty hook text fields before serializing to Qoder.
  *
  * Some hook handlers use empty strings as internal sentinels. Passing those
  * through to the shell hook protocol can create empty system-message/context
@@ -1246,7 +1246,7 @@ function getPromptText(input: HookInput): string {
 }
 
 function isExplicitAskSlashInvocation(promptText: string): boolean {
-  return /^\s*\/(?:oh-my-claudecode:)?ask\s+(?:claude|codex|gemini|antigravity|agy|grok|cursor)\b/i.test(promptText);
+  return /^\s*\/(?:oh-my-qoder:)?ask\s+(?:claude|codex|gemini|antigravity|agy|grok|cursor)\b/i.test(promptText);
 }
 
 function activateRalplanStartupState(directory: string, sessionId?: string): void {
@@ -1295,7 +1295,7 @@ function seedWorkflowSlotForSkill(
   parentSkill?: string | null,
 ): boolean {
   if (!isCanonicalWorkflowSkill(skillName)) return false;
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
 
   try {
     const current = readSkillActiveStateNormalized(directory, sessionId);
@@ -1342,7 +1342,7 @@ function confirmWorkflowSlot(
   sessionId?: string,
 ): boolean {
   if (!isCanonicalWorkflowSkill(skillName)) return false;
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
 
   try {
     const current = readSkillActiveStateNormalized(directory, sessionId);
@@ -1368,7 +1368,7 @@ function tombstoneWorkflowSlot(
   sessionId?: string,
 ): boolean {
   if (!isCanonicalWorkflowSkill(skillName)) return false;
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   try {
     const current = readSkillActiveStateNormalized(directory, sessionId);
     if (!current.active_skills[normalized]) return false;
@@ -1455,7 +1455,7 @@ async function processKeywordDetector(input: HookInput): Promise<HookOutput> {
 
   // `/ask <provider> ...` delegates the remainder of the prompt to an
   // external advisor. Do not interpret magic keywords inside that payload as
-  // instructions for the current Claude Code session.
+  // instructions for the current Qoder session.
   if (isExplicitAskSlashInvocation(promptText)) {
     return { continue: true };
   }
@@ -2148,7 +2148,7 @@ Please continue working on these tasks.
   }
 
   // Bedrock/Vertex/proxy override: tell the LLM not to pass model on Task calls.
-  // This prevents the LLM from following the static CLAUDE.md instruction
+  // This prevents the LLM from following the static AGENTS.md instruction
   // "Pass model on Task calls: haiku, sonnet, opus" which produces invalid
   // model IDs on non-standard providers. (issues #1135, #1201)
   try {
@@ -2161,7 +2161,7 @@ Please continue working on these tasks.
 This environment uses a non-standard model provider (AWS Bedrock, Google Vertex AI, or a proxy such as CC Switch / LiteLLM).
 
 How to pass \`model\` on Task/Agent calls:
-- Prefer a tier alias: \`model: "sonnet"\`, \`model: "opus"\`, \`model: "haiku"\`, or \`model: "fable"\` (Claude Fable 5, above Opus). OMC's pre-tool enforcer resolves these to provider-safe IDs when one of these env vars is set: \`ANTHROPIC_DEFAULT_SONNET_MODEL\` (and siblings \`ANTHROPIC_DEFAULT_OPUS_MODEL\` / \`ANTHROPIC_DEFAULT_HAIKU_MODEL\` / \`ANTHROPIC_DEFAULT_FABLE_MODEL\`), \`CLAUDE_CODE_BEDROCK_SONNET_MODEL\` (and siblings \`CLAUDE_CODE_BEDROCK_OPUS_MODEL\` / \`CLAUDE_CODE_BEDROCK_HAIKU_MODEL\` / \`CLAUDE_CODE_BEDROCK_FABLE_MODEL\`), or \`OMC_SUBAGENT_MODEL\`.
+- Prefer a tier alias: \`model: "sonnet"\`, \`model: "opus"\`, \`model: "haiku"\`, or \`model: "fable"\` (Claude Fable 5, above Opus). OMC's pre-tool enforcer resolves these to provider-safe IDs when one of these env vars is set: \`ANTHROPIC_DEFAULT_SONNET_MODEL\` (and siblings \`ANTHROPIC_DEFAULT_OPUS_MODEL\` / \`ANTHROPIC_DEFAULT_HAIKU_MODEL\` / \`ANTHROPIC_DEFAULT_FABLE_MODEL\`), \`QODER_BEDROCK_SONNET_MODEL\` (and siblings \`QODER_BEDROCK_OPUS_MODEL\` / \`QODER_BEDROCK_HAIKU_MODEL\` / \`QODER_BEDROCK_FABLE_MODEL\`), or \`OMC_SUBAGENT_MODEL\`.
 - If none of those env vars are configured, the enforcer will deny the tier alias with an env-var configuration hint — set one of them in your \`settings.json\` env or shell profile.
 - The enforcer denies tier aliases it cannot resolve. It also denies provider-specific IDs that carry a \`[1m]\` context-window suffix or otherwise fail subagent-safe validation (sub-agents cannot inherit \`[1m]\`). Valid provider-specific IDs without extended-context suffixes are allowed.
 
@@ -2169,7 +2169,7 @@ When the session model carries a \`[1m]\` suffix, passing an explicit \`model\` 
 
 When the session model has no \`[1m]\` suffix, omitting \`model\` is safe UNLESS a custom sub-agent definition pins a bare Anthropic model ID (e.g. \`model: claude-sonnet-4-6\` in agent frontmatter). When resolver env vars are configured, the enforcer will deny that call with tier-alias guidance; when they are absent, the call is not denied by the enforcer but will fail at the provider. Either way, custom sub-agents should pin tier aliases (not bare Anthropic IDs) in their frontmatter. Shipped OMC agents already do this and are unaffected.
 
-The CLAUDE.md instruction "Pass model on Task calls: haiku, sonnet, opus" applies here — subject to the resolution prerequisites above.
+The AGENTS.md instruction "Pass model on Task calls: haiku, sonnet, opus" applies here — subject to the resolution prerequisites above.
 
 </system-reminder>`);
     }
@@ -2409,7 +2409,7 @@ function processPreToolUse(input: HookInput): HookOutput {
   // at `.omc/plans/open-questions.md` under the model-routing alignment section.
   // Force-inherit: deny Task/Agent calls that carry a `model` parameter when
   // forceInherit is enabled (Bedrock, Vertex, CC Switch, etc.).
-  // Claude Code's hook protocol does not support modifiedInput, so we cannot
+  // Qoder's hook protocol does not support modifiedInput, so we cannot
   // silently strip the model. Instead, deny the call so Claude retries without
   // the model param, letting agents inherit the parent session's model.
   // (issues #1135, #1201, #1415)
@@ -2423,7 +2423,7 @@ function processPreToolUse(input: HookInput): HookOutput {
       const config = loadConfig();
       if (config.routing?.forceInherit) {
         // Use permissionDecision:"deny" — the only PreToolUse mechanism
-        // Claude Code supports for blocking a specific tool call with
+        // Qoder supports for blocking a specific tool call with
         // feedback. modifiedInput is NOT supported by the hook protocol.
         const denyReason = `[MODEL ROUTING] This environment uses a non-standard provider (Bedrock/Vertex/proxy). Omit the \`model\` parameter on ${input.toolName} calls so agents inherit the parent session's model. The model "${inputModel}" was rejected.`;
         return {
@@ -2454,7 +2454,7 @@ function processPreToolUse(input: HookInput): HookOutput {
       );
 
       if (permissionFallback.shouldFallback) {
-        const reason = `[BACKGROUND PERMISSIONS] ${subagentType || "This background agent"} may need ${permissionFallback.missingTools.join(", ")} permissions, but background agents cannot request interactive approval. Re-run without \`run_in_background=true\` or pre-approve ${permissionFallback.missingTools.join(", ")} in Claude Code settings.`;
+        const reason = `[BACKGROUND PERMISSIONS] ${subagentType || "This background agent"} may need ${permissionFallback.missingTools.join(", ")} permissions, but background agents cannot request interactive approval. Re-run without \`run_in_background=true\` or pre-approve ${permissionFallback.missingTools.join(", ")} in Qoder settings.`;
         return {
           continue: false,
           reason,
@@ -2482,7 +2482,7 @@ function processPreToolUse(input: HookInput): HookOutput {
 
       if (permissionFallback.shouldFallback) {
         const reason =
-          "[BACKGROUND PERMISSIONS] This Bash command is not auto-approved for background execution. Re-run without `run_in_background=true` or pre-approve the command in Claude Code settings.";
+          "[BACKGROUND PERMISSIONS] This Bash command is not auto-approved for background execution. Re-run without `run_in_background=true` or pre-approve the command in Qoder settings.";
         return {
           continue: false,
           reason,
@@ -2654,7 +2654,7 @@ function processPreToolUse(input: HookInput): HookOutput {
   }
 
   // Track background Bash invocations too. Ralph's Stop hook uses this
-  // session-owned pending-work signal to avoid reinforcing while Claude Code is
+  // session-owned pending-work signal to avoid reinforcing while Qoder is
   // expected to notify when the background command finishes.
   if (input.toolName === "Bash") {
     const toolInput = (modifiedToolInput ?? input.toolInput) as
@@ -2757,9 +2757,9 @@ function getInvokedSkillName(toolInput: unknown): string | null {
 
 /**
  * Extract the raw (un-normalized) skill name from Skill tool input.
- * Used to distinguish OMC built-in skills (prefixed with 'oh-my-claudecode:')
+ * Used to distinguish OMC built-in skills (prefixed with 'oh-my-qoder:')
  * from project custom skills or other plugin skills with the same bare name.
- * See: https://github.com/Yeachan-Heo/oh-my-claudecode/issues/1581
+ * See: https://github.com/Yeachan-Heo/oh-my-qoder/issues/1581
  */
 function getRawSkillName(toolInput: unknown): string | undefined {
   if (!toolInput || typeof toolInput !== "object") return undefined;
@@ -2773,7 +2773,7 @@ async function processPostToolUse(input: HookInput): Promise<HookOutput> {
   const messages: string[] = [];
 
   // Ensure mode state activation also works when execution starts via Skill tool
-  // (e.g., ralplan consensus handoff into Skill("oh-my-claudecode:ralph")).
+  // (e.g., ralplan consensus handoff into Skill("oh-my-qoder:ralph")).
   const toolName = (input.toolName || "").toLowerCase();
   if (toolName === "skill") {
     const skillName = getInvokedSkillName(input.toolInput);
@@ -2810,7 +2810,7 @@ async function processPostToolUse(input: HookInput): Promise<HookOutput> {
     const currentState = readSkillActiveState(directory, input.sessionId);
     const completingSkill = (getInvokedSkillName(input.toolInput) ?? "")
       .toLowerCase()
-      .replace(/^oh-my-claudecode:/, "");
+      .replace(/^oh-my-qoder:/, "");
     if (!currentState || !currentState.active || currentState.skill_name === completingSkill) {
       clearSkillActiveState(directory, input.sessionId);
     }
@@ -3064,7 +3064,7 @@ export async function processHook(
     return { continue: true };
   }
 
-  // Normalize snake_case fields from Claude Code to camelCase
+  // Normalize snake_case fields from Qoder to camelCase
   const input = normalizeHookInput(rawInput, hookType) as HookInput;
 
   try {

@@ -15,7 +15,7 @@
 //           {
 //             "pattern": "Read",
 //             "threshold": { "count": 10, "windowSeconds": 120 },
-//             "denyMessage": "10+ raw Reads in 2 min — spawn Agent(subagent_type='oh-my-claudecode:explore', model='haiku', ...). Bypass: ALLOW_RAW_READ=1.",
+//             "denyMessage": "10+ raw Reads in 2 min — spawn Agent(subagent_type='oh-my-qoder:explore', model='haiku', ...). Bypass: ALLOW_RAW_READ=1.",
 //             "bypassEnv": "ALLOW_RAW_READ"
 //           }
 //         ]
@@ -105,7 +105,7 @@ function readDelegationConfig(loadOmcConfig) {
  * Evaluate force-agent-delegation rules for the current PreToolUse call.
  *
  * @param {object} args
- * @param {string} args.toolName - Claude Code tool name (Read|Edit|Write|...)
+ * @param {string} args.toolName - Qoder tool name (Read|Edit|Write|...)
  * @param {string} [args.stateDir] - Directory used to persist the event window.
  *   Typically `<cwd>/.omc/state` to mirror the rest of OMC state storage.
  * @param {object} [args.env=process.env] - Environment for bypass-flag lookup.

@@ -105,7 +105,7 @@ Includes the active mode name and whether dependent modes exist.
 When `OMC_STATE_DIR` is set, state is stored at `$OMC_STATE_DIR/{project-id}/`.
 
 ```bash
-export OMC_STATE_DIR="$HOME/.claude/omc"
+export OMC_STATE_DIR="$HOME/.qoder/omc"
 ```
 
 ### Usage Patterns
@@ -222,7 +222,7 @@ notepad_read()
 
 ### Compaction Behavior
 
-When Claude Code compacts context:
+When Qoder compacts context:
 
 1. Notepad contents are included in the compaction result
 2. Priority notes are restored first
@@ -734,7 +734,7 @@ load_omc_skills_local()
 
 #### `load_omc_skills_global`
 
-Loads skills from the global user directory (`~/.claude/skills/`).
+Loads skills from the global user directory (`~/.qoder/skills/`).
 
 ```
 load_omc_skills_global()
@@ -778,4 +778,4 @@ deepinit_manifest(action="save")
 deepinit_manifest(action="check")
 ```
 
-Used internally by the `deepinit` skill (`/oh-my-claudecode:deepinit`) to enable incremental AGENTS.md regeneration instead of full re-scans.
+Used internally by the `deepinit` skill (`/oh-my-qoder:deepinit`) to enable incremental AGENTS.md regeneration instead of full re-scans.

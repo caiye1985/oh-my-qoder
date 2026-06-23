@@ -1,7 +1,7 @@
 /**
  * tmux Detector
  *
- * Detects Claude Code sessions running in tmux panes and identifies
+ * Detects Qoder sessions running in tmux panes and identifies
  * those that are blocked due to rate limiting.
  *
  * Security considerations:
@@ -49,12 +49,12 @@ const RATE_LIMIT_PATTERNS = [
   /\bweekly\s+(?:usage\s+)?(?:limit|quota|cap|allowance|allocation)\b/i,
 ];
 
-/** Patterns that indicate Claude Code is running */
+/** Patterns that indicate Qoder is running */
 const CLAUDE_CODE_PATTERNS = [
   /claude/i,
   /anthropic/i,
   /\$ claude/,
-  /claude code/i,
+  /qoder/i,
   /conversation/i,
   /assistant/i,
 ];
@@ -235,7 +235,7 @@ export function capturePaneContent(paneId: string, lines = 15): string {
 }
 
 /**
- * Analyze pane content to determine if it shows a rate-limited Claude Code session
+ * Analyze pane content to determine if it shows a rate-limited Qoder session
  */
 export function analyzePaneContent(content: string): PaneAnalysisResult {
   if (!content.trim()) {
@@ -251,7 +251,7 @@ export function analyzePaneContent(content: string): PaneAnalysisResult {
   // "Update assistant config") cannot produce false-positive keyword matches.
   const cleanedContent = stripGitOutputLines(content);
 
-  // Check for Claude Code indicators
+  // Check for Qoder indicators
   const hasClaudeCode = CLAUDE_CODE_PATTERNS.some((pattern) =>
     pattern.test(cleanedContent)
   );
@@ -297,7 +297,7 @@ export function analyzePaneContent(content: string): PaneAnalysisResult {
 }
 
 /**
- * Scan all tmux panes for blocked Claude Code sessions.
+ * Scan all tmux panes for blocked Qoder sessions.
  *
  * @param lines    - Number of lines to capture from each pane
  * @param stateDir - When provided, use cursor-tracked capture (getNewPaneTail) so
@@ -411,11 +411,11 @@ export function sendToPane(paneId: string, text: string, pressEnter = true): boo
  */
 export function formatBlockedPanesSummary(blockedPanes: BlockedPane[]): string {
   if (blockedPanes.length === 0) {
-    return 'No blocked Claude Code sessions detected.';
+    return 'No blocked Qoder sessions detected.';
   }
 
   const lines: string[] = [
-    `Found ${blockedPanes.length} blocked Claude Code session(s):`,
+    `Found ${blockedPanes.length} blocked Qoder session(s):`,
     '',
   ];
 

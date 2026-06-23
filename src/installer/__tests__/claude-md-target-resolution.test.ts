@@ -3,8 +3,8 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
-const originalPluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+const originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
+const originalPluginRoot = process.env.QODER_PLUGIN_ROOT;
 const originalHome = process.env.HOME;
 
 let tempRoot: string;
@@ -16,7 +16,7 @@ async function loadInstaller() {
   return import('../index.js');
 }
 
-describe('install() CLAUDE.md target resolution', () => {
+describe('install() AGENTS.md target resolution', () => {
   beforeEach(() => {
     tempRoot = mkdtempSync(join(tmpdir(), 'omc-claude-target-'));
     testClaudeDir = join(tempRoot, 'global-claude');
@@ -25,24 +25,24 @@ describe('install() CLAUDE.md target resolution', () => {
     mkdirSync(testClaudeDir, { recursive: true });
     mkdirSync(testHomeDir, { recursive: true });
 
-    process.env.CLAUDE_CONFIG_DIR = testClaudeDir;
+    process.env.QODER_CONFIG_DIR = testClaudeDir;
     process.env.HOME = testHomeDir;
-    delete process.env.CLAUDE_PLUGIN_ROOT;
+    delete process.env.QODER_PLUGIN_ROOT;
   });
 
   afterEach(() => {
     rmSync(tempRoot, { recursive: true, force: true });
 
     if (originalClaudeConfigDir !== undefined) {
-      process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+      process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
     } else {
-      delete process.env.CLAUDE_CONFIG_DIR;
+      delete process.env.QODER_CONFIG_DIR;
     }
 
     if (originalPluginRoot !== undefined) {
-      process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+      process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
     } else {
-      delete process.env.CLAUDE_PLUGIN_ROOT;
+      delete process.env.QODER_PLUGIN_ROOT;
     }
 
     if (originalHome !== undefined) {
@@ -52,9 +52,9 @@ describe('install() CLAUDE.md target resolution', () => {
     }
   });
 
-  it('updates ~/.claude/CLAUDE.md even when ~/CLAUDE.md exists', async () => {
-    const configClaudePath = join(testClaudeDir, 'CLAUDE.md');
-    const homeClaudePath = join(testHomeDir, 'CLAUDE.md');
+  it('updates ~/.qoder/AGENTS.md even when ~/AGENTS.md exists', async () => {
+    const configClaudePath = join(testClaudeDir, 'AGENTS.md');
+    const homeClaudePath = join(testHomeDir, 'AGENTS.md');
 
     writeFileSync(homeClaudePath, '# Home CLAUDE\nkeep me\n');
     writeFileSync(
@@ -76,13 +76,13 @@ describe('install() CLAUDE.md target resolution', () => {
     expect(updatedConfig).not.toContain('stale installer content');
     expect(readFileSync(homeClaudePath, 'utf-8')).toBe('# Home CLAUDE\nkeep me\n');
 
-    const backups = readdirSync(testClaudeDir).filter(name => name.startsWith('CLAUDE.md.backup.'));
+    const backups = readdirSync(testClaudeDir).filter(name => name.startsWith('AGENTS.md.backup.'));
     expect(backups).toHaveLength(1);
   });
 
-  it('preserves project-scoped behavior by skipping global CLAUDE.md writes', async () => {
-    process.env.CLAUDE_PLUGIN_ROOT = join(tempRoot, 'project', '.claude', 'plugins', 'oh-my-claudecode');
-    writeFileSync(join(testHomeDir, 'CLAUDE.md'), '# Home CLAUDE\nkeep me\n');
+  it('preserves project-scoped behavior by skipping global AGENTS.md writes', async () => {
+    process.env.QODER_PLUGIN_ROOT = join(tempRoot, 'project', '.claude', 'plugins', 'oh-my-qoder');
+    writeFileSync(join(testHomeDir, 'AGENTS.md'), '# Home CLAUDE\nkeep me\n');
 
     const { install } = await loadInstaller();
     const result = install({
@@ -92,6 +92,6 @@ describe('install() CLAUDE.md target resolution', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(existsSync(join(testClaudeDir, 'CLAUDE.md'))).toBe(false);
+    expect(existsSync(join(testClaudeDir, 'AGENTS.md'))).toBe(false);
   });
 });

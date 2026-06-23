@@ -3,7 +3,7 @@
  *
  * Unlike `plugin-dir-mode.test.ts`, which exercises the CLI precedence helper
  * in isolation, this suite calls the real `install()` function from
- * `src/installer/index.ts` against a throwaway `CLAUDE_CONFIG_DIR` and asserts
+ * `src/installer/index.ts` against a throwaway `QODER_CONFIG_DIR` and asserts
  * the resulting on-disk shape matches the documented contract.
  *
  * Scope: installer contract only. The CLI auto-detection log message and the
@@ -18,9 +18,9 @@ import { join } from 'node:path';
 import { OMC_PLUGIN_ROOT_ENV } from '../../lib/env-vars.js';
 
 const SAVED_ENV_KEYS = [
-  'CLAUDE_CONFIG_DIR',
+  'QODER_CONFIG_DIR',
   OMC_PLUGIN_ROOT_ENV,
-  'CLAUDE_PLUGIN_ROOT',
+  'QODER_PLUGIN_ROOT',
   'OMC_DEV',
 ] as const;
 
@@ -45,7 +45,7 @@ beforeEach(() => {
     savedEnv[key] = process.env[key];
     delete process.env[key];
   }
-  process.env.CLAUDE_CONFIG_DIR = testDir;
+  process.env.QODER_CONFIG_DIR = testDir;
 });
 
 afterEach(() => {
@@ -63,7 +63,7 @@ afterEach(() => {
 });
 
 describe('install() — plugin-dir-mode end-to-end filesystem shape', () => {
-  it('case 1: pluginDirMode=true → installs HUD/CLAUDE.md/settings/.omc-config but NOT agents/skills', async () => {
+  it('case 1: pluginDirMode=true → installs HUD/AGENTS.md/settings/.omc-config but NOT agents/skills', async () => {
     const { install } = await freshInstaller();
     install({ verbose: false, skipClaudeCheck: true, pluginDirMode: true });
 
@@ -72,8 +72,8 @@ describe('install() — plugin-dir-mode end-to-end filesystem shape', () => {
     expect(existsSync(hudPath)).toBe(true);
     expect(statSync(hudPath).size).toBeGreaterThan(0);
 
-    // CLAUDE.md present with merge markers
-    const claudeMdPath = join(testDir, 'CLAUDE.md');
+    // AGENTS.md present with merge markers
+    const claudeMdPath = join(testDir, 'AGENTS.md');
     expect(existsSync(claudeMdPath)).toBe(true);
     const claudeMdContent = readFileSync(claudeMdPath, 'utf8');
     expect(claudeMdContent).toContain('<!-- OMC:START -->');
@@ -109,7 +109,7 @@ describe('install() — plugin-dir-mode end-to-end filesystem shape', () => {
     install({ verbose: false, skipClaudeCheck: true, pluginDirMode: true });
 
     expect(existsSync(join(testDir, 'hud', 'omc-hud.mjs'))).toBe(true);
-    expect(existsSync(join(testDir, 'CLAUDE.md'))).toBe(true);
+    expect(existsSync(join(testDir, 'AGENTS.md'))).toBe(true);
     expect(existsSync(join(testDir, 'settings.json'))).toBe(true);
     expect(existsSync(join(testDir, '.omc-config.json'))).toBe(true);
     expect(existsSync(join(testDir, 'agents'))).toBe(false);

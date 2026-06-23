@@ -21,9 +21,9 @@ describe('cli-worker-contract', () => {
       expect(shouldInjectContract('code-reviewer', 'gemini')).toBe(true);
     });
 
-    it('returns false for claude workers regardless of role', () => {
-      expect(shouldInjectContract('critic', 'claude')).toBe(false);
-      expect(shouldInjectContract('code-reviewer', 'claude')).toBe(false);
+    it('returns false for qoder workers regardless of role', () => {
+      expect(shouldInjectContract('critic', 'qoder')).toBe(false);
+      expect(shouldInjectContract('code-reviewer', 'qoder')).toBe(false);
     });
 
     it('returns false for non-reviewer roles', () => {

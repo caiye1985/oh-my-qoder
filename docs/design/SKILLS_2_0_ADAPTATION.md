@@ -19,9 +19,9 @@ This MVP focuses on the smallest concrete adaptation that improves interoperabil
 
 ## Research summary
 
-### Anthropic Claude Code
+### Anthropic Qoder
 
-Claude Code's custom subagent model emphasizes:
+Qoder's custom subagent model emphasizes:
 
 - specialized workflow packaging
 - scoped capabilities and tools

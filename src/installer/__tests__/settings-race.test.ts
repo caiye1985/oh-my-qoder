@@ -44,11 +44,11 @@ let omcHome: string;
 
 async function loadInstaller() {
   vi.resetModules();
-  process.env.CLAUDE_CONFIG_DIR = claudeConfigDir;
+  process.env.QODER_CONFIG_DIR = claudeConfigDir;
   process.env.HOME = homeDir;
   process.env.CODEX_HOME = codexHome;
   process.env.OMC_HOME = omcHome;
-  delete process.env.CLAUDE_PLUGIN_ROOT;
+  delete process.env.QODER_PLUGIN_ROOT;
   delete process.env.OMC_PLUGIN_ROOT;
   return import('../index.js');
 }

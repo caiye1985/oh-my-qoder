@@ -12,28 +12,28 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import type { SkillExtractionRequest } from '../hooks/learner/types.js';
 
-describe('Claude Code compatibility for OMC-authored user skills', () => {
+describe('Qoder compatibility for OMC-authored user skills', () => {
   let tempDir: string;
   let originalClaudeConfigDir: string | undefined;
 
   beforeEach(() => {
     tempDir = mkdtempSync(join(tmpdir(), 'omc-user-skill-compat-'));
-    originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
-    process.env.CLAUDE_CONFIG_DIR = tempDir;
+    originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
+    process.env.QODER_CONFIG_DIR = tempDir;
     vi.resetModules();
   });
 
   afterEach(() => {
     if (originalClaudeConfigDir === undefined) {
-      delete process.env.CLAUDE_CONFIG_DIR;
+      delete process.env.QODER_CONFIG_DIR;
     } else {
-      process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+      process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
     }
     rmSync(tempDir, { recursive: true, force: true });
     vi.resetModules();
   });
 
-  it('reproduces that nested omc-learned skills are invisible to flat Claude Code lookup until compat sync runs', async () => {
+  it('reproduces that nested omc-learned skills are invisible to flat Qoder lookup until compat sync runs', async () => {
     const nestedSkillPath = join(tempDir, 'skills', 'omc-learned', 'expert-review', 'SKILL.md');
     mkdirSync(join(nestedSkillPath, '..'), { recursive: true });
     writeFileSync(nestedSkillPath, '---\nname: expert-review\ntriggers: [expert-review]\n---\n\nUse expert review.\n');
@@ -48,7 +48,7 @@ describe('Claude Code compatibility for OMC-authored user skills', () => {
     expect(readFileSync(flatSkillPath, 'utf-8')).toContain('Use expert review.');
   });
 
-  it('keeps new user skills in omc-learned/<name>.md and exposes a flat Claude Code SKILL.md shim', async () => {
+  it('keeps new user skills in omc-learned/<name>.md and exposes a flat Qoder SKILL.md shim', async () => {
     const { writeSkill } = await import('../hooks/learner/writer.js');
     const request: SkillExtractionRequest = {
       problem: 'Need a reusable expert review workflow.',

@@ -20,7 +20,7 @@ import type { ToolCategory } from '../constants/index.js';
  */
 /**
  * MCP Tool Annotations per the MCP specification.
- * Used by clients (e.g. Claude Code) to prioritize tool loading
+ * Used by clients (e.g. Qoder) to prioritize tool loading
  * and avoid deferring critical tools.
  */
 export interface ToolAnnotations {

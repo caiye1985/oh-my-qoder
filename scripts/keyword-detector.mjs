@@ -27,13 +27,13 @@ import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync } from '
 import { join, dirname } from 'path';
 import { homedir } from 'os';
 import { fileURLToPath } from 'url';
-import { getClaudeConfigDir } from './lib/config-dir.mjs';
+import { getQoderConfigDir } from './lib/config-dir.mjs';
 import { atomicWriteFileSync } from './lib/atomic-write.mjs';
 import { readStdin } from './lib/stdin.mjs';
 import { resolveOmcStateRoot } from './lib/state-root.mjs';
 
-// Resolve OMC package root: CLAUDE_PLUGIN_ROOT (plugin system) or derive from this script's location
-const _omcRoot = process.env.CLAUDE_PLUGIN_ROOT ||
+// Resolve OMC package root: QODER_PLUGIN_ROOT (plugin system) or derive from this script's location
+const _omcRoot = process.env.QODER_PLUGIN_ROOT ||
   join(dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL_INVOCATION_USER_REQUEST_MAX = 1200;
 
@@ -97,7 +97,7 @@ function compactHookText(text, maxChars = SKILL_INVOCATION_USER_REQUEST_MAX) {
 
 function getSkillPathCandidates(skillName) {
   const roots = [
-    process.env.CLAUDE_PLUGIN_ROOT,
+    process.env.QODER_PLUGIN_ROOT,
     _omcRoot,
     process.cwd(),
   ].filter(Boolean);
@@ -202,11 +202,11 @@ function extractPrompt(input) {
 }
 
 function isExplicitRalplanSlashInvocation(prompt) {
-  return /^\s*\/(?:oh-my-claudecode:)?ralplan(?:\s|$)/i.test(prompt);
+  return /^\s*\/(?:oh-my-qoder:)?ralplan(?:\s|$)/i.test(prompt);
 }
 
 function isExplicitAskSlashInvocation(prompt) {
-  return /^\s*\/(?:oh-my-claudecode:)?ask\s+(?:claude|codex|gemini|antigravity|agy|grok|cursor)\b/i.test(prompt);
+  return /^\s*\/(?:oh-my-qoder:)?ask\s+(?:claude|codex|gemini|antigravity|agy|grok|cursor)\b/i.test(prompt);
 }
 
 // Sanitize text to prevent false positives from code blocks, XML tags, URLs, and file paths
@@ -428,7 +428,7 @@ const QUESTION_FOLLOWUP_PATTERNS = [
 // recognized block header. They must be stripped only in that context —
 // never standalone — because a user might legitimately start a prompt with
 // "Task: …" or similar (Codex automated review P1/P2 on #2795).
-const ECHO_CONTINUATION = '(?:\\r?\\n[ \\t]*(?:Task:\\s|When FULLY complete \\(after Architect verification\\)|run\\s+\\/oh-my-claudecode:cancel).*)*';
+const ECHO_CONTINUATION = '(?:\\r?\\n[ \\t]*(?:Task:\\s|When FULLY complete \\(after Architect verification\\)|run\\s+\\/oh-my-qoder:cancel).*)*';
 
 // NOTE: each pattern is a SINGLE LOGICAL BLOCK: the block header line +
 // zero-or-more continuation lines that hooks emit right after it. The whole
@@ -454,7 +454,7 @@ const SYSTEM_ECHO_BLOCK_PATTERNS = [
   // keyword-detector.mjs block headers
   buildEchoBlockRegex('\\[MAGIC KEYWORD:[^\\]\\n]*\\]'),
   buildEchoBlockRegex('\\[MAGIC KEYWORDS DETECTED:[^\\]\\n]*\\]'),
-  // Stop-hook wrapping by the Claude Code harness
+  // Stop-hook wrapping by the Qoder harness
   buildEchoBlockRegex('Stop hook (?:blocking error|feedback|stopped continuation)'),
   buildEchoBlockRegex('PreToolUse:[^\\n]*hook additional context:'),
   buildEchoBlockRegex('PostToolUse:[^\\n]*hook additional context:'),
@@ -466,7 +466,7 @@ const SYSTEM_ECHO_BLOCK_PATTERNS = [
 // All patterns use `i` because hasActionableKeyword sees a lowercased prompt.
 const SYSTEM_ECHO_SIGNATURES = [
   /\bWhen FULLY complete \(after Architect verification\)\b/i,
-  /\brun\s+\/oh-my-claudecode:cancel\b/i,
+  /\brun\s+\/oh-my-qoder:cancel\b/i,
   /\[RALPH LOOP\s*-\s*ITERATION\b/i,
 ];
 
@@ -531,7 +531,7 @@ function sanitizePromptForState(prompt) {
     : base;
 }
 const MODE_REFERENCE_PATTERN =
-  /\b(?:ralph|autopilot|auto[\s-]?pilot|ultragoal|ultrawork|ulw|ralplan|ultrathink|deepsearch|deep[\s-]?analyze|deepanalyze|deep[\s-]interview|ouroboros|ccg|claude-codex-gemini|deerflow)\b/gi;
+  /\b(?:ralph|autopilot|auto[\s-]?pilot|ultragoal|ultrawork|ulw|ralplan|ultrathink|deepsearch|deep[\s-]?analyze|deepanalyze|deep[\s-]interview|ouroboros|ccg|qoderx-gemini|deerflow)\b/gi;
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -829,7 +829,7 @@ function activateState(directory, prompt, stateName, sessionId, omcRoot) {
       last_checked_at: now
     };
   } else if (stateName === 'ultragoal') {
-    // Ultragoal persists a durable goal workflow and requires Claude /goal parity.
+    // Ultragoal persists a durable goal workflow and requires Qoder /goal parity.
     state = {
       active: true,
       started_at: now,
@@ -963,26 +963,26 @@ function linkRalphTeam(directory, sessionId, omcRoot) {
 }
 
 /**
- * Check if the team feature is enabled in Claude Code settings.
- * Reads settings.json from [$CLAUDE_CONFIG_DIR|~/.claude] and checks for
- * CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS env var.
+ * Check if the team feature is enabled in Qoder settings.
+ * Reads settings.json from [$QODER_CONFIG_DIR|~/.qoder] and checks for
+ * QODER_EXPERIMENTAL_AGENT_TEAMS env var.
  * @returns {boolean} true if team feature is enabled
  */
 function isTeamEnabled() {
   try {
     // Check settings.json first (authoritative, user-controlled)
-    const cfgDir = getClaudeConfigDir();
+    const cfgDir = getQoderConfigDir();
     const settingsPath = join(cfgDir, 'settings.json');
     if (existsSync(settingsPath)) {
       const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-      if (settings.env?.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS === '1' ||
-          settings.env?.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS === 'true') {
+      if (settings.env?.QODER_EXPERIMENTAL_AGENT_TEAMS === '1' ||
+          settings.env?.QODER_EXPERIMENTAL_AGENT_TEAMS === 'true') {
         return true;
       }
     }
     // Fallback: check env var (for dev/CI environments)
-    if (process.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS === '1' ||
-        process.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS === 'true') {
+    if (process.env.QODER_EXPERIMENTAL_AGENT_TEAMS === '1' ||
+        process.env.QODER_EXPERIMENTAL_AGENT_TEAMS === 'true') {
       return true;
     }
     return false;
@@ -1001,12 +1001,12 @@ Arguments: ${args}` : '';
   const skillPath = resolveSkillPath(skillName);
   const pathStatus = existsSync(skillPath)
     ? `Read fallback: open ${skillPath} and follow its SKILL.md instructions.`
-    : `Read fallback: locate skills/${skillName}/SKILL.md in the active oh-my-claudecode plugin/install and follow it.`;
+    : `Read fallback: locate skills/${skillName}/SKILL.md in the active oh-my-qoder plugin/install and follow it.`;
 
   return `[MAGIC KEYWORD: ${skillName.toUpperCase()}]
 
 Skill routing detected: ${skillName}
-Preferred invocation: /oh-my-claudecode:${skillName}${args ? ` ${args}` : ''}
+Preferred invocation: /oh-my-qoder:${skillName}${args ? ` ${args}` : ''}
 ${pathStatus}${argsSection}
 
 User request (compact echo; original prompt remains authoritative):
@@ -1029,9 +1029,9 @@ function createMultiSkillInvocation(skills, originalPrompt) {
     const argsText = s.args ? ` ${s.args}` : '';
     const pathStatus = existsSync(skillPath)
       ? `Read fallback: ${skillPath}`
-      : `Read fallback: locate skills/${s.name}/SKILL.md in the active oh-my-claudecode plugin/install`;
+      : `Read fallback: locate skills/${s.name}/SKILL.md in the active oh-my-qoder plugin/install`;
     return `### Skill ${i + 1}: ${s.name.toUpperCase()}
-Preferred invocation: /oh-my-claudecode:${s.name}${argsText}
+Preferred invocation: /oh-my-qoder:${s.name}${argsText}
 ${pathStatus}`;
   }).join('\n\n');
 
@@ -1083,7 +1083,7 @@ function resolveConflicts(matches) {
 }
 
 /**
- * Create proper hook output with additionalContext (Claude Code hooks API)
+ * Create proper hook output with additionalContext (Qoder hooks API)
  * The 'message' field is NOT a valid hook output - use hookSpecificOutput.additionalContext
  */
 function createHookOutput(additionalContext) {
@@ -1133,7 +1133,7 @@ async function main() {
 
     // `/ask <provider> ...` delegates the remainder of the prompt to an
     // advisor process. Magic keywords inside that delegated payload must not
-    // activate modes in the current Claude Code session.
+    // activate modes in the current Qoder session.
     if (isExplicitAskSlashInvocation(prompt)) {
       console.log(JSON.stringify({ continue: true, suppressOutput: true }));
       return;
@@ -1200,10 +1200,10 @@ async function main() {
     }
 
     // Team keyword detection removed — team mode is now explicit-only via /team skill.
-    // This prevents infinite spawning when Claude workers receive prompts containing "team".
+    // This prevents infinite spawning when Qoder workers receive prompts containing "team".
 
     // CCG keywords (Claude-Codex-Gemini tri-model orchestration)
-    if (hasActionableKeyword(cleanPrompt, /\b(ccg|claude-codex-gemini)\b|(씨씨지)|(シーシージー)/i)) {
+    if (hasActionableKeyword(cleanPrompt, /\b(ccg|qoderx-gemini)\b|(씨씨지)|(シーシージー)/i)) {
       matches.push({ name: 'ccg', args: '' });
     }
 

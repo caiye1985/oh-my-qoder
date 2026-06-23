@@ -4,14 +4,14 @@
 
 ## Step 2.0: Check Ralph Ruby Dependency
 
-Ralph workflows require Ruby. On fresh Ubuntu installations, missing Ruby can cause Ralph to fail later with an opaque Claude Code abort. Check for Ruby during setup and show a product-facing remediation hint without blocking the rest of setup:
+Ralph workflows require Ruby. On fresh Ubuntu installations, missing Ruby can cause Ralph to fail later with an opaque Qoder abort. Check for Ruby during setup and show a product-facing remediation hint without blocking the rest of setup:
 
 ```bash
 if command -v ruby >/dev/null 2>&1; then
   echo "Ruby detected for Ralph workflows: $(ruby --version 2>/dev/null | head -1)"
 else
   echo "WARNING: Ruby was not found on PATH. Ralph workflows require Ruby."
-  echo "Install it, then restart Claude Code before using Ralph."
+  echo "Install it, then restart Qoder before using Ralph."
   echo "Ubuntu/Debian: sudo apt update && sudo apt install ruby-full"
   echo "macOS: brew install ruby"
 fi
@@ -21,29 +21,29 @@ fi
 
 **Note**: If resuming and `lastCompletedStep >= 3`, skip to Step 2.2.
 
-The HUD shows real-time status in Claude Code's status bar. Delegate all HUD/statusLine setup to the `hud` skill:
+The HUD shows real-time status in Qoder's status bar. Delegate all HUD/statusLine setup to the `hud` skill:
 
 Use the Skill tool to invoke: `hud` with args: `setup`
 
 Do not generate, normalize, or patch `statusLine` paths inline in this phase. This is especially important on Windows, where backslash path handling must stay inside the `hud` skill.
 
 This will:
-1. Install the HUD wrapper script to `~/.claude/hud/omc-hud.mjs`
-2. Configure `statusLine` in `~/.claude/settings.json`
+1. Install the HUD wrapper script to `~/.qoder/hud/omc-hud.mjs`
+2. Configure `statusLine` in `~/.qoder/settings.json`
 3. Report status and prompt to restart if needed
 
 After HUD setup completes, save progress:
 ```bash
 CONFIG_TYPE=$(jq -r '.configType // "unknown"' ".omc/state/setup-state.json" 2>/dev/null || echo "unknown")
-bash "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/setup-progress.sh" save 3 "$CONFIG_TYPE"
+bash "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/setup-progress.sh" save 3 "$CONFIG_TYPE"
 ```
 
 ## Step 2.2: Repair Stale Plugin Cache References
 
-After a marketplace update, Claude Code may still have old OMC cache paths in the running session or plugin registry. Repair those references before any cache cleanup so setup does not repeatedly emit stale plugin directory errors.
+After a marketplace update, Qoder may still have old OMC cache paths in the running session or plugin registry. Repair those references before any cache cleanup so setup does not repeatedly emit stale plugin directory errors.
 
 ```bash
-node "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/repair-plugin-cache.mjs"
+node "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/repair-plugin-cache.mjs"
 ```
 
 ## Step 2.3: Check for Updates
@@ -54,20 +54,20 @@ Notify user if a newer version is available:
 # Detect installed version (cross-platform)
 node -e "
 const p=require('path'),f=require('fs'),h=require('os').homedir();
-const d=process.env.CLAUDE_CONFIG_DIR||p.join(h,'.claude');
+const d=process.env.QODER_CONFIG_DIR||p.join(h,'.claude');
 let v='';
 // Try cache directory first
-const b=p.join(d,'plugins','cache','omc','oh-my-claudecode');
+const b=p.join(d,'plugins','cache','omc','oh-my-qoder');
 try{const vs=f.readdirSync(b).filter(x=>/^\d/.test(x)).sort((a,c)=>a.localeCompare(c,void 0,{numeric:true}));if(vs.length)v=vs[vs.length-1]}catch{}
 // Try .omc-version.json second
 if(v==='')try{const j=JSON.parse(f.readFileSync('.omc-version.json','utf-8'));v=j.version||''}catch{}
-// Try CLAUDE.md header third
-if(v==='')for(const c of['.claude/CLAUDE.md',p.join(d,'CLAUDE.md')]){try{const m=f.readFileSync(c,'utf-8').match(/^# oh-my-claudecode.*?(v?\d+\.\d+\.\d+)/m);if(m){v=m[1].replace(/^v/,'');break}}catch{}}
+// Try AGENTS.md header third
+if(v==='')for(const c of['.qoder/AGENTS.md',p.join(d,'AGENTS.md')]){try{const m=f.readFileSync(c,'utf-8').match(/^# oh-my-qoder.*?(v?\d+\.\d+\.\d+)/m);if(m){v=m[1].replace(/^v/,'');break}}catch{}}
 console.log('Installed:',v||'(not found)');
 "
 
 # Check npm for latest version
-LATEST_VERSION=$(npm view oh-my-claude-sisyphus version 2>/dev/null)
+LATEST_VERSION=$(npm view oh-my-qoder version 2>/dev/null)
 
 if [ -n "$INSTALLED_VERSION" ] && [ -n "$LATEST_VERSION" ]; then
   if [ "$INSTALLED_VERSION" != "$LATEST_VERSION" ]; then
@@ -76,7 +76,7 @@ if [ -n "$INSTALLED_VERSION" ] && [ -n "$LATEST_VERSION" ]; then
     echo "  Installed: v$INSTALLED_VERSION"
     echo "  Latest:    v$LATEST_VERSION"
     echo ""
-    echo "To update, run: claude /install-plugin oh-my-claudecode"
+    echo "To update, run: claude /install-plugin oh-my-qoder"
   else
     echo "You're on the latest version: v$INSTALLED_VERSION"
   fi
@@ -94,10 +94,10 @@ Use the AskUserQuestion tool to prompt the user:
 **Options:**
 1. **ultrawork (maximum capability)** - Uses all agent tiers including Opus for complex tasks. Best for challenging work where quality matters most. (Recommended)
 
-Store the preference in `~/.claude/.omc-config.json`:
+Store the preference in `~/.qoder/.omc-config.json`:
 
 ```bash
-CONFIG_FILE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
 mkdir -p "$(dirname "$CONFIG_FILE")"
 
 if ! command -v jq >/dev/null 2>&1; then
@@ -150,17 +150,17 @@ If `OMC_CLI_INSTALLED` is `"false"`, use AskUserQuestion:
 **Question:** "Would you like to install the OMC CLI globally for standalone helper commands? (`omc`, `omc hud`, `omc teleport`)"
 
 **Options:**
-1. **Yes (Recommended)** - Install `oh-my-claude-sisyphus` via `npm install -g`
-2. **No - Skip** - Skip installation (can install manually later with `npm install -g oh-my-claude-sisyphus`)
+1. **Yes (Recommended)** - Install `oh-my-qoder` via `npm install -g`
+2. **No - Skip** - Skip installation (can install manually later with `npm install -g oh-my-qoder`)
 
 If user chooses **Yes**:
 
 ```bash
 if ! command -v npm &>/dev/null; then
   echo "WARNING: npm not found. Cannot install OMC CLI automatically."
-  echo "Install Node.js/npm first, then run: npm install -g oh-my-claude-sisyphus"
+  echo "Install Node.js/npm first, then run: npm install -g oh-my-qoder"
 else
-  if npm install -g oh-my-claude-sisyphus 2>&1; then
+  if npm install -g oh-my-qoder 2>&1; then
     echo "OMC CLI installed successfully."
     if command -v omc &>/dev/null; then
       OMC_CLI_VERSION=$(omc --version 2>/dev/null | head -1 || echo "installed")
@@ -170,8 +170,8 @@ else
     fi
   else
     echo "WARNING: Failed to install OMC CLI (permission issue or network error)."
-    echo "You can install manually later: npm install -g oh-my-claude-sisyphus"
-    echo "Or with sudo: sudo npm install -g oh-my-claude-sisyphus"
+    echo "You can install manually later: npm install -g oh-my-qoder"
+    echo "Or with sudo: sudo npm install -g oh-my-qoder"
   fi
 fi
 ```
@@ -211,7 +211,7 @@ If beads or beads-rust is detected, use AskUserQuestion:
 **Question:** "Which task management tool should I use for tracking work?"
 
 **Options:**
-1. **Built-in Tasks (default)** - Use Claude Code's native TodoWrite or available task-list surface. Tasks are session-only.
+1. **Built-in Tasks (default)** - Use Qoder's native TodoWrite or available task-list surface. Tasks are session-only.
 2. **Beads (bd)** - Git-backed persistent tasks. Survives across sessions. [Only if detected]
 3. **Beads-Rust (br)** - Lightweight Rust port of beads. [Only if detected]
 
@@ -220,7 +220,7 @@ If beads or beads-rust is detected, use AskUserQuestion:
 Store the preference:
 
 ```bash
-CONFIG_FILE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
 mkdir -p "$(dirname "$CONFIG_FILE")"
 
 if ! command -v jq >/dev/null 2>&1; then
@@ -254,5 +254,5 @@ echo "Task tool set to: USER_CHOICE"
 
 ```bash
 CONFIG_TYPE=$(jq -r '.configType // "unknown"' ".omc/state/setup-state.json" 2>/dev/null || echo "unknown")
-bash "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/setup-progress.sh" save 4 "$CONFIG_TYPE"
+bash "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/setup-progress.sh" save 4 "$CONFIG_TYPE"
 ```

@@ -4,8 +4,8 @@ import {
   isVertexAI,
   isNonClaudeProvider,
   isProviderSpecificModelId,
-  resolveClaudeFamily,
-  CLAUDE_FAMILY_DEFAULTS,
+  resolveQoderFamily,
+  QODER_FAMILY_DEFAULTS,
   hasExtendedContextSuffix,
   isSubagentSafeModelId,
   resolveInheritedModelFromEnv,
@@ -17,19 +17,19 @@ const TIER_MODEL_ENV_KEYS = [
   'OMC_MODEL_HIGH',
   'OMC_MODEL_MEDIUM',
   'OMC_MODEL_LOW',
-  'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-  'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-  'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+  'QODER_BEDROCK_OPUS_MODEL',
+  'QODER_BEDROCK_SONNET_MODEL',
+  'QODER_BEDROCK_HAIKU_MODEL',
   'ANTHROPIC_DEFAULT_OPUS_MODEL',
   'ANTHROPIC_DEFAULT_SONNET_MODEL',
   'ANTHROPIC_DEFAULT_HAIKU_MODEL',
 ] as const;
-const BEDROCK_KEYS = ['CLAUDE_CODE_USE_BEDROCK', 'CLAUDE_MODEL', 'ANTHROPIC_MODEL', ...TIER_MODEL_ENV_KEYS] as const;
-const VERTEX_KEYS = ['CLAUDE_CODE_USE_VERTEX', 'CLAUDE_MODEL', 'ANTHROPIC_MODEL', ...TIER_MODEL_ENV_KEYS] as const;
+const BEDROCK_KEYS = ['QODER_USE_BEDROCK', 'QODER_MODEL', 'ANTHROPIC_MODEL', ...TIER_MODEL_ENV_KEYS] as const;
+const VERTEX_KEYS = ['QODER_USE_VERTEX', 'QODER_MODEL', 'ANTHROPIC_MODEL', ...TIER_MODEL_ENV_KEYS] as const;
 const ALL_KEYS = [
-  'CLAUDE_CODE_USE_BEDROCK',
-  'CLAUDE_CODE_USE_VERTEX',
-  'CLAUDE_MODEL',
+  'QODER_USE_BEDROCK',
+  'QODER_USE_VERTEX',
+  'QODER_MODEL',
   'ANTHROPIC_MODEL',
   'ANTHROPIC_BASE_URL',
   'OMC_ROUTING_FORCE_INHERIT',
@@ -45,13 +45,13 @@ describe('isBedrock()', () => {
   beforeEach(() => { saved = saveAndClear(BEDROCK_KEYS); });
   afterEach(() => { restore(saved); });
 
-  it('returns true when CLAUDE_CODE_USE_BEDROCK=1', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+  it('returns true when QODER_USE_BEDROCK=1', () => {
+    process.env.QODER_USE_BEDROCK = '1';
     expect(isBedrock()).toBe(true);
   });
 
-  it('returns false when CLAUDE_CODE_USE_BEDROCK=0', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '0';
+  it('returns false when QODER_USE_BEDROCK=0', () => {
+    process.env.QODER_USE_BEDROCK = '0';
     expect(isBedrock()).toBe(false);
   });
 
@@ -93,12 +93,12 @@ describe('isBedrock()', () => {
   });
 
   it('detects Bedrock application-inference-profile ARNs', () => {
-    process.env.CLAUDE_MODEL = 'arn:aws:bedrock:us-west-2:123456789012:application-inference-profile/abc123/global.anthropic.claude-sonnet-4-6-v1:0';
+    process.env.QODER_MODEL = 'arn:aws:bedrock:us-west-2:123456789012:application-inference-profile/abc123/global.anthropic.claude-sonnet-4-6-v1:0';
     expect(isBedrock()).toBe(true);
   });
 
-  it('also checks CLAUDE_MODEL', () => {
-    process.env.CLAUDE_MODEL = 'global.anthropic.claude-sonnet-4-6[1m]';
+  it('also checks QODER_MODEL', () => {
+    process.env.QODER_MODEL = 'global.anthropic.claude-sonnet-4-6[1m]';
     expect(isBedrock()).toBe(true);
   });
 
@@ -126,8 +126,8 @@ describe('isVertexAI()', () => {
   beforeEach(() => { saved = saveAndClear(VERTEX_KEYS); });
   afterEach(() => { restore(saved); });
 
-  it('returns true when CLAUDE_CODE_USE_VERTEX=1', () => {
-    process.env.CLAUDE_CODE_USE_VERTEX = '1';
+  it('returns true when QODER_USE_VERTEX=1', () => {
+    process.env.QODER_USE_VERTEX = '1';
     expect(isVertexAI()).toBe(true);
   });
 
@@ -146,8 +146,8 @@ describe('isVertexAI()', () => {
     expect(isVertexAI()).toBe(false);
   });
 
-  it('returns false when CLAUDE_CODE_USE_VERTEX=0', () => {
-    process.env.CLAUDE_CODE_USE_VERTEX = '0';
+  it('returns false when QODER_USE_VERTEX=0', () => {
+    process.env.QODER_USE_VERTEX = '0';
     expect(isVertexAI()).toBe(false);
   });
 
@@ -175,13 +175,13 @@ describe('isNonClaudeProvider()', () => {
     expect(isNonClaudeProvider()).toBe(true);
   });
 
-  it('returns true when CLAUDE_CODE_USE_BEDROCK=1', () => {
-    process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+  it('returns true when QODER_USE_BEDROCK=1', () => {
+    process.env.QODER_USE_BEDROCK = '1';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
-  it('returns true when CLAUDE_CODE_USE_VERTEX=1', () => {
-    process.env.CLAUDE_CODE_USE_VERTEX = '1';
+  it('returns true when QODER_USE_VERTEX=1', () => {
+    process.env.QODER_USE_VERTEX = '1';
     expect(isNonClaudeProvider()).toBe(true);
   });
 
@@ -207,22 +207,22 @@ describe('isNonClaudeProvider()', () => {
     expect(shouldAutoForceInherit()).toBe(false);
   });
 
-  it('does globally force inheritance for direct non-Claude session models', () => {
-    process.env.CLAUDE_MODEL = 'glm-5.1:cloud';
+  it('does globally force inheritance for direct non-Qoder session models', () => {
+    process.env.QODER_MODEL = 'glm-5.1:cloud';
 
     expect(isNonClaudeProvider()).toBe(true);
     expect(shouldAutoForceInherit()).toBe(true);
   });
 
-  it('lets a direct Claude CLAUDE_MODEL beat a stale non-Claude ANTHROPIC_MODEL', () => {
-    process.env.CLAUDE_MODEL = 'claude-sonnet-4-6';
+  it('lets a direct Claude QODER_MODEL beat a stale non-Claude ANTHROPIC_MODEL', () => {
+    process.env.QODER_MODEL = 'claude-sonnet-4-6';
     process.env.ANTHROPIC_MODEL = 'kimi-k2.6:cloud';
 
     expect(isNonClaudeProvider()).toBe(false);
   });
 
-  it('lets a direct Claude CLAUDE_MODEL beat stale non-Claude tier defaults', () => {
-    process.env.CLAUDE_MODEL = 'claude-sonnet-4-6';
+  it('lets a direct Claude QODER_MODEL beat stale non-Claude tier defaults', () => {
+    process.env.QODER_MODEL = 'claude-sonnet-4-6';
     process.env.OMC_MODEL_MEDIUM = 'glm-5.1:cloud';
 
     expect(isNonClaudeProvider()).toBe(false);
@@ -261,7 +261,7 @@ describe('resolveInheritedModelFromEnv()', () => {
   afterEach(() => { restore(saved); });
 
   it('prefers explicit session model env vars over tier defaults', () => {
-    process.env.CLAUDE_MODEL = 'claude-session-parent';
+    process.env.QODER_MODEL = 'claude-session-parent';
     process.env.ANTHROPIC_DEFAULT_SONNET_MODEL = 'kimi-k2.6:cloud';
 
     expect(resolveInheritedModelFromEnv()).toBe('claude-session-parent');
@@ -328,40 +328,40 @@ describe('isProviderSpecificModelId()', () => {
 });
 
 // ---------------------------------------------------------------------------
-// resolveClaudeFamily() — ensure Bedrock profile IDs map to correct families
+// resolveQoderFamily() — ensure Bedrock profile IDs map to correct families
 // ---------------------------------------------------------------------------
-describe('resolveClaudeFamily() — Bedrock inference profile IDs', () => {
+describe('resolveQoderFamily() — Bedrock inference profile IDs', () => {
   it('resolves global. sonnet [1m] profile to SONNET', () => {
-    expect(resolveClaudeFamily('global.anthropic.claude-sonnet-4-6[1m]')).toBe('SONNET');
+    expect(resolveQoderFamily('global.anthropic.claude-sonnet-4-6[1m]')).toBe('SONNET');
   });
 
   it('resolves us. opus profile to OPUS', () => {
-    expect(resolveClaudeFamily('us.anthropic.claude-opus-4-6-v1')).toBe('OPUS');
+    expect(resolveQoderFamily('us.anthropic.claude-opus-4-6-v1')).toBe('OPUS');
   });
 
   it('resolves eu. haiku profile to HAIKU', () => {
-    expect(resolveClaudeFamily('eu.anthropic.claude-haiku-4-5-v1:0')).toBe('HAIKU');
+    expect(resolveQoderFamily('eu.anthropic.claude-haiku-4-5-v1:0')).toBe('HAIKU');
   });
 
   it('resolves bare Anthropic model IDs', () => {
-    expect(resolveClaudeFamily('claude-sonnet-4-6')).toBe('SONNET');
-    expect(resolveClaudeFamily('claude-opus-4-6')).toBe('OPUS');
-    expect(resolveClaudeFamily('claude-haiku-4-5')).toBe('HAIKU');
-    expect(resolveClaudeFamily('claude-fable-5')).toBe('FABLE');
+    expect(resolveQoderFamily('claude-sonnet-4-6')).toBe('SONNET');
+    expect(resolveQoderFamily('claude-opus-4-6')).toBe('OPUS');
+    expect(resolveQoderFamily('claude-haiku-4-5')).toBe('HAIKU');
+    expect(resolveQoderFamily('claude-fable-5')).toBe('FABLE');
   });
 
   it('resolves fable provider profile IDs to FABLE (issue #3246)', () => {
-    expect(resolveClaudeFamily('us.anthropic.claude-fable-5-v1:0')).toBe('FABLE');
-    expect(resolveClaudeFamily('global.anthropic.claude-fable-5[1m]')).toBe('FABLE');
+    expect(resolveQoderFamily('us.anthropic.claude-fable-5-v1:0')).toBe('FABLE');
+    expect(resolveQoderFamily('global.anthropic.claude-fable-5[1m]')).toBe('FABLE');
   });
 
   it('maps the FABLE family default to claude-fable-5 (issue #3246)', () => {
-    expect(CLAUDE_FAMILY_DEFAULTS.FABLE).toBe('claude-fable-5');
+    expect(QODER_FAMILY_DEFAULTS.FABLE).toBe('claude-fable-5');
   });
 
   it('returns null for non-Claude model IDs', () => {
-    expect(resolveClaudeFamily('gpt-4o')).toBeNull();
-    expect(resolveClaudeFamily('gemini-1.5-pro')).toBeNull();
+    expect(resolveQoderFamily('gpt-4o')).toBeNull();
+    expect(resolveQoderFamily('gemini-1.5-pro')).toBeNull();
   });
 });
 

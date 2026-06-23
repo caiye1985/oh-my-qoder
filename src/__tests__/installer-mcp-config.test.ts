@@ -7,8 +7,8 @@ vi.mock('fs', async () => {
   const actual = await vi.importActual<typeof import('fs')>('fs');
   const { join: pathJoin } = await import('path');
   const repoRoot = process.cwd();
-  const sourceClaudeMdPath = pathJoin(repoRoot, 'src', 'docs', 'CLAUDE.md');
-  const realClaudeMdPath = pathJoin(repoRoot, 'docs', 'CLAUDE.md');
+  const sourceClaudeMdPath = pathJoin(repoRoot, 'src', 'docs', 'AGENTS.md');
+  const realClaudeMdPath = pathJoin(repoRoot, 'docs', 'AGENTS.md');
 
   const withRedirect = (pathLike: unknown): string => {
     const normalized = String(pathLike).replace(/\\/g, '/');
@@ -31,7 +31,7 @@ vi.mock('fs', async () => {
 
 async function loadInstallerWithEnv(claudeConfigDir: string, homeDir: string, codexHome: string, omcHome: string) {
   vi.resetModules();
-  process.env.CLAUDE_CONFIG_DIR = claudeConfigDir;
+  process.env.QODER_CONFIG_DIR = claudeConfigDir;
   process.env.HOME = homeDir;
   process.env.CODEX_HOME = codexHome;
   process.env.OMC_HOME = omcHome;
@@ -69,7 +69,7 @@ describe('installer MCP config ownership (issue #1802)', () => {
     vi.resetModules();
   });
 
-  it('moves legacy settings.json mcpServers into ~/.claude.json during install', async () => {
+  it('moves legacy settings.json mcpServers into ~/.qoder.json during install', async () => {
     const settingsPath = join(claudeConfigDir, 'settings.json');
     const claudeRootConfigPath = join(homeDir, '.claude.json');
     const codexConfigPath = join(codexHome, 'config.toml');

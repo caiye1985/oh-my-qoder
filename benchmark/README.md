@@ -1,6 +1,6 @@
 # SWE-bench Benchmark Suite
 
-Automated benchmark comparison between vanilla Claude Code and OMC-enhanced Claude Code.
+Automated benchmark comparison between vanilla Qoder and OMC-enhanced Qoder.
 
 ## Quick Start
 
@@ -50,8 +50,8 @@ Quick sanity test with limited instances (default: 5):
 ```
 
 ### run_vanilla.sh
-Run vanilla Claude Code benchmark:
-- Standard Claude Code without OMC
+Run vanilla Qoder benchmark:
+- Standard Qoder without OMC
 - Saves predictions to `predictions/vanilla/`
 - Logs to `logs/vanilla_*.log`
 
@@ -76,7 +76,7 @@ Run vanilla Claude Code benchmark:
 
 ### run_omc.sh
 Run OMC-enhanced benchmark:
-- Claude Code with oh-my-claudecode orchestration
+- Qoder with oh-my-qoder orchestration
 - Saves predictions to `predictions/omc/`
 - Logs to `logs/omc_*.log`
 

@@ -23,8 +23,8 @@ const CACHE_STUB_MARKER = 'FROM_CACHE_TEST_STUB';
 const CACHE_STUB_VERSION = '0.0.0-test-stub';
 
 /**
- * Build an isolated CLAUDE_CONFIG_DIR with a stub HUD at
- * `<configDir>/plugins/cache/omc/oh-my-claudecode/0.0.0-test-stub/dist/hud/index.js`.
+ * Build an isolated QODER_CONFIG_DIR with a stub HUD at
+ * `<configDir>/plugins/cache/omc/oh-my-qoder/0.0.0-test-stub/dist/hud/index.js`.
  * Used to pin the cache-fallback step (step 2 in the wrapper) so tests can
  * assert the wrapper actually executed that branch instead of accidentally
  * matching a globally-installed npm fallback (step 4).
@@ -33,7 +33,7 @@ function makeStubConfigDir(rootDir: string): string {
   const configDir = join(rootDir, 'isolated-config');
   const stubDir = join(
     configDir,
-    'plugins', 'cache', 'omc', 'oh-my-claudecode', CACHE_STUB_VERSION, 'dist', 'hud',
+    'plugins', 'cache', 'omc', 'oh-my-qoder', CACHE_STUB_VERSION, 'dist', 'hud',
   );
   mkdirSync(stubDir, { recursive: true });
   writeFileSync(
@@ -47,7 +47,7 @@ function makeStubConfigDir(rootDir: string): string {
 /**
  * Minimal env that scrubs PATH/NODE_PATH so the wrapper's
  * `getGlobalNodeModuleRoots()` cannot reach a globally-installed
- * `oh-my-claude-sisyphus` and silently satisfy the npm fallback step.
+ * `oh-my-qoder` and silently satisfy the npm fallback step.
  */
 function scrubbedEnv(extra: Record<string, string>): Record<string, string> {
   return {
@@ -66,7 +66,7 @@ const CONFIG_DIR_MJS = join(REPO_ROOT, 'scripts', 'lib', 'config-dir.mjs');
 const STDIN_PAYLOAD = JSON.stringify({
   transcript_path: '/dev/null',
   cwd: '/tmp',
-  model: { id: 'claude' },
+  model: { id: 'qoder' },
   context_window: 200000,
 });
 
@@ -131,11 +131,11 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
 
   it('case 1: OMC_PLUGIN_ROOT set + dist/hud/index.js exists → loads from there', () => {
     const s = staged!;
-    // Point CLAUDE_CONFIG_DIR at a non-existent dir so cache/marketplace branches
+    // Point QODER_CONFIG_DIR at a non-existent dir so cache/marketplace branches
     // cannot accidentally fire.
     const isolatedConfig = join(s.dir, 'isolated-config');
     const result = runWrapper(s.wrapperPath, scrubbedEnv({
-      CLAUDE_CONFIG_DIR: isolatedConfig,
+      QODER_CONFIG_DIR: isolatedConfig,
       [OMC_PLUGIN_ROOT_ENV]: s.fakePluginRoot,
     }));
     expect(result.status).toBe(0);
@@ -151,7 +151,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
     const emptyRoot = join(s.dir, 'empty-root');
     mkdirSync(emptyRoot, { recursive: true });
     const result = runWrapper(s.wrapperPath, scrubbedEnv({
-      CLAUDE_CONFIG_DIR: isolatedConfig,
+      QODER_CONFIG_DIR: isolatedConfig,
       [OMC_PLUGIN_ROOT_ENV]: emptyRoot,
     }));
     expect(result.status).toBe(0);
@@ -165,7 +165,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
     const s = staged!;
     const isolatedConfig = makeStubConfigDir(s.dir);
     const result = runWrapper(s.wrapperPath, scrubbedEnv({
-      CLAUDE_CONFIG_DIR: isolatedConfig,
+      QODER_CONFIG_DIR: isolatedConfig,
       // OMC_PLUGIN_ROOT intentionally omitted
     }));
     expect(result.status).toBe(0);
@@ -180,7 +180,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
     const isolatedConfig = makeStubConfigDir(s.dir);
     const ghostRoot = join(s.dir, 'does-not-exist-anywhere');
     const result = runWrapper(s.wrapperPath, scrubbedEnv({
-      CLAUDE_CONFIG_DIR: isolatedConfig,
+      QODER_CONFIG_DIR: isolatedConfig,
       [OMC_PLUGIN_ROOT_ENV]: ghostRoot,
     }));
     expect(result.status).toBe(0);
@@ -193,7 +193,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
   it('case 6: cache step is semver-aware — stable beats prerelease with same [M.m.p]', () => {
     const s = staged!;
     const configDir = join(s.dir, 'isolated-config-semver');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
     // Two versions: 1.0.0-alpha (should lose) and 1.0.0 (should win).
     // A naive localeCompare(numeric) sort places "1.0.0-alpha" > "1.0.0" and picks the prerelease.
     const stableDir = join(cacheBase, '1.0.0', 'dist', 'hud');
@@ -212,7 +212,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
     );
 
     const result = runWrapper(s.wrapperPath, scrubbedEnv({
-      CLAUDE_CONFIG_DIR: configDir,
+      QODER_CONFIG_DIR: configDir,
       // OMC_PLUGIN_ROOT intentionally omitted → cache step fires
     }));
     expect(result.status).toBe(0);
@@ -223,7 +223,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
   it('case 7: cache step orders prerelease tags numerically — rc.10 beats rc.2', () => {
     const s = staged!;
     const configDir = join(s.dir, 'isolated-config-pre-numeric');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
     // Two prerelease-only versions with the same [M.m.p]. A naive localeCompare
     // without { numeric: true } places "rc.2" above "rc.10".
     const rc10Dir = join(cacheBase, '1.0.0-rc.10', 'dist', 'hud');
@@ -242,7 +242,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
     );
 
     const result = runWrapper(s.wrapperPath, scrubbedEnv({
-      CLAUDE_CONFIG_DIR: configDir,
+      QODER_CONFIG_DIR: configDir,
     }));
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('FROM_RC_10');
@@ -252,7 +252,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
   it('case 8: cache step falls back to older built version when latest built version fails to import', () => {
     const s = staged!;
     const configDir = join(s.dir, 'isolated-config-cache-fallback');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
 
     const latestBrokenDir = join(cacheBase, '4.11.3', 'dist', 'hud');
     const olderWorkingDir = join(cacheBase, '4.11.2', 'dist', 'hud');
@@ -271,7 +271,7 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
     );
 
     const result = runWrapper(s.wrapperPath, scrubbedEnv({
-      CLAUDE_CONFIG_DIR: configDir,
+      QODER_CONFIG_DIR: configDir,
       // OMC_PLUGIN_ROOT intentionally omitted → cache step fires
     }));
 
@@ -300,8 +300,8 @@ describe('HUD wrapper — OMC_PLUGIN_ROOT resolution', () => {
     // Spot-check: critical invariants of the new wrapper
     expect(txt).toContain('OMC_PLUGIN_ROOT');
     expect(txt).not.toContain('OMC_DEV');
-    expect(txt).not.toContain('Workspace/oh-my-claudecode');
-    expect(txt).not.toContain('projects/oh-my-claudecode');
+    expect(txt).not.toContain('Workspace/oh-my-qoder');
+    expect(txt).not.toContain('projects/oh-my-qoder');
   });
 
   it('uses shell:true only for Windows npm root discovery', () => {

@@ -28,7 +28,7 @@ This guide documents all screenshots needed for the seminar presentation, with d
 **Capture Instructions:**
 1. Open terminal with dark theme (Dracula or similar)
 2. Set window size to 100x40 for readability
-3. Run: `claude` (start Claude Code)
+3. Run: `claude` (start Qoder)
 4. Type: `autopilot: build a simple REST API for bookstore inventory`
 5. Wait for completion (3-5 minutes)
 6. Scroll to show all phases in one screen if possible
@@ -46,7 +46,7 @@ autopilot: build a React dashboard with user authentication
 **ASCII Mockup:**
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ claude @ oh-my-claudecode                                    [Phase 4/5] ⚡ │
+│ claude @ oh-my-qoder                                    [Phase 4/5] ⚡ │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │ > autopilot: build a REST API for bookstore inventory                       │
@@ -160,7 +160,7 @@ autopilot: build a React dashboard with user authentication
 
 ### 2. `before-after.png` (Slide 6)
 
-**Description:** Split-screen comparison showing manual Claude Code usage on left vs. OMC orchestrated on right, demonstrating the difference in workflow.
+**Description:** Split-screen comparison showing manual Qoder usage on left vs. OMC orchestrated on right, demonstrating the difference in workflow.
 
 **Capture Instructions:**
 1. Use `tmux` or terminal split feature
@@ -187,7 +187,7 @@ autopilot: build a React dashboard with user authentication
 **ASCII Mockup:**
 ```
 ┌─────────────────────────────────────┬─────────────────────────────────────┐
-│ BEFORE: Manual Claude Code          │ AFTER: OMC Orchestration            │
+│ BEFORE: Manual Qoder          │ AFTER: OMC Orchestration            │
 ├─────────────────────────────────────┼─────────────────────────────────────┤
 │ > Can you implement user auth?      │ > autopilot: implement user auth    │
 │                                     │   with validation and tests         │
@@ -252,7 +252,7 @@ Create as a slide graphic using:
 **Description:** HUD statusline showing active agents, todo progress, token usage, and context window status in real-time.
 
 **Capture Instructions:**
-1. Ensure HUD is installed: `claude` then `/oh-my-claudecode:hud setup`
+1. Ensure HUD is installed: `claude` then `/oh-my-qoder:hud setup`
 2. Start a task with multiple agents:
    ```
    ultrawork: refactor the authentication system
@@ -500,7 +500,7 @@ Time →
 **Capture Instructions:**
 1. Use a pipeline preset or custom pipeline:
    ```
-   /oh-my-claudecode:pipeline review "analyze the authentication system"
+   /oh-my-qoder:pipeline review "analyze the authentication system"
    ```
 2. Capture showing each stage completing and passing data to next
 3. Alternative: Check `.omc/logs/pipeline.log` for formatted output
@@ -759,7 +759,7 @@ Time →
 **Capture Instructions:**
 1. Start swarm mode:
    ```
-   /oh-my-claudecode:swarm 5:executor "implement all CRUD operations"
+   /oh-my-qoder:swarm 5:executor "implement all CRUD operations"
    ```
 2. Capture when agents are actively claiming tasks
 3. Check `.omc/state/swarm-tasks.json` for task status

@@ -1,4 +1,4 @@
-# oh-my-claudecode v4.15.0: add antigravity (agy), surface usage hint
+# oh-my-qoder v4.15.0: add antigravity (agy), surface usage hint
 
 ## Release Notes
 
@@ -30,7 +30,7 @@ Release with **2 new features**, **8 bug fixes**, **2 other changes** across **2
 - **docs(release): include PR #3300 in v4.14.8 notes**
 - **docs: clarify psmux Windows team caveats** (#3312)
 - **docs: clarify OMC automation and SDK surfaces**
-- **docs: audit Claude Code changelog compatibility** (#3303)
+- **docs: audit Qoder changelog compatibility** (#3303)
 
 ### Other Changes
 

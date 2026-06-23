@@ -1,7 +1,7 @@
 import { isCliAvailable, type CliAgentType } from '../../team/model-contract.js';
 
 export interface SkillRuntimeAvailability {
-  claude: boolean;
+  qoder: boolean;
   codex: boolean;
   gemini: boolean;
   grok: boolean;
@@ -19,7 +19,7 @@ export function detectSkillRuntimeAvailability(
     }
   };
   return {
-    claude: safeDetect('claude'),
+    qoder: safeDetect('qoder'),
     codex: safeDetect('codex'),
     gemini: safeDetect('gemini'),
     grok: safeDetect('grok'),

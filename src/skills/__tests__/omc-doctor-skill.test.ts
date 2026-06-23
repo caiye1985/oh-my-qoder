@@ -3,21 +3,21 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 describe('omc-doctor skill (issue #2254)', () => {
-  it('documents CLAUDE.md OMC version drift check against cached plugin version', () => {
+  it('documents AGENTS.md OMC version drift check against cached plugin version', () => {
     const skillPath = join(process.cwd(), 'skills', 'omc-doctor', 'SKILL.md');
     const content = readFileSync(skillPath, 'utf8');
 
-    expect(content).toContain('CLAUDE.md OMC version:');
+    expect(content).toContain('AGENTS.md OMC version:');
     expect(content).toContain('OMC version source:');
     expect(content).toContain('Latest cached plugin version:');
-    expect(content).toContain('VERSION DRIFT: CLAUDE.md and plugin versions differ');
+    expect(content).toContain('VERSION DRIFT: AGENTS.md and plugin versions differ');
     expect(content).toContain('VERSION CHECK SKIPPED: missing CLAUDE marker or plugin cache');
     expect(content).toContain('VERSION MATCH: CLAUDE and plugin cache are aligned');
     expect(content).toContain('CLAUDE-*.md');
     expect(content).toContain('deterministic companion');
     expect(content).toContain('scanned deterministic CLAUDE sources');
     expect(content).not.toContain('!==');
-    expect(content).toContain('If `CLAUDE.md OMC version` != `Latest cached plugin version`: WARN - version drift detected');
+    expect(content).toContain('If `AGENTS.md OMC version` != `Latest cached plugin version`: WARN - version drift detected');
   });
 });
 
@@ -40,7 +40,7 @@ describe('omc-doctor skill package version diagnostic (issue #2981)', () => {
     const skillPath = join(process.cwd(), 'skills', 'omc-doctor', 'SKILL.md');
     const content = readFileSync(skillPath, 'utf8');
 
-    expect(content).toContain('npm view oh-my-claude-sisyphus version');
-    expect(content).not.toContain('npm view oh-my-claudecode version');
+    expect(content).toContain('npm view oh-my-qoder version');
+    expect(content).not.toContain('npm view oh-my-qoder version');
   });
 });

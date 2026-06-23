@@ -25,7 +25,7 @@ import {
 vi.mock('fs');
 vi.mock('os');
 vi.mock('../utils/config-dir.js', () => ({
-  getClaudeConfigDir: () => '/home/testuser/.claude',
+  getQoderConfigDir: () => '/home/testuser/.claude',
 }));
 
 describe('Task System Support', () => {

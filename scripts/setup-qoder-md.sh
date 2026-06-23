@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
-# setup-claude-md.sh - Unified CLAUDE.md download/merge script
+# setup-claude-md.sh - Unified AGENTS.md download/merge script
 # Usage: setup-claude-md.sh <local|global> [overwrite|preserve]
 #
 # Handles: version extraction, backup, download, marker stripping, merge, version reporting.
 # For global mode, defaults to overwrite; preserve mode keeps the user's base
-# CLAUDE.md and writes OMC content to a companion file for `omc` launch.
+# AGENTS.md and writes OMC content to a companion file for `omc` launch.
 
 set -euo pipefail
 
 MODE="${1:?Usage: setup-claude-md.sh <local|global> [overwrite|preserve]}"
 INSTALL_STYLE="${2:-overwrite}"
-DOWNLOAD_URL="https://raw.githubusercontent.com/Yeachan-Heo/oh-my-claudecode/main/docs/CLAUDE.md"
+DOWNLOAD_URL="https://raw.githubusercontent.com/Yeachan-Heo/oh-my-qoder/main/docs/AGENTS.md"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 . "$SCRIPT_DIR/lib/config-dir.sh"
 
 # Resolve active plugin root from installed_plugins.json.
-# Handles stale CLAUDE_PLUGIN_ROOT when a session was started before a plugin
+# Handles stale QODER_PLUGIN_ROOT when a session was started before a plugin
 # update (e.g. 4.8.2 session invoking setup after updating to 4.9.0).
 # Same pattern as run.cjs resolveTarget() fallback.
 resolve_active_plugin_root() {
   is_valid_plugin_root() {
     local candidate="$1"
-    [ -d "$candidate" ] && [ -f "${candidate}/docs/CLAUDE.md" ]
+    [ -d "$candidate" ] && [ -f "${candidate}/docs/AGENTS.md" ]
   }
 
   list_cache_versions() {
@@ -41,7 +41,7 @@ resolve_active_plugin_root() {
     active_path=$(jq -r '
       (.plugins // .)
       | to_entries[]
-      | select(.key | startswith("oh-my-claudecode"))
+      | select(.key | startswith("oh-my-qoder"))
       | .value[0].installPath // empty
     ' "$installed_plugins" 2>/dev/null)
 
@@ -89,7 +89,7 @@ resolve_active_plugin_root() {
 }
 
 ACTIVE_PLUGIN_ROOT="$(resolve_active_plugin_root)"
-CANONICAL_CLAUDE_MD="${ACTIVE_PLUGIN_ROOT}/docs/CLAUDE.md"
+CANONICAL_CLAUDE_MD="${ACTIVE_PLUGIN_ROOT}/docs/AGENTS.md"
 CANONICAL_OMC_REFERENCE_SKILL="${ACTIVE_PLUGIN_ROOT}/skills/omc-reference/SKILL.md"
 
 ensure_local_omc_git_exclude() {
@@ -138,12 +138,12 @@ EOF
 # Determine target path
 CONFIG_DIR="$(resolve_claude_config_dir)"
 if [ "$MODE" = "local" ]; then
-  mkdir -p .claude/skills/omc-reference
-  TARGET_PATH=".claude/CLAUDE.md"
-  SKILL_TARGET_PATH=".claude/skills/omc-reference/SKILL.md"
+  mkdir -p .qoder/skills/omc-reference
+  TARGET_PATH=".qoder/AGENTS.md"
+  SKILL_TARGET_PATH=".qoder/skills/omc-reference/SKILL.md"
 elif [ "$MODE" = "global" ]; then
   mkdir -p "$CONFIG_DIR/skills/omc-reference"
-  TARGET_PATH="$CONFIG_DIR/CLAUDE.md"
+  TARGET_PATH="$CONFIG_DIR/AGENTS.md"
   SKILL_TARGET_PATH="$CONFIG_DIR/skills/omc-reference/SKILL.md"
 else
   echo "ERROR: Invalid mode '$MODE'. Use 'local' or 'global'." >&2
@@ -164,9 +164,9 @@ install_omc_reference_skill() {
   if [ -f "$CANONICAL_OMC_REFERENCE_SKILL" ]; then
     cp "$CANONICAL_OMC_REFERENCE_SKILL" "$temp_skill"
     source_label="$CANONICAL_OMC_REFERENCE_SKILL"
-  elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -f "${CLAUDE_PLUGIN_ROOT}/skills/omc-reference/SKILL.md" ]; then
-    cp "${CLAUDE_PLUGIN_ROOT}/skills/omc-reference/SKILL.md" "$temp_skill"
-    source_label="${CLAUDE_PLUGIN_ROOT}/skills/omc-reference/SKILL.md"
+  elif [ -n "${QODER_PLUGIN_ROOT:-}" ] && [ -f "${QODER_PLUGIN_ROOT}/skills/omc-reference/SKILL.md" ]; then
+    cp "${QODER_PLUGIN_ROOT}/skills/omc-reference/SKILL.md" "$temp_skill"
+    source_label="${QODER_PLUGIN_ROOT}/skills/omc-reference/SKILL.md"
   else
     rm -f "$temp_skill"
     echo "Skipped omc-reference skill install (canonical skill source unavailable)"
@@ -200,7 +200,7 @@ if [ -f "$TARGET_PATH" ]; then
   BACKUP_DATE=$(date +%Y-%m-%d_%H%M%S)
   BACKUP_PATH="${TARGET_PATH}.backup.${BACKUP_DATE}"
   cp "$TARGET_PATH" "$BACKUP_PATH"
-  echo "Backed up existing CLAUDE.md to $BACKUP_PATH"
+  echo "Backed up existing AGENTS.md to $BACKUP_PATH"
 fi
 
 # Load canonical OMC content to temp file
@@ -260,24 +260,24 @@ SOURCE_LABEL=""
 if [ -f "$CANONICAL_CLAUDE_MD" ]; then
   cp "$CANONICAL_CLAUDE_MD" "$TEMP_OMC"
   SOURCE_LABEL="$CANONICAL_CLAUDE_MD"
-elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -f "${CLAUDE_PLUGIN_ROOT}/docs/CLAUDE.md" ]; then
-  cp "${CLAUDE_PLUGIN_ROOT}/docs/CLAUDE.md" "$TEMP_OMC"
-  SOURCE_LABEL="${CLAUDE_PLUGIN_ROOT}/docs/CLAUDE.md"
+elif [ -n "${QODER_PLUGIN_ROOT:-}" ] && [ -f "${QODER_PLUGIN_ROOT}/docs/AGENTS.md" ]; then
+  cp "${QODER_PLUGIN_ROOT}/docs/AGENTS.md" "$TEMP_OMC"
+  SOURCE_LABEL="${QODER_PLUGIN_ROOT}/docs/AGENTS.md"
 else
   curl -fsSL "$DOWNLOAD_URL" -o "$TEMP_OMC"
   SOURCE_LABEL="$DOWNLOAD_URL"
 fi
 
 if [ ! -s "$TEMP_OMC" ]; then
-  echo "ERROR: Failed to download CLAUDE.md. Aborting."
+  echo "ERROR: Failed to download AGENTS.md. Aborting."
   echo "FALLBACK: Manually download from: $DOWNLOAD_URL"
   rm -f "$TEMP_OMC"
   exit 1
 fi
 
 if ! grep -q '<!-- OMC:START -->' "$TEMP_OMC" || ! grep -q '<!-- OMC:END -->' "$TEMP_OMC"; then
-  echo "ERROR: Canonical CLAUDE.md source is missing required OMC markers: $SOURCE_LABEL" >&2
-  echo "Refusing to install a summarized or malformed CLAUDE.md." >&2
+  echo "ERROR: Canonical AGENTS.md source is missing required OMC markers: $SOURCE_LABEL" >&2
+  echo "Refusing to install a summarized or malformed AGENTS.md." >&2
   exit 1
 fi
 
@@ -292,7 +292,7 @@ if [ ! -f "$TARGET_PATH" ]; then
   # Fresh install: wrap in markers
   write_wrapped_omc_file "$TARGET_PATH"
   rm -f "$TEMP_OMC"
-  echo "Installed CLAUDE.md (fresh)"
+  echo "Installed AGENTS.md (fresh)"
 else
   # Merge: preserve user content outside OMC markers
   if grep -q '<!-- OMC:START -->' "$TARGET_PATH"; then
@@ -331,16 +331,16 @@ else
     echo "Updated OMC section (user customizations preserved)"
   elif [ "$MODE" = "global" ] && [ "$INSTALL_STYLE" = "preserve" ]; then
     COMPANION_TARGET_PATH="$CONFIG_DIR/$COMPANION_FILENAME"
-    ensure_not_symlink_path "$COMPANION_TARGET_PATH" "OMC companion CLAUDE.md"
-    ensure_not_symlink_path "$TARGET_PATH" "base CLAUDE.md import block"
+    ensure_not_symlink_path "$COMPANION_TARGET_PATH" "OMC companion AGENTS.md"
+    ensure_not_symlink_path "$TARGET_PATH" "base AGENTS.md import block"
     if [ -f "$COMPANION_TARGET_PATH" ] && [ -n "$BACKUP_DATE" ]; then
       cp "$COMPANION_TARGET_PATH" "${COMPANION_TARGET_PATH}.backup.${BACKUP_DATE}"
-      echo "Backed up existing companion CLAUDE.md to ${COMPANION_TARGET_PATH}.backup.${BACKUP_DATE}"
+      echo "Backed up existing companion AGENTS.md to ${COMPANION_TARGET_PATH}.backup.${BACKUP_DATE}"
     fi
     write_wrapped_omc_file "$COMPANION_TARGET_PATH"
     ensure_managed_companion_import "$TARGET_PATH" "$COMPANION_FILENAME"
     VALIDATION_PATH="$COMPANION_TARGET_PATH"
-    echo "Installed OMC companion file and preserved existing CLAUDE.md"
+    echo "Installed OMC companion file and preserved existing AGENTS.md"
   else
     # No markers: wrap new content in markers, append old content as user section
     # Strip any preserve-mode import block left by a prior preserve install
@@ -354,17 +354,17 @@ else
       cat "$TEMP_OMC"
       echo '<!-- OMC:END -->'
       echo ""
-      echo "<!-- User customizations (migrated from previous CLAUDE.md) -->"
+      echo "<!-- User customizations (migrated from previous AGENTS.md) -->"
       printf '%s\n' "$OLD_CONTENT"
     } > "${TARGET_PATH}.tmp"
     mv "${TARGET_PATH}.tmp" "$TARGET_PATH"
-    echo "Migrated existing CLAUDE.md (added OMC markers, preserved old content)"
+    echo "Migrated existing AGENTS.md (added OMC markers, preserved old content)"
   fi
   rm -f "$TEMP_OMC"
 
   # Clean up orphaned companion file from a prior preserve-mode install.
   # If left behind, prepareOmcLaunchConfigDir reads stale companion content
-  # instead of the freshly-updated CLAUDE.md during omc launches.
+  # instead of the freshly-updated AGENTS.md during omc launches.
   if [ "$MODE" = "global" ] && [ "$INSTALL_STYLE" = "overwrite" ]; then
     COMPANION_TARGET_PATH="$CONFIG_DIR/$COMPANION_FILENAME"
     if [ -f "$COMPANION_TARGET_PATH" ]; then
@@ -378,7 +378,7 @@ else
 fi
 
 if ! grep -q '<!-- OMC:START -->' "$VALIDATION_PATH" || ! grep -q '<!-- OMC:END -->' "$VALIDATION_PATH"; then
-  echo "ERROR: Installed CLAUDE.md is missing required OMC markers: $VALIDATION_PATH" >&2
+  echo "ERROR: Installed AGENTS.md is missing required OMC markers: $VALIDATION_PATH" >&2
   exit 1
 fi
 
@@ -397,11 +397,11 @@ if [ -z "$NEW_VERSION" ]; then
   NEW_VERSION="unknown"
 fi
 if [ "$OLD_VERSION" = "none" ]; then
-  echo "Installed CLAUDE.md: $NEW_VERSION"
+  echo "Installed AGENTS.md: $NEW_VERSION"
 elif [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
-  echo "CLAUDE.md unchanged: $NEW_VERSION"
+  echo "AGENTS.md unchanged: $NEW_VERSION"
 else
-  echo "Updated CLAUDE.md: $OLD_VERSION -> $NEW_VERSION"
+  echo "Updated AGENTS.md: $OLD_VERSION -> $NEW_VERSION"
 fi
 
 # Legacy hooks cleanup (global mode only)
@@ -425,8 +425,8 @@ if [ "$MODE" = "global" ]; then
 fi
 
 # Verify plugin installation
-if [ -f "$CONFIG_DIR/settings.json" ] && grep -q "oh-my-claudecode" "$CONFIG_DIR/settings.json"; then
+if [ -f "$CONFIG_DIR/settings.json" ] && grep -q "oh-my-qoder" "$CONFIG_DIR/settings.json"; then
   echo "Plugin verified"
 else
-  echo "Plugin NOT found - run: claude /install-plugin oh-my-claudecode"
+  echo "Plugin NOT found - run: claude /install-plugin oh-my-qoder"
 fi

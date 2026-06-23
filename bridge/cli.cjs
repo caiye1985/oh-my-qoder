@@ -3035,9 +3035,9 @@ function stripTrailingSep(p) {
   }
   return p === (0, import_path.parse)(p).root ? p : p.slice(0, -1);
 }
-function getClaudeConfigDir() {
+function getQoderConfigDir() {
   const home = (0, import_os.homedir)();
-  const configured = process.env.CLAUDE_CONFIG_DIR?.trim();
+  const configured = process.env.QODER_CONFIG_DIR?.trim();
   if (!configured) {
     return stripTrailingSep((0, import_path.normalize)((0, import_path.join)(home, ".claude")));
   }
@@ -3050,7 +3050,7 @@ function getClaudeConfigDir() {
   return stripTrailingSep((0, import_path.normalize)(configured));
 }
 function getOmcConfigDir() {
-  return (0, import_path.join)(getClaudeConfigDir(), ".omc");
+  return (0, import_path.join)(getQoderConfigDir(), ".omc");
 }
 function getUpdateCheckCachePath() {
   return (0, import_path.join)(getOmcConfigDir(), "update-check.json");
@@ -3225,7 +3225,7 @@ function compareSemverDesc(a, b) {
 }
 function purgeStalePluginCacheVersions(options) {
   const result = { removed: 0, removedPaths: [], symlinked: 0, symlinkPaths: [], errors: [] };
-  const configDir = getClaudeConfigDir();
+  const configDir = getQoderConfigDir();
   const pluginsDir = (0, import_path2.join)(configDir, "plugins");
   const installedFile = (0, import_path2.join)(pluginsDir, "installed_plugins.json");
   const cacheDir = (0, import_path2.join)(pluginsDir, "cache");
@@ -3617,9 +3617,9 @@ function getDefaultTierModels() {
     HIGH: getDefaultModelHigh()
   };
 }
-function resolveClaudeFamily(modelId) {
+function resolveQoderFamily(modelId) {
   const lower = modelId.toLowerCase();
-  if (!lower.includes("claude")) return null;
+  if (!lower.includes("qoder")) return null;
   if (lower.includes("sonnet")) return "SONNET";
   if (lower.includes("opus")) return "OPUS";
   if (lower.includes("haiku")) return "HAIKU";
@@ -3631,14 +3631,14 @@ function hasBedrockModelId(modelIds) {
     if (/^((us|eu|ap|global)\.anthropic\.|anthropic\.claude)/i.test(modelId)) {
       return true;
     }
-    if (/^arn:aws(-[^:]+)?:bedrock:/i.test(modelId) && /:(inference-profile|application-inference-profile)\//i.test(modelId) && modelId.toLowerCase().includes("claude")) {
+    if (/^arn:aws(-[^:]+)?:bedrock:/i.test(modelId) && /:(inference-profile|application-inference-profile)\//i.test(modelId) && modelId.toLowerCase().includes("qoder")) {
       return true;
     }
   }
   return false;
 }
 function isBedrock() {
-  if (process.env.CLAUDE_CODE_USE_BEDROCK === "1") {
+  if (process.env.QODER_USE_BEDROCK === "1") {
     return true;
   }
   return hasBedrockModelId(getProviderDetectionModelEnvValues());
@@ -3656,7 +3656,7 @@ function isProviderSpecificModelId(modelId) {
   return false;
 }
 function isVertexAI() {
-  if (process.env.CLAUDE_CODE_USE_VERTEX === "1") {
+  if (process.env.QODER_USE_VERTEX === "1") {
     return true;
   }
   return hasVertexModelId(getProviderDetectionModelEnvValues());
@@ -3667,7 +3667,7 @@ function hasVertexModelId(modelIds) {
 function hasNonClaudeModelId(modelIds) {
   for (const modelId of modelIds) {
     const lower = modelId.toLowerCase();
-    if (!lower.includes("claude") && !CLAUDE_TIER_ALIASES.has(lower)) {
+    if (!lower.includes("qoder") && !CLAUDE_TIER_ALIASES.has(lower)) {
       return true;
     }
   }
@@ -3677,10 +3677,10 @@ function shouldAutoForceInherit() {
   if (process.env.OMC_ROUTING_FORCE_INHERIT === "true") {
     return true;
   }
-  if (process.env.CLAUDE_CODE_USE_BEDROCK === "1") {
+  if (process.env.QODER_USE_BEDROCK === "1") {
     return true;
   }
-  if (process.env.CLAUDE_CODE_USE_VERTEX === "1") {
+  if (process.env.QODER_USE_VERTEX === "1") {
     return true;
   }
   const directModelValues = getDirectProviderDetectionModelEnvValues();
@@ -3700,47 +3700,47 @@ function shouldAutoForceInherit() {
   }
   return false;
 }
-var DIRECT_MODEL_ENV_KEYS, INHERIT_TIER_PRIORITY, CLAUDE_TIER_ALIASES, TIER_ENV_KEYS, CLAUDE_FAMILY_DEFAULTS, BUILTIN_TIER_MODEL_DEFAULTS, CLAUDE_FAMILY_HIGH_VARIANTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS;
+var DIRECT_MODEL_ENV_KEYS, INHERIT_TIER_PRIORITY, CLAUDE_TIER_ALIASES, TIER_ENV_KEYS, QODER_FAMILY_DEFAULTS, BUILTIN_TIER_MODEL_DEFAULTS, QODER_FAMILY_HIGH_VARIANTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS;
 var init_models = __esm({
   "src/config/models.ts"() {
     "use strict";
     init_ssrf_guard();
-    DIRECT_MODEL_ENV_KEYS = ["CLAUDE_MODEL", "ANTHROPIC_MODEL"];
+    DIRECT_MODEL_ENV_KEYS = ["QODER_MODEL", "ANTHROPIC_MODEL"];
     INHERIT_TIER_PRIORITY = ["MEDIUM", "HIGH", "LOW"];
     CLAUDE_TIER_ALIASES = /* @__PURE__ */ new Set(["sonnet", "opus", "haiku", "fable"]);
     TIER_ENV_KEYS = {
       LOW: [
         "OMC_MODEL_LOW",
-        "CLAUDE_CODE_BEDROCK_HAIKU_MODEL",
+        "QODER_BEDROCK_HAIKU_MODEL",
         "ANTHROPIC_DEFAULT_HAIKU_MODEL"
       ],
       MEDIUM: [
         "OMC_MODEL_MEDIUM",
-        "CLAUDE_CODE_BEDROCK_SONNET_MODEL",
+        "QODER_BEDROCK_SONNET_MODEL",
         "ANTHROPIC_DEFAULT_SONNET_MODEL"
       ],
       HIGH: [
         "OMC_MODEL_HIGH",
-        "CLAUDE_CODE_BEDROCK_OPUS_MODEL",
+        "QODER_BEDROCK_OPUS_MODEL",
         "ANTHROPIC_DEFAULT_OPUS_MODEL"
       ]
     };
-    CLAUDE_FAMILY_DEFAULTS = {
+    QODER_FAMILY_DEFAULTS = {
       HAIKU: "claude-haiku-4-5",
       SONNET: "claude-sonnet-4-6",
       OPUS: "claude-opus-4-8",
       FABLE: "claude-fable-5"
     };
     BUILTIN_TIER_MODEL_DEFAULTS = {
-      LOW: CLAUDE_FAMILY_DEFAULTS.HAIKU,
-      MEDIUM: CLAUDE_FAMILY_DEFAULTS.SONNET,
-      HIGH: CLAUDE_FAMILY_DEFAULTS.OPUS
+      LOW: QODER_FAMILY_DEFAULTS.HAIKU,
+      MEDIUM: QODER_FAMILY_DEFAULTS.SONNET,
+      HIGH: QODER_FAMILY_DEFAULTS.OPUS
     };
-    CLAUDE_FAMILY_HIGH_VARIANTS = {
-      HAIKU: `${CLAUDE_FAMILY_DEFAULTS.HAIKU}-high`,
-      SONNET: `${CLAUDE_FAMILY_DEFAULTS.SONNET}-high`,
-      OPUS: `${CLAUDE_FAMILY_DEFAULTS.OPUS}-high`,
-      FABLE: `${CLAUDE_FAMILY_DEFAULTS.FABLE}-high`
+    QODER_FAMILY_HIGH_VARIANTS = {
+      HAIKU: `${QODER_FAMILY_DEFAULTS.HAIKU}-high`,
+      SONNET: `${QODER_FAMILY_DEFAULTS.SONNET}-high`,
+      OPUS: `${QODER_FAMILY_DEFAULTS.OPUS}-high`,
+      FABLE: `${QODER_FAMILY_DEFAULTS.FABLE}-high`
     };
     BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
       codexModel: "gpt-5.3-codex",
@@ -3922,7 +3922,7 @@ function buildDefaultConfig() {
     // Delegation routing configuration (opt-in feature for external model routing)
     delegationRouting: {
       enabled: false,
-      defaultProvider: "claude",
+      defaultProvider: "qoder",
       roles: {}
     },
     // /team role routing (Option E — /team-scoped per-role provider & model)
@@ -3968,7 +3968,7 @@ function buildDefaultConfig() {
 function getConfigPaths() {
   const userConfigDir = getConfigDir();
   return {
-    user: (0, import_path3.join)(userConfigDir, "claude-omc", "config.jsonc"),
+    user: (0, import_path3.join)(userConfigDir, "qoder-omc", "config.jsonc"),
     project: (0, import_path3.join)(process.cwd(), ".claude", "omc.jsonc")
   };
 }
@@ -4107,7 +4107,7 @@ function loadEnvConfig() {
   };
   if (process.env.OMC_EXTERNAL_MODELS_FALLBACK_POLICY) {
     const policy = process.env.OMC_EXTERNAL_MODELS_FALLBACK_POLICY;
-    if (policy === "provider_chain" || policy === "cross_provider" || policy === "claude_only") {
+    if (policy === "provider_chain" || policy === "cross_provider" || policy === "qoder_only") {
       externalModelsFallback.onModelFailure = policy;
     }
   }
@@ -4125,7 +4125,7 @@ function loadEnvConfig() {
   }
   if (process.env.OMC_DELEGATION_ROUTING_DEFAULT_PROVIDER) {
     const provider = process.env.OMC_DELEGATION_ROUTING_DEFAULT_PROVIDER;
-    if (["claude", "codex", "gemini"].includes(provider)) {
+    if (["qoder", "codex", "gemini"].includes(provider)) {
       config2.delegationRouting = {
         ...config2.delegationRouting,
         defaultProvider: provider
@@ -4358,9 +4358,9 @@ function findContextFiles(startDir) {
   const searchDir = startDir ?? process.cwd();
   const contextFileNames = [
     "AGENTS.md",
-    "CLAUDE.md",
-    ".claude/CLAUDE.md",
-    ".claude/AGENTS.md"
+    "AGENTS.md",
+    ".qoder/AGENTS.md",
+    ".qoder/AGENTS.md"
   ];
   let currentDir = searchDir;
   const searchedDirs = /* @__PURE__ */ new Set();
@@ -4419,12 +4419,12 @@ var init_loader = __esm({
     CANONICAL_TEAM_ROLE_SET = new Set(CANONICAL_TEAM_ROLES);
     CURSOR_EXECUTOR_TEAM_ROLE_SET = new Set(CURSOR_EXECUTOR_TEAM_ROLES);
     KNOWN_AGENT_NAME_SET = new Set(KNOWN_AGENT_NAMES);
-    TEAM_ROLE_PROVIDERS = /* @__PURE__ */ new Set(["claude", "codex", "gemini", "grok", "cursor", "antigravity"]);
+    TEAM_ROLE_PROVIDERS = /* @__PURE__ */ new Set(["qoder", "codex", "gemini", "grok", "cursor", "antigravity"]);
     TEAM_ROLE_TIERS = /* @__PURE__ */ new Set(["HIGH", "MEDIUM", "LOW"]);
     AUTOPILOT_EXECUTION_BACKENDS = /* @__PURE__ */ new Set(["team", "solo"]);
     AUTOPILOT_PLANNING_MODES = /* @__PURE__ */ new Set(["ralplan", "direct"]);
     AUTOPILOT_TEAM_AGENT_TYPES = /* @__PURE__ */ new Set([
-      "claude",
+      "qoder",
       "codex",
       "gemini",
       "grok",
@@ -5758,7 +5758,7 @@ function isValidTranscriptPath(transcriptPath) {
   const normalized = (0, import_path17.normalize)(expandedPath);
   const home = (0, import_os4.homedir)();
   const allowedPrefixes = [
-    getClaudeConfigDir(),
+    getQoderConfigDir(),
     (0, import_path17.join)(home, ".omc"),
     (0, import_os4.tmpdir)(),
     // honors $TMPDIR; covers /tmp and macOS /var/folders defaults
@@ -5848,13 +5848,13 @@ function resolveTranscriptPath(transcriptPath, cwd2) {
   }
   const effectiveCwd = cwd2 || process.cwd();
   const normalizedCwd = (0, import_path17.normalize)(effectiveCwd);
-  const worktreeMarker = (0, import_path17.normalize)("/.claude/worktrees/");
+  const worktreeMarker = (0, import_path17.normalize)("/.qoder/worktrees/");
   const markerIdx = normalizedCwd.indexOf(worktreeMarker);
   if (markerIdx !== -1) {
     const mainProjectRoot = normalizedCwd.substring(0, markerIdx);
     const sessionFile = (0, import_path17.basename)(transcriptPath);
     if (sessionFile) {
-      const projectsDir = (0, import_path17.join)(getClaudeConfigDir(), "projects");
+      const projectsDir = (0, import_path17.join)(getQoderConfigDir(), "projects");
       if ((0, import_fs12.existsSync)(projectsDir)) {
         const encodedMain = encodeProjectPath(mainProjectRoot);
         const resolvedPath = (0, import_path17.join)(projectsDir, encodedMain, sessionFile);
@@ -5885,7 +5885,7 @@ function resolveTranscriptPath(transcriptPath, cwd2) {
     if (mainRepoRoot !== worktreeTop) {
       const sessionFile = (0, import_path17.basename)(transcriptPath);
       if (sessionFile) {
-        const projectsDir = (0, import_path17.join)(getClaudeConfigDir(), "projects");
+        const projectsDir = (0, import_path17.join)(getQoderConfigDir(), "projects");
         if ((0, import_fs12.existsSync)(projectsDir)) {
           const encodedMain = encodeProjectPath(mainRepoRoot);
           const resolvedPath = (0, import_path17.join)(projectsDir, encodedMain, sessionFile);
@@ -6041,7 +6041,7 @@ var init_worktree_paths = __esm({
 function loadSecurityFromConfigFiles() {
   const paths = [
     (0, import_path18.join)(process.cwd(), ".claude", "omc.jsonc"),
-    (0, import_path18.join)(getConfigDir(), "claude-omc", "config.jsonc")
+    (0, import_path18.join)(getConfigDir(), "qoder-omc", "config.jsonc")
   ];
   for (const configPath of paths) {
     if (!(0, import_fs13.existsSync)(configPath)) continue;
@@ -6952,7 +6952,7 @@ var init_constants = __esm({
     import_os5 = require("os");
     init_config_dir();
     init_worktree_paths();
-    USER_SKILLS_DIR = (0, import_path20.join)(getClaudeConfigDir(), "skills", "omc-learned");
+    USER_SKILLS_DIR = (0, import_path20.join)(getQoderConfigDir(), "skills", "omc-learned");
     GLOBAL_SKILLS_DIR = (0, import_path20.join)((0, import_os5.homedir)(), ".omc", "skills");
     PROJECT_SKILLS_SUBDIR = OmcPaths.SKILLS;
     PROJECT_AGENT_SKILLS_SUBDIR = (0, import_path20.join)(".agents", "skills");
@@ -7653,7 +7653,7 @@ function canStartMode(mode, cwd2) {
         return {
           allowed: false,
           blockedBy: exclusiveMode,
-          message: `Cannot start ${MODE_CONFIGS[mode].name} while ${config2.name} is active. Cancel ${config2.name} first with /oh-my-claudecode:cancel.`
+          message: `Cannot start ${MODE_CONFIGS[mode].name} while ${config2.name} is active. Cancel ${config2.name} first with /oh-my-qoder:cancel.`
         };
       }
     }
@@ -8173,7 +8173,7 @@ function appendReplayEvent(directory, sessionId, event) {
 function recordAgentStart(directory, sessionId, agentId, agentType, task, parentMode, model) {
   appendReplayEvent(directory, sessionId, {
     agent: agentId.substring(0, 7),
-    agent_type: agentType.replace("oh-my-claudecode:", ""),
+    agent_type: agentType.replace("oh-my-qoder:", ""),
     event: "agent_start",
     task: task?.substring(0, 100),
     parent_mode: parentMode,
@@ -8183,7 +8183,7 @@ function recordAgentStart(directory, sessionId, agentId, agentType, task, parent
 function recordAgentStop(directory, sessionId, agentId, agentType, success, durationMs) {
   appendReplayEvent(directory, sessionId, {
     agent: agentId.substring(0, 7),
-    agent_type: agentType.replace("oh-my-claudecode:", ""),
+    agent_type: agentType.replace("oh-my-qoder:", ""),
     event: "agent_stop",
     success,
     duration_ms: durationMs
@@ -8802,19 +8802,19 @@ function normalizePath(value) {
   return value.replace(/\\/g, "/").replace(/\/+$/, "");
 }
 function isDefaultClaudeConfigDir() {
-  return normalizePath(getClaudeConfigDir()) === normalizePath((0, import_path44.join)((0, import_os9.homedir)(), ".claude"));
+  return normalizePath(getQoderConfigDir()) === normalizePath((0, import_path44.join)((0, import_os9.homedir)(), ".claude"));
 }
 function quoteCommandPath(path22) {
   return `"${path22.replace(/"/g, '\\"')}"`;
 }
 function buildHookCommand(filename) {
   if (isWindows()) {
-    return `node ${quoteCommandPath((0, import_path44.join)(getClaudeConfigDir(), "hooks", filename).replace(/\\/g, "/"))}`;
+    return `node ${quoteCommandPath((0, import_path44.join)(getQoderConfigDir(), "hooks", filename).replace(/\\/g, "/"))}`;
   }
   if (isDefaultClaudeConfigDir()) {
-    return `node "\${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/${filename}"`;
+    return `node "\${QODER_CONFIG_DIR:-$HOME/.claude}/hooks/${filename}"`;
   }
-  return `node ${quoteCommandPath((0, import_path44.join)(getClaudeConfigDir(), "hooks", filename).replace(/\\/g, "/"))}`;
+  return `node ${quoteCommandPath((0, import_path44.join)(getQoderConfigDir(), "hooks", filename).replace(/\\/g, "/"))}`;
 }
 function getHooksSettingsConfig() {
   return HOOKS_SETTINGS_CONFIG_NODE;
@@ -8927,7 +8927,7 @@ Ralph mode auto-activates Ultrawork for maximum parallel execution. Follow these
 ### Completion Requirements
 - Verify ALL requirements from the original task are met
 - Architect verification is MANDATORY before claiming completion
-- When FULLY complete, run \`/oh-my-claudecode:cancel\` to cleanly exit and clean up state files
+- When FULLY complete, run \`/oh-my-qoder:cancel\` to cleanly exit and clean up state files
 
 Continue working until the task is truly done.
 `;
@@ -9040,7 +9040,7 @@ function getRuntimePackageVersion() {
   }
   try {
     const __filename4 = (0, import_url8.fileURLToPath)(importMetaUrl);
-    const pathMatch = __filename4.match(/oh-my-claudecode\/(\d+\.\d+\.\d+[^/]*)\//);
+    const pathMatch = __filename4.match(/oh-my-qoder\/(\d+\.\d+\.\d+[^/]*)\//);
     if (pathMatch?.[1]) {
       return pathMatch[1];
     }
@@ -9231,7 +9231,7 @@ function getClaudeMcpConfigPath() {
   if (process.env.CLAUDE_MCP_CONFIG_PATH?.trim()) {
     return process.env.CLAUDE_MCP_CONFIG_PATH.trim();
   }
-  return (0, import_path47.join)((0, import_path47.dirname)(getClaudeConfigDir()), ".claude.json");
+  return (0, import_path47.join)((0, import_path47.dirname)(getQoderConfigDir()), ".claude.json");
 }
 function getCodexConfigPath() {
   const codexHome = process.env.CODEX_HOME?.trim() || (0, import_path47.join)((0, import_os11.homedir)(), ".codex");
@@ -9768,7 +9768,7 @@ var init_paths3 = __esm({
   "src/lib/paths.ts"() {
     "use strict";
     OMC_PLUGIN_MARKETPLACE_SLUG = "omc";
-    OMC_PLUGIN_PACKAGE_NAME = "oh-my-claudecode";
+    OMC_PLUGIN_PACKAGE_NAME = "oh-my-qoder";
     OMC_PLUGIN_CACHE_REL = `plugins/cache/${OMC_PLUGIN_MARKETPLACE_SLUG}/${OMC_PLUGIN_PACKAGE_NAME}`;
     OMC_PLUGIN_MARKETPLACE_REL = `plugins/marketplaces/${OMC_PLUGIN_MARKETPLACE_SLUG}`;
     OMC_CONFIG_FILE_REL = ".omc-config.json";
@@ -9888,7 +9888,7 @@ var init_user_skill_compat = __esm({
     import_fs36 = require("fs");
     import_path48 = require("path");
     init_config_dir();
-    CLAUDE_SKILLS_DIR = (0, import_path48.join)(getClaudeConfigDir(), "skills");
+    CLAUDE_SKILLS_DIR = (0, import_path48.join)(getQoderConfigDir(), "skills");
     OMC_LEARNED_DIR = (0, import_path48.join)(CLAUDE_SKILLS_DIR, "omc-learned");
     CLAUDE_SKILL_FILENAME = "SKILL.md";
   }
@@ -9896,10 +9896,10 @@ var init_user_skill_compat = __esm({
 
 // src/installer/index.ts
 function currentAgentsDir() {
-  return (0, import_path49.join)(getClaudeConfigDir(), "agents");
+  return (0, import_path49.join)(getQoderConfigDir(), "agents");
 }
 function currentSkillsDir() {
-  return (0, import_path49.join)(getClaudeConfigDir(), "skills");
+  return (0, import_path49.join)(getQoderConfigDir(), "skills");
 }
 function isComparableVersion(version3) {
   return !!version3 && /^\d+\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(version3);
@@ -9932,8 +9932,8 @@ function getNewestInstalledVersionHint() {
     }
   }
   const claudeCandidates = [
-    (0, import_path49.join)(CLAUDE_CONFIG_DIR, "CLAUDE.md"),
-    (0, import_path49.join)((0, import_os12.homedir)(), "CLAUDE.md")
+    (0, import_path49.join)(QODER_CONFIG_DIR, "AGENTS.md"),
+    (0, import_path49.join)((0, import_os12.homedir)(), "AGENTS.md")
   ];
   for (const candidatePath of claudeCandidates) {
     if (!(0, import_fs37.existsSync)(candidatePath)) continue;
@@ -9992,16 +9992,16 @@ function buildStatusLineCommand(nodeBin, hudScriptPath, findNodePath, cacheWrapp
   }
   const normalizedHudScriptPath = hudScriptPath.replace(/\\/g, "/");
   if (cacheWrapperPath) {
-    if (isDefaultClaudeConfigDirPath(CLAUDE_CONFIG_DIR)) {
-      return "sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud-cache.sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs";
+    if (isDefaultClaudeConfigDirPath(QODER_CONFIG_DIR)) {
+      return "sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud-cache.sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs";
     }
     return `sh ${quoteShellArg(cacheWrapperPath.replace(/\\/g, "/"))} ${quoteShellArg(normalizedHudScriptPath)}`;
   }
-  if (isDefaultClaudeConfigDirPath(CLAUDE_CONFIG_DIR)) {
+  if (isDefaultClaudeConfigDirPath(QODER_CONFIG_DIR)) {
     if (findNodePath) {
-      return "sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/find-node.sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs";
+      return "sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/find-node.sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs";
     }
-    return "node ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs";
+    return "node ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs";
   }
   if (findNodePath) {
     return `sh ${quoteShellArg(findNodePath.replace(/\\/g, "/"))} ${quoteShellArg(normalizedHudScriptPath)}`;
@@ -10024,7 +10024,7 @@ function trimClaudeUserContent(content) {
   return content.replace(/^(?:[ \t]*\r?\n)+/, "").replace(/(?:\r?\n[ \t]*)+$/, "").replace(/(?:\r?\n){3,}/g, "\n\n");
 }
 function isHudEnabledInConfig() {
-  const configPath = (0, import_path49.join)(CLAUDE_CONFIG_DIR, OMC_CONFIG_FILE_REL);
+  const configPath = (0, import_path49.join)(QODER_CONFIG_DIR, OMC_CONFIG_FILE_REL);
   if (!(0, import_fs37.existsSync)(configPath)) {
     return true;
   }
@@ -10052,7 +10052,7 @@ function isOmcStatusLine(statusLine) {
 function isOmcHook(command) {
   const lowerCommand = command.toLowerCase();
   const omcPattern = /(?:^|[\/\\_-])omc(?:$|[\/\\_-])/;
-  const fullNamePattern = /oh-my-claudecode/;
+  const fullNamePattern = /oh-my-qoder/;
   if (omcPattern.test(lowerCommand) || fullNamePattern.test(lowerCommand)) {
     return true;
   }
@@ -10081,14 +10081,14 @@ function isClaudeInstalled() {
   }
 }
 function isRunningAsPlugin() {
-  return !!process.env.CLAUDE_PLUGIN_ROOT;
+  return !!process.env.QODER_PLUGIN_ROOT;
 }
 function isProjectScopedPlugin() {
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  const pluginRoot = process.env.QODER_PLUGIN_ROOT;
   if (!pluginRoot) {
     return false;
   }
-  const globalPluginBase = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "plugins");
+  const globalPluginBase = (0, import_path49.join)(QODER_CONFIG_DIR, "plugins");
   const normalizedPluginRoot = pluginRoot.replace(/\\/g, "/").replace(/\/$/, "");
   const normalizedGlobalBase = globalPluginBase.replace(/\\/g, "/").replace(/\/$/, "");
   return !normalizedPluginRoot.startsWith(normalizedGlobalBase);
@@ -10102,7 +10102,7 @@ function configureInstallerSettings(baseSettings, context) {
       const groupList = groups;
       const filtered = groupList.filter((group) => {
         const isLegacy = group.hooks.every(
-          (h) => h.type === "command" && (h.command.includes("/.claude/hooks/") || h.command.includes("\\.claude\\hooks\\")) && isOmcHook(h.command)
+          (h) => h.type === "command" && (h.command.includes("/.qoder/hooks/") || h.command.includes("\\.claude\\hooks\\")) && isOmcHook(h.command)
         );
         if (isLegacy) legacyRemoved++;
         return !isLegacy;
@@ -10456,11 +10456,11 @@ function directoryHasSkillDefinitions(directory) {
 }
 function getInstalledOmcPluginRoots() {
   const pluginRoots = /* @__PURE__ */ new Set();
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT?.trim();
+  const pluginRoot = process.env.QODER_PLUGIN_ROOT?.trim();
   if (pluginRoot) {
     pluginRoots.add(pluginRoot);
   }
-  const installedPluginsPath = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "plugins", "installed_plugins.json");
+  const installedPluginsPath = (0, import_path49.join)(QODER_CONFIG_DIR, "plugins", "installed_plugins.json");
   if (!(0, import_fs37.existsSync)(installedPluginsPath)) {
     return Array.from(pluginRoots);
   }
@@ -10468,7 +10468,7 @@ function getInstalledOmcPluginRoots() {
     const raw = JSON.parse((0, import_fs37.readFileSync)(installedPluginsPath, "utf-8"));
     const plugins = raw.plugins ?? raw;
     for (const [pluginId, entries] of Object.entries(plugins)) {
-      if (!pluginId.toLowerCase().includes("oh-my-claudecode") || !Array.isArray(entries)) {
+      if (!pluginId.toLowerCase().includes("oh-my-qoder") || !Array.isArray(entries)) {
         continue;
       }
       for (const entry of entries) {
@@ -10482,19 +10482,19 @@ function getInstalledOmcPluginRoots() {
   return Array.from(pluginRoots);
 }
 function readPluginManifest(root2) {
-  const manifestPath = (0, import_path49.join)(root2, ".claude-plugin", "plugin.json");
+  const manifestPath = (0, import_path49.join)(root2, ".qoder-plugin", "plugin.json");
   if (!(0, import_fs37.existsSync)(manifestPath)) {
     return { manifest: null, errors: [] };
   }
   try {
     const parsed = JSON.parse((0, import_fs37.readFileSync)(manifestPath, "utf-8"));
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return { manifest: null, errors: ["Invalid plugin manifest: .claude-plugin/plugin.json must be a JSON object"] };
+      return { manifest: null, errors: ["Invalid plugin manifest: .qoder-plugin/plugin.json must be a JSON object"] };
     }
     return { manifest: parsed, errors: [] };
   } catch (error2) {
     const message = error2 instanceof Error ? error2.message : String(error2);
-    return { manifest: null, errors: [`Invalid plugin manifest: .claude-plugin/plugin.json: ${message}`] };
+    return { manifest: null, errors: [`Invalid plugin manifest: .qoder-plugin/plugin.json: ${message}`] };
   }
 }
 function normalizePluginRelPath(value) {
@@ -10510,17 +10510,17 @@ function validatePluginManifestSchema(root2, manifest) {
     return errors;
   }
   if (typeof manifest.name !== "string" || manifest.name.trim().length === 0) {
-    errors.push("Invalid plugin manifest: .claude-plugin/plugin.json name must be a non-empty string");
+    errors.push("Invalid plugin manifest: .qoder-plugin/plugin.json name must be a non-empty string");
   }
   if (typeof manifest.commands !== "string" || manifest.commands.trim().length === 0) {
-    errors.push("Invalid plugin manifest: .claude-plugin/plugin.json commands must be a non-empty relative path");
+    errors.push("Invalid plugin manifest: .qoder-plugin/plugin.json commands must be a non-empty relative path");
   } else if (!isSafePluginRelPath(manifest.commands)) {
-    errors.push("Invalid plugin manifest: .claude-plugin/plugin.json commands must stay inside the plugin root");
+    errors.push("Invalid plugin manifest: .qoder-plugin/plugin.json commands must stay inside the plugin root");
   } else if (!directoryHasMarkdownFiles((0, import_path49.join)(root2, normalizePluginRelPath(manifest.commands)))) {
     errors.push(`Missing declared plugin command markdown files in ${normalizePluginRelPath(manifest.commands)}/`);
   }
   if (!Array.isArray(manifest.skills) || manifest.skills.length === 0) {
-    errors.push("Invalid plugin manifest: .claude-plugin/plugin.json skills must be a non-empty array");
+    errors.push("Invalid plugin manifest: .qoder-plugin/plugin.json skills must be a non-empty array");
   }
   return errors;
 }
@@ -10532,7 +10532,7 @@ function validateDeclaredPluginSkills(root2, manifest) {
   }
   for (const declaredSkill of declaredSkills) {
     if (typeof declaredSkill !== "string" || declaredSkill.trim().length === 0) {
-      errors.push("Invalid plugin skill declaration in .claude-plugin/plugin.json");
+      errors.push("Invalid plugin skill declaration in .qoder-plugin/plugin.json");
       continue;
     }
     if (!isSafePluginRelPath(declaredSkill)) {
@@ -10584,7 +10584,7 @@ function countPluginSyncPayloadEntries(root2) {
   return score;
 }
 function getKnownMarketplaceInstallRoots() {
-  const knownMarketplacesPath = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "plugins", "known_marketplaces.json");
+  const knownMarketplacesPath = (0, import_path49.join)(QODER_CONFIG_DIR, "plugins", "known_marketplaces.json");
   if (!(0, import_fs37.existsSync)(knownMarketplacesPath)) {
     return [];
   }
@@ -10592,7 +10592,7 @@ function getKnownMarketplaceInstallRoots() {
     const raw = JSON.parse((0, import_fs37.readFileSync)(knownMarketplacesPath, "utf-8"));
     const roots = /* @__PURE__ */ new Set();
     for (const [marketplaceId, entry] of Object.entries(raw)) {
-      const isOmcMarketplace = marketplaceId.toLowerCase().includes("omc") || marketplaceId.toLowerCase().includes("oh-my-claudecode");
+      const isOmcMarketplace = marketplaceId.toLowerCase().includes("omc") || marketplaceId.toLowerCase().includes("oh-my-qoder");
       if (!isOmcMarketplace) {
         continue;
       }
@@ -10619,7 +10619,7 @@ function getGlobalInstalledPackageRoot() {
     if (!npmRoot) {
       return null;
     }
-    const globalPackageRoot = (0, import_path49.join)(npmRoot, "oh-my-claude-sisyphus");
+    const globalPackageRoot = (0, import_path49.join)(npmRoot, "oh-my-qoder");
     return (0, import_fs37.existsSync)(globalPackageRoot) ? globalPackageRoot : null;
   } catch {
     return null;
@@ -10627,7 +10627,7 @@ function getGlobalInstalledPackageRoot() {
 }
 function isCacheInstalledPluginRoot(root2) {
   const normalizedRoot = normalizePath2(root2);
-  const cacheBase = normalizePath2((0, import_path49.join)(CLAUDE_CONFIG_DIR, "plugins", "cache"));
+  const cacheBase = normalizePath2((0, import_path49.join)(QODER_CONFIG_DIR, "plugins", "cache"));
   if (!(normalizedRoot === cacheBase || normalizedRoot.startsWith(`${cacheBase}/`))) {
     return false;
   }
@@ -10712,11 +10712,11 @@ ${PLUGIN_COMPACT_SKILL_SHIM_MARKER}
 
 # ${skillDirName}
 
-This is a compact Claude Code plugin registry shim. It keeps startup skill descriptions small while preserving the full OMC skill body for on-demand invocation.
+This is a compact Qoder plugin registry shim. It keeps startup skill descriptions small while preserving the full OMC skill body for on-demand invocation.
 
 When this skill is invoked, read and follow the full bundled instructions from the active plugin root:
 
-\`${"${CLAUDE_PLUGIN_ROOT:-${OMC_PLUGIN_ROOT}}"}/${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md\`
+\`${"${QODER_PLUGIN_ROOT:-${OMC_PLUGIN_ROOT}}"}/${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md\`
 
 The plugin root is the directory containing both \`skills/\` and \`${PLUGIN_FULL_SKILL_BODIES_DIR}/\`. Do not resolve \`${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md\` under this shim's \`skills/${skillDirName}/\` directory; \`${PLUGIN_FULL_SKILL_BODIES_DIR}/\` is a direct child of the plugin root. The same archived body path is recorded in frontmatter as \`omc-full-body: ${fullBodyRelPath}\` for hosts that understand plugin-root-relative metadata.
 `;
@@ -10851,7 +10851,7 @@ function hasPluginProvidedHookFiles() {
   );
 }
 function hasEnabledOmcPlugin() {
-  if (process.env.CLAUDE_PLUGIN_ROOT?.trim()) {
+  if (process.env.QODER_PLUGIN_ROOT?.trim()) {
     return true;
   }
   if (!(0, import_fs37.existsSync)(SETTINGS_FILE)) {
@@ -10862,13 +10862,13 @@ function hasEnabledOmcPlugin() {
     for (const candidate of [settings.enabledPlugins, settings.plugins]) {
       if (Array.isArray(candidate)) {
         if (candidate.some(
-          (plugin) => typeof plugin === "string" && plugin.toLowerCase().includes("oh-my-claudecode")
+          (plugin) => typeof plugin === "string" && plugin.toLowerCase().includes("oh-my-qoder")
         )) {
           return true;
         }
       } else if (candidate && typeof candidate === "object") {
         if (Object.entries(candidate).some(
-          ([pluginId, value]) => pluginId.toLowerCase().includes("oh-my-claudecode") && value !== false
+          ([pluginId, value]) => pluginId.toLowerCase().includes("oh-my-qoder") && value !== false
         )) {
           return true;
         }
@@ -10882,13 +10882,13 @@ function isOmcPluginEnabledInSettings(settings) {
   for (const candidate of [settings.enabledPlugins, settings.plugins]) {
     if (Array.isArray(candidate)) {
       if (candidate.some(
-        (plugin) => typeof plugin === "string" && plugin.toLowerCase().includes("oh-my-claudecode")
+        (plugin) => typeof plugin === "string" && plugin.toLowerCase().includes("oh-my-qoder")
       )) {
         return true;
       }
     } else if (candidate && typeof candidate === "object") {
       if (Object.entries(candidate).some(
-        ([pluginId, value]) => pluginId.toLowerCase().includes("oh-my-claudecode") && value !== false
+        ([pluginId, value]) => pluginId.toLowerCase().includes("oh-my-qoder") && value !== false
       )) {
         return true;
       }
@@ -11006,9 +11006,9 @@ function syncUserSkillCompatShims(log3) {
   return synced;
 }
 function loadClaudeMdContent() {
-  const claudeMdPath = (0, import_path49.join)(getPackageDir3(), "docs", "CLAUDE.md");
+  const claudeMdPath = (0, import_path49.join)(getPackageDir3(), "docs", "AGENTS.md");
   if (!(0, import_fs37.existsSync)(claudeMdPath)) {
-    console.error(`FATAL: CLAUDE.md not found: ${claudeMdPath}`);
+    console.error(`FATAL: AGENTS.md not found: ${claudeMdPath}`);
     process.exit(1);
   }
   return (0, import_fs37.readFileSync)(claudeMdPath, "utf-8");
@@ -11019,7 +11019,7 @@ function extractOmcVersionFromClaudeMd(content) {
     const markerVersion = versionMarkerMatch[1].trim();
     return markerVersion.startsWith("v") ? markerVersion : `v${markerVersion}`;
   }
-  const headingMatch = content.match(/^#\s+oh-my-claudecode.*?\b(v?\d+\.\d+\.\d+(?:[-+][^\s]+)?)\b/m);
+  const headingMatch = content.match(/^#\s+oh-my-qoder.*?\b(v?\d+\.\d+\.\d+(?:[-+][^\s]+)?)\b/m);
   if (headingMatch?.[1]) {
     const headingVersion = headingMatch[1].trim();
     return headingVersion.startsWith("v") ? headingVersion : `v${headingVersion}`;
@@ -11027,7 +11027,7 @@ function extractOmcVersionFromClaudeMd(content) {
   return null;
 }
 function syncPersistedSetupVersion(options) {
-  const configPath = options?.configPath ?? (0, import_path49.join)(CLAUDE_CONFIG_DIR, OMC_CONFIG_FILE_REL);
+  const configPath = options?.configPath ?? (0, import_path49.join)(QODER_CONFIG_DIR, OMC_CONFIG_FILE_REL);
   let config2 = {};
   if ((0, import_fs37.existsSync)(configPath)) {
     const rawConfig = (0, import_fs37.readFileSync)(configPath, "utf-8").trim();
@@ -11042,7 +11042,7 @@ function syncPersistedSetupVersion(options) {
   }
   let detectedVersion = options?.version?.trim();
   if (!detectedVersion) {
-    const claudeMdPath = options?.claudeMdPath ?? (0, import_path49.join)(CLAUDE_CONFIG_DIR, "CLAUDE.md");
+    const claudeMdPath = options?.claudeMdPath ?? (0, import_path49.join)(QODER_CONFIG_DIR, "AGENTS.md");
     if ((0, import_fs37.existsSync)(claudeMdPath)) {
       detectedVersion = extractOmcVersionFromClaudeMd((0, import_fs37.readFileSync)(claudeMdPath, "utf-8")) ?? void 0;
     }
@@ -11173,8 +11173,8 @@ function install(options = {}) {
   const shouldInstallBundledSkills = !pluginDirMode && (options.noPlugin === true || !enabledOmcPlugin || !pluginProvidesSkillFiles);
   const allowPluginHookRefresh = runningAsPlugin && options.refreshHooksInPlugin && !projectScoped;
   if (runningAsPlugin) {
-    log3("Detected Claude Code plugin context - skipping agent/command file installation");
-    log3("Plugin files are managed by Claude Code plugin system");
+    log3("Detected Qoder plugin context - skipping agent/command file installation");
+    log3("Plugin files are managed by Qoder plugin system");
     if (projectScoped) {
       log3("Detected project-scoped plugin - skipping global HUD/settings modifications");
     } else {
@@ -11184,19 +11184,19 @@ function install(options = {}) {
       }
     }
   } else if (pluginProvidesAgentFiles) {
-    log3("Detected installed OMC plugin agent definitions - skipping legacy ~/.claude/agents sync");
+    log3("Detected installed OMC plugin agent definitions - skipping legacy ~/.qoder/agents sync");
   }
   if (!options.skipClaudeCheck && !isClaudeInstalled()) {
-    log3("Warning: Claude Code not found. Install it first:");
+    log3("Warning: Qoder not found. Install it first:");
     if (isWindows()) {
-      log3("  Visit https://docs.anthropic.com/claude-code for Windows installation");
+      log3("  Visit https://docs.anthropic.com/qoder for Windows installation");
     } else {
-      log3("  curl -fsSL https://claude.ai/install.sh | bash");
+      log3("  curl -fsSL https://qoder.ai/install.sh | bash");
     }
   }
   try {
-    if ((!projectScoped || shouldInstallBundledSkills) && !(0, import_fs37.existsSync)(CLAUDE_CONFIG_DIR)) {
-      (0, import_fs37.mkdirSync)(CLAUDE_CONFIG_DIR, { recursive: true });
+    if ((!projectScoped || shouldInstallBundledSkills) && !(0, import_fs37.existsSync)(QODER_CONFIG_DIR)) {
+      (0, import_fs37.mkdirSync)(QODER_CONFIG_DIR, { recursive: true });
     }
     if (shouldInstallBundledSkills && !(0, import_fs37.existsSync)(SKILLS_DIR)) {
       (0, import_fs37.mkdirSync)(SKILLS_DIR, { recursive: true });
@@ -11295,7 +11295,7 @@ function install(options = {}) {
       }
     }
     if (!projectScoped) {
-      const claudeMdPath = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "CLAUDE.md");
+      const claudeMdPath = (0, import_path49.join)(QODER_CONFIG_DIR, "AGENTS.md");
       const omcContent = loadClaudeMdContent();
       let existingContent = null;
       if ((0, import_fs37.existsSync)(claudeMdPath)) {
@@ -11303,16 +11303,16 @@ function install(options = {}) {
       }
       if (existingContent !== null) {
         const timestamp = (/* @__PURE__ */ new Date()).toISOString().replace(/:/g, "-").split(".")[0];
-        const backupPath = (0, import_path49.join)(CLAUDE_CONFIG_DIR, `CLAUDE.md.backup.${timestamp}`);
+        const backupPath = (0, import_path49.join)(QODER_CONFIG_DIR, `AGENTS.md.backup.${timestamp}`);
         (0, import_fs37.writeFileSync)(backupPath, existingContent);
-        log3(`Backed up existing CLAUDE.md to ${backupPath}`);
+        log3(`Backed up existing AGENTS.md to ${backupPath}`);
       }
       const mergedContent = mergeClaudeMd(existingContent, omcContent, targetVersion);
       (0, import_fs37.writeFileSync)(claudeMdPath, mergedContent);
       if (existingContent) {
-        log3("Updated CLAUDE.md (merged with existing content)");
+        log3("Updated AGENTS.md (merged with existing content)");
       } else {
-        log3("Created CLAUDE.md");
+        log3("Created AGENTS.md");
       }
     }
     let hudScriptPath = null;
@@ -11366,7 +11366,7 @@ function install(options = {}) {
         runningAsPlugin
       });
       try {
-        const configPath = (0, import_path49.join)(CLAUDE_CONFIG_DIR, OMC_CONFIG_FILE_REL);
+        const configPath = (0, import_path49.join)(QODER_CONFIG_DIR, OMC_CONFIG_FILE_REL);
         let omcConfig = {};
         if ((0, import_fs37.existsSync)(configPath)) {
           omcConfig = JSON.parse((0, import_fs37.readFileSync)(configPath, "utf-8"));
@@ -11414,7 +11414,7 @@ function install(options = {}) {
         const templateVersionStamp = {
           version: targetVersion,
           installedAt: (/* @__PURE__ */ new Date()).toISOString(),
-          pluginRoot: process.env.CLAUDE_PLUGIN_ROOT ?? null
+          pluginRoot: process.env.QODER_PLUGIN_ROOT ?? null
         };
         (0, import_fs37.writeFileSync)(
           (0, import_path49.join)(omcRoot, "template-version.json"),
@@ -11468,7 +11468,7 @@ function getInstallInfo() {
     return null;
   }
 }
-var import_fs37, import_path49, import_url9, import_os12, import_child_process13, CLAUDE_CONFIG_DIR, AGENTS_DIR, COMMANDS_DIR, SKILLS_DIR, HOOKS_DIR, HUD_DIR, SETTINGS_FILE, VERSION_FILE, OMC_MANAGED_SKILL_MARKER, PLUGIN_FULL_SKILL_BODIES_DIR, PLUGIN_COMPACT_SKILL_SHIM_MARKER, CORE_COMMANDS, VERSION, OMC_VERSION_MARKER_PATTERN, CC_NATIVE_COMMANDS, SKININTHEGAMEBROS_ONLY_SKILLS, OMC_HOOK_FILENAMES, STANDALONE_HOOK_TEMPLATE_FILES, PLUGIN_SYNC_PAYLOAD, REQUIRED_PLUGIN_PAYLOAD_FILES, REQUIRED_PLUGIN_COMMAND_FILES;
+var import_fs37, import_path49, import_url9, import_os12, import_child_process13, QODER_CONFIG_DIR, AGENTS_DIR, COMMANDS_DIR, SKILLS_DIR, HOOKS_DIR, HUD_DIR, SETTINGS_FILE, VERSION_FILE, OMC_MANAGED_SKILL_MARKER, PLUGIN_FULL_SKILL_BODIES_DIR, PLUGIN_COMPACT_SKILL_SHIM_MARKER, CORE_COMMANDS, VERSION, OMC_VERSION_MARKER_PATTERN, CC_NATIVE_COMMANDS, SKININTHEGAMEBROS_ONLY_SKILLS, OMC_HOOK_FILENAMES, STANDALONE_HOOK_TEMPLATE_FILES, PLUGIN_SYNC_PAYLOAD, REQUIRED_PLUGIN_PAYLOAD_FILES, REQUIRED_PLUGIN_COMMAND_FILES;
 var init_installer = __esm({
   "src/installer/index.ts"() {
     "use strict";
@@ -11488,14 +11488,14 @@ var init_installer = __esm({
     init_hud_wrapper_template();
     init_worktree_paths();
     init_user_skill_compat();
-    CLAUDE_CONFIG_DIR = getClaudeConfigDir();
-    AGENTS_DIR = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "agents");
-    COMMANDS_DIR = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "commands");
-    SKILLS_DIR = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "skills");
-    HOOKS_DIR = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "hooks");
-    HUD_DIR = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "hud");
-    SETTINGS_FILE = (0, import_path49.join)(CLAUDE_CONFIG_DIR, "settings.json");
-    VERSION_FILE = (0, import_path49.join)(CLAUDE_CONFIG_DIR, ".omc-version.json");
+    QODER_CONFIG_DIR = getQoderConfigDir();
+    AGENTS_DIR = (0, import_path49.join)(QODER_CONFIG_DIR, "agents");
+    COMMANDS_DIR = (0, import_path49.join)(QODER_CONFIG_DIR, "commands");
+    SKILLS_DIR = (0, import_path49.join)(QODER_CONFIG_DIR, "skills");
+    HOOKS_DIR = (0, import_path49.join)(QODER_CONFIG_DIR, "hooks");
+    HUD_DIR = (0, import_path49.join)(QODER_CONFIG_DIR, "hud");
+    SETTINGS_FILE = (0, import_path49.join)(QODER_CONFIG_DIR, "settings.json");
+    VERSION_FILE = (0, import_path49.join)(QODER_CONFIG_DIR, ".omc-version.json");
     OMC_MANAGED_SKILL_MARKER = ".omc-managed";
     PLUGIN_FULL_SKILL_BODIES_DIR = "skill-bodies";
     PLUGIN_COMPACT_SKILL_SHIM_MARKER = "<!-- OMC:COMPACT-PLUGIN-SKILL -->";
@@ -11548,14 +11548,14 @@ var init_installer = __esm({
       "commands",
       "templates",
       "docs",
-      ".claude-plugin",
+      ".qoder-plugin",
       ".mcp.json",
       "README.md",
       "LICENSE",
       "package.json"
     ];
     REQUIRED_PLUGIN_PAYLOAD_FILES = [
-      ".claude-plugin/plugin.json",
+      ".qoder-plugin/plugin.json",
       "package.json",
       "dist/hooks/skill-bridge.cjs",
       "bridge/cli.cjs",
@@ -11570,7 +11570,7 @@ var init_installer = __esm({
 // src/features/auto-update.ts
 var auto_update_exports = {};
 __export(auto_update_exports, {
-  CLAUDE_CONFIG_DIR: () => CLAUDE_CONFIG_DIR2,
+  QODER_CONFIG_DIR: () => QODER_CONFIG_DIR2,
   CONFIG_FILE: () => CONFIG_FILE,
   GITHUB_API_URL: () => GITHUB_API_URL,
   GITHUB_RAW_URL: () => GITHUB_RAW_URL,
@@ -11639,25 +11639,25 @@ function getFirstResolvedBinaryPath(output, binaryName) {
 function resolveClaudeBinaryPath() {
   try {
     if (process.platform === "win32") {
-      return getFirstResolvedBinaryPath((0, import_child_process14.execFileSync)("where.exe", ["claude"], {
+      return getFirstResolvedBinaryPath((0, import_child_process14.execFileSync)("where.exe", ["qoder"], {
         encoding: "utf-8",
         stdio: "pipe",
         timeout: 5e3,
         windowsHide: true
-      }), "claude");
+      }), "qoder");
     }
     return getFirstResolvedBinaryPath((0, import_child_process14.execSync)("command -v claude 2>/dev/null || which claude 2>/dev/null", {
       encoding: "utf-8",
       stdio: "pipe",
       timeout: 5e3
-    }), "claude");
+    }), "qoder");
   } catch {
     return void 0;
   }
 }
 function detectClaudeCodeFromBinary(npmRoot) {
   try {
-    const versionOutput = String((0, import_child_process14.execFileSync)("claude", ["--version"], {
+    const versionOutput = String((0, import_child_process14.execFileSync)("qoder", ["--version"], {
       encoding: "utf-8",
       stdio: "pipe",
       timeout: 1e4,
@@ -11666,7 +11666,7 @@ function detectClaudeCodeFromBinary(npmRoot) {
     const binaryPath = resolveClaudeBinaryPath();
     const version3 = parseClaudeCodeVersion(versionOutput);
     if (!version3 && !binaryPath) {
-      return { status: "unknown", error: "claude --version returned no parseable version and binary path could not be resolved" };
+      return { status: "unknown", error: "qodercli --version returned no parseable version and binary path could not be resolved" };
     }
     const normalizedBinaryPath = binaryPath?.replace(/\\/g, "/").toLowerCase();
     const normalizedNpmRoot = npmRoot?.replace(/\\/g, "/").toLowerCase();
@@ -11699,7 +11699,7 @@ function detectGlobalClaudeCodeInstall() {
       const binaryInstall = detectClaudeCodeFromBinary();
       return binaryInstall.status === "present" ? binaryInstall : { status: "unknown", error: "npm root -g returned an empty path" };
     }
-    const packageJsonPath = (0, import_path50.join)(npmRoot, "@anthropic-ai", "claude-code", "package.json");
+    const packageJsonPath = (0, import_path50.join)(npmRoot, "@anthropic-ai", "qoder", "package.json");
     if (!(0, import_fs38.existsSync)(packageJsonPath)) {
       const binaryInstall = detectClaudeCodeFromBinary(npmRoot);
       return binaryInstall.status === "present" ? binaryInstall : { status: "absent" };
@@ -11744,7 +11744,7 @@ function restoreGlobalClaudeCodeIfNeeded(beforeUpdate, verbose = false) {
   return { restored: true };
 }
 function syncMarketplaceClone(verbose = false) {
-  const marketplacePath = (0, import_path50.join)(getClaudeConfigDir(), "plugins", "marketplaces", "omc");
+  const marketplacePath = (0, import_path50.join)(getQoderConfigDir(), "plugins", "marketplaces", "omc");
   if (!(0, import_fs38.existsSync)(marketplacePath)) {
     return { ok: true, message: "Marketplace clone not found; skipping" };
   }
@@ -11832,7 +11832,7 @@ function replaceLastPathSegmentPreservingSeparators(pathValue, nextSegment) {
 function deriveUpdatedPluginInstallPath(existingInstallPath, fallbackInstallPath, newVersion) {
   if (existingInstallPath?.trim()) {
     const normalized = existingInstallPath.replace(/\\/g, "/").toLowerCase();
-    if (normalized.includes("/plugins/cache/") && normalized.includes("/oh-my-claudecode/")) {
+    if (normalized.includes("/plugins/cache/") && normalized.includes("/oh-my-qoder/")) {
       return replaceLastPathSegmentPreservingSeparators(existingInstallPath, newVersion);
     }
   }
@@ -11853,7 +11853,7 @@ function writeJsonAtomically(path22, value) {
   }
 }
 function syncInstalledPluginRegistryVersion(newVersion, fallbackInstallPath) {
-  const installedPluginsPath = (0, import_path50.join)(getClaudeConfigDir(), "plugins", "installed_plugins.json");
+  const installedPluginsPath = (0, import_path50.join)(getQoderConfigDir(), "plugins", "installed_plugins.json");
   if (!(0, import_fs38.existsSync)(installedPluginsPath)) {
     return { updated: false, errors: [] };
   }
@@ -11872,7 +11872,7 @@ function syncInstalledPluginRegistryVersion(newVersion, fallbackInstallPath) {
     let updated = false;
     for (const [pluginId, entriesValue] of Object.entries(plugins)) {
       const normalizedPluginId = pluginId.toLowerCase();
-      const isOmcPlugin = normalizedPluginId === "oh-my-claudecode@omc" || normalizedPluginId === "oh-my-claudecode";
+      const isOmcPlugin = normalizedPluginId === "oh-my-qoder@omc" || normalizedPluginId === "oh-my-qoder";
       if (!isOmcPlugin || !Array.isArray(entriesValue)) {
         continue;
       }
@@ -11914,14 +11914,14 @@ function shouldBlockStandaloneUpdateInCurrentSession() {
   if (entrypoint) {
     return true;
   }
-  const sessionId = process.env.CLAUDE_SESSION_ID?.trim() || process.env.CLAUDECODE_SESSION_ID?.trim();
+  const sessionId = process.env.CLAUDE_SESSION_ID?.trim() || process.env.QODER_SESSION_ID?.trim();
   if (sessionId) {
     return true;
   }
   return false;
 }
 function syncPluginCache(verbose = false) {
-  const pluginCacheRoot = (0, import_path50.join)(getClaudeConfigDir(), "plugins", "cache", "omc", "oh-my-claudecode");
+  const pluginCacheRoot = (0, import_path50.join)(getQoderConfigDir(), "plugins", "cache", "omc", "oh-my-qoder");
   if (!(0, import_fs38.existsSync)(pluginCacheRoot)) {
     return { synced: false, skipped: true, errors: [] };
   }
@@ -11935,7 +11935,7 @@ function syncPluginCache(verbose = false) {
     if (!npmRoot) {
       throw new Error("npm root -g returned an empty path");
     }
-    const sourceRoot = (0, import_path50.join)(npmRoot, "oh-my-claude-sisyphus");
+    const sourceRoot = (0, import_path50.join)(npmRoot, "oh-my-qoder");
     const packageJsonPath = (0, import_path50.join)(sourceRoot, "package.json");
     const packageJsonRaw = String((0, import_fs38.readFileSync)(packageJsonPath, "utf-8") ?? "");
     const packageMetadata = JSON.parse(packageJsonRaw);
@@ -12007,31 +12007,31 @@ function isAutoUpgradePromptEnabled() {
 }
 function isTeamEnabled() {
   try {
-    const settingsPath = (0, import_path50.join)(CLAUDE_CONFIG_DIR2, "settings.json");
+    const settingsPath = (0, import_path50.join)(QODER_CONFIG_DIR2, "settings.json");
     if ((0, import_fs38.existsSync)(settingsPath)) {
       const settings = JSON.parse((0, import_fs38.readFileSync)(settingsPath, "utf-8"));
-      const val = settings.env?.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS;
+      const val = settings.env?.QODER_EXPERIMENTAL_AGENT_TEAMS;
       if (val === "1" || val === "true") {
         return true;
       }
     }
   } catch {
   }
-  const envVal = process.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS;
+  const envVal = process.env.QODER_EXPERIMENTAL_AGENT_TEAMS;
   return envVal === "1" || envVal === "true";
 }
 function getInstalledVersion() {
   if (!(0, import_fs38.existsSync)(VERSION_FILE2)) {
     try {
-      const result = (0, import_child_process14.execSync)("npm list -g oh-my-claude-sisyphus --json", {
+      const result = (0, import_child_process14.execSync)("npm list -g oh-my-qoder --json", {
         encoding: "utf-8",
         timeout: 5e3,
         stdio: "pipe"
       });
       const data = JSON.parse(result);
-      if (data.dependencies?.["oh-my-claude-sisyphus"]?.version) {
+      if (data.dependencies?.["oh-my-qoder"]?.version) {
         return {
-          version: data.dependencies["oh-my-claude-sisyphus"].version,
+          version: data.dependencies["oh-my-qoder"].version,
           installedAt: (/* @__PURE__ */ new Date()).toISOString(),
           installMethod: "npm"
         };
@@ -12069,7 +12069,7 @@ function getGitHubUpdateToken() {
 function getGitHubReleaseHeaders() {
   const headers = {
     "Accept": "application/vnd.github.v3+json",
-    "User-Agent": "oh-my-claudecode-updater"
+    "User-Agent": "oh-my-qoder-updater"
   };
   const token = getGitHubUpdateToken();
   if (token) {
@@ -12116,7 +12116,7 @@ async function fetchLatestRelease() {
   if (response.status === 404) {
     const pkgResponse = await fetch(`${GITHUB_RAW_URL}/main/package.json`, {
       headers: {
-        "User-Agent": "oh-my-claudecode-updater"
+        "User-Agent": "oh-my-qoder-updater"
       }
     });
     if (pkgResponse.ok) {
@@ -12261,14 +12261,14 @@ async function performUpdate(options) {
         success: false,
         previousVersion,
         newVersion: "unknown",
-        message: 'Running inside an active Claude Code plugin session. Use "/plugin install oh-my-claudecode" to update, or pass --standalone to force npm update.'
+        message: 'Running inside an active Qoder plugin session. Use "/plugin install oh-my-qoder" to update, or pass --standalone to force npm update.'
       };
     }
     const release = await fetchLatestRelease();
     const newVersion = release.tag_name.replace(/^v/, "");
     const claudeCodeBeforeUpdate = detectGlobalClaudeCodeInstall();
     try {
-      (0, import_child_process14.execSync)("npm install -g oh-my-claude-sisyphus@latest", npmExecOptions(options?.verbose ?? false));
+      (0, import_child_process14.execSync)("npm install -g oh-my-qoder@latest", npmExecOptions(options?.verbose ?? false));
       try {
         restoreGlobalClaudeCodeIfNeeded(claudeCodeBeforeUpdate, options?.verbose ?? false);
       } catch (restoreError) {
@@ -12343,8 +12343,8 @@ async function performUpdate(options) {
     } catch (npmError) {
       throw new Error(
         `Auto-update via npm failed. Please run manually:
-  npm install -g oh-my-claude-sisyphus@latest
-Or use: /plugin install oh-my-claudecode
+  npm install -g oh-my-qoder@latest
+Or use: /plugin install oh-my-qoder
 Error: ${npmError instanceof Error ? npmError.message : npmError}`
       );
     }
@@ -12361,18 +12361,18 @@ Error: ${npmError instanceof Error ? npmError.message : npmError}`
 }
 function formatUpdateNotification(checkResult) {
   if (!checkResult.updateAvailable) {
-    return `oh-my-claudecode is up to date (v${checkResult.currentVersion ?? "unknown"})`;
+    return `oh-my-qoder is up to date (v${checkResult.currentVersion ?? "unknown"})`;
   }
   const lines = [
     "\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
-    "\u2551           oh-my-claudecode Update Available!              \u2551",
+    "\u2551           oh-my-qoder Update Available!              \u2551",
     "\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D",
     "",
     `  Current version: ${checkResult.currentVersion ?? "unknown"}`,
     `  Latest version:  ${checkResult.latestVersion}`,
     "",
     "  To update, run: /update",
-    "  Or reinstall via: /plugin install oh-my-claudecode",
+    "  Or reinstall via: /plugin install oh-my-qoder",
     ""
   ];
   if (checkResult.releaseNotes && checkResult.releaseNotes !== "No release notes available.") {
@@ -12426,7 +12426,7 @@ async function interactiveUpdate() {
     if (result.success) {
       console.log(`
 \u2713 ${result.message}`);
-      console.log("\nPlease restart your Claude Code session to use the new version.");
+      console.log("\nPlease restart your Qoder session to use the new version.");
     } else {
       console.error(`
 \u2717 ${result.message}`);
@@ -12476,7 +12476,7 @@ async function silentAutoUpdate(config2 = {}) {
   const {
     checkIntervalHours = 24,
     autoApply = true,
-    logFile = (0, import_path50.join)(CLAUDE_CONFIG_DIR2, ".omc-update.log"),
+    logFile = (0, import_path50.join)(QODER_CONFIG_DIR2, ".omc-update.log"),
     maxRetries = 3
   } = config2;
   if (!isSilentAutoUpdateEnabled()) {
@@ -12561,7 +12561,7 @@ function initSilentAutoUpdate(config2 = {}) {
   silentAutoUpdate(config2).catch(() => {
   });
 }
-var import_fs38, import_path50, import_child_process14, REPO_OWNER, REPO_NAME, GITHUB_API_URL, GITHUB_RAW_URL, CLAUDE_CODE_NPM_PACKAGE, CLAUDE_CONFIG_DIR2, VERSION_FILE2, CONFIG_FILE, SILENT_UPDATE_STATE_FILE;
+var import_fs38, import_path50, import_child_process14, REPO_OWNER, REPO_NAME, GITHUB_API_URL, GITHUB_RAW_URL, CLAUDE_CODE_NPM_PACKAGE, QODER_CONFIG_DIR2, VERSION_FILE2, CONFIG_FILE, SILENT_UPDATE_STATE_FILE;
 var init_auto_update = __esm({
   "src/features/auto-update.ts"() {
     "use strict";
@@ -12574,14 +12574,14 @@ var init_auto_update = __esm({
     init_security_config();
     init_paths3();
     REPO_OWNER = "Yeachan-Heo";
-    REPO_NAME = "oh-my-claudecode";
+    REPO_NAME = "oh-my-qoder";
     GITHUB_API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
     GITHUB_RAW_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}`;
-    CLAUDE_CODE_NPM_PACKAGE = "@anthropic-ai/claude-code";
-    CLAUDE_CONFIG_DIR2 = getClaudeConfigDir();
-    VERSION_FILE2 = (0, import_path50.join)(CLAUDE_CONFIG_DIR2, ".omc-version.json");
-    CONFIG_FILE = (0, import_path50.join)(CLAUDE_CONFIG_DIR2, OMC_CONFIG_FILE_REL);
-    SILENT_UPDATE_STATE_FILE = (0, import_path50.join)(CLAUDE_CONFIG_DIR2, ".omc-silent-update.json");
+    CLAUDE_CODE_NPM_PACKAGE = "@anthropic-ai/qoder";
+    QODER_CONFIG_DIR2 = getQoderConfigDir();
+    VERSION_FILE2 = (0, import_path50.join)(QODER_CONFIG_DIR2, ".omc-version.json");
+    CONFIG_FILE = (0, import_path50.join)(QODER_CONFIG_DIR2, OMC_CONFIG_FILE_REL);
+    SILENT_UPDATE_STATE_FILE = (0, import_path50.join)(QODER_CONFIG_DIR2, ".omc-silent-update.json");
   }
 });
 
@@ -12947,7 +12947,7 @@ ${prdPath ? `**Active PRD file:** ${prdPath}
 2. Verify ALL acceptance criteria are met
 3. Run quality checks (tests, typecheck, lint)
 4. When complete, mark story as passes: true in the active PRD file
-5. If ALL stories are done, run \`/oh-my-claudecode:cancel\` to cleanly exit ralph mode and clean up all state files
+5. If ALL stories are done, run \`/oh-my-qoder:cancel\` to cleanly exit ralph mode and clean up all state files
 
 </current-story>
 
@@ -13427,7 +13427,7 @@ REMEMBER THE ULTRAWORK RULES:
 - **NO Premature Stopping**: ALL TODOs must be complete
 
 Continue working on the next pending task. DO NOT STOP until all tasks are marked complete.
-When all work is complete, run /oh-my-claudecode:cancel to cleanly exit ultrawork mode and clean up state files.${objectiveLine}
+When all work is complete, run /oh-my-qoder:cancel to cleanly exit ultrawork mode and clean up state files.${objectiveLine}
 
 </ultrawork-persistence>
 
@@ -13731,7 +13731,7 @@ function createRalphLoopHook(directory) {
   const startLoop = (sessionId, prompt, options) => {
     if (isUltraQAActive(directory, sessionId)) {
       console.error(
-        "Cannot start Ralph Loop while UltraQA is active. Cancel UltraQA first with /oh-my-claudecode:cancel."
+        "Cannot start Ralph Loop while UltraQA is active. Cancel UltraQA first with /oh-my-qoder:cancel."
       );
       return false;
     }
@@ -13944,7 +13944,7 @@ function resolveOmcCliPrefix(options = {}) {
   if (omcAvailable) {
     return OMC_CLI_BINARY;
   }
-  const pluginRoot = typeof env2.CLAUDE_PLUGIN_ROOT === "string" ? env2.CLAUDE_PLUGIN_ROOT.trim() : "";
+  const pluginRoot = typeof env2.QODER_PLUGIN_ROOT === "string" ? env2.QODER_PLUGIN_ROOT.trim() : "";
   if (pluginRoot) {
     return OMC_PLUGIN_BRIDGE_PREFIX;
   }
@@ -13976,7 +13976,7 @@ var init_omc_cli_rendering = __esm({
     "use strict";
     import_child_process16 = require("child_process");
     OMC_CLI_BINARY = "omc";
-    OMC_PLUGIN_BRIDGE_PREFIX = 'node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs';
+    OMC_PLUGIN_BRIDGE_PREFIX = 'node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs';
   }
 });
 
@@ -14150,7 +14150,7 @@ ${getVerificationAgentStep(state.critic_mode)}
    - Return ONLY a concise review summary under 100 words with verdict, evidence highlights, files checked, and blockers. Do not paste long logs inline.
 
 3. **Based on ${criticLabel}'s response:**
-   - If APPROVED: Output the exact correlated approval tag \`${approvalTag}\`, then run \`/oh-my-claudecode:cancel\` to cleanly exit
+   - If APPROVED: Output the exact correlated approval tag \`${approvalTag}\`, then run \`/oh-my-qoder:cancel\` to cleanly exit
    - If REJECTED: Continue working on the identified issues
 
 </ralph-verification>
@@ -14178,7 +14178,7 @@ ${state.original_task}
 1. Address ALL issues identified by ${criticLabel}
 2. Do NOT claim completion again until issues are fixed${state.story_id ? `, and do not progress story ${state.story_id} until it passes review` : ""}
 3. When truly done, another ${criticLabel} verification will be triggered
-4. After ${criticLabel} approves, run \`/oh-my-claudecode:cancel\` to cleanly exit
+4. After ${criticLabel} approves, run \`/oh-my-qoder:cancel\` to cleanly exit
 
 Continue working now.
 
@@ -14471,7 +14471,7 @@ function isExplicitCancelCommand(context) {
   if (!context) return false;
   const prompt = (context.prompt ?? "").trim();
   if (prompt) {
-    const slashCancelPattern = /^\/(?:oh-my-claudecode:)?cancel(?:\s+--force)?\s*$/i;
+    const slashCancelPattern = /^\/(?:oh-my-qoder:)?cancel(?:\s+--force)?\s*$/i;
     const keywordCancelPattern = /^(?:cancelomc|stopomc)\s*$/i;
     if (slashCancelPattern.test(prompt) || keywordCancelPattern.test(prompt)) {
       return true;
@@ -14494,7 +14494,7 @@ function isExplicitCancelCommand(context) {
   const toolInput = context.tool_input ?? context.toolInput;
   if (toolName.includes("skill") && toolInput && typeof toolInput.skill === "string") {
     const skill = toolInput.skill.toLowerCase();
-    if (skill === "oh-my-claudecode:cancel" || skill.endsWith(":cancel")) {
+    if (skill === "oh-my-qoder:cancel" || skill.endsWith(":cancel")) {
       return true;
     }
   }
@@ -14564,7 +14564,7 @@ function isAuthenticationError(context) {
   return AUTHENTICATION_ERROR_PATTERNS.some((pattern) => reason.includes(pattern) || endTurnReason.includes(pattern));
 }
 function getTodoFilePaths(sessionId, directory) {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const paths = [];
   if (sessionId) {
     paths.push((0, import_path56.join)(claudeDir, "sessions", sessionId, "todos.json"));
@@ -14604,7 +14604,7 @@ function getTaskDirectory(sessionId) {
   if (!isValidSessionId(sessionId)) {
     return "";
   }
-  return (0, import_path56.join)(getClaudeConfigDir(), "tasks", sessionId);
+  return (0, import_path56.join)(getQoderConfigDir(), "tasks", sessionId);
 }
 function isValidTask(data) {
   if (data === null || typeof data !== "object") return false;
@@ -15056,7 +15056,7 @@ function latest(...values) {
   return values.filter((value) => Boolean(value)).sort((left, right) => parseTime(right) - parseTime(left))[0];
 }
 function shortAgentType(agentType) {
-  return agentType.replace(/^oh-my-claudecode:/, "").trim() || "agent";
+  return agentType.replace(/^oh-my-qoder:/, "").trim() || "agent";
 }
 function sessionAgentName(agentType, agentId) {
   return `${shortAgentType(agentType)}:${agentId.slice(0, 7)}`;
@@ -15493,7 +15493,7 @@ var init_types4 = __esm({
         gitInfoPosition: "above",
         // Git info above main HUD line (backward compatible)
         model: true,
-        // Show only when Claude Code statusline stdin provides a model
+        // Show only when Qoder statusline stdin provides a model
         modelFormat: "versioned",
         // Preserve model version by default
         omcLabel: true,
@@ -15523,7 +15523,7 @@ var init_types4 = __esm({
         // Disabled by default
         hostname: false,
         profile: true,
-        // Show profile name when CLAUDE_CONFIG_DIR is set
+        // Show profile name when QODER_CONFIG_DIR is set
         missionBoard: false,
         // Opt-in mission board for whole-run progress tracking
         promptTime: true,
@@ -15898,10 +15898,10 @@ function getStateFilePath3(directory, sessionId) {
   return getLocalStateFilePath(baseDir);
 }
 function getSettingsFilePath() {
-  return (0, import_path58.join)(getClaudeConfigDir(), "settings.json");
+  return (0, import_path58.join)(getQoderConfigDir(), "settings.json");
 }
 function getConfigFilePath() {
-  return (0, import_path58.join)(getClaudeConfigDir(), ".omc", "hud-config.json");
+  return (0, import_path58.join)(getQoderConfigDir(), ".omc", "hud-config.json");
 }
 function readJsonFile(filePath) {
   if (!(0, import_fs49.existsSync)(filePath)) {
@@ -16948,7 +16948,7 @@ function getAgentDashboard(directory, sessionId) {
     const elapsed = Math.round(
       (now - new Date(agent.started_at).getTime()) / 1e3
     );
-    const shortType = agent.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = agent.agent_type.replace("oh-my-qoder:", "");
     const toolCount = agent.tool_usage?.length || 0;
     const lastTool = agent.tool_usage?.[agent.tool_usage.length - 1]?.tool_name || "-";
     const desc = agent.task_description ? ` "${agent.task_description.substring(0, 60)}"` : "";
@@ -16974,7 +16974,7 @@ function getAgentObservatory(directory, sessionId) {
     const elapsed = Math.round(
       (now - new Date(agent.started_at).getTime()) / 1e3
     );
-    const shortType = agent.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = agent.agent_type.replace("oh-my-qoder:", "");
     const toolCount = agent.tool_usage?.length || 0;
     const cost = agent.token_usage?.cost_usd || 0;
     totalCost += cost;
@@ -16998,7 +16998,7 @@ function getAgentObservatory(directory, sessionId) {
     lines.push(line);
   }
   for (const intervention of interventions.slice(0, 3)) {
-    const shortType = intervention.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = intervention.agent_type.replace("oh-my-qoder:", "");
     lines.push(`\u26A0 ${shortType}: ${intervention.reason}`);
   }
   const header = `Agent Observatory (${running.length} active, ${efficiency.score}% efficiency)`;
@@ -17060,7 +17060,7 @@ function suggestInterventions(directory, sessionId) {
           type: "file_conflict",
           agent_id: agents[i].id,
           agent_type: agents[i].type,
-          reason: `File conflict on ${file} with ${agents[0].type.replace("oh-my-claudecode:", "")}`,
+          reason: `File conflict on ${file} with ${agents[0].type.replace("oh-my-qoder:", "")}`,
           suggested_action: "warn",
           auto_execute: false
         });
@@ -17113,7 +17113,7 @@ function detectFileConflicts(directory, sessionId) {
       if (!fileToAgents.has(file)) {
         fileToAgents.set(file, []);
       }
-      fileToAgents.get(file).push(agent.agent_type.replace("oh-my-claudecode:", ""));
+      fileToAgents.get(file).push(agent.agent_type.replace("oh-my-qoder:", ""));
     }
   }
   const conflicts = [];
@@ -17129,7 +17129,7 @@ function getFileOwnershipMap(directory, sessionId) {
   const running = state.agents.filter((a) => a.status === "running");
   const map = /* @__PURE__ */ new Map();
   for (const agent of running) {
-    const shortType = agent.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = agent.agent_type.replace("oh-my-qoder:", "");
     for (const file of agent.file_ownership || []) {
       map.set(file, shortType);
     }
@@ -17286,14 +17286,14 @@ __export(skill_state_exports, {
   writeSkillActiveStateCopies: () => writeSkillActiveStateCopies
 });
 function isCanonicalWorkflowSkill(skillName) {
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   return CANONICAL_WORKFLOW_SKILLS.includes(normalized);
 }
 function getSkillProtection(skillName, rawSkillName) {
-  if (rawSkillName != null && !rawSkillName.toLowerCase().startsWith("oh-my-claudecode:")) {
+  if (rawSkillName != null && !rawSkillName.toLowerCase().startsWith("oh-my-qoder:")) {
     return "none";
   }
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   return SKILL_PROTECTION[normalized] ?? "none";
 }
 function getSkillConfig(skillName, rawSkillName) {
@@ -17345,7 +17345,7 @@ function normalizeToV2(raw) {
   return emptySkillActiveStateV2();
 }
 function upsertWorkflowSkillSlot(state, skillName, slotData = {}) {
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   const existing = state.active_skills[normalized];
   const now = (/* @__PURE__ */ new Date()).toISOString();
   const base = {
@@ -17376,7 +17376,7 @@ function upsertWorkflowSkillSlot(state, skillName, slotData = {}) {
   };
 }
 function markWorkflowSkillCompleted(state, skillName, now = (/* @__PURE__ */ new Date()).toISOString()) {
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   const existing = state.active_skills[normalized];
   if (!existing) return state;
   const updated = { ...existing, completed_at: now };
@@ -17386,7 +17386,7 @@ function markWorkflowSkillCompleted(state, skillName, now = (/* @__PURE__ */ new
   };
 }
 function clearWorkflowSkillSlot(state, skillName) {
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   if (!(normalized in state.active_skills)) return state;
   const next = { ...state.active_skills };
   delete next[normalized];
@@ -17431,12 +17431,12 @@ function resolveAuthoritativeWorkflowSkill(state) {
   return pool[0] ?? null;
 }
 function isWorkflowSkillLive(state, skillName) {
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   const slot = state.active_skills[normalized];
   return !!slot && !slot.completed_at;
 }
 function isWorkflowSkillTombstoned(state, skillName, ttlMs = WORKFLOW_TOMBSTONE_TTL_MS, now = Date.now()) {
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   const slot = state.active_skills[normalized];
   if (!slot || !slot.completed_at) return false;
   const tombstonedAt = new Date(slot.completed_at).getTime();
@@ -17515,7 +17515,7 @@ function writeSkillActiveState(directory, skillName, sessionId, rawSkillName) {
   if (protection === "none") return null;
   const config2 = PROTECTION_CONFIGS[protection];
   const now = (/* @__PURE__ */ new Date()).toISOString();
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   const existingV2 = readSkillActiveStateNormalized(directory, sessionId);
   const existing = existingV2.support_skill;
   if (existing && existing.active && existing.skill_name !== normalized) {
@@ -17717,7 +17717,7 @@ function readPermissionStringEntries(filePath, key) {
 }
 function getClaudePermissionAllowEntries(directory) {
   const projectSettingsPath = path15.join(directory, ".claude", "settings.local.json");
-  const globalConfigDir = getClaudeConfigDir();
+  const globalConfigDir = getQoderConfigDir();
   const candidatePaths = [
     projectSettingsPath,
     path15.join(globalConfigDir, "settings.local.json"),
@@ -17750,7 +17750,7 @@ function hasClaudePermissionApproval(directory, toolName, command) {
 }
 function getClaudePermissionAskEntries(directory) {
   const projectSettingsPath = path15.join(directory, ".claude", "settings.local.json");
-  const globalConfigDir = getClaudeConfigDir();
+  const globalConfigDir = getQoderConfigDir();
   const candidatePaths = [
     projectSettingsPath,
     path15.join(globalConfigDir, "settings.local.json"),
@@ -18265,7 +18265,7 @@ function startUltraQA(directory, goalType, sessionId, options) {
   if (isRalphLoopActive(directory, sessionId)) {
     return {
       success: false,
-      error: "Cannot start UltraQA while Ralph Loop is active. Cancel Ralph Loop first with /oh-my-claudecode:cancel."
+      error: "Cannot start UltraQA while Ralph Loop is active. Cancel Ralph Loop first with /oh-my-qoder:cancel."
     };
   }
   const state = {
@@ -18622,13 +18622,13 @@ You are now in validation phase. Spawn parallel validation architects:
 
 \`\`\`
 // Spawn all three in parallel
-Task(subagent_type="oh-my-claudecode:architect", model="opus",
+Task(subagent_type="oh-my-qoder:architect", model="opus",
   prompt="FUNCTIONAL COMPLETENESS REVIEW: Verify all requirements from spec are implemented")
 
-Task(subagent_type="oh-my-claudecode:security-reviewer", model="opus",
+Task(subagent_type="oh-my-qoder:security-reviewer", model="opus",
   prompt="SECURITY REVIEW: Check for vulnerabilities, injection risks, auth issues")
 
-Task(subagent_type="oh-my-claudecode:code-reviewer", model="opus",
+Task(subagent_type="oh-my-qoder:code-reviewer", model="opus",
   prompt="CODE QUALITY REVIEW: Check patterns, maintainability, test coverage")
 \`\`\`
 
@@ -18698,7 +18698,7 @@ Your task: Expand this product idea into detailed requirements and technical spe
 
 \`\`\`
 Task(
-  subagent_type="oh-my-claudecode:analyst",
+  subagent_type="oh-my-qoder:analyst",
   model="opus",
   prompt="REQUIREMENTS ANALYSIS for: ${escapeForPrompt(idea)}
 
@@ -18720,7 +18720,7 @@ After Analyst completes, spawn Architect:
 
 \`\`\`
 Task(
-  subagent_type="oh-my-claudecode:architect",
+  subagent_type="oh-my-qoder:architect",
   model="opus",
   prompt="TECHNICAL SPECIFICATION for: ${escapeForPrompt(idea)}
 
@@ -18772,7 +18772,7 @@ Spawn Architect to create the implementation plan:
 
 \`\`\`
 Task(
-  subagent_type="oh-my-claudecode:architect",
+  subagent_type="oh-my-qoder:architect",
   model="opus",
   prompt="CREATE IMPLEMENTATION PLAN
 
@@ -18810,7 +18810,7 @@ After Architect creates the plan:
 
 \`\`\`
 Task(
-  subagent_type="oh-my-claudecode:critic",
+  subagent_type="oh-my-qoder:critic",
   model="opus",
   prompt="REVIEW IMPLEMENTATION PLAN
 
@@ -18857,13 +18857,13 @@ Ralph and Ultrawork are now active. Execute tasks in parallel where possible.
 
 \`\`\`
 // For simple tasks (single file, straightforward logic)
-Task(subagent_type="oh-my-claudecode:executor-low", model="haiku", prompt="...")
+Task(subagent_type="oh-my-qoder:executor-low", model="haiku", prompt="...")
 
 // For standard implementation (feature, multiple methods)
-Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="...")
+Task(subagent_type="oh-my-qoder:executor", model="sonnet", prompt="...")
 
 // For complex work (architecture, debugging, refactoring)
-Task(subagent_type="oh-my-claudecode:executor-high", model="opus", prompt="...")
+Task(subagent_type="oh-my-qoder:executor-high", model="opus", prompt="...")
 \`\`\`
 
 ### Progress Tracking
@@ -18910,7 +18910,7 @@ For each failure:
 1. **Diagnose** - Understand the error
 \`\`\`
 Task(
-  subagent_type="oh-my-claudecode:architect-low",
+  subagent_type="oh-my-qoder:architect-low",
   model="haiku",
   prompt="Diagnose this error and suggest fix: [ERROR]"
 )
@@ -18919,7 +18919,7 @@ Task(
 2. **Fix** - Apply the fix
 \`\`\`
 Task(
-  subagent_type="oh-my-claudecode:debugger",
+  subagent_type="oh-my-qoder:debugger",
   model="sonnet",
   prompt="Fix this error with minimal changes: [ERROR]"
 )
@@ -18951,7 +18951,7 @@ Each reviewer must return ONLY a concise review summary under 100 words with ver
 \`\`\`
 // Functional Completeness Review
 Task(
-  subagent_type="oh-my-claudecode:architect",
+  subagent_type="oh-my-qoder:architect",
   model="opus",
   prompt="FUNCTIONAL COMPLETENESS REVIEW
 
@@ -18968,7 +18968,7 @@ Verdict: APPROVED (all requirements met) or REJECTED (with specific gaps)"
 
 // Security Review
 Task(
-  subagent_type="oh-my-claudecode:security-reviewer",
+  subagent_type="oh-my-qoder:security-reviewer",
   model="opus",
   prompt="SECURITY REVIEW
 
@@ -18985,7 +18985,7 @@ Verdict: APPROVED (no vulnerabilities) or REJECTED (with specific issues)"
 
 // Code Quality Review
 Task(
-  subagent_type="oh-my-claudecode:code-reviewer",
+  subagent_type="oh-my-qoder:code-reviewer",
   model="opus",
   prompt="CODE QUALITY REVIEW
 
@@ -19137,7 +19137,7 @@ Spawn all three validation architects in parallel to review the implementation:
 \`\`\`
 // 1. Functional Completeness Review
 Task(
-  subagent_type="oh-my-claudecode:architect",
+  subagent_type="oh-my-qoder:architect",
   model="opus",
   prompt="FUNCTIONAL COMPLETENESS REVIEW
 
@@ -19154,7 +19154,7 @@ Output: APPROVED or REJECTED with specific gaps"
 
 // 2. Security Review
 Task(
-  subagent_type="oh-my-claudecode:security-reviewer",
+  subagent_type="oh-my-qoder:security-reviewer",
   model="opus",
   prompt="SECURITY REVIEW
 
@@ -19171,7 +19171,7 @@ Output: APPROVED or REJECTED with specific issues"
 
 // 3. Code Quality Review
 Task(
-  subagent_type="oh-my-claudecode:code-reviewer",
+  subagent_type="oh-my-qoder:code-reviewer",
   model="opus",
   prompt="CODE QUALITY REVIEW
 
@@ -20024,7 +20024,7 @@ function isAwaitingConfirmation(state) {
   return Date.now() - setAtMs < AWAITING_CONFIRMATION_TTL_MS;
 }
 function checkArchitectApprovalInTranscript(sessionId, verificationState) {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const possiblePaths = [(0, import_path64.join)(claudeDir, "sessions", sessionId, "messages.json")];
   for (const transcriptPath of possiblePaths) {
     if (!(0, import_fs55.existsSync)(transcriptPath)) {
@@ -20041,7 +20041,7 @@ function checkArchitectApprovalInTranscript(sessionId, verificationState) {
   return false;
 }
 function checkArchitectRejectionInTranscript(sessionId) {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const possiblePaths = [
     (0, import_path64.join)(claudeDir, "sessions", sessionId, "transcript.md"),
     (0, import_path64.join)(claudeDir, "sessions", sessionId, "messages.json"),
@@ -20247,7 +20247,7 @@ async function checkRalphLoop(sessionId, directory, cancelInProgress) {
     writeRalphState(workingDir, state, sessionId);
     return {
       shouldBlock: true,
-      message: `[RALPH - HARD LIMIT] Reached hard max iterations (${hardMax}). Mode auto-disabled. Restart with /oh-my-claudecode:ralph if needed.`,
+      message: `[RALPH - HARD LIMIT] Reached hard max iterations (${hardMax}). Mode auto-disabled. Restart with /oh-my-qoder:ralph if needed.`,
       mode: "ralph",
       metadata: { iteration: state.iteration, maxIterations: state.max_iterations }
     };
@@ -20282,7 +20282,7 @@ CRITICAL INSTRUCTIONS:
 1. Review your progress and the original task
 ${prdInstruction}
 3. Continue from where you left off
-4. When FULLY complete (after ${state.critic_mode === "codex" ? "Codex critic" : state.critic_mode === "critic" ? "Critic" : "Architect"} verification), run \`/oh-my-claudecode:cancel\` to cleanly exit and clean up state files. If cancel fails, retry with \`/oh-my-claudecode:cancel --force\`.
+4. When FULLY complete (after ${state.critic_mode === "codex" ? "Codex critic" : state.critic_mode === "critic" ? "Critic" : "Architect"} verification), run \`/oh-my-qoder:cancel\` to cleanly exit and clean up state files. If cancel fails, retry with \`/oh-my-qoder:cancel --force\`.
 5. Do NOT stop until the task is truly done
 
 ${newState.prompt ? `Original task: ${truncatePromptForEcho(newState.prompt)}` : ""}
@@ -20494,7 +20494,7 @@ async function checkTeamPipeline(sessionId, directory, cancelInProgress) {
 
 The team pipeline is active in phase "${phase}". Continue working on the team workflow.
 Do not stop until the pipeline reaches a terminal state (complete/failed/cancelled).
-When done, run \`/oh-my-claudecode:cancel\` to cleanly exit.
+When done, run \`/oh-my-qoder:cancel\` to cleanly exit.
 
 </team-pipeline-continuation>
 
@@ -20685,7 +20685,7 @@ async function checkRalplan(sessionId, directory, cancelInProgress) {
 The ralplan consensus workflow is active. Continue the Planner/Architect/Critic planning loop only.
 Ralplan is read-only/planning mode: do not implement, invoke execution skills, edit source, commit, push, or open PRs from this continuation.
 When consensus is reached, stop at a pending-approval handoff and require explicit user approval before execution.
-When done, run \`/oh-my-claudecode:cancel\` to cleanly exit.
+When done, run \`/oh-my-qoder:cancel\` to cleanly exit.
 
 </ralplan-continuation>
 
@@ -20727,7 +20727,7 @@ async function checkUltrawork(sessionId, directory, _hasIncompleteTodos, cancelI
     deactivateUltrawork(workingDir, sessionId);
     return {
       shouldBlock: true,
-      message: "[ULTRAWORK - HARD LIMIT] Reached hard max iterations (" + hardMax + "). Mode auto-disabled. Restart with /oh-my-claudecode:ultrawork if needed.",
+      message: "[ULTRAWORK - HARD LIMIT] Reached hard max iterations (" + hardMax + "). Mode auto-disabled. Restart with /oh-my-qoder:ultrawork if needed.",
       mode: "ultrawork",
       metadata: { reinforcementCount: state.reinforcement_count }
     };
@@ -21081,7 +21081,7 @@ ${getExpansionPrompt(context.idea)}
 
 After the spec is created at \`${specPath}\`, invoke the RALPLAN consensus workflow:
 
-Use the \`/oh-my-claudecode:ralplan\` skill to create a consensus-driven implementation plan.
+Use the \`/oh-my-qoder:ralplan\` skill to create a consensus-driven implementation plan.
 The plan should be saved to: \`${planPath}\`
 
 The RALPLAN process will:
@@ -21158,7 +21158,7 @@ Use one of these equivalent surfaces from the lead session:
 omc team ${agentSpec} "<implementation task from ${planPath}>"
 \`\`\`
 
-Or from Claude Code slash commands:
+Or from Qoder slash commands:
 
 \`\`\`text
 /omc-teams ${agentSpec} "<implementation task from ${planPath}>"
@@ -21188,7 +21188,7 @@ var init_execution_adapter = __esm({
         );
         const useCliTeamRuntime = isTeam && hasCliTeamAgentTypes(requestedAgentTypes);
         if (isTeam) {
-          const teamRuntimeGuidance = useCliTeamRuntime ? getCliTeamRuntimeGuidance(requestedAgentTypes, planPath) : `Use Claude Code's implicit agent team to execute tasks in parallel:`;
+          const teamRuntimeGuidance = useCliTeamRuntime ? getCliTeamRuntimeGuidance(requestedAgentTypes, planPath) : `Use Qoder's implicit agent team to execute tasks in parallel:`;
           return `## PIPELINE STAGE: EXECUTION (Team Mode)
 
 Execute the implementation plan using multi-worker team execution.
@@ -21205,9 +21205,9 @@ ${useCliTeamRuntime ? `1. **Launch CLI executor workers** with \`omc team\` or \
 2. **Decompose executor-style implementation tasks** from the implementation plan and pass them to CLI workers.
 3. **Monitor tmux/team output** and integrate completed implementation changes.
 4. **Keep review/critic/security/verdict work native**; do not assign those roles to Cursor/CLI workers.
-5. **Coordinate** dependencies between tasks.` : `1. **Use the implicit team** provided by Claude Code when \`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1\` is enabled; do not call removed \`TeamCreate\`/\`TeamDelete\` tools.
+5. **Coordinate** dependencies between tasks.` : `1. **Use the implicit team** provided by Qoder when \`QODER_EXPERIMENTAL_AGENT_TEAMS=1\` is enabled; do not call removed \`TeamCreate\`/\`TeamDelete\` tools.
 2. **Track work in TodoWrite or the active task list** from the implementation plan.
-3. **Spawn executor teammates directly** with the Agent/Task tool using distinct \`name\` values (for example, \`name="worker-1"\`). Do not rely on \`team_name\`; Claude Code 2.1.178+ accepts it only as ignored legacy metadata.
+3. **Spawn executor teammates directly** with the Agent/Task tool using distinct \`name\` values (for example, \`name="worker-1"\`). Do not rely on \`team_name\`; Qoder 2.1.178+ accepts it only as ignored legacy metadata.
 4. **Monitor progress** as teammates complete tasks.
 5. **Coordinate** dependencies between tasks.`}
 
@@ -21264,13 +21264,13 @@ Every spawned executor response must return ONLY a short execution summary under
 
 \`\`\`
 // For simple tasks (single file, straightforward logic)
-Task(subagent_type="oh-my-claudecode:executor", model="haiku", prompt="...")
+Task(subagent_type="oh-my-qoder:executor", model="haiku", prompt="...")
 
 // For standard implementation (feature, multiple methods)
-Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="...")
+Task(subagent_type="oh-my-qoder:executor", model="sonnet", prompt="...")
 
 // For complex work (architecture, debugging, refactoring)
-Task(subagent_type="oh-my-claudecode:executor", model="opus", prompt="...")
+Task(subagent_type="oh-my-qoder:executor", model="opus", prompt="...")
 \`\`\`
 
 ### Progress Tracking
@@ -21322,7 +21322,7 @@ Each reviewer must return ONLY a concise review summary under 100 words covering
 \`\`\`
 // Functional Completeness Review
 Task(
-  subagent_type="oh-my-claudecode:architect",
+  subagent_type="oh-my-qoder:architect",
   model="opus",
   prompt="FUNCTIONAL COMPLETENESS REVIEW
 
@@ -21339,7 +21339,7 @@ Verdict: APPROVED (all requirements met) or REJECTED (with specific gaps)"
 
 // Security Review
 Task(
-  subagent_type="oh-my-claudecode:security-reviewer",
+  subagent_type="oh-my-qoder:security-reviewer",
   model="opus",
   prompt="SECURITY REVIEW
 
@@ -21356,7 +21356,7 @@ Verdict: APPROVED (no vulnerabilities) or REJECTED (with specific issues)"
 
 // Code Quality Review
 Task(
-  subagent_type="oh-my-claudecode:code-reviewer",
+  subagent_type="oh-my-qoder:code-reviewer",
   model="opus",
   prompt="CODE QUALITY REVIEW
 
@@ -21726,7 +21726,7 @@ var init_pipeline = __esm({
 
 // src/hooks/autopilot/enforcement.ts
 function detectSignal(sessionId, signal) {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const possiblePaths = [
     (0, import_path65.join)(claudeDir, "sessions", sessionId, "transcript.md"),
     (0, import_path65.join)(claudeDir, "sessions", sessionId, "messages.json"),
@@ -22070,7 +22070,7 @@ IMPORTANT: When this stage is complete, output the signal: ${currentAdapter.comp
   };
 }
 function detectPipelineSignal(sessionId, signal) {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const possiblePaths = [
     (0, import_path65.join)(claudeDir, "sessions", sessionId, "transcript.md"),
     (0, import_path65.join)(claudeDir, "sessions", sessionId, "messages.json"),
@@ -23134,7 +23134,7 @@ var init_codebase_map = __esm({
       "Cargo.toml",
       "go.mod",
       "go.sum",
-      "CLAUDE.md",
+      "AGENTS.md",
       "AGENTS.md",
       "README.md",
       "CONTRIBUTING.md",
@@ -23308,9 +23308,9 @@ function isTmuxAvailable() {
     return false;
   }
 }
-function isClaudeAvailable() {
+function isQoderAvailable() {
   try {
-    (0, import_child_process19.execFileSync)("claude", ["--version"], {
+    (0, import_child_process19.execFileSync)("qoder", ["--version"], {
       stdio: "ignore",
       shell: process.platform === "win32"
     });
@@ -23732,10 +23732,10 @@ function sendToPane(paneId, text, pressEnter = true) {
 }
 function formatBlockedPanesSummary(blockedPanes) {
   if (blockedPanes.length === 0) {
-    return "No blocked Claude Code sessions detected.";
+    return "No blocked Qoder sessions detected.";
   }
   const lines = [
-    `Found ${blockedPanes.length} blocked Claude Code session(s):`,
+    `Found ${blockedPanes.length} blocked Qoder session(s):`,
     ""
   ];
   for (const pane of blockedPanes) {
@@ -23774,7 +23774,7 @@ var init_tmux_detector = __esm({
       /claude/i,
       /anthropic/i,
       /\$ claude/,
-      /claude code/i,
+      /qoder/i,
       /conversation/i,
       /assistant/i
     ];
@@ -24160,7 +24160,7 @@ var init_hook_config = __esm({
     import_fs59 = require("fs");
     import_path70 = require("path");
     init_config_dir();
-    DEFAULT_CONFIG_PATH = (0, import_path70.join)(getClaudeConfigDir(), "omc_config.hook.json");
+    DEFAULT_CONFIG_PATH = (0, import_path70.join)(getQoderConfigDir(), "omc_config.hook.json");
   }
 });
 
@@ -24867,7 +24867,7 @@ var init_config = __esm({
     init_config_dir();
     init_hook_config();
     init_validation2();
-    CONFIG_FILE2 = (0, import_path71.join)(getClaudeConfigDir(), ".omc-config.json");
+    CONFIG_FILE2 = (0, import_path71.join)(getQoderConfigDir(), ".omc-config.json");
     DEFAULT_TMUX_TAIL_LINES = 15;
     VALID_VERBOSITY_LEVELS = /* @__PURE__ */ new Set([
       "verbose",
@@ -24888,7 +24888,7 @@ var init_config = __esm({
       "session-idle",
       "session-end"
     ];
-    LEGACY_OPENCLAW_CONFIG = (0, import_path71.join)(getClaudeConfigDir(), "omc_config.openclaw.json");
+    LEGACY_OPENCLAW_CONFIG = (0, import_path71.join)(getQoderConfigDir(), "omc_config.openclaw.json");
   }
 });
 
@@ -25628,7 +25628,7 @@ async function pollDiscord(config2, state, rateLimiter) {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                content: `${mentionPrefix}Injected into Claude Code session.`,
+                content: `${mentionPrefix}Injected into Qoder session.`,
                 message_reference: { message_id: msg.id },
                 allowed_mentions: feedbackAllowedMentions
               }),
@@ -25733,7 +25733,7 @@ async function pollTelegram(config2, state, rateLimiter) {
         try {
           const replyBody = JSON.stringify({
             chat_id: config2.telegramChatId,
-            text: "Injected into Claude Code session.",
+            text: "Injected into Qoder session.",
             reply_to_message_id: msg.message_id
           });
           await new Promise((resolve23) => {
@@ -26223,7 +26223,7 @@ var init_config2 = __esm({
     import_fs62 = require("fs");
     import_path73 = require("path");
     init_config_dir();
-    CONFIG_FILE3 = process.env.OMC_OPENCLAW_CONFIG || (0, import_path73.join)(getClaudeConfigDir(), "omc_config.openclaw.json");
+    CONFIG_FILE3 = process.env.OMC_OPENCLAW_CONFIG || (0, import_path73.join)(getQoderConfigDir(), "omc_config.openclaw.json");
     _cachedConfig = null;
   }
 });
@@ -26332,15 +26332,15 @@ var init_dispatcher = __esm({
 });
 
 // src/openclaw/signal.ts
-function stripClaudeTempCwdErrors(output) {
-  return output.replace(CLAUDE_TEMP_CWD_PATTERN, "");
+function stripQoderTempCwdErrors(output) {
+  return output.replace(QODER_TEMP_CWD_PATTERN, "");
 }
 function isNonZeroExitWithOutput(output) {
-  const cleaned = stripClaudeTempCwdErrors(output);
-  if (!CLAUDE_EXIT_CODE_PREFIX.test(cleaned)) return false;
-  CLAUDE_EXIT_CODE_PREFIX.lastIndex = 0;
-  const remaining = cleaned.replace(CLAUDE_EXIT_CODE_PREFIX, "").trim();
-  CLAUDE_EXIT_CODE_PREFIX.lastIndex = 0;
+  const cleaned = stripQoderTempCwdErrors(output);
+  if (!QODER_EXIT_CODE_PREFIX.test(cleaned)) return false;
+  QODER_EXIT_CODE_PREFIX.lastIndex = 0;
+  const remaining = cleaned.replace(QODER_EXIT_CODE_PREFIX, "").trim();
+  QODER_EXIT_CODE_PREFIX.lastIndex = 0;
   if (!remaining) return false;
   const contentErrorPatterns = [
     /error:/i,
@@ -26356,7 +26356,7 @@ function isNonZeroExitWithOutput(output) {
   return !contentErrorPatterns.some((pattern) => pattern.test(remaining));
 }
 function detectBashFailure(output) {
-  const cleaned = stripClaudeTempCwdErrors(output);
+  const cleaned = stripQoderTempCwdErrors(output);
   const errorPatterns = [
     /error:/i,
     /failed/i,
@@ -26373,7 +26373,7 @@ function detectBashFailure(output) {
   return errorPatterns.some((pattern) => pattern.test(cleaned));
 }
 function detectWriteFailure(output) {
-  const cleaned = stripClaudeTempCwdErrors(output);
+  const cleaned = stripQoderTempCwdErrors(output);
   const errorPatterns = [
     /\berror:/i,
     /\bfailed to\b/i,
@@ -26519,12 +26519,12 @@ function buildOpenClawSignal(event, context) {
       };
   }
 }
-var CLAUDE_TEMP_CWD_PATTERN, CLAUDE_EXIT_CODE_PREFIX, PR_CREATE_PATTERN, PR_URL_PATTERN, TEST_COMMAND_PATTERNS2;
+var QODER_TEMP_CWD_PATTERN, QODER_EXIT_CODE_PREFIX, PR_CREATE_PATTERN, PR_URL_PATTERN, TEST_COMMAND_PATTERNS2;
 var init_signal = __esm({
   "src/openclaw/signal.ts"() {
     "use strict";
-    CLAUDE_TEMP_CWD_PATTERN = /zsh:\d+: permission denied:.*\/T\/claude-[a-z0-9]+-cwd/gi;
-    CLAUDE_EXIT_CODE_PREFIX = /^Error: Exit code \d+\s*$/gm;
+    QODER_TEMP_CWD_PATTERN = /zsh:\d+: permission denied:.*\/T\/claude-[a-z0-9]+-cwd/gi;
+    QODER_EXIT_CODE_PREFIX = /^Error: Exit code \d+\s*$/gm;
     PR_CREATE_PATTERN = /\bgh\s+pr\s+create\b/i;
     PR_URL_PATTERN = /https:\/\/github\.com\/[^\s/]+\/[^\s/]+\/pull\/\d+/i;
     TEST_COMMAND_PATTERNS2 = [
@@ -29010,7 +29010,7 @@ function configFromManifest(manifest) {
   return {
     name: manifest.name,
     task: manifest.task,
-    agent_type: "claude",
+    agent_type: "qoder",
     policy: manifest.policy,
     governance: manifest.governance,
     worker_launch_mode: manifest.policy.worker_launch_mode,
@@ -29570,7 +29570,7 @@ function configFromManifest2(manifest) {
   return {
     name: manifest.name,
     task: manifest.task,
-    agent_type: "claude",
+    agent_type: "qoder",
     policy: manifest.policy,
     governance: manifest.governance,
     worker_launch_mode: manifest.policy.worker_launch_mode,
@@ -30051,11 +30051,11 @@ var init_team_name = __esm({
 });
 
 // src/features/delegation-enforcer.ts
-function normalizeToCcAlias(model) {
+function normalizeToQoderAlias(model) {
   if (isProviderSpecificModelId(model)) {
     return model;
   }
-  const family = resolveClaudeFamily(model);
+  const family = resolveQoderFamily(model);
   return family ? FAMILY_TO_ALIAS[family] ?? model : model;
 }
 var FAMILY_TO_ALIAS;
@@ -30137,7 +30137,7 @@ function resolveCliBinaryPath(binary) {
   resolvedPathCache.set(binary, resolvedPath);
   return resolvedPath;
 }
-function shouldUseClaudeBareMode(env2 = process.env) {
+function shouldUseQoderBareMode(env2 = process.env) {
   return typeof env2.ANTHROPIC_API_KEY === "string" && env2.ANTHROPIC_API_KEY.trim().length > 0;
 }
 function getContract(agentType) {
@@ -30145,9 +30145,9 @@ function getContract(agentType) {
   if (!contract) {
     throw new Error(`Unknown agent type: ${agentType}. Supported: ${Object.keys(CONTRACTS).join(", ")}`);
   }
-  if (agentType !== "claude" && isExternalLLMDisabled()) {
+  if (agentType !== "qoder" && isExternalLLMDisabled()) {
     throw new Error(
-      `External LLM provider "${agentType}" is blocked by security policy (disableExternalLLM). Only Claude workers are allowed in the current security configuration.`
+      `External LLM provider "${agentType}" is blocked by security policy (disableExternalLLM). Only Qoder workers are allowed in the current security configuration.`
     );
   }
   return contract;
@@ -30226,18 +30226,18 @@ function isPromptModeAgent(agentType) {
   const contract = getContract(agentType);
   return !!contract.supportsPromptMode;
 }
-function resolveClaudeWorkerModel(env2 = process.env) {
+function resolveQoderWorkerModel(env2 = process.env) {
   if (env2.OMC_ROUTING_FORCE_INHERIT === "true") {
     return void 0;
   }
   if (!isBedrock() && !isVertexAI()) {
     return void 0;
   }
-  const directModel = env2.ANTHROPIC_MODEL || env2.CLAUDE_MODEL || "";
+  const directModel = env2.ANTHROPIC_MODEL || env2.QODER_MODEL || "";
   if (directModel) {
     return directModel;
   }
-  const bedrockModel = env2.CLAUDE_CODE_BEDROCK_SONNET_MODEL || env2.ANTHROPIC_DEFAULT_SONNET_MODEL || "";
+  const bedrockModel = env2.QODER_BEDROCK_SONNET_MODEL || env2.ANTHROPIC_DEFAULT_SONNET_MODEL || "";
   if (bedrockModel) {
     return bedrockModel;
   }
@@ -30288,17 +30288,17 @@ var init_model_contract = __esm({
       /^\/dev\/shm(\/|$)/
     ];
     CONTRACTS = {
-      claude: {
-        agentType: "claude",
-        binary: "claude",
-        installInstructions: "Install Claude CLI: https://claude.ai/download",
+      qoder: {
+        agentType: "qoder",
+        binary: "qoder",
+        installInstructions: "Install Qoder CLI: https://qoder.ai/download",
         buildLaunchArgs(model, extraFlags = []) {
           const args = ["--dangerously-skip-permissions"];
-          if (shouldUseClaudeBareMode() && !extraFlags.includes("--bare")) {
+          if (shouldUseQoderBareMode() && !extraFlags.includes("--bare")) {
             args.push("--bare");
           }
           if (model) {
-            const resolved = isProviderSpecificModelId(model) ? model : normalizeToCcAlias(model);
+            const resolved = isProviderSpecificModelId(model) ? model : normalizeToQoderAlias(model);
             args.push("--model", resolved);
           }
           return [...args, ...extraFlags];
@@ -30401,13 +30401,13 @@ var init_model_contract = __esm({
     };
     WORKER_MODEL_ENV_ALLOWLIST = [
       "ANTHROPIC_MODEL",
-      "CLAUDE_MODEL",
+      "QODER_MODEL",
       "ANTHROPIC_BASE_URL",
-      "CLAUDE_CODE_USE_BEDROCK",
-      "CLAUDE_CODE_USE_VERTEX",
-      "CLAUDE_CODE_BEDROCK_OPUS_MODEL",
-      "CLAUDE_CODE_BEDROCK_SONNET_MODEL",
-      "CLAUDE_CODE_BEDROCK_HAIKU_MODEL",
+      "QODER_USE_BEDROCK",
+      "QODER_USE_VERTEX",
+      "QODER_BEDROCK_OPUS_MODEL",
+      "QODER_BEDROCK_SONNET_MODEL",
+      "QODER_BEDROCK_HAIKU_MODEL",
       "ANTHROPIC_DEFAULT_OPUS_MODEL",
       "ANTHROPIC_DEFAULT_SONNET_MODEL",
       "ANTHROPIC_DEFAULT_HAIKU_MODEL",
@@ -31669,7 +31669,7 @@ function agentTypeGuidance(agentType) {
         "- Keep commit-sized changes scoped to assigned files only; no broad refactors.",
         `- CRITICAL: You MUST run \`${claimTaskCommand}\` before starting work and \`${transitionTaskStatusCommand}\` when done. Do not exit without transitioning the task status.`
       ].join("\n");
-    case "claude":
+    case "qoder":
     default:
       return [
         "### Agent-Type Guidance (claude)",
@@ -32961,13 +32961,13 @@ function resolveRoleAssignment(role, cfg) {
   const roleRouting = cfg.team?.roleRouting;
   const spec = getRoleRoutingSpec(roleRouting, canonical);
   const isOrchestrator = canonical === "orchestrator";
-  const provider = isOrchestrator ? "claude" : spec?.provider ?? "claude";
+  const provider = isOrchestrator ? "qoder" : spec?.provider ?? "qoder";
   if (provider === "cursor" && !CURSOR_EXECUTOR_TEAM_ROLE_SET2.has(canonical)) {
     throw new Error(
       `team.roleRouting.${canonical}.provider: cursor is only supported for executor-style roles (${[...CURSOR_EXECUTOR_TEAM_ROLE_SET2].join(", ")})`
     );
   }
-  const model = provider === "claude" ? resolveClaudeModel(canonical, spec?.model, cfg) : resolveExternalModel(provider, spec?.model, cfg);
+  const model = provider === "qoder" ? resolveClaudeModel(canonical, spec?.model, cfg) : resolveExternalModel(provider, spec?.model, cfg);
   const agent = spec?.agent ?? ROLE_TO_AGENT[canonical];
   return { provider, model, agent };
 }
@@ -32980,10 +32980,10 @@ function buildResolvedRoutingSnapshot(cfg) {
   for (const role of CANONICAL_TEAM_ROLES) {
     const primary = resolveRoleAssignment(role, cfg);
     const spec = getRoleRoutingSpec(roleRouting, role);
-    const isExternalPrimary = primary.provider !== "claude";
+    const isExternalPrimary = primary.provider !== "qoder";
     const fallbackModelInput = isExternalPrimary && spec?.model && !isTier(spec.model) ? void 0 : spec?.model;
     const fallback = {
-      provider: "claude",
+      provider: "qoder",
       model: resolveClaudeModel(role, fallbackModelInput, cfg),
       agent: primary.agent
     };
@@ -33225,7 +33225,7 @@ var init_role_router = __esm({
 // src/team/cli-worker-contract.ts
 function shouldInjectContract(role, provider) {
   if (!role || !provider) return false;
-  if (provider === "claude" || provider === "cursor") return false;
+  if (provider === "qoder" || provider === "cursor") return false;
   return CONTRACT_ROLES.has(role);
 }
 function renderCliWorkerOutputContract(role, output_file) {
@@ -33494,7 +33494,7 @@ var init_merge_coordinator = __esm({
     import_node_path9 = require("node:path");
     init_git_worktree();
     BRANCH_NAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$/;
-    HARNESS_MERGE_PATHS = ["AGENTS.md", ".claude/**"];
+    HARNESS_MERGE_PATHS = ["AGENTS.md", ".qoder/**"];
   }
 });
 
@@ -33714,14 +33714,14 @@ async function installCommitCadence(ctx) {
   if (!ctx.enabled) {
     return { method: "none" };
   }
-  if (ctx.agentType === "claude") {
+  if (ctx.agentType === "qoder") {
     await installPostToolUseHook(ctx.worktreePath, ctx.workerName);
     return { method: "hook" };
   }
   return { method: "fallback-poll" };
 }
 async function uninstallCommitCadence(ctx) {
-  if (ctx.agentType !== "claude") return;
+  if (ctx.agentType !== "qoder") return;
   const settingsPath = (0, import_path90.join)(ctx.worktreePath, ".claude", "settings.json");
   try {
     const raw = await (0, import_promises14.readFile)(settingsPath, "utf-8");
@@ -34453,7 +34453,7 @@ function resolveTaskAssignment(task, resolvedRouting, roleRoutingConfig, resolve
     }
     return { agentType: fallbackAgent, model: "", role: canonical };
   }
-  if (hasExplicitRole && !hasConfigForRole && fallbackAgent !== "claude") {
+  if (hasExplicitRole && !hasConfigForRole && fallbackAgent !== "qoder") {
     return { agentType: fallbackAgent, model: "", role: canonical };
   }
   const pair = resolvedRouting[canonical];
@@ -34662,7 +34662,7 @@ async function spawnV2Worker(opts) {
     if (opts.agentType === "cursor") {
       return void 0;
     }
-    return resolveClaudeWorkerModel();
+    return resolveQoderWorkerModel();
   })();
   const [launchBinary, ...launchArgs] = buildWorkerArgv(opts.agentType, {
     teamName: opts.teamName,
@@ -34741,7 +34741,7 @@ async function spawnV2Worker(opts) {
       startupFailureReason: dispatchOutcome.reason
     };
   }
-  if (opts.agentType === "claude") {
+  if (opts.agentType === "qoder") {
     let settled = await waitForWorkerStartupEvidence(
       opts.teamName,
       opts.workerName,
@@ -34867,7 +34867,7 @@ async function startTeamV2(config2) {
         `[team/runtime-v2] ${t} headless mode is unsupported on this platform \u2014 using claude fallback for direct workers
 `
       );
-      return "claude";
+      return "qoder";
     }
     return t;
   });
@@ -34894,7 +34894,7 @@ async function startTeamV2(config2) {
   }
   if (!resolvedBinaryPaths.claude) {
     try {
-      resolvedBinaryPaths.claude = resolveValidatedBinaryPath("claude");
+      resolvedBinaryPaths.claude = resolveValidatedBinaryPath("qoder");
     } catch {
     }
   }
@@ -34967,7 +34967,7 @@ async function startTeamV2(config2) {
     }));
     const allocationWorkers = workerNames.map((name, i) => ({
       name,
-      role: config2.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "claude"),
+      role: config2.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "qoder"),
       currentLoad: 0
     }));
     for (const r of allocateTasksToWorkers(allocationTasks, allocationWorkers)) {
@@ -34977,7 +34977,7 @@ async function startTeamV2(config2) {
   try {
     for (let i = 0; i < workerNames.length; i++) {
       const wName = workerNames[i];
-      const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "claude";
+      const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "qoder";
       await ensureWorkerStateDir(sanitized, wName, leaderCwd);
       const overlayPath = await writeWorkerOverlay({
         teamName: sanitized,
@@ -35020,7 +35020,7 @@ async function startTeamV2(config2) {
     return {
       name: wName,
       index: i + 1,
-      role: config2.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "claude"),
+      role: config2.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "qoder"),
       assigned_tasks: [],
       working_dir: worktree?.path ?? leaderCwd,
       team_state_root: teamStateRoot(leaderCwd, sanitized),
@@ -35036,7 +35036,7 @@ async function startTeamV2(config2) {
   const teamConfig = {
     name: sanitized,
     task: config2.tasks.map((t) => t.subject).join("; "),
-    agent_type: agentTypes[0] || "claude",
+    agent_type: agentTypes[0] || "qoder",
     worker_launch_mode: "interactive",
     policy: DEFAULT_TEAM_TRANSPORT_POLICY,
     governance: DEFAULT_TEAM_GOVERNANCE,
@@ -35132,7 +35132,7 @@ async function startTeamV2(config2) {
       const taskId = String(decision.taskIndex + 1);
       const task = config2.tasks[decision.taskIndex];
       if (!task || workerIndex < 0) continue;
-      const fallbackAgent = agentTypes[workerIndex % agentTypes.length] ?? agentTypes[0] ?? "claude";
+      const fallbackAgent = agentTypes[workerIndex % agentTypes.length] ?? agentTypes[0] ?? "qoder";
       const assignment = resolveTaskAssignment(
         task,
         resolvedRouting,
@@ -36316,7 +36316,7 @@ async function startTeam(config2) {
   for (let i = 0; i < tasks.length; i++) {
     const wName = workerName(i);
     workerNames.push(wName);
-    const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "claude";
+    const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "qoder";
     await ensureWorkerStateDir(teamName, wName, cwd2);
     await writeWorkerOverlay({
       teamName,
@@ -36540,7 +36540,7 @@ async function spawnWorkerForTask(runtime, workerNameValue, taskIndex) {
   const task = runtime.config.tasks[taskIndex];
   if (!task) return "";
   const workerIndex = parseWorkerIndex(workerNameValue);
-  const agentType = runtime.config.agentTypes[workerIndex % runtime.config.agentTypes.length] ?? runtime.config.agentTypes[0] ?? "claude";
+  const agentType = runtime.config.agentTypes[workerIndex % runtime.config.agentTypes.length] ?? runtime.config.agentTypes[0] ?? "qoder";
   assertHeadlessSupported(agentType);
   const marked = await markTaskInProgress(root2, taskId, workerNameValue, runtime.teamName, runtime.cwd);
   if (!marked) return "";
@@ -36579,7 +36579,7 @@ async function spawnWorkerForTask(runtime, workerNameValue, taskIndex) {
     if (agentType === "cursor") {
       return void 0;
     }
-    return resolveClaudeWorkerModel();
+    return resolveQoderWorkerModel();
   })();
   const [launchBinary, ...launchArgs] = buildWorkerArgv(agentType, {
     teamName: runtime.teamName,
@@ -36705,7 +36705,7 @@ async function shutdownTeam(teamName, sessionName2, cwd2, timeoutMs = 3e4, worke
     teamName
   });
   const configData = await readJsonSafe5((0, import_path93.join)(root2, "config.json"));
-  const CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["claude", "codex", "gemini", "grok", "cursor", "antigravity"]);
+  const CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["qoder", "codex", "gemini", "grok", "cursor", "antigravity"]);
   const agentTypes = configData?.agentTypes ?? [];
   const isCliWorkerTeam = agentTypes.length > 0 && agentTypes.every((t) => CLI_AGENT_TYPES.has(t));
   if (!isCliWorkerTeam) {
@@ -38213,8 +38213,8 @@ function patchHooksJsonForWindows(pluginRoot) {
   try {
     const content = (0, import_fs79.readFileSync)(hooksJsonPath, "utf-8");
     const data = JSON.parse(content);
-    const currentPattern = /^(?:"\/bin\/sh"|sh) "\$CLAUDE_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs "\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
-    const legacyPattern = /^sh "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
+    const currentPattern = /^(?:"\/bin\/sh"|sh) "\$QODER_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs "\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+    const legacyPattern = /^sh "\$\{QODER_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{QODER_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
     let patched = false;
     for (const groups of Object.values(data.hooks ?? {})) {
       for (const group of groups) {
@@ -38222,7 +38222,7 @@ function patchHooksJsonForWindows(pluginRoot) {
           if (typeof hook.command === "string") {
             const m = hook.command.match(currentPattern) ?? hook.command.match(legacyPattern);
             if (m) {
-              hook.command = `node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/${m[1]}${m[2]}`;
+              hook.command = `node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/${m[1]}${m[2]}`;
               patched = true;
             }
           }
@@ -38236,7 +38236,7 @@ function patchHooksJsonForWindows(pluginRoot) {
   }
 }
 function ensureStdinSymlink(pluginRoot) {
-  const libDstDir = (0, import_path96.join)(getClaudeConfigDir(), "hooks/lib");
+  const libDstDir = (0, import_path96.join)(getQoderConfigDir(), "hooks/lib");
   const libSrc = (0, import_path96.join)(pluginRoot, "templates/hooks/lib");
   const stdinSrc = (0, import_path96.join)(libSrc, "stdin.mjs");
   const stdinDst = (0, import_path96.join)(libDstDir, "stdin.mjs");
@@ -38290,7 +38290,7 @@ async function processSetupInit(input) {
     errors: [],
     env_vars_set: []
   };
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  const pluginRoot = process.env.QODER_PLUGIN_ROOT;
   if (process.platform === "win32") {
     if (pluginRoot) {
       patchHooksJsonForWindows(pluginRoot);
@@ -38537,7 +38537,7 @@ function buildSimplifierMessage(files) {
 
 ${fileList}
 
-Use: Task(subagent_type="oh-my-claudecode:code-simplifier", prompt="Simplify the recently modified files:\\n${fileArgs}")`;
+Use: Task(subagent_type="oh-my-qoder:code-simplifier", prompt="Simplify the recently modified files:\\n${fileArgs}")`;
 }
 function processCodeSimplifier(cwd2, stateDir) {
   if (!isCodeSimplifierEnabled()) {
@@ -44322,10 +44322,10 @@ function isMinimaxHost(urlString) {
   }
 }
 function getLegacyCachePath() {
-  return (0, import_path115.join)(getClaudeConfigDir(), "plugins", "oh-my-claudecode", ".usage-cache.json");
+  return (0, import_path115.join)(getQoderConfigDir(), "plugins", "oh-my-qoder", ".usage-cache.json");
 }
 function getCachePath(source) {
-  return (0, import_path115.join)(getClaudeConfigDir(), "plugins", "oh-my-claudecode", `.usage-cache-${source}.json`);
+  return (0, import_path115.join)(getQoderConfigDir(), "plugins", "oh-my-qoder", `.usage-cache-${source}.json`);
 }
 function migrateLegacyCache(source) {
   try {
@@ -44472,12 +44472,12 @@ function createRateLimitedCacheEntry(source, data, pollIntervalMs, previousCount
   };
 }
 function getKeychainServiceName() {
-  const configDir = process.env.CLAUDE_CONFIG_DIR;
+  const configDir = process.env.QODER_CONFIG_DIR;
   if (configDir) {
     const hash = (0, import_crypto19.createHash)("sha256").update(configDir).digest("hex").slice(0, 8);
-    return `Claude Code-credentials-${hash}`;
+    return `Qoder-credentials-${hash}`;
   }
-  return "Claude Code-credentials";
+  return "Qoder-credentials";
 }
 function isCredentialExpired(creds) {
   return creds.expiresAt != null && creds.expiresAt <= Date.now();
@@ -44532,7 +44532,7 @@ function readKeychainCredentials() {
 }
 function readFileCredentials() {
   try {
-    const credPath = (0, import_path115.join)(getClaudeConfigDir(), ".credentials.json");
+    const credPath = (0, import_path115.join)(getQoderConfigDir(), ".credentials.json");
     if (!(0, import_fs96.existsSync)(credPath)) return null;
     const content = (0, import_fs96.readFileSync)(credPath, "utf-8");
     const parsed = JSON.parse(content);
@@ -44780,7 +44780,7 @@ function writeBackCredentials(creds) {
     return;
   }
   try {
-    const credPath = (0, import_path115.join)(getClaudeConfigDir(), ".credentials.json");
+    const credPath = (0, import_path115.join)(getQoderConfigDir(), ".credentials.json");
     if (!(0, import_fs96.existsSync)(credPath)) return;
     const content = (0, import_fs96.readFileSync)(credPath, "utf-8");
     const parsed = JSON.parse(content);
@@ -45500,7 +45500,7 @@ var init_stdin = __esm({
     import_path123 = require("path");
     init_worktree_paths();
     TRANSIENT_CONTEXT_PERCENT_TOLERANCE = 3;
-    SESSION_ID_ENV_VARS = ["CLAUDE_SESSION_ID", "CLAUDECODE_SESSION_ID"];
+    SESSION_ID_ENV_VARS = ["CLAUDE_SESSION_ID", "QODER_SESSION_ID"];
   }
 });
 
@@ -46113,9 +46113,9 @@ var init_omc_state = __esm({
 // src/hud/custom-rate-provider.ts
 function getCachePath2() {
   return (0, import_path126.join)(
-    getClaudeConfigDir(),
+    getQoderConfigDir(),
     "plugins",
-    "oh-my-claudecode",
+    "oh-my-qoder",
     ".custom-rate-cache.json"
   );
 }
@@ -47752,7 +47752,7 @@ function detectApiKeySource(cwd2) {
     const projectSettings = (0, import_path127.join)(cwd2, ".claude", "settings.local.json");
     if (settingsFileHasApiKey(projectSettings)) return "project";
   }
-  const globalSettings = (0, import_path127.join)(getClaudeConfigDir(), "settings.json");
+  const globalSettings = (0, import_path127.join)(getQoderConfigDir(), "settings.json");
   if (settingsFileHasApiKey(globalSettings)) return "global";
   if (process.env.ANTHROPIC_API_KEY) return "env";
   return null;
@@ -48476,7 +48476,7 @@ async function calculateSessionHealth(sessionStart, contextPercent) {
 }
 function showDiagnostic() {
   const version3 = getRuntimePackageVersion();
-  const configDir = getClaudeConfigDir();
+  const configDir = getQoderConfigDir();
   const hudScript = (0, import_path128.join)(configDir, "hud", "omc-hud.mjs");
   const settingsFile = (0, import_path128.join)(configDir, "settings.json");
   const hudExists = (0, import_fs110.existsSync)(hudScript);
@@ -48497,9 +48497,9 @@ function showDiagnostic() {
   console.log(`  HUD script:  ${hudExists ? "installed" : "MISSING"}`);
   console.log(`  statusLine:  ${statusLineOk ? "configured" : "NOT configured"}`);
   if (!hudExists || !statusLineOk) {
-    console.log("  Run /oh-my-claudecode:hud setup to fix.");
+    console.log("  Run /oh-my-qoder:hud setup to fix.");
   } else {
-    console.log("  HUD renders automatically inside Claude Code sessions.");
+    console.log("  HUD renders automatically inside Qoder sessions.");
   }
 }
 async function main2(watchMode = false, skipInit = false) {
@@ -48660,7 +48660,7 @@ async function main2(watchMode = false, skipInit = false) {
       apiKeyMode: detectApiKeySource(cwd2) !== null,
       subscriptionType: subscriptionInfo.subscriptionType,
       rateLimitTier: subscriptionInfo.rateLimitTier,
-      profileName: process.env.CLAUDE_CONFIG_DIR ? (0, import_path128.basename)(process.env.CLAUDE_CONFIG_DIR).replace(/^\./, "") : null,
+      profileName: process.env.QODER_CONFIG_DIR ? (0, import_path128.basename)(process.env.QODER_CONFIG_DIR).replace(/^\./, "") : null,
       sessionSummary,
       lastToolName: transcriptData.lastToolName,
       payloadEstimate
@@ -56043,7 +56043,7 @@ function shouldShowDebugMessage(message, filter) {
   return shouldShowDebugCategories(categories, filter);
 }
 function getClaudeConfigHomeDir() {
-  return process.env.CLAUDE_CONFIG_DIR ?? (0, import_path6.join)((0, import_os3.homedir)(), ".claude");
+  return process.env.QODER_CONFIG_DIR ?? (0, import_path6.join)((0, import_os3.homedir)(), ".claude");
 }
 function isEnvTruthy(envVar) {
   if (!envVar)
@@ -74024,7 +74024,7 @@ var LspClientManager = class {
   /**
    * Register process exit/signal handlers to kill all spawned LSP server processes.
    * Prevents orphaned language server processes (e.g. kotlin-language-server)
-   * when the MCP bridge process exits or a claude session ends.
+   * when the MCP bridge process exits or a qoder session ends.
    */
   registerCleanupHandlers() {
     const forceKillAll = () => {
@@ -75107,7 +75107,7 @@ function validateToolPath(inputPath) {
   const rel = (0, import_path19.relative)(normalizedRoot, normalizedPath);
   if (rel.startsWith("..") || (0, import_path19.isAbsolute)(rel)) {
     throw new Error(
-      `Path restricted: '${inputPath}' is outside the project root '${projectRoot}'. Disable via security.restrictToolPaths in .claude/omc.jsonc or unset OMC_SECURITY.`
+      `Path restricted: '${inputPath}' is outside the project root '${projectRoot}'. Disable via security.restrictToolPaths in .qoder/omc.jsonc or unset OMC_SECURITY.`
     );
   }
   return resolved;
@@ -76546,7 +76546,7 @@ ${formatSkillOutput(projectSkills)}`
 };
 var loadGlobalTool = {
   name: "load_omc_skills_global",
-  description: "Load and list skills from global user directories (~/.omc/skills/ and [$CLAUDE_CONFIG_DIR|~/.claude]/skills/omc-learned/). Returns skill metadata for all discovered user-scoped skills.",
+  description: "Load and list skills from global user directories (~/.omc/skills/ and [$QODER_CONFIG_DIR|~/.qoder]/skills/omc-learned/). Returns skill metadata for all discovered user-scoped skills.",
   schema: loadGlobalSchema,
   handler: async (_args) => {
     const allSkills = loadAllSkills(null);
@@ -76592,7 +76592,7 @@ No skill files were discovered in any searched directories.
 Searched:
 - Project: .omc/skills/
 - Global: ~/.omc/skills/
-- Claude config: ${getClaudeConfigDir()}/skills/omc-learned/`;
+- Qoder config: ${getQoderConfigDir()}/skills/omc-learned/`;
     }
     return {
       content: [{
@@ -79012,7 +79012,7 @@ function getMainRepoRoot(projectRoot) {
   }
 }
 function getClaudeWorktreeParent(projectRoot) {
-  const marker = `${(0, import_path37.normalize)("/.claude/worktrees/")}`;
+  const marker = `${(0, import_path37.normalize)("/.qoder/worktrees/")}`;
   const normalizedRoot = (0, import_path37.normalize)(projectRoot);
   const idx = normalizedRoot.indexOf(marker);
   if (idx === -1) return null;
@@ -79059,7 +79059,7 @@ function uniqueSortedTargets(targets) {
   });
 }
 function buildCurrentProjectTargets(projectRoot) {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const projectRoots = /* @__PURE__ */ new Set([projectRoot]);
   const mainRepoRoot = getMainRepoRoot(projectRoot);
   if (mainRepoRoot) projectRoots.add(mainRepoRoot);
@@ -79092,7 +79092,7 @@ function buildCurrentProjectTargets(projectRoot) {
   return uniqueSortedTargets(targets);
 }
 function buildAllProjectTargets() {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const targets = [];
   for (const filePath of listJsonlFiles((0, import_path37.join)(claudeDir, "projects"))) {
     targets.push({ filePath, sourceType: "project-transcript" });
@@ -79394,7 +79394,7 @@ var sessionSearchTool = {
     limit: external_exports.number().int().positive().optional().describe("Maximum number of matches to return (default: 10)"),
     sessionId: external_exports.string().optional().describe("Restrict search to a specific session id"),
     since: external_exports.string().optional().describe("Only include matches since a relative duration (e.g. 7d, 24h) or absolute date"),
-    project: external_exports.string().optional().describe('Project filter. Defaults to current project. Use "all" to search across all local Claude projects.'),
+    project: external_exports.string().optional().describe('Project filter. Defaults to current project. Use "all" to search across all local Qoder projects.'),
     caseSensitive: external_exports.boolean().optional().describe("Whether to match case-sensitively (default: false)"),
     contextChars: external_exports.number().int().positive().optional().describe("Approximate snippet context on each side of a match (default: 120)"),
     workingDirectory: external_exports.string().optional().describe("Working directory used to determine the current project scope")
@@ -79784,7 +79784,7 @@ init_config_dir();
 var CONFIG_FILE_NAME = ".omc-config.json";
 function isSharedMemoryEnabled() {
   try {
-    const configPath = (0, import_path39.join)(getClaudeConfigDir(), CONFIG_FILE_NAME);
+    const configPath = (0, import_path39.join)(getQoderConfigDir(), CONFIG_FILE_NAME);
     if (!(0, import_fs27.existsSync)(configPath)) return true;
     const raw = JSON.parse((0, import_fs27.readFileSync)(configPath, "utf-8"));
     const enabled = raw?.agents?.sharedMemory?.enabled;
@@ -79995,7 +79995,7 @@ function listNamespaces(worktreeRoot) {
 }
 
 // src/tools/shared-memory-tools.ts
-var DISABLED_MSG = `Shared memory is disabled. Set agents.sharedMemory.enabled = true in ${getClaudeConfigDir()}/.omc-config.json to enable.`;
+var DISABLED_MSG = `Shared memory is disabled. Set agents.sharedMemory.enabled = true in ${getQoderConfigDir()}/.omc-config.json to enable.`;
 function disabledResponse() {
   return {
     content: [{ type: "text", text: DISABLED_MSG }],
@@ -82915,7 +82915,7 @@ If ANY box is unchecked, CONTINUE WORKING.
 You may ONLY stop when:
 1. **100% Complete**: Every single task is marked 'completed'
 2. **User Override**: User explicitly says "stop", "cancel", or "that's enough"
-3. **Clean Exit**: You run \`/oh-my-claudecode:cancel\` to properly exit the active mode and clean up state files
+3. **Clean Exit**: You run \`/oh-my-qoder:cancel\` to properly exit the active mode and clean up state files
 
 ### ANTI-STOPPING MECHANISMS
 
@@ -83096,7 +83096,7 @@ var KEYWORD_PATTERNS = {
   autopilot: /\b(autopilot|auto[\s-]?pilot|fullsend|full\s+auto)\b|(오토파일럿)|(オートパイロット)/i,
   ultrawork: /\b(ultrawork|ulw)\b|(울트라워크)|(ウルトラワーク)/i,
   // Team keyword detection disabled — team mode is now explicit-only via /team skill.
-  // This prevents infinite spawning when Claude workers receive prompts containing "team".
+  // This prevents infinite spawning when Qoder workers receive prompts containing "team".
   team: /(?!x)x/,
   // never-match placeholder (type system requires the key)
   ralplan: /\b(ralplan)\b|(랄플랜)|(ラルプラン)/i,
@@ -83107,7 +83107,7 @@ var KEYWORD_PATTERNS = {
   deepsearch: /\b(deepsearch)\b|\bsearch\s+the\s+codebase\b|\bfind\s+in\s+(the\s+)?codebase\b|(딥\s?서치)|(ディープ\s?サーチ)/i,
   analyze: /\b(deep[\s-]?analyze|deepanalyze)\b|(딥\s?분석)|(ディープ\s?アナライズ)/i,
   "deep-interview": /\b(deep[\s-]interview|ouroboros)\b|(딥인터뷰)|(ディープインタビュー)/i,
-  ccg: /\b(ccg|claude-codex-gemini)\b|(씨씨지)|(シーシージー)/i,
+  ccg: /\b(ccg|qoderx-gemini)\b|(씨씨지)|(シーシージー)/i,
   codex: /\b(ask|use|delegate\s+to)\s+(codex|gpt)\b/i,
   gemini: /\b(ask|use|delegate\s+to)\s+gemini\b/i,
   cursor: /\b(ask|use|delegate\s+to)\s+cursor\b/i,
@@ -83156,7 +83156,7 @@ var SLASH_SKILL_TO_KEYWORD_TYPE = {
   ralplan: "ralplan"
 };
 var WORKFLOW_SLASH_PATTERN = new RegExp(
-  "^\\s*/(?:oh-my-claudecode:|omc:)?(" + CANONICAL_WORKFLOW_SLASH_SKILLS.map((skill) => skill.replace(/-/g, "\\-")).join("|") + ")(?=\\s|$|[?!.,;:])",
+  "^\\s*/(?:oh-my-qoder:|omc:)?(" + CANONICAL_WORKFLOW_SLASH_SKILLS.map((skill) => skill.replace(/-/g, "\\-")).join("|") + ")(?=\\s|$|[?!.,;:])",
   "i"
 );
 function parseExplicitWorkflowSlashInvocation(promptText) {
@@ -83322,7 +83322,7 @@ var QUESTION_FOLLOWUP_PATTERNS = [
   /\b(?:how\s+many|how\s+much|why|what\s+happened|what\s+went\s+wrong|token\s+budget|cost|pricing)\b/i,
   /(?:왜|얼마|몇\s*번|몇번|토큰|가격|비용|질문)/u
 ];
-var MODE_REFERENCE_PATTERN = /\b(?:ralph|autopilot|auto[\s-]?pilot|ultrawork|ulw|ralplan|ultrathink|deepsearch|deep[\s-]?analyze|deepanalyze|deep[\s-]interview|ouroboros|ccg|claude-codex-gemini|deerflow)\b/gi;
+var MODE_REFERENCE_PATTERN = /\b(?:ralph|autopilot|auto[\s-]?pilot|ultrawork|ulw|ralplan|ultrathink|deepsearch|deep[\s-]?analyze|deepanalyze|deep[\s-]interview|ouroboros|ccg|qoderx-gemini|deerflow)\b/gi;
 function escapeRegExp2(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -83738,13 +83738,13 @@ var ALLOWED_PATH_PATTERNS = [
   /^\.omc\//,
   // .omc/**
   /^\.claude\//,
-  // .claude/** (local)
+  // .qoder/** (local)
   /^~?\/\.claude\//,
-  // legacy ~/.claude/** references
+  // legacy ~/.qoder/** references
   /\/\.claude\//,
-  // any /.claude/ path
+  // any /.qoder/ path
   /CLAUDE\.md$/,
-  // **/CLAUDE.md
+  // **/AGENTS.md
   /AGENTS\.md$/
   // **/AGENTS.md
 ];
@@ -83839,8 +83839,8 @@ As an ORCHESTRATOR, you MUST:
 
 **ALLOWED direct file operations:**
 - Files inside \`.omc/\` (plans, notepads, drafts)
-- Files inside \`[$CLAUDE_CONFIG_DIR|~/.claude]/\`
-- \`CLAUDE.md\` and \`AGENTS.md\` files
+- Files inside \`[$QODER_CONFIG_DIR|~/.qoder]/\`
+- \`AGENTS.md\` and \`AGENTS.md\` files
 - Reading files for verification
 - Running diagnostics/tests
 
@@ -83960,7 +83960,7 @@ function getEnforcementLevel(directory) {
     return enforcementCache.level;
   }
   const localConfig = path14.join(getOmcRoot(directory), "config.json");
-  const globalConfig2 = path14.join(getClaudeConfigDir(), ".omc-config.json");
+  const globalConfig2 = path14.join(getQoderConfigDir(), ".omc-config.json");
   let level = "warn";
   for (const configPath of [localConfig, globalConfig2]) {
     if ((0, import_fs48.existsSync)(configPath)) {
@@ -83985,7 +83985,7 @@ function isAllowedPath(filePath, directory) {
   if (normalized.startsWith("../") || normalized === "..") return false;
   if (ALLOWED_PATH_PATTERNS.some((pattern) => pattern.test(normalized))) return true;
   if (path14.isAbsolute(filePath)) {
-    const relToConfigDir = path14.relative(getClaudeConfigDir(), filePath);
+    const relToConfigDir = path14.relative(getQoderConfigDir(), filePath);
     if (!relToConfigDir || !relToConfigDir.startsWith("..") && !path14.isAbsolute(relToConfigDir)) {
       return true;
     }
@@ -84241,7 +84241,7 @@ ${buildVerificationReminder()}
 // src/hooks/bridge-normalize.ts
 init_worktree_paths();
 var HookInputSchema = external_exports.object({
-  // snake_case fields from Claude Code
+  // snake_case fields from Qoder
   tool_name: external_exports.string().optional(),
   tool_input: external_exports.unknown().optional(),
   tool_response: external_exports.unknown().optional(),
@@ -84306,7 +84306,7 @@ var KNOWN_FIELDS = /* @__PURE__ */ new Set([
   "model",
   "model_id",
   "modelId",
-  // Common extra fields from Claude Code
+  // Common extra fields from Qoder
   "input",
   "output",
   "result",
@@ -85584,7 +85584,7 @@ function getPromptText(input) {
   return "";
 }
 function isExplicitAskSlashInvocation(promptText) {
-  return /^\s*\/(?:oh-my-claudecode:)?ask\s+(?:claude|codex|gemini|antigravity|agy|grok|cursor)\b/i.test(promptText);
+  return /^\s*\/(?:oh-my-qoder:)?ask\s+(?:claude|codex|gemini|antigravity|agy|grok|cursor)\b/i.test(promptText);
 }
 function activateRalplanStartupState(directory, sessionId) {
   const now = (/* @__PURE__ */ new Date()).toISOString();
@@ -85609,7 +85609,7 @@ function resolveWorkflowSlotModeStatePath(directory, skillName, sessionId) {
 }
 function seedWorkflowSlotForSkill(directory, skillName, sessionId, source, parentSkill) {
   if (!isCanonicalWorkflowSkill(skillName)) return false;
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   try {
     const current = readSkillActiveStateNormalized(directory, sessionId);
     const pruned = pruneExpiredWorkflowSkillTombstones(current);
@@ -85639,7 +85639,7 @@ function seedWorkflowSlotForSkill(directory, skillName, sessionId, source, paren
 }
 function confirmWorkflowSlot(directory, skillName, sessionId) {
   if (!isCanonicalWorkflowSkill(skillName)) return false;
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   try {
     const current = readSkillActiveStateNormalized(directory, sessionId);
     const slot = current.active_skills[normalized];
@@ -85654,7 +85654,7 @@ function confirmWorkflowSlot(directory, skillName, sessionId) {
 }
 function tombstoneWorkflowSlot(directory, skillName, sessionId) {
   if (!isCanonicalWorkflowSkill(skillName)) return false;
-  const normalized = skillName.toLowerCase().replace(/^oh-my-claudecode:/, "");
+  const normalized = skillName.toLowerCase().replace(/^oh-my-qoder:/, "");
   try {
     const current = readSkillActiveStateNormalized(directory, sessionId);
     if (!current.active_skills[normalized]) return false;
@@ -86219,7 +86219,7 @@ Please continue working on these tasks.
 This environment uses a non-standard model provider (AWS Bedrock, Google Vertex AI, or a proxy such as CC Switch / LiteLLM).
 
 How to pass \`model\` on Task/Agent calls:
-- Prefer a tier alias: \`model: "sonnet"\`, \`model: "opus"\`, \`model: "haiku"\`, or \`model: "fable"\` (Claude Fable 5, above Opus). OMC's pre-tool enforcer resolves these to provider-safe IDs when one of these env vars is set: \`ANTHROPIC_DEFAULT_SONNET_MODEL\` (and siblings \`ANTHROPIC_DEFAULT_OPUS_MODEL\` / \`ANTHROPIC_DEFAULT_HAIKU_MODEL\` / \`ANTHROPIC_DEFAULT_FABLE_MODEL\`), \`CLAUDE_CODE_BEDROCK_SONNET_MODEL\` (and siblings \`CLAUDE_CODE_BEDROCK_OPUS_MODEL\` / \`CLAUDE_CODE_BEDROCK_HAIKU_MODEL\` / \`CLAUDE_CODE_BEDROCK_FABLE_MODEL\`), or \`OMC_SUBAGENT_MODEL\`.
+- Prefer a tier alias: \`model: "sonnet"\`, \`model: "opus"\`, \`model: "haiku"\`, or \`model: "fable"\` (Claude Fable 5, above Opus). OMC's pre-tool enforcer resolves these to provider-safe IDs when one of these env vars is set: \`ANTHROPIC_DEFAULT_SONNET_MODEL\` (and siblings \`ANTHROPIC_DEFAULT_OPUS_MODEL\` / \`ANTHROPIC_DEFAULT_HAIKU_MODEL\` / \`ANTHROPIC_DEFAULT_FABLE_MODEL\`), \`QODER_BEDROCK_SONNET_MODEL\` (and siblings \`QODER_BEDROCK_OPUS_MODEL\` / \`QODER_BEDROCK_HAIKU_MODEL\` / \`QODER_BEDROCK_FABLE_MODEL\`), or \`OMC_SUBAGENT_MODEL\`.
 - If none of those env vars are configured, the enforcer will deny the tier alias with an env-var configuration hint \u2014 set one of them in your \`settings.json\` env or shell profile.
 - The enforcer denies tier aliases it cannot resolve. It also denies provider-specific IDs that carry a \`[1m]\` context-window suffix or otherwise fail subagent-safe validation (sub-agents cannot inherit \`[1m]\`). Valid provider-specific IDs without extended-context suffixes are allowed.
 
@@ -86227,7 +86227,7 @@ When the session model carries a \`[1m]\` suffix, passing an explicit \`model\` 
 
 When the session model has no \`[1m]\` suffix, omitting \`model\` is safe UNLESS a custom sub-agent definition pins a bare Anthropic model ID (e.g. \`model: claude-sonnet-4-6\` in agent frontmatter). When resolver env vars are configured, the enforcer will deny that call with tier-alias guidance; when they are absent, the call is not denied by the enforcer but will fail at the provider. Either way, custom sub-agents should pin tier aliases (not bare Anthropic IDs) in their frontmatter. Shipped OMC agents already do this and are unaffected.
 
-The CLAUDE.md instruction "Pass model on Task calls: haiku, sonnet, opus" applies here \u2014 subject to the resolution prerequisites above.
+The AGENTS.md instruction "Pass model on Task calls: haiku, sonnet, opus" applies here \u2014 subject to the resolution prerequisites above.
 
 </system-reminder>`);
     }
@@ -86396,7 +86396,7 @@ Command blocked: ${command}`
         subagentType
       );
       if (permissionFallback.shouldFallback) {
-        const reason = `[BACKGROUND PERMISSIONS] ${subagentType || "This background agent"} may need ${permissionFallback.missingTools.join(", ")} permissions, but background agents cannot request interactive approval. Re-run without \`run_in_background=true\` or pre-approve ${permissionFallback.missingTools.join(", ")} in Claude Code settings.`;
+        const reason = `[BACKGROUND PERMISSIONS] ${subagentType || "This background agent"} may need ${permissionFallback.missingTools.join(", ")} permissions, but background agents cannot request interactive approval. Re-run without \`run_in_background=true\` or pre-approve ${permissionFallback.missingTools.join(", ")} in Qoder settings.`;
         return {
           continue: false,
           reason,
@@ -86415,7 +86415,7 @@ Command blocked: ${command}`
         command
       );
       if (permissionFallback.shouldFallback) {
-        const reason = "[BACKGROUND PERMISSIONS] This Bash command is not auto-approved for background execution. Re-run without `run_in_background=true` or pre-approve the command in Claude Code settings.";
+        const reason = "[BACKGROUND PERMISSIONS] This Bash command is not auto-approved for background execution. Re-run without `run_in_background=true` or pre-approve the command in Qoder settings.";
         return {
           continue: false,
           reason,
@@ -86611,7 +86611,7 @@ async function processPostToolUse(input) {
     }
     const { clearSkillActiveState: clearSkillActiveState2, readSkillActiveState: readSkillActiveState2 } = await Promise.resolve().then(() => (init_skill_state(), skill_state_exports));
     const currentState = readSkillActiveState2(directory, input.sessionId);
-    const completingSkill = (getInvokedSkillName(input.toolInput) ?? "").toLowerCase().replace(/^oh-my-claudecode:/, "");
+    const completingSkill = (getInvokedSkillName(input.toolInput) ?? "").toLowerCase().replace(/^oh-my-qoder:/, "");
     if (!currentState || !currentState.active || currentState.skill_name === completingSkill) {
       clearSkillActiveState2(directory, input.sessionId);
     }
@@ -87129,9 +87129,9 @@ var THINK_PATTERNS = [...ENGLISH_PATTERNS, ...MULTILINGUAL_PATTERNS];
 init_models();
 var HIGH_VARIANT_MAP = {
   // Claude canonical families
-  [CLAUDE_FAMILY_DEFAULTS.SONNET]: CLAUDE_FAMILY_HIGH_VARIANTS.SONNET,
-  [CLAUDE_FAMILY_DEFAULTS.OPUS]: CLAUDE_FAMILY_HIGH_VARIANTS.OPUS,
-  [CLAUDE_FAMILY_DEFAULTS.HAIKU]: CLAUDE_FAMILY_HIGH_VARIANTS.HAIKU,
+  [QODER_FAMILY_DEFAULTS.SONNET]: QODER_FAMILY_HIGH_VARIANTS.SONNET,
+  [QODER_FAMILY_DEFAULTS.OPUS]: QODER_FAMILY_HIGH_VARIANTS.OPUS,
+  [QODER_FAMILY_DEFAULTS.HAIKU]: QODER_FAMILY_HIGH_VARIANTS.HAIKU,
   // GPT-4
   "gpt-4": "gpt-4-high",
   "gpt-4-turbo": "gpt-4-turbo-high",
@@ -87182,7 +87182,7 @@ function normalizeSkillReference(value) {
   if (!value) return void 0;
   const trimmed = stripOptionalQuotes(value).trim();
   if (!trimmed) return void 0;
-  return trimmed.replace(/^\/oh-my-claudecode:/i, "").replace(/^oh-my-claudecode:/i, "").replace(/^\//, "").trim().toLowerCase() || void 0;
+  return trimmed.replace(/^\/oh-my-qoder:/i, "").replace(/^oh-my-qoder:/i, "").replace(/^\//, "").trim().toLowerCase() || void 0;
 }
 function uniqueStrings(values) {
   const seen = /* @__PURE__ */ new Set();
@@ -87228,7 +87228,7 @@ function renderSkillPipelineGuidance(skillName, pipeline) {
     ...pipeline.nextSkill ? [pipeline.nextSkill] : []
   ]);
   const nextInvocation = pipeline.nextSkill ? [
-    `Skill("oh-my-claudecode:${pipeline.nextSkill}")`,
+    `Skill("oh-my-qoder:${pipeline.nextSkill}")`,
     pipeline.nextSkillArgs ? `with arguments \`${pipeline.nextSkillArgs}\`` : void 0,
     "using the handoff context from this stage"
   ].filter(Boolean).join(" ") : void 0;
@@ -87333,7 +87333,7 @@ function detectSkillRuntimeAvailability(detector = isCliAvailable) {
     }
   };
   return {
-    claude: safeDetect("claude"),
+    qoder: safeDetect("qoder"),
     codex: safeDetect("codex"),
     gemini: safeDetect("gemini"),
     grok: safeDetect("grok"),
@@ -87467,15 +87467,15 @@ function readDeepInterviewThresholdFromSettings(path22) {
   return typeof threshold === "number" && Number.isFinite(threshold) && threshold >= 0 && threshold <= 1 ? threshold : null;
 }
 function getDeepInterviewAmbiguityThresholdResolution() {
-  const profileSettingsPath = (0, import_path104.join)(getClaudeConfigDir(), "settings.json");
+  const profileSettingsPath = (0, import_path104.join)(getQoderConfigDir(), "settings.json");
   const projectSettingsPath = (0, import_path104.join)(process.cwd(), ".claude", "settings.json");
   const profileThreshold = readDeepInterviewThresholdFromSettings(profileSettingsPath);
   const projectThreshold = readDeepInterviewThresholdFromSettings(projectSettingsPath);
   if (projectThreshold !== null) {
-    return { threshold: projectThreshold, source: "./.claude/settings.json" };
+    return { threshold: projectThreshold, source: "./.qoder/settings.json" };
   }
   if (profileThreshold !== null) {
-    return { threshold: profileThreshold, source: "[$CLAUDE_CONFIG_DIR|~/.claude]/settings.json" };
+    return { threshold: profileThreshold, source: "[$QODER_CONFIG_DIR|~/.qoder]/settings.json" };
   }
   return { threshold: DEFAULT_DEEP_INTERVIEW_AMBIGUITY_THRESHOLD, source: "default" };
 }
@@ -87520,7 +87520,7 @@ function applyDeepInterviewRuntimeSettings(template) {
   const withRuntimeSettings = withResolvedPlaceholders.includes("3.5. **Load runtime settings**:") || withResolvedPlaceholders.includes("## Phase 0: Resolve Ambiguity Threshold") ? withResolvedPlaceholders : withResolvedPlaceholders.replace(
     '4. **Initialize state** via `state_write(mode="deep-interview")`:',
     [
-      `3.5. **Load runtime settings** from \`~/.claude/settings.json\` and \`./.claude/settings.json\` before state init (project overrides profile). For this run, use \`ambiguityThreshold = ${threshold}\`.`,
+      `3.5. **Load runtime settings** from \`~/.qoder/settings.json\` and \`./.qoder/settings.json\` before state init (project overrides profile). For this run, use \`ambiguityThreshold = ${threshold}\`.`,
       '4. **Initialize state** via `state_write(mode="deep-interview")`:'
     ].join("\n")
   );
@@ -87530,7 +87530,7 @@ function applyDeepInterviewRuntimeSettings(template) {
   ).replace("(default: 20%)", `(default: ${percent})`).replace("(default 0.2)", `(default ${threshold})`).replace('"ambiguityThreshold": 0.2,', `"ambiguityThreshold": ${threshold},`).replace("Gate: \u226420% ambiguity", `Gate: \u2264${percent} ambiguity`).replace("(threshold: 20%).", `(threshold: ${percent}).`).replace("ambiguity \u2264 20%", `ambiguity \u2264 ${percent}`);
 }
 function normalizeSkillNameForRuntimeRendering(skillName) {
-  return skillName.trim().toLowerCase().replace(/^oh-my-claudecode:/, "").replace(/^omc:/, "");
+  return skillName.trim().toLowerCase().replace(/^oh-my-qoder:/, "").replace(/^omc:/, "");
 }
 function renderBundledSkillBody(skillName, body) {
   const normalizedSkillName = normalizeSkillNameForRuntimeRendering(skillName);
@@ -87645,7 +87645,7 @@ function getSkillsDir() {
 }
 
 // src/hooks/auto-slash-command/executor.ts
-var CLAUDE_CONFIG_DIR3 = getClaudeConfigDir();
+var QODER_CONFIG_DIR3 = getQoderConfigDir();
 
 // src/hooks/comment-checker/index.ts
 var fs13 = __toESM(require("fs"), 1);
@@ -87662,7 +87662,7 @@ var import_node_path11 = require("node:path");
 var import_node_os3 = require("node:os");
 init_paths();
 function getClaudeCodeStorageDir() {
-  return (0, import_node_path11.join)(getDataDir(), "claude-code", "storage");
+  return (0, import_node_path11.join)(getDataDir(), "qoder", "storage");
 }
 var CLAUDE_CODE_STORAGE = getClaudeCodeStorageDir();
 var MESSAGE_STORAGE = (0, import_node_path11.join)(CLAUDE_CODE_STORAGE, "message");
@@ -87687,7 +87687,7 @@ var import_fs88 = require("fs");
 var import_path106 = require("path");
 init_config_dir();
 var DEFAULT_TASK_TTL_MS = 30 * 60 * 1e3;
-var BACKGROUND_TASKS_DIR = (0, import_path106.join)(getClaudeConfigDir(), ".omc", "background-tasks");
+var BACKGROUND_TASKS_DIR = (0, import_path106.join)(getQoderConfigDir(), ".omc", "background-tasks");
 
 // src/hooks/directory-readme-injector/constants.ts
 var import_node_path12 = require("node:path");
@@ -87797,7 +87797,7 @@ var import_fs91 = require("fs");
 var import_path110 = require("path");
 init_config_dir();
 init_constants();
-var CONFIG_PATH = (0, import_path110.join)(getClaudeConfigDir(), "omc", "learner.json");
+var CONFIG_PATH = (0, import_path110.join)(getQoderConfigDir(), "omc", "learner.json");
 
 // src/hooks/learner/index.ts
 init_constants();
@@ -88749,7 +88749,7 @@ async function waitDaemonCommand(action, options) {
         console.log(source_default.green(`\u2713 ${result.message}`));
         console.log(source_default.gray("\nThe daemon will:"));
         console.log(source_default.gray("  \u2022 Poll rate limit status every minute"));
-        console.log(source_default.gray("  \u2022 Track blocked Claude Code sessions in tmux"));
+        console.log(source_default.gray("  \u2022 Track blocked Qoder sessions in tmux"));
         console.log(source_default.gray("  \u2022 Auto-resume sessions when rate limit clears"));
         console.log(source_default.gray('\nUse "omc wait status" to check daemon status'));
         console.log(source_default.gray('Use "omc wait daemon stop" to stop the daemon'));
@@ -88780,7 +88780,7 @@ async function waitDetectCommand(options) {
     console.log(source_default.gray("Install tmux to use session detection and auto-resume"));
     process.exit(1);
   }
-  console.log(source_default.blue("Scanning for blocked Claude Code sessions...\n"));
+  console.log(source_default.blue("Scanning for blocked Qoder sessions...\n"));
   const config2 = {
     paneLinesToCapture: options.lines
   };
@@ -88842,7 +88842,7 @@ function collectHooksFromSettings(settingsPath) {
   return conflicts;
 }
 function checkHookConflicts() {
-  const profileSettingsPath = (0, import_path117.join)(getClaudeConfigDir(), "settings.json");
+  const profileSettingsPath = (0, import_path117.join)(getQoderConfigDir(), "settings.json");
   const projectSettingsPath = (0, import_path117.join)(process.cwd(), ".claude", "settings.json");
   const profileHooks = collectHooksFromSettings(profileSettingsPath);
   const projectHooks = collectHooksFromSettings(projectSettingsPath);
@@ -88864,7 +88864,7 @@ function checkWindowsUnsafePluginHooks() {
   if (process.platform !== "win32") {
     return [];
   }
-  const roots = [process.env.CLAUDE_PLUGIN_ROOT, ...readInstalledPluginRoots()].filter((root2) => typeof root2 === "string" && root2.length > 0);
+  const roots = [process.env.QODER_PLUGIN_ROOT, ...readInstalledPluginRoots()].filter((root2) => typeof root2 === "string" && root2.length > 0);
   const seenRoots = /* @__PURE__ */ new Set();
   const unsafe = [];
   for (const pluginRoot of roots) {
@@ -88919,8 +88919,8 @@ function findCompanionClaudeMdFiles(configDir) {
   }
 }
 function checkClaudeMdStatus() {
-  const configDir = getClaudeConfigDir();
-  const claudeMdPath = (0, import_path117.join)(configDir, "CLAUDE.md");
+  const configDir = getQoderConfigDir();
+  const claudeMdPath = (0, import_path117.join)(configDir, "AGENTS.md");
   if (!(0, import_fs98.existsSync)(claudeMdPath)) {
     return null;
   }
@@ -88996,10 +88996,10 @@ function compareSemverLikeVersions(a, b) {
   return 0;
 }
 function isValidSetupPluginRoot(pluginRoot) {
-  return (0, import_fs98.existsSync)((0, import_path117.join)(pluginRoot, "docs", "CLAUDE.md"));
+  return (0, import_fs98.existsSync)((0, import_path117.join)(pluginRoot, "docs", "AGENTS.md"));
 }
 function readInstalledPluginRoots() {
-  const installedPluginsPath = (0, import_path117.join)(getClaudeConfigDir(), "plugins", "installed_plugins.json");
+  const installedPluginsPath = (0, import_path117.join)(getQoderConfigDir(), "plugins", "installed_plugins.json");
   if (!(0, import_fs98.existsSync)(installedPluginsPath)) {
     return [];
   }
@@ -89009,7 +89009,7 @@ function readInstalledPluginRoots() {
       return [];
     }
     const plugins = "plugins" in parsed && parsed.plugins && typeof parsed.plugins === "object" && !Array.isArray(parsed.plugins) ? parsed.plugins : parsed;
-    return Object.entries(plugins).filter(([key]) => key.startsWith("oh-my-claudecode")).flatMap(([, value]) => Array.isArray(value) ? value : []).map((entry) => entry && typeof entry === "object" && "installPath" in entry ? entry.installPath : null).filter((installPath) => typeof installPath === "string" && installPath.length > 0);
+    return Object.entries(plugins).filter(([key]) => key.startsWith("oh-my-qoder")).flatMap(([, value]) => Array.isArray(value) ? value : []).map((entry) => entry && typeof entry === "object" && "installPath" in entry ? entry.installPath : null).filter((installPath) => typeof installPath === "string" && installPath.length > 0);
   } catch {
     return [];
   }
@@ -89030,7 +89030,7 @@ function getSetupFallbackCanonicalSkillPaths(baseName) {
   const currentPluginRoot = (0, import_path117.dirname)(currentSkillsDir2);
   const roots = [
     currentPluginRoot,
-    process.env.CLAUDE_PLUGIN_ROOT,
+    process.env.QODER_PLUGIN_ROOT,
     ...readInstalledPluginRoots()
   ].filter((root2) => typeof root2 === "string" && root2.length > 0);
   for (const root2 of [...roots]) {
@@ -89070,7 +89070,7 @@ function isSupportedSetupFallbackSkill(legacySkillsDir, entry, baseName) {
   }
 }
 function checkLegacySkills() {
-  const legacySkillsDir = (0, import_path117.join)(getClaudeConfigDir(), "skills");
+  const legacySkillsDir = (0, import_path117.join)(getQoderConfigDir(), "skills");
   if (!(0, import_fs98.existsSync)(legacySkillsDir)) return [];
   const collisions = [];
   try {
@@ -89093,7 +89093,7 @@ function checkLegacySkills() {
 }
 function checkConfigIssues() {
   const unknownFields = [];
-  const configPath = (0, import_path117.join)(getClaudeConfigDir(), ".omc-config.json");
+  const configPath = (0, import_path117.join)(getQoderConfigDir(), ".omc-config.json");
   if (!(0, import_fs98.existsSync)(configPath)) {
     return { unknownFields };
   }
@@ -89181,7 +89181,7 @@ function formatReport2(report, json) {
   }
   const lines = [];
   lines.push("");
-  lines.push(colors.bold("\u{1F50D} Oh-My-ClaudeCode Conflict Diagnostic"));
+  lines.push(colors.bold("\u{1F50D} Oh-My-Qoder Conflict Diagnostic"));
   lines.push(colors.gray("\u2501".repeat(60)));
   lines.push("");
   if (report.hookConflicts.length > 0) {
@@ -89199,7 +89199,7 @@ function formatReport2(report, json) {
     lines.push("");
   }
   if (report.claudeMdStatus) {
-    lines.push(colors.bold("\u{1F4C4} CLAUDE.md Status"));
+    lines.push(colors.bold("\u{1F4C4} AGENTS.md Status"));
     lines.push("");
     if (report.claudeMdStatus.hasMarkers) {
       if (report.claudeMdStatus.companionFile) {
@@ -89213,7 +89213,7 @@ function formatReport2(report, json) {
       }
     } else {
       lines.push(`  ${colors.yellow("\u26A0")} No OMC markers found`);
-      lines.push(`    ${colors.gray("Run /oh-my-claudecode:omc-setup to add markers")}`);
+      lines.push(`    ${colors.gray("Run /oh-my-qoder:omc-setup to add markers")}`);
       if (report.claudeMdStatus.hasUserContent) {
         lines.push(`  ${colors.blue("\u2139")} User content present - will be preserved`);
       }
@@ -89221,8 +89221,8 @@ function formatReport2(report, json) {
     lines.push(`  ${colors.gray(`Path: ${report.claudeMdStatus.path}`)}`);
     lines.push("");
   } else {
-    lines.push(colors.bold("\u{1F4C4} CLAUDE.md Status"));
-    lines.push(`  ${colors.gray("No CLAUDE.md found")}`);
+    lines.push(colors.bold("\u{1F4C4} AGENTS.md Status"));
+    lines.push(`  ${colors.gray("No AGENTS.md found")}`);
     lines.push("");
   }
   lines.push(colors.bold("\u{1F527} Environment Flags"));
@@ -89256,7 +89256,7 @@ function formatReport2(report, json) {
       lines.push(`    - ${hook.event} ${colors.gray(`(${hook.pluginRoot})`)}`);
       lines.push(`      ${colors.gray(hook.command)}`);
     }
-    lines.push(`    ${colors.gray("Run /oh-my-claudecode:omc-setup or update/reinstall the plugin to rewrite hooks to direct node run.cjs commands.")}`);
+    lines.push(`    ${colors.gray("Run /oh-my-qoder:omc-setup or update/reinstall the plugin to rewrite hooks to direct node run.cjs commands.")}`);
     lines.push("");
   }
   if (report.configIssues.unknownFields.length > 0) {
@@ -89320,7 +89320,7 @@ function formatReport2(report, json) {
   lines.push(colors.gray("\u2501".repeat(60)));
   if (report.hasConflicts) {
     lines.push(`${colors.yellow("\u26A0")} Potential conflicts detected`);
-    lines.push(`${colors.gray("Review the issues above and run /oh-my-claudecode:omc-setup if needed")}`);
+    lines.push(`${colors.gray("Review the issues above and run /oh-my-qoder:omc-setup if needed")}`);
   } else {
     lines.push(`${colors.green("\u2713")} No conflicts detected`);
     lines.push(`${colors.gray("OMC is properly configured")}`);
@@ -89339,7 +89339,7 @@ var import_child_process32 = require("child_process");
 init_formatting();
 init_loader();
 var PROVIDER_BINARY = {
-  claude: "claude",
+  qoder: "qoder",
   codex: "codex",
   gemini: "gemini",
   grok: "grok",
@@ -89368,11 +89368,11 @@ function probeProvider(provider) {
 function collectConfiguredProviders() {
   const cfg = loadConfig();
   const providers = /* @__PURE__ */ new Set();
-  providers.add("claude");
+  providers.add("qoder");
   const roleRouting = cfg.team?.roleRouting ?? {};
   for (const spec of Object.values(roleRouting)) {
     const provider = spec?.provider;
-    if (provider === "claude" || provider === "codex" || provider === "gemini" || provider === "grok" || provider === "cursor" || provider === "antigravity") {
+    if (provider === "qoder" || provider === "codex" || provider === "gemini" || provider === "grok" || provider === "cursor" || provider === "antigravity") {
       providers.add(provider);
     }
   }
@@ -90345,9 +90345,9 @@ init_worktree_paths();
 var HELP_TOKENS = /* @__PURE__ */ new Set(["--help", "-h", "help"]);
 var MIN_WORKER_COUNT = 1;
 var MAX_WORKER_COUNT = 20;
-var VALID_TEAM_CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["claude", "codex", "gemini", "grok", "cursor", "antigravity"]);
+var VALID_TEAM_CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["qoder", "codex", "gemini", "grok", "cursor", "antigravity"]);
 var CURSOR_ALLOWED_TEAM_ROLES = /* @__PURE__ */ new Set(["executor"]);
-var DEFAULT_TEAM_CLI_AGENT_TYPE = "claude";
+var DEFAULT_TEAM_CLI_AGENT_TYPE = "qoder";
 var TEAM_HELP = `
 Usage: omc team [N:agent-type[:role]] [--new-window] [--auto-merge] [--no-decompose] "<task description>"
        omc team status <team-name>
@@ -90572,7 +90572,7 @@ function normalizeWorkerSpecSegment(match) {
   const token = match[2]?.toLowerCase();
   const explicitRole = match[3]?.toLowerCase();
   if (!token) {
-    return { count, agentType: "claude" };
+    return { count, agentType: "qoder" };
   }
   if (explicitRole) {
     if (!VALID_TEAM_CLI_AGENT_TYPES.has(token)) {
@@ -90590,9 +90590,9 @@ function normalizeWorkerSpecSegment(match) {
   if (VALID_TEAM_CLI_AGENT_TYPES.has(token)) {
     return { count, agentType: token };
   }
-  return { count, agentType: "claude", role: token };
+  return { count, agentType: "qoder", role: token };
 }
-function parseTeamArgs(tokens, defaultAgentType = "claude") {
+function parseTeamArgs(tokens, defaultAgentType = "qoder") {
   const args = [...tokens];
   let workerCount = 3;
   let agentTypes = [];
@@ -91993,11 +91993,11 @@ function sleep5(ms) {
 // src/cli/commands/ultragoal.ts
 var import_promises20 = require("node:fs/promises");
 
-// src/goal-workflows/claude-goal-snapshot.ts
+// src/goal-workflows/qoder-goal-snapshot.ts
 var import_node_fs12 = require("node:fs");
 var import_promises18 = require("node:fs/promises");
 var import_node_path15 = require("node:path");
-var ClaudeGoalSnapshotError = class extends Error {
+var QoderGoalSnapshotError = class extends Error {
 };
 function safeObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -92019,7 +92019,7 @@ function normalizeStatus(value) {
 function normalizeObjective(value) {
   return value.replace(/\s+/g, " ").trim();
 }
-function parseClaudeGoalSnapshot(value) {
+function parseQoderGoalSnapshot(value) {
   const root2 = safeObject(value);
   const goalValue = Object.hasOwn(root2, "goal") ? root2.goal : value;
   if (goalValue === null || goalValue === void 0 || goalValue === false) {
@@ -92043,29 +92043,29 @@ function parseClaudeGoalSnapshot(value) {
     raw: value
   };
 }
-async function readClaudeGoalSnapshotInput(raw, cwd2 = process.cwd()) {
+async function readQoderGoalSnapshotInput(raw, cwd2 = process.cwd()) {
   if (!raw?.trim()) return null;
   const trimmed = raw.trim();
   try {
-    return parseClaudeGoalSnapshot(JSON.parse(trimmed));
+    return parseQoderGoalSnapshot(JSON.parse(trimmed));
   } catch {
     const path22 = (0, import_node_path15.resolve)(cwd2, trimmed);
     if (!(0, import_node_fs12.existsSync)(path22)) {
-      throw new ClaudeGoalSnapshotError(`Claude goal snapshot is neither valid JSON nor a readable path: ${trimmed}`);
+      throw new QoderGoalSnapshotError(`Qoder goal snapshot is neither valid JSON nor a readable path: ${trimmed}`);
     }
     try {
-      return parseClaudeGoalSnapshot(JSON.parse(await (0, import_promises18.readFile)(path22, "utf-8")));
+      return parseQoderGoalSnapshot(JSON.parse(await (0, import_promises18.readFile)(path22, "utf-8")));
     } catch (error2) {
-      throw new ClaudeGoalSnapshotError(`Claude goal snapshot path does not contain valid JSON: ${trimmed}${error2 instanceof Error ? ` (${error2.message})` : ""}`);
+      throw new QoderGoalSnapshotError(`Qoder goal snapshot path does not contain valid JSON: ${trimmed}${error2 instanceof Error ? ` (${error2.message})` : ""}`);
     }
   }
 }
-function reconcileClaudeGoalSnapshot(snapshot, options) {
+function reconcileQoderGoalSnapshot(snapshot, options) {
   const effectiveSnapshot = snapshot ?? { available: false, raw: null };
   const errors = [];
   const warnings = [];
   if (!effectiveSnapshot.available) {
-    const message = "Claude goal snapshot is absent or reports no active goal; ask the active Claude agent to share the current /goal condition and pass its JSON with --claude-goal-json.";
+    const message = "Qoder goal snapshot is absent or reports no active goal; ask the active Claude agent to share the current /goal condition and pass its JSON with --qoder-goal-json.";
     if (options.requireSnapshot) errors.push(message);
     else warnings.push(message);
     return { ok: errors.length === 0, snapshot: effectiveSnapshot, warnings, errors };
@@ -92073,21 +92073,21 @@ function reconcileClaudeGoalSnapshot(snapshot, options) {
   const expected = normalizeObjective(options.expectedObjective);
   const actual = normalizeObjective(effectiveSnapshot.objective ?? "");
   if (!actual) {
-    errors.push("Claude goal snapshot is missing objective text.");
+    errors.push("Qoder goal snapshot is missing objective text.");
   } else if (actual !== expected) {
-    errors.push(`Claude goal objective mismatch: expected "${expected}", got "${actual}".`);
+    errors.push(`Qoder goal objective mismatch: expected "${expected}", got "${actual}".`);
   }
   const allowed = options.allowedStatuses ?? (options.requireComplete ? ["complete"] : ["active", "complete"]);
   const actualStatus = effectiveSnapshot.status ?? "unknown";
   if (!allowed.includes(actualStatus)) {
-    errors.push(`Claude goal status mismatch: expected ${allowed.join(" or ")}, got ${actualStatus}.`);
+    errors.push(`Qoder goal status mismatch: expected ${allowed.join(" or ")}, got ${actualStatus}.`);
   }
   if (options.requireComplete && actualStatus !== "complete") {
-    errors.push(`Claude goal is not complete; only after the active condition is genuinely satisfied (the /goal hook auto-clears, or you run /goal clear), share the fresh snapshot.`);
+    errors.push(`Qoder goal is not complete; only after the active condition is genuinely satisfied (the /goal hook auto-clears, or you run /goal clear), share the fresh snapshot.`);
   }
   return { ok: errors.length === 0, snapshot: effectiveSnapshot, warnings, errors };
 }
-function formatClaudeGoalReconciliation(reconciliation) {
+function formatQoderGoalReconciliation(reconciliation) {
   const parts = [...reconciliation.errors, ...reconciliation.warnings];
   return parts.join(" ");
 }
@@ -92186,7 +92186,7 @@ async function snapshotObjectiveMapsToUltragoalPlan(cwd2, snapshotObjective, pla
   }
 }
 async function canReconcileCompletedTaskScopedAggregateSnapshot(cwd2, plan, goal, snapshotObjective, evidence) {
-  if (claudeGoalMode(plan) !== "aggregate") return false;
+  if (qoderGoalMode(plan) !== "aggregate") return false;
   if (goal.status !== "in_progress" || plan.activeGoalId !== goal.id) return false;
   if (!textMentionsUltragoalPlanArtifact(evidence)) return false;
   if (!textMentionsGoalId(evidence, goal.id)) return false;
@@ -92201,12 +92201,12 @@ function assertActiveInProgressCheckpoint(plan, goal, checkpointKind) {
 function buildCompletedLegacyGoalRemediation(goal) {
   return [
     "If the active /goal condition is a different completed legacy goal, do not repeat --status complete in this session.",
-    `Record a non-terminal blocker with: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Claude goal blocks setting a new /goal in this session>" --claude-goal-json "<different completed goal snapshot JSON or path>".`,
-    "Then continue this ultragoal in a fresh Claude Code session in the same repo/worktree and set the intended /goal there."
+    `Record a non-terminal blocker with: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Qoder goal blocks setting a new /goal in this session>" --qoder-goal-json "<different completed goal snapshot JSON or path>".`,
+    "Then continue this ultragoal in a fresh Qoder session in the same repo/worktree and set the intended /goal there."
   ].join(" ");
 }
-function claudeGoalMode(plan) {
-  return plan.claudeGoalMode ?? "per_story";
+function qoderGoalMode(plan) {
+  return plan.qoderGoalMode ?? "per_story";
 }
 function isResolvedStatus(status) {
   return status === "complete" || status === "review_blocked";
@@ -92214,7 +92214,7 @@ function isResolvedStatus(status) {
 function planDirRelative(planId) {
   return planId ? `${ULTRAGOAL_DIR}/${ULTRAGOAL_PLANS_SUBDIR}/${planId}` : ULTRAGOAL_DIR;
 }
-function aggregateClaudeObjective(goals, planId) {
+function aggregateQoderObjective(goals, planId) {
   const planDir = planDirRelative(planId);
   const prefix = `Complete all ultragoal stories in ${planDir}/${ULTRAGOAL_GOALS}: `;
   const suffix = goals.map((goal) => `${goal.id} ${goal.title}`).join("; ");
@@ -92222,10 +92222,10 @@ function aggregateClaudeObjective(goals, planId) {
   if (full.length <= 4e3) return full;
   const fallback = `Complete all ultragoal stories listed in ${planDir}/${ULTRAGOAL_GOALS}. Use ${planDir}/${ULTRAGOAL_LEDGER} as the durable audit trail.`;
   if (fallback.length <= 4e3) return fallback;
-  throw new UltragoalError("Generated aggregate Claude /goal objective exceeds the 4,000 character limit.");
+  throw new UltragoalError("Generated aggregate Qoder /goal objective exceeds the 4,000 character limit.");
 }
-function expectedClaudeObjective(plan, goal) {
-  return claudeGoalMode(plan) === "aggregate" ? plan.claudeObjective ?? aggregateClaudeObjective(plan.goals, plan.planId) : goal.objective;
+function expectedQoderObjective(plan, goal) {
+  return qoderGoalMode(plan) === "aggregate" ? plan.qoderObjective ?? aggregateQoderObjective(plan.goals, plan.planId) : goal.objective;
 }
 function isFinalRunCompletionCandidate(plan, goal) {
   return plan.goals.every((candidate) => candidate.id === goal.id || isResolvedStatus(candidate.status));
@@ -92317,10 +92317,10 @@ async function createUltragoalPlan(cwd2, options) {
     briefPath: `${planDir}/${ULTRAGOAL_BRIEF}`,
     goalsPath: `${planDir}/${ULTRAGOAL_GOALS}`,
     ledgerPath: `${planDir}/${ULTRAGOAL_LEDGER}`,
-    claudeGoalMode: options.claudeGoalMode ?? "aggregate",
+    qoderGoalMode: options.qoderGoalMode ?? "aggregate",
     goals: candidates
   };
-  if (plan.claudeGoalMode === "aggregate") plan.claudeObjective = aggregateClaudeObjective(candidates, planId);
+  if (plan.qoderGoalMode === "aggregate") plan.qoderObjective = aggregateQoderObjective(candidates, planId);
   await (0, import_promises19.mkdir)(ultragoalDir(cwd2, planId), { recursive: true });
   await (0, import_promises19.writeFile)(ultragoalBriefPath(cwd2, planId), options.brief.endsWith("\n") ? options.brief : `${options.brief}
 `);
@@ -92441,18 +92441,18 @@ async function checkpointUltragoal(cwd2, options) {
   const now = iso(options.now);
   if (options.status === "blocked") {
     assertActiveInProgressCheckpoint(plan, goal, "blocked");
-    const snapshot = options.claudeGoal === void 0 ? null : parseClaudeGoalSnapshot(options.claudeGoal);
+    const snapshot = options.qoderGoal === void 0 ? null : parseQoderGoalSnapshot(options.qoderGoal);
     if (!snapshot?.available) {
-      throw new UltragoalError("Blocked ultragoal checkpoints require a Claude /goal snapshot for the completed legacy goal that blocked a new /goal directive; pass --claude-goal-json.");
+      throw new UltragoalError("Blocked ultragoal checkpoints require a Qoder /goal snapshot for the completed legacy goal that blocked a new /goal directive; pass --qoder-goal-json.");
     }
     if (snapshot.status !== "complete") {
-      throw new UltragoalError(`Cannot record a blocked ultragoal checkpoint while the existing Claude /goal is ${snapshot.status ?? "unknown"}; strict objective mismatch protection remains required for active or incomplete goals.`);
+      throw new UltragoalError(`Cannot record a blocked ultragoal checkpoint while the existing Qoder /goal is ${snapshot.status ?? "unknown"}; strict objective mismatch protection remains required for active or incomplete goals.`);
     }
     if (!snapshot.objective) {
-      throw new UltragoalError("Blocked ultragoal checkpoint Claude snapshot is missing objective text.");
+      throw new UltragoalError("Blocked ultragoal checkpoint Qoder snapshot is missing objective text.");
     }
-    if (normalizeObjective2(snapshot.objective) === normalizeObjective2(expectedClaudeObjective(plan, goal))) {
-      throw new UltragoalError("Blocked ultragoal checkpoint is only for a different completed legacy Claude goal; complete this ultragoal with --status complete after its audit passes.");
+    if (normalizeObjective2(snapshot.objective) === normalizeObjective2(expectedQoderObjective(plan, goal))) {
+      throw new UltragoalError("Blocked ultragoal checkpoint is only for a different completed legacy Qoder goal; complete this ultragoal with --status complete after its audit passes.");
     }
     goal.updatedAt = now;
     plan.activeGoalId = goal.id;
@@ -92464,7 +92464,7 @@ async function checkpointUltragoal(cwd2, options) {
       goalId: goal.id,
       status: goal.status,
       evidence: options.evidence,
-      claudeGoal: options.claudeGoal
+      qoderGoal: options.qoderGoal
     }, plan.planId);
     return plan;
   }
@@ -92474,17 +92474,17 @@ async function checkpointUltragoal(cwd2, options) {
   let aggregateCompletion;
   if (options.status === "complete") {
     assertActiveInProgressCheckpoint(plan, goal, "complete");
-    const expectedObjective = expectedClaudeObjective(plan, goal);
-    const aggregateMode = claudeGoalMode(plan) === "aggregate";
+    const expectedObjective = expectedQoderObjective(plan, goal);
+    const aggregateMode = qoderGoalMode(plan) === "aggregate";
     const finalRunCheckpoint = isFinalRunCompletionCandidate(plan, goal);
-    const snapshot = options.claudeGoal === void 0 ? null : parseClaudeGoalSnapshot(options.claudeGoal);
-    const reconciliation = reconcileClaudeGoalSnapshot(
+    const snapshot = options.qoderGoal === void 0 ? null : parseQoderGoalSnapshot(options.qoderGoal);
+    const reconciliation = reconcileQoderGoalSnapshot(
       snapshot,
       {
         expectedObjective,
-        allowedStatuses: aggregateMode ? finalRunCheckpoint && !options.allowActiveFinalClaudeGoal ? ["complete"] : ["active"] : ["complete"],
+        allowedStatuses: aggregateMode ? finalRunCheckpoint && !options.allowActiveFinalQoderGoal ? ["complete"] : ["active"] : ["complete"],
         requireSnapshot: true,
-        requireComplete: !aggregateMode || finalRunCheckpoint && !options.allowActiveFinalClaudeGoal
+        requireComplete: !aggregateMode || finalRunCheckpoint && !options.allowActiveFinalQoderGoal
       }
     );
     if (!reconciliation.ok) {
@@ -92494,17 +92494,17 @@ async function checkpointUltragoal(cwd2, options) {
           status: "complete",
           completedAt: now,
           evidence: assertNonEmpty(options.evidence, "--evidence"),
-          claudeGoal: options.claudeGoal
+          qoderGoal: options.qoderGoal
         };
       } else {
-        const taskScopedRequirement = aggregateMode && snapshot?.status === "complete" && Boolean(snapshot.objective) ? " Completed task-scoped aggregate reconciliation requires the checkpoint goal to be the active in-progress OMC goal, evidence that names that active OMC goal id, names .omc/ultragoal/goals.json or ledger.jsonl, includes completed implementation plus validation/review evidence, and a Claude /goal objective that maps to the ultragoal brief/artifact." : "";
+        const taskScopedRequirement = aggregateMode && snapshot?.status === "complete" && Boolean(snapshot.objective) ? " Completed task-scoped aggregate reconciliation requires the checkpoint goal to be the active in-progress OMC goal, evidence that names that active OMC goal id, names .omc/ultragoal/goals.json or ledger.jsonl, includes completed implementation plus validation/review evidence, and a Qoder /goal objective that maps to the ultragoal brief/artifact." : "";
         const remediation = reconciliation.snapshot.available && reconciliation.snapshot.status === "complete" && Boolean(reconciliation.snapshot.objective) && normalizeObjective2(reconciliation.snapshot.objective ?? "") !== normalizeObjective2(expectedObjective) ? ` ${buildCompletedLegacyGoalRemediation(goal)}` : "";
-        throw new UltragoalError(`${formatClaudeGoalReconciliation(reconciliation)}${taskScopedRequirement}${remediation}`);
+        throw new UltragoalError(`${formatQoderGoalReconciliation(reconciliation)}${taskScopedRequirement}${remediation}`);
       }
     }
-    if (finalRunCheckpoint && !options.allowActiveFinalClaudeGoal) goal.evidence = options.evidence;
+    if (finalRunCheckpoint && !options.allowActiveFinalQoderGoal) goal.evidence = options.evidence;
   }
-  const qualityGate = options.status === "complete" && (aggregateCompletion !== void 0 || isFinalRunCompletionCandidate(plan, goal) && !options.allowActiveFinalClaudeGoal) ? validateQualityGate(options.qualityGate) : void 0;
+  const qualityGate = options.status === "complete" && (aggregateCompletion !== void 0 || isFinalRunCompletionCandidate(plan, goal) && !options.allowActiveFinalQoderGoal) ? validateQualityGate(options.qualityGate) : void 0;
   if (aggregateCompletion) {
     plan.aggregateCompletion = aggregateCompletion;
     if (plan.activeGoalId === goal.id) delete plan.activeGoalId;
@@ -92516,9 +92516,9 @@ async function checkpointUltragoal(cwd2, options) {
       goalId: goal.id,
       status: goal.status,
       evidence: options.evidence,
-      claudeGoal: options.claudeGoal,
+      qoderGoal: options.qoderGoal,
       qualityGate,
-      message: "Aggregate ultragoal plan completed via task-scoped Claude /goal snapshot; microgoal ledger progress remains independent."
+      message: "Aggregate ultragoal plan completed via task-scoped Qoder /goal snapshot; microgoal ledger progress remains independent."
     }, plan.planId);
     return plan;
   }
@@ -92543,7 +92543,7 @@ async function checkpointUltragoal(cwd2, options) {
     goalId: goal.id,
     status: goal.status,
     evidence: options.evidence,
-    claudeGoal: options.claudeGoal,
+    qoderGoal: options.qoderGoal,
     qualityGate
   }, plan.planId);
   return plan;
@@ -92560,10 +92560,10 @@ async function recordFinalReviewBlockers(cwd2, options) {
     throw new UltragoalError(`Cannot record final review blockers for ${goal.id}; it is not the only unresolved ultragoal story.`);
   }
   const now = iso(options.now);
-  const expectedObjective = expectedClaudeObjective(plan, goal);
-  const aggregateMode = claudeGoalMode(plan) === "aggregate";
-  const reconciliation = reconcileClaudeGoalSnapshot(
-    options.claudeGoal === void 0 ? null : parseClaudeGoalSnapshot(options.claudeGoal),
+  const expectedObjective = expectedQoderObjective(plan, goal);
+  const aggregateMode = qoderGoalMode(plan) === "aggregate";
+  const reconciliation = reconcileQoderGoalSnapshot(
+    options.qoderGoal === void 0 ? null : parseQoderGoalSnapshot(options.qoderGoal),
     {
       expectedObjective,
       allowedStatuses: ["active"],
@@ -92572,7 +92572,7 @@ async function recordFinalReviewBlockers(cwd2, options) {
     }
   );
   if (!reconciliation.ok) {
-    throw new UltragoalError(formatClaudeGoalReconciliation(reconciliation));
+    throw new UltragoalError(formatQoderGoalReconciliation(reconciliation));
   }
   const addedGoal = appendGoalToPlan(plan, options, now);
   goal.status = "review_blocked";
@@ -92591,8 +92591,8 @@ async function recordFinalReviewBlockers(cwd2, options) {
     goalId: goal.id,
     status: goal.status,
     evidence: options.evidence,
-    claudeGoal: options.claudeGoal,
-    message: aggregateMode ? "Final aggregate code-review was not clean; blocker story was appended while Claude /goal remains active." : "Final per-story code-review was not clean; blocker story was appended and may require a fresh/available Claude /goal context."
+    qoderGoal: options.qoderGoal,
+    message: aggregateMode ? "Final aggregate code-review was not clean; blocker story was appended while Qoder /goal remains active." : "Final per-story code-review was not clean; blocker story was appended and may require a fresh/available Qoder /goal context."
   }, plan.planId);
   await appendLedger(cwd2, {
     ts: now,
@@ -92608,15 +92608,15 @@ async function recordFinalReviewBlockers(cwd2, options) {
     goalId: goal.id,
     status: goal.status,
     evidence: options.evidence,
-    claudeGoal: options.claudeGoal
+    qoderGoal: options.qoderGoal
   }, plan.planId);
   return { plan, blockedGoal: goal, addedGoal };
 }
-function buildClaudeGoalInstruction(goal, plan) {
-  if (claudeGoalMode(plan) === "aggregate") return buildAggregateClaudeGoalInstruction(goal, plan);
-  return buildPerStoryClaudeGoalInstruction(goal, plan);
+function buildQoderGoalInstruction(goal, plan) {
+  if (qoderGoalMode(plan) === "aggregate") return buildAggregateQoderGoalInstruction(goal, plan);
+  return buildPerStoryQoderGoalInstruction(goal, plan);
 }
-function buildPerStoryClaudeGoalInstruction(goal, plan) {
+function buildPerStoryQoderGoalInstruction(goal, plan) {
   const createPayload = {
     condition: goal.objective,
     ...goal.tokenBudget ? { token_budget: goal.tokenBudget } : {}
@@ -92628,18 +92628,18 @@ function buildPerStoryClaudeGoalInstruction(goal, plan) {
     `Ledger: ${plan.ledgerPath}`,
     `Goal: ${goal.id} \u2014 ${goal.title}`,
     "",
-    "Claude /goal integration constraints (model-facing \u2014 OMC cannot mutate Claude /goal state from a shell):",
-    "- First confirm the active Claude /goal condition for this session. If none is active, invoke /goal <condition> with the payload below.",
-    "- If a different active Claude /goal exists, finish or clear that /goal before starting this ultragoal.",
-    "- If the active /goal is a different completed legacy goal and the Claude session refuses to set a new /goal, continue this ultragoal in a fresh Claude Code session (same repo/worktree) and invoke /goal there.",
-    `- To preserve the durable ledger before switching sessions, record the non-terminal blocker without failing this goal: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Claude goal blocks new /goal in this session>" --claude-goal-json "<goal snapshot JSON or path>"`,
+    "Qoder /goal integration constraints (model-facing \u2014 OMC cannot mutate Qoder /goal state from a shell):",
+    "- First confirm the active Qoder /goal condition for this session. If none is active, invoke /goal <condition> with the payload below.",
+    "- If a different active Qoder /goal exists, finish or clear that /goal before starting this ultragoal.",
+    "- If the active /goal is a different completed legacy goal and the Qoder session refuses to set a new /goal, continue this ultragoal in a fresh Qoder session (same repo/worktree) and invoke /goal there.",
+    `- To preserve the durable ledger before switching sessions, record the non-terminal blocker without failing this goal: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Qoder goal blocks new /goal in this session>" --qoder-goal-json "<goal snapshot JSON or path>"`,
     "- Work only this goal until its completion audit passes.",
     finalStory ? "- Final mandatory quality gate: run ai-slop-cleaner on changed files even when it is a no-op, rerun verification, then run $code-review." : "- This is not the final ultragoal story; do not run the final ai-slop-cleaner/$code-review gate yet.",
     finalStory ? "- If final $code-review is not APPROVE with architect status CLEAR, do not clear the /goal. Record blockers with:" : "- After the goal is actually complete, clear or update the active /goal (run /goal clear once the auto-clear has not already fired), then share a fresh /goal snapshot and checkpoint the ledger with:",
-    finalStory ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --claude-goal-json "<active /goal snapshot JSON or path>"` : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh /goal snapshot JSON or path>"`,
-    finalStory ? "- In legacy per-story mode, the blocker story may require a fresh/available Claude /goal context because this story remains an active incomplete /goal; do not claim it is complete." : null,
+    finalStory ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --qoder-goal-json "<active /goal snapshot JSON or path>"` : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh /goal snapshot JSON or path>"`,
+    finalStory ? "- In legacy per-story mode, the blocker story may require a fresh/available Qoder /goal context because this story remains an active incomplete /goal; do not claim it is complete." : null,
     finalStory ? "- If final $code-review is clean (APPROVE + CLEAR), clear the /goal (or wait for the auto-clear), then checkpoint with --quality-gate-json:" : null,
-    finalStory ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"` : null,
+    finalStory ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"` : null,
     "- If blocked or failed, checkpoint with --status failed and the failure evidence; rerun complete-goals --retry-failed to resume.",
     "",
     "Suggested /goal payload (model-facing \u2014 invoke /goal yourself in-session):",
@@ -92649,8 +92649,8 @@ function buildPerStoryClaudeGoalInstruction(goal, plan) {
     goal.objective
   ].filter((line) => line !== null).join("\n");
 }
-function buildAggregateClaudeGoalInstruction(goal, plan) {
-  const objective = plan.claudeObjective ?? aggregateClaudeObjective(plan.goals, plan.planId);
+function buildAggregateQoderGoalInstruction(goal, plan) {
+  const objective = plan.qoderObjective ?? aggregateQoderObjective(plan.goals, plan.planId);
   const finalStory = isFinalRunCompletionCandidate(plan, goal);
   const createPayload = { condition: objective };
   const checkpointStatus = finalStory ? "complete" : "active";
@@ -92660,17 +92660,17 @@ function buildAggregateClaudeGoalInstruction(goal, plan) {
     `Ledger: ${plan.ledgerPath}`,
     `Goal: ${goal.id} \u2014 ${goal.title}`,
     "",
-    "Claude /goal integration constraints (model-facing \u2014 OMC cannot mutate Claude /goal state from a shell):",
-    "- Claude /goal = the whole ultragoal run; OMC G001/G002/etc. = ledger stories.",
-    "- First confirm the active Claude /goal condition for this session. If none is active, invoke /goal <condition> with the aggregate payload below.",
+    "Qoder /goal integration constraints (model-facing \u2014 OMC cannot mutate Qoder /goal state from a shell):",
+    "- Qoder /goal = the whole ultragoal run; OMC G001/G002/etc. = ledger stories.",
+    "- First confirm the active Qoder /goal condition for this session. If none is active, invoke /goal <condition> with the aggregate payload below.",
     "- If the active /goal already reports the same aggregate objective as active, continue this OMC story without setting a new /goal.",
-    "- If a different active or incomplete Claude /goal exists, finish or clear that /goal before starting this ultragoal; do not claim a shell command can replace Claude /goal state.",
-    finalStory ? "- This is the final pending story: run the mandatory final ai-slop-cleaner pass, rerun verification, and run $code-review before any /goal clear." : "- This is not the final story: do not clear the /goal yet; the aggregate Claude /goal must remain active while later OMC stories remain.",
+    "- If a different active or incomplete Qoder /goal exists, finish or clear that /goal before starting this ultragoal; do not claim a shell command can replace Qoder /goal state.",
+    finalStory ? "- This is the final pending story: run the mandatory final ai-slop-cleaner pass, rerun verification, and run $code-review before any /goal clear." : "- This is not the final story: do not clear the /goal yet; the aggregate Qoder /goal must remain active while later OMC stories remain.",
     finalStory ? "- If final $code-review is not APPROVE with architect status CLEAR, do not clear the /goal. Record durable blocker work first:" : null,
-    finalStory ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --claude-goal-json "<active /goal snapshot JSON or path>"` : null,
+    finalStory ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --qoder-goal-json "<active /goal snapshot JSON or path>"` : null,
     finalStory ? "- If final $code-review is clean (APPROVE + CLEAR), clear the /goal (or let the auto-clear fire when the condition holds), share a fresh complete /goal snapshot, then checkpoint with --quality-gate-json." : null,
     `- Checkpoint this OMC story with a fresh /goal snapshot whose objective matches the aggregate payload and whose status is ${checkpointStatus}:`,
-    finalStory ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"` : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh /goal snapshot JSON or path>"`,
+    finalStory ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"` : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh /goal snapshot JSON or path>"`,
     "- If blocked or failed, checkpoint with --status failed and the failure evidence; rerun complete-goals --retry-failed to resume.",
     "",
     "Suggested /goal payload (model-facing \u2014 invoke /goal yourself in-session):",
@@ -92685,15 +92685,15 @@ function buildAggregateClaudeGoalInstruction(goal, plan) {
 }
 
 // src/cli/commands/ultragoal.ts
-var ULTRAGOAL_HELP = `omc ultragoal - Durable repo-native multi-goal workflow with Claude Code /goal handoff
+var ULTRAGOAL_HELP = `omc ultragoal - Durable repo-native multi-goal workflow with Qoder /goal handoff
 
 Usage:
   omc ultragoal create-goals [--brief <text> | --brief-file <path> | --from-stdin] [--goal <title::objective>] [--claude-goal-mode <aggregate|per-story>] [--force] [--plan-id <id> | --auto-plan-id] [--json]
   omc ultragoal complete-goals [--retry-failed] [--plan-id <id>] [--json]
   omc ultragoal add-goal --title <title> --objective <text> [--evidence <text>] [--plan-id <id>] [--json]
-  omc ultragoal record-review-blockers --goal-id <id> --title <title> --objective <text> --evidence <review-findings> --claude-goal-json <active-json-or-path> [--plan-id <id>] [--json]
-  omc ultragoal checkpoint --goal-id <id> --status <complete|failed|blocked> [--evidence <text>] [--claude-goal-json <json-or-path>] [--quality-gate-json <json-or-path>] [--plan-id <id>] [--json]
-  omc ultragoal status [--claude-goal-json <json-or-path>] [--plan-id <id>] [--json]
+  omc ultragoal record-review-blockers --goal-id <id> --title <title> --objective <text> --evidence <review-findings> --qoder-goal-json <active-json-or-path> [--plan-id <id>] [--json]
+  omc ultragoal checkpoint --goal-id <id> --status <complete|failed|blocked> [--evidence <text>] [--qoder-goal-json <json-or-path>] [--quality-gate-json <json-or-path>] [--plan-id <id>] [--json]
+  omc ultragoal status [--qoder-goal-json <json-or-path>] [--plan-id <id>] [--json]
   omc ultragoal list-plans [--json]
 
 Aliases:
@@ -92715,13 +92715,13 @@ Multi-plan resolution:
   exist, --plan-id becomes required. Use multi-plan mode for parallel
   ultragoal runs in a shared .omc/ (multi-repo workspaces; see .omc-workspace).
 
-Claude /goal integration:
-  This command cannot directly invoke the Claude Code /goal slash command from a shell;
+Qoder /goal integration:
+  This command cannot directly invoke the Qoder /goal slash command from a shell;
   /goal is a model-facing in-session directive that registers a session-scoped Stop hook
   until its condition holds (auto-clears on success). complete-goals writes durable state
   and prints a model-facing handoff that tells the active Claude agent when to invoke
   /goal <condition>, when to clear it, and what snapshot JSON to share back.
-  New plans default to aggregate mode: one Claude /goal covers the whole ultragoal run
+  New plans default to aggregate mode: one Qoder /goal covers the whole ultragoal run
   while OMC checkpoints G001/G002 stories in the durable ledger.
   Final completion is mandatory-gated: run ai-slop-cleaner, rerun verification,
   run $code-review, and pass --quality-gate-json with APPROVE + CLEAR evidence.
@@ -92761,7 +92761,7 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf-8");
 }
 function positionalText(args) {
-  const valueTaking = /* @__PURE__ */ new Set(["--brief", "--brief-file", "--goal", "--goal-id", "--status", "--evidence", "--claude-goal-json", "--claude-goal-mode", "--title", "--objective", "--quality-gate-json", "--plan-id"]);
+  const valueTaking = /* @__PURE__ */ new Set(["--brief", "--brief-file", "--goal", "--goal-id", "--status", "--evidence", "--qoder-goal-json", "--claude-goal-mode", "--title", "--objective", "--quality-gate-json", "--plan-id"]);
   const words = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -92777,7 +92777,7 @@ function positionalText(args) {
 function printJson(value) {
   console.log(JSON.stringify(value, null, 2));
 }
-function normalizeClaudeGoalMode(raw) {
+function normalizeQoderGoalMode(raw) {
   if (!raw) return void 0;
   if (raw === "aggregate") return "aggregate";
   if (raw === "per-story" || raw === "per_story") return "per_story";
@@ -92796,9 +92796,9 @@ function printStatus(plan) {
     console.log(`${marker} ${goal.id} [${goal.status}] ${goal.title}`);
   }
 }
-async function parseClaudeGoalJson(raw) {
+async function parseQoderGoalJson(raw) {
   if (!raw) return void 0;
-  return readClaudeGoalSnapshotInput(raw, process.cwd());
+  return readQoderGoalSnapshotInput(raw, process.cwd());
 }
 async function readJsonInput(raw) {
   if (!raw) return void 0;
@@ -92829,7 +92829,7 @@ async function ultragoalCommand(args) {
       const plan = await createUltragoalPlan(cwd2, {
         brief,
         goals,
-        claudeGoalMode: normalizeClaudeGoalMode(readValue(rest, "--claude-goal-mode")),
+        qoderGoalMode: normalizeQoderGoalMode(readValue(rest, "--claude-goal-mode")),
         force: hasFlag2(rest, "--force"),
         planId: readValue(rest, "--plan-id"),
         autoPlanId: hasFlag2(rest, "--auto-plan-id")
@@ -92858,19 +92858,19 @@ async function ultragoalCommand(args) {
     if (command === "status") {
       const planId = await resolveActivePlanId(cwd2, readValue(rest, "--plan-id"));
       const plan = await readUltragoalPlan(cwd2, planId);
-      const snapshot = await readClaudeGoalSnapshotInput(readValue(rest, "--claude-goal-json"), cwd2);
+      const snapshot = await readQoderGoalSnapshotInput(readValue(rest, "--qoder-goal-json"), cwd2);
       const activeGoal = plan.goals.find((goal) => goal.id === plan.activeGoalId || goal.status === "in_progress");
-      const expectedObjective = plan.claudeGoalMode === "aggregate" ? plan.claudeObjective : activeGoal?.objective;
-      const reconciliation = activeGoal ? reconcileClaudeGoalSnapshot(snapshot, {
+      const expectedObjective = plan.qoderGoalMode === "aggregate" ? plan.qoderObjective : activeGoal?.objective;
+      const reconciliation = activeGoal ? reconcileQoderGoalSnapshot(snapshot, {
         expectedObjective: expectedObjective ?? activeGoal.objective,
-        allowedStatuses: plan.claudeGoalMode === "aggregate" ? ["active"] : ["active", "complete"],
+        allowedStatuses: plan.qoderGoalMode === "aggregate" ? ["active"] : ["active", "complete"],
         requireSnapshot: false
       }) : null;
       if (json) printJson({ plan, summary: summarizeUltragoalPlan(plan), reconciliation });
       else {
         printStatus(plan);
-        if (reconciliation && !reconciliation.ok) console.log(`claude goal warning: ${formatClaudeGoalReconciliation(reconciliation)}`);
-        else if (reconciliation?.warnings.length) console.log(`claude goal warning: ${formatClaudeGoalReconciliation(reconciliation)}`);
+        if (reconciliation && !reconciliation.ok) console.log(`qoder goal warning: ${formatQoderGoalReconciliation(reconciliation)}`);
+        else if (reconciliation?.warnings.length) console.log(`qoder goal warning: ${formatQoderGoalReconciliation(reconciliation)}`);
       }
       return;
     }
@@ -92897,9 +92897,9 @@ async function ultragoalCommand(args) {
       if (!title?.trim()) throw new UltragoalError("Missing --title.");
       if (!objective?.trim()) throw new UltragoalError("Missing --objective.");
       if (!evidence?.trim()) throw new UltragoalError("Missing --evidence.");
-      const claudeGoal = await parseClaudeGoalJson(readValue(rest, "--claude-goal-json"));
+      const qoderGoal = await parseQoderGoalJson(readValue(rest, "--qoder-goal-json"));
       const planId = await resolveActivePlanId(cwd2, readValue(rest, "--plan-id"));
-      const result = await recordFinalReviewBlockers(cwd2, { goalId, title, objective, evidence, claudeGoal, planId });
+      const result = await recordFinalReviewBlockers(cwd2, { goalId, title, objective, evidence, qoderGoal, planId });
       if (json) printJson({ ok: true, plan: result.plan, blockedGoal: result.blockedGoal, addedGoal: result.addedGoal, summary: summarizeUltragoalPlan(result.plan) });
       else {
         console.log(`ultragoal final review blockers recorded: ${result.blockedGoal.id} -> review_blocked; added ${result.addedGoal.id}`);
@@ -92915,7 +92915,7 @@ async function ultragoalCommand(args) {
         else console.log(result.done ? "ultragoal: all goals complete" : "ultragoal: no pending goals (use --retry-failed to retry failed goals)");
         return;
       }
-      const instruction = buildClaudeGoalInstruction(result.goal, result.plan);
+      const instruction = buildQoderGoalInstruction(result.goal, result.plan);
       if (json) printJson({ ok: true, resumed: result.resumed, goal: result.goal, instruction });
       else console.log(instruction);
       return;
@@ -92926,10 +92926,10 @@ async function ultragoalCommand(args) {
       if (!goalId) throw new UltragoalError("Missing --goal-id.");
       if (status !== "complete" && status !== "failed" && status !== "blocked") throw new UltragoalError("Missing or invalid --status; expected complete, failed, or blocked.");
       const evidence = readValue(rest, "--evidence");
-      const claudeGoal = await parseClaudeGoalJson(readValue(rest, "--claude-goal-json"));
+      const qoderGoal = await parseQoderGoalJson(readValue(rest, "--qoder-goal-json"));
       const qualityGate = await readJsonInput(readValue(rest, "--quality-gate-json"));
       const planId = await resolveActivePlanId(cwd2, readValue(rest, "--plan-id"));
-      const plan = await checkpointUltragoal(cwd2, { goalId, status, evidence, claudeGoal, qualityGate, planId });
+      const plan = await checkpointUltragoal(cwd2, { goalId, status, evidence, qoderGoal, qualityGate, planId });
       if (json) printJson({ ok: true, plan, summary: summarizeUltragoalPlan(plan) });
       else {
         const goal = plan.goals.find((candidate) => candidate.id === goalId);
@@ -92942,7 +92942,7 @@ async function ultragoalCommand(args) {
 
 ${ULTRAGOAL_HELP}`);
   } catch (error2) {
-    if (error2 instanceof UltragoalError || error2 instanceof ClaudeGoalSnapshotError) {
+    if (error2 instanceof UltragoalError || error2 instanceof QoderGoalSnapshotError) {
       console.error(`[ultragoal] ${error2.message}`);
       process.exitCode = 1;
       return;
@@ -93542,7 +93542,7 @@ init_tmux_clipboard();
 init_paths3();
 var MADMAX_FLAG = "--madmax";
 var YOLO_FLAG = "--yolo";
-var CLAUDE_BYPASS_FLAG = "--dangerously-skip-permissions";
+var QODER_BYPASS_FLAG = "--dangerously-skip-permissions";
 var NOTIFY_FLAG = "--notify";
 var OPENCLAW_FLAG = "--openclaw";
 var TELEGRAM_FLAG = "--telegram";
@@ -93605,7 +93605,7 @@ function refreshRuntimeClaudeJsonMcpServers(baseConfigDir, runtimeClaudeJsonPath
   runtimeClaudeJson.mcpServers = sourceClaudeJson.mcpServers;
   (0, import_fs102.writeFileSync)(runtimeClaudeJsonPath, JSON.stringify(runtimeClaudeJson, null, 2));
 }
-function prepareOmcLaunchConfigDir(baseConfigDir = getClaudeConfigDir()) {
+function prepareOmcLaunchConfigDir(baseConfigDir = getQoderConfigDir()) {
   const companionPath = (0, import_path121.join)(baseConfigDir, "CLAUDE-omc.md");
   if (!hasOmcMarkers(companionPath)) {
     return baseConfigDir;
@@ -93619,7 +93619,7 @@ function prepareOmcLaunchConfigDir(baseConfigDir = getClaudeConfigDir()) {
     (0, import_fs102.writeFileSync)(runtimeClaudeJsonPath, preservedClaudeJson);
   }
   refreshRuntimeClaudeJsonMcpServers(baseConfigDir, runtimeClaudeJsonPath);
-  (0, import_fs102.copyFileSync)(companionPath, (0, import_path121.join)(runtimeConfigDir, "CLAUDE.md"));
+  (0, import_fs102.copyFileSync)(companionPath, (0, import_path121.join)(runtimeConfigDir, "AGENTS.md"));
   for (const entry of [
     "agents",
     "commands",
@@ -93772,7 +93772,7 @@ function extractWebhookFlag(args) {
   }
   return { webhookEnabled, remainingArgs };
 }
-function normalizeClaudeLaunchArgs(args) {
+function normalizeQoderLaunchArgs(args) {
   const normalized = [];
   let wantsBypass = false;
   let hasBypass = false;
@@ -93781,7 +93781,7 @@ function normalizeClaudeLaunchArgs(args) {
       wantsBypass = true;
       continue;
     }
-    if (arg === CLAUDE_BYPASS_FLAG) {
+    if (arg === QODER_BYPASS_FLAG) {
       wantsBypass = true;
       if (!hasBypass) {
         normalized.push(arg);
@@ -93792,7 +93792,7 @@ function normalizeClaudeLaunchArgs(args) {
     normalized.push(arg);
   }
   if (wantsBypass && !hasBypass) {
-    normalized.push(CLAUDE_BYPASS_FLAG);
+    normalized.push(QODER_BYPASS_FLAG);
   }
   return normalized;
 }
@@ -93822,9 +93822,9 @@ function abortMadmaxRequiresTmux(reason) {
   process.exit(1);
   throw new MadmaxTmuxRequiredError(reason);
 }
-function runClaude(cwd2, args, sessionId) {
+function runQoder(cwd2, args, sessionId) {
   if (isPrintMode(args)) {
-    runClaudeDirect(cwd2, args);
+    runQoderDirect(cwd2, args);
     return;
   }
   const requireTmux = process.platform === "darwin" && hasMadmaxFlag(args);
@@ -93835,16 +93835,16 @@ function runClaude(cwd2, args, sessionId) {
     const policy = resolveLaunchPolicy(process.env, args, { requireTmux });
     switch (policy) {
       case "inside-tmux":
-        runClaudeInsideTmux(cwd2, args);
+        runQoderInsideTmux(cwd2, args);
         break;
       case "outside-tmux":
-        runClaudeOutsideTmux(cwd2, args, sessionId, { requireTmux });
+        runQoderOutsideTmux(cwd2, args, sessionId, { requireTmux });
         break;
       case "direct":
         if (requireTmux) {
           abortMadmaxRequiresTmux("missing");
         }
-        runClaudeDirect(cwd2, args);
+        runQoderDirect(cwd2, args);
         break;
     }
   } catch (err) {
@@ -93854,7 +93854,7 @@ function runClaude(cwd2, args, sessionId) {
     throw err;
   }
 }
-function runClaudeInsideTmux(cwd2, args) {
+function runQoderInsideTmux(cwd2, args) {
   try {
     configureTmuxClipboardForCurrentSession({ stdio: "ignore" });
   } catch {
@@ -93864,7 +93864,7 @@ function runClaudeInsideTmux(cwd2, args) {
   } catch {
   }
   try {
-    (0, import_child_process34.execFileSync)("claude", args, {
+    (0, import_child_process34.execFileSync)("qoder", args, {
       cwd: cwd2,
       stdio: "inherit",
       shell: process.platform === "win32"
@@ -93879,7 +93879,7 @@ function runClaudeInsideTmux(cwd2, args) {
   }
 }
 var TMUX_ENV_FORWARD = [
-  "CLAUDE_CONFIG_DIR",
+  "QODER_CONFIG_DIR",
   "OMC_NOTIFY",
   "OMC_OPENCLAW",
   "OMC_TELEGRAM",
@@ -93898,11 +93898,11 @@ function buildEnvExportPrefix(vars) {
   }
   return parts.length > 0 ? parts.join("; ") + "; " : "";
 }
-function runClaudeOutsideTmux(cwd2, args, _sessionId, options = {}) {
+function runQoderOutsideTmux(cwd2, args, _sessionId, options = {}) {
   const forwardedEnv = Object.fromEntries(
     TMUX_ENV_FORWARD.map((name) => [name, process.env[name]]).filter(([, value]) => value !== void 0)
   );
-  const rawClaudeCmd = isNativeWindowsShell() ? buildTmuxShellCommandWithEnv("claude", args, forwardedEnv) : buildTmuxShellCommand("claude", args);
+  const rawClaudeCmd = isNativeWindowsShell() ? buildTmuxShellCommandWithEnv("qoder", args, forwardedEnv) : buildTmuxShellCommand("qoder", args);
   const envPrefix = !isNativeWindowsShell() && Object.keys(forwardedEnv).length > 0 ? buildEnvExportPrefix(TMUX_ENV_FORWARD) : "";
   const preflight = isNativeWindowsShell() ? envPrefix : `${envPrefix}sleep 0.3; perl -e 'use POSIX;tcflush(0,TCIFLUSH)' 2>/dev/null; `;
   const claudeCmd = wrapWithLoginShell(`${preflight}${rawClaudeCmd}`);
@@ -93913,7 +93913,7 @@ function runClaudeOutsideTmux(cwd2, args, _sessionId, options = {}) {
     if (options.requireTmux) {
       abortMadmaxRequiresTmux("launch-failed");
     }
-    runClaudeDirect(cwd2, args);
+    runQoderDirect(cwd2, args);
     return;
   }
   try {
@@ -93934,13 +93934,13 @@ function runClaudeOutsideTmux(cwd2, args, _sessionId, options = {}) {
       tmuxExec(["has-session", "-t", sessionName2], { stripTmux: true, stdio: "ignore" });
       return;
     } catch {
-      runClaudeDirect(cwd2, args);
+      runQoderDirect(cwd2, args);
     }
   }
 }
-function runClaudeDirect(cwd2, args) {
+function runQoderDirect(cwd2, args) {
   try {
-    (0, import_child_process34.execFileSync)("claude", args, {
+    (0, import_child_process34.execFileSync)("qoder", args, {
       cwd: cwd2,
       stdio: "inherit",
       shell: process.platform === "win32"
@@ -94013,22 +94013,22 @@ async function launchCommand(args) {
     process.env.OMC_WEBHOOK = "0";
   }
   const cwd2 = process.cwd();
-  if (process.env.CLAUDECODE) {
-    console.error("[omc] Error: Already inside a Claude Code session. Nested launches are not supported.");
+  if (process.env.QODER) {
+    console.error("[omc] Error: Already inside a Qoder session. Nested launches are not supported.");
     process.exit(1);
   }
-  if (!isClaudeAvailable()) {
-    console.error("[omc] Error: claude CLI not found. Install Claude Code first:");
+  if (!isQoderAvailable()) {
+    console.error("[omc] Error: claude CLI not found. Install Qoder first:");
     console.error("  https://code.claude.com/docs/en/setup");
     process.exit(1);
   }
   const launchConfigDir = prepareOmcLaunchConfigDir();
   if (isDefaultClaudeConfigDirPath2(launchConfigDir)) {
-    delete process.env.CLAUDE_CONFIG_DIR;
+    delete process.env.QODER_CONFIG_DIR;
   } else {
-    process.env.CLAUDE_CONFIG_DIR = launchConfigDir;
+    process.env.QODER_CONFIG_DIR = launchConfigDir;
   }
-  const normalizedArgs = normalizeClaudeLaunchArgs(argsAfterWebhook);
+  const normalizedArgs = normalizeQoderLaunchArgs(argsAfterWebhook);
   const sessionId = `omc-${Date.now()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`;
   try {
     await preLaunch(cwd2, sessionId);
@@ -94036,7 +94036,7 @@ async function launchCommand(args) {
     console.error(`[omc] preLaunch warning: ${err instanceof Error ? err.message : err}`);
   }
   try {
-    runClaude(cwd2, normalizedArgs, sessionId);
+    runQoder(cwd2, normalizedArgs, sessionId);
   } finally {
     await postLaunch(cwd2, sessionId);
   }
@@ -94087,13 +94087,13 @@ function launchInteropSession(cwd2 = process.cwd()) {
     process.exit(1);
   }
   const hasCodex = isCodexAvailable();
-  const hasClaude = isClaudeAvailable();
+  const hasClaude = isQoderAvailable();
   if (!hasClaude) {
-    console.error("Error: claude CLI is not available. Install Claude Code CLI first.");
+    console.error("Error: claude CLI is not available. Install Qoder CLI first.");
     process.exit(1);
   }
   if (!hasCodex) {
-    console.warn("Warning: codex CLI is not available. Only Claude Code will be launched.");
+    console.warn("Warning: codex CLI is not available. Only Qoder will be launched.");
     console.warn("Install oh-my-codex (npm install -g @openai/codex) for full interop support.\n");
   }
   const inTmux = Boolean(process.env.TMUX);
@@ -94122,7 +94122,7 @@ function launchInteropSession(cwd2 = process.cwd()) {
   }
   try {
     if (hasCodex) {
-      console.log("Splitting pane: Left (Claude Code) | Right (Codex)");
+      console.log("Splitting pane: Left (Qoder) | Right (Codex)");
       tmuxExec([
         "split-window",
         "-h",
@@ -94134,7 +94134,7 @@ function launchInteropSession(cwd2 = process.cwd()) {
       ], { stdio: "inherit" });
       tmuxExec(["select-pane", "-t", currentPaneId], { stdio: "ignore" });
       console.log("\nInterop session ready!");
-      console.log("- Left pane: Claude Code (this terminal)");
+      console.log("- Left pane: Qoder (this terminal)");
       console.log("- Right pane: Codex CLI");
       console.log("\nYou can now use interop MCP tools to communicate between the two:");
       console.log("- interop_send_task: Send tasks between tools");
@@ -94142,7 +94142,7 @@ function launchInteropSession(cwd2 = process.cwd()) {
       console.log("- interop_send_message: Send messages");
       console.log("- interop_read_messages: Read messages");
     } else {
-      console.log("\nClaude Code is ready in this pane.");
+      console.log("\nQoder is ready in this pane.");
       console.log("Install oh-my-codex to enable split-pane interop mode.");
       console.log("\nInstall: npm install -g @openai/codex");
     }
@@ -94172,7 +94172,7 @@ var ASK_USAGE = [
   '   or: omc ask <claude|codex|gemini|antigravity|grok|cursor> --agent-prompt <role> "<prompt>"',
   '   or: omc ask <claude|codex|gemini|antigravity|grok|cursor> --agent-prompt=<role> --prompt "<prompt>"'
 ].join("\n");
-var ASK_PROVIDERS = ["claude", "codex", "gemini", "antigravity", "grok", "cursor"];
+var ASK_PROVIDERS = ["qoder", "codex", "gemini", "antigravity", "grok", "cursor"];
 var ASK_PROVIDER_SET = new Set(ASK_PROVIDERS);
 var ASK_AGENT_PROMPT_FLAG = "--agent-prompt";
 var SAFE_ROLE_PATTERN = /^[a-z][a-z0-9-]*$/;
@@ -94317,9 +94317,9 @@ function resolveSignalExitCode(signal) {
 }
 async function askCommand(args) {
   const parsed = parseAskArgs(args);
-  if (parsed.provider !== "claude" && isExternalLLMDisabled()) {
+  if (parsed.provider !== "qoder" && isExternalLLMDisabled()) {
     throw new Error(
-      `[ask] External LLM provider "${parsed.provider}" is blocked by security policy (disableExternalLLM). Only "claude" is allowed in the current security configuration.`
+      `[ask] External LLM provider "${parsed.provider}" is blocked by security policy (disableExternalLLM). Only "qoder" is allowed in the current security configuration.`
     );
   }
   const packageRoot = getPackageRoot();
@@ -94382,7 +94382,7 @@ This command is no longer the authoritative autoresearch workflow.
 Use this flow instead:
   1. /deep-interview --autoresearch "<mission idea>"
      - use deep-interview to generate/setup the mission and evaluator
-  2. /oh-my-claudecode:autoresearch
+  2. /oh-my-qoder:autoresearch
      - run the stateful single-mission autoresearch skill
 
 Key behavior:
@@ -94535,10 +94535,10 @@ async function defaultAction() {
   }
   await launchCommand(args);
 }
-program2.name("omc").description("Multi-agent orchestration system for Claude Agent SDK").version(version2).allowUnknownOption().action(defaultAction);
-program2.command("launch [args...]").description("Launch Claude Code with native tmux shell integration").allowUnknownOption().addHelpText("after", `
+program2.name("omc").description("Multi-agent orchestration system for Qoder Agent SDK").version(version2).allowUnknownOption().action(defaultAction);
+program2.command("launch [args...]").description("Launch Qoder with native tmux shell integration").allowUnknownOption().addHelpText("after", `
 Examples:
-  $ omc                                Launch Claude Code
+  $ omc                                Launch Qoder
   $ omc --madmax                       Launch with permissions bypass
   $ omc --yolo                         Launch with permissions bypass (alias)
   $ omc --notify false                 Launch without CCNotifier events
@@ -94555,10 +94555,10 @@ Environment:
 `).action(async (args) => {
   await launchCommand(args);
 });
-program2.command("interop").description("Launch split-pane tmux session with Claude Code (OMC) and Codex (OMX)").addHelpText("after", `
+program2.command("interop").description("Launch split-pane tmux session with Qoder (OMC) and Codex (OMX)").addHelpText("after", `
 Requirements:
   - Must be running inside a tmux session
-  - Claude CLI must be installed
+  - Qoder CLI must be installed
   - Codex CLI recommended (graceful fallback if missing)`).action(() => {
   interopCommand();
 });
@@ -94623,7 +94623,7 @@ Profile types (use with --profile):
   webhook      Generic webhook (POST with JSON body)
 
 Examples:
-  $ omc config-stop-callback file --enable --path ${(0, import_path129.join)(getClaudeConfigDir(), "logs/{date}.md")}
+  $ omc config-stop-callback file --enable --path ${(0, import_path129.join)(getQoderConfigDir(), "logs/{date}.md")}
   $ omc config-stop-callback telegram --enable --token <token> --chat <id>
   $ omc config-stop-callback discord --enable --webhook <url>
   $ omc config-stop-callback file --disable
@@ -94808,7 +94808,7 @@ Examples:
       const current = config2.stopHookCallbacks.file;
       config2.stopHookCallbacks.file = {
         enabled: enabled ?? current?.enabled ?? false,
-        path: options.path ?? current?.path ?? (0, import_path129.join)(getClaudeConfigDir(), "session-logs/{session_id}.md"),
+        path: options.path ?? current?.path ?? (0, import_path129.join)(getQoderConfigDir(), "session-logs/{session_id}.md"),
         format: options.format ?? current?.format ?? "markdown"
       };
       break;
@@ -94944,7 +94944,7 @@ program2.command("info").description("Show system and agent information").addHel
 Examples:
   $ omc info                     Show agents, features, and MCP servers`).action(async () => {
   const session = createOmcSession();
-  console.log(source_default.blue.bold("\nOh-My-ClaudeCode System Information\n"));
+  console.log(source_default.blue.bold("\nOh-My-Qoder System Information\n"));
   console.log(source_default.gray("\u2501".repeat(50)));
   console.log(source_default.blue("\nAvailable Agents:"));
   const agents = session.queryOptions.options.agents;
@@ -94995,7 +94995,7 @@ Examples:
   $ omc update --force           Force reinstall
   $ omc update --standalone      Force npm update in plugin context`).action(async (options) => {
   if (!options.quiet) {
-    console.log(source_default.blue("Oh-My-ClaudeCode Update\n"));
+    console.log(source_default.blue("Oh-My-Qoder Update\n"));
   }
   try {
     const installed = getInstalledVersion();
@@ -95032,7 +95032,7 @@ Examples:
       if (!options.quiet) {
         console.log(source_default.green(`
 \u2713 ${result.message}`));
-        console.log(source_default.gray("\nPlease restart your Claude Code session to use the new version."));
+        console.log(source_default.gray("\nPlease restart your Qoder session to use the new version."));
       }
     } else {
       console.error(source_default.red(`
@@ -95072,7 +95072,7 @@ program2.command("version").description("Show detailed version information").add
 Examples:
   $ omc version                  Show version, install method, and commit hash`).action(async () => {
   const installed = getInstalledVersion();
-  console.log(source_default.blue.bold("\nOh-My-ClaudeCode Version Information\n"));
+  console.log(source_default.blue.bold("\nOh-My-Qoder Version Information\n"));
   console.log(source_default.gray("\u2501".repeat(50)));
   console.log(`
   Package version:   ${source_default.green(version2)}`);
@@ -95091,18 +95091,18 @@ Examples:
     console.log(source_default.gray("  (Run the install script to create version metadata)"));
   }
   console.log(source_default.gray("\n\u2501".repeat(50)));
-  console.log(source_default.gray("\nTo check for updates, run: oh-my-claudecode update --check"));
+  console.log(source_default.gray("\nTo check for updates, run: oh-my-qoder update --check"));
 });
-program2.command("install").description("Install OMC agents and commands to Claude Code config directory (default: ~/.claude/)").option("-f, --force", "Overwrite existing files").option("-q, --quiet", "Suppress output except for errors").option("--skip-claude-check", "Skip checking if Claude Code is installed").addHelpText("after", `
+program2.command("install").description("Install OMC agents and commands to Qoder config directory (default: ~/.qoder/)").option("-f, --force", "Overwrite existing files").option("-q, --quiet", "Suppress output except for errors").option("--skip-claude-check", "Skip checking if Qoder is installed").addHelpText("after", `
 Examples:
-  $ omc install                  Install to config directory (default: ~/.claude/)
+  $ omc install                  Install to config directory (default: ~/.qoder/)
   $ omc install --force          Reinstall, overwriting existing files
   $ omc install --quiet          Silent install for scripts
-  $ CLAUDE_CONFIG_DIR=$HOME/.claude-isolated-workspace omc install  Isolated config directory`).action(async (options) => {
+  $ QODER_CONFIG_DIR=$HOME/.claude-isolated-workspace omc install  Isolated config directory`).action(async (options) => {
   if (!options.quiet) {
     console.log(source_default.blue("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557"));
-    console.log(source_default.blue("\u2551         Oh-My-ClaudeCode Installer                        \u2551"));
-    console.log(source_default.blue("\u2551   Multi-Agent Orchestration for Claude Code               \u2551"));
+    console.log(source_default.blue("\u2551         Oh-My-Qoder Installer                        \u2551"));
+    console.log(source_default.blue("\u2551   Multi-Agent Orchestration for Qoder               \u2551"));
     console.log(source_default.blue("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D"));
     console.log("");
   }
@@ -95130,10 +95130,10 @@ Examples:
       console.log(source_default.green("\u2551         Installation Complete!                            \u2551"));
       console.log(source_default.green("\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D"));
       console.log("");
-      console.log(source_default.gray(`Installed to: ${getClaudeConfigDir()}`));
+      console.log(source_default.gray(`Installed to: ${getQoderConfigDir()}`));
       console.log("");
       console.log(source_default.yellow("Usage:"));
-      console.log("  claude                        # Start Claude Code normally");
+      console.log("  claude                        # Start Qoder normally");
       console.log("");
       console.log(source_default.yellow("Slash Commands:"));
       console.log("  /omc <task>              # Activate OMC orchestration mode");
@@ -95169,11 +95169,11 @@ Examples:
       console.log("");
       console.log(source_default.yellow("After Updates:"));
       console.log("  Run '/omc-default' (project) or '/omc-default-global' (global)");
-      console.log("  to download the latest CLAUDE.md configuration.");
+      console.log("  to download the latest AGENTS.md configuration.");
       console.log("  This ensures you get the newest features and agent behaviors.");
       console.log("");
       console.log(source_default.blue("Quick Start:"));
-      console.log("  1. Run 'claude' to start Claude Code");
+      console.log("  1. Run 'qoder' to start Qoder");
       console.log("  2. Type '/omc-default' for project or '/omc-default-global' for global");
       console.log("  3. Or use '/omc <task>' for one-time activation");
     }
@@ -95215,7 +95215,7 @@ Examples:
     interval: parseInt(options.interval)
   });
 });
-waitCmd.command("detect").description("Scan for blocked Claude Code sessions in tmux").option("--json", "Output as JSON").option("-l, --lines <number>", "Number of pane lines to analyze", "15").action(async (options) => {
+waitCmd.command("detect").description("Scan for blocked Qoder sessions in tmux").option("--json", "Output as JSON").option("-l, --lines <number>", "Number of pane lines to analyze", "15").action(async (options) => {
   await waitDetectCommand({
     json: options.json,
     lines: parseInt(options.lines)
@@ -95313,17 +95313,17 @@ Examples:
   const exitCode = await doctorConflictsCommand(options);
   process.exit(exitCode);
 });
-program2.command("setup").description("Run OMC setup to sync all components (hooks, agents, skills)").option("-f, --force", "Force reinstall even if already up to date").option("-q, --quiet", "Suppress output except for errors").option("--no-plugin", "Install bundled skills from the current package instead of relying on plugin-provided skills").option("--plugin-dir-mode", "Treat OMC as launched via --plugin-dir at runtime (skip agent/skill copy; HUD + hooks + CLAUDE.md still installed)").option("--skip-hooks", "Skip hook installation").option("--force-hooks", "Force reinstall hooks even if unchanged").addHelpText("after", `
+program2.command("setup").description("Run OMC setup to sync all components (hooks, agents, skills)").option("-f, --force", "Force reinstall even if already up to date").option("-q, --quiet", "Suppress output except for errors").option("--no-plugin", "Install bundled skills from the current package instead of relying on plugin-provided skills").option("--plugin-dir-mode", "Treat OMC as launched via --plugin-dir at runtime (skip agent/skill copy; HUD + hooks + AGENTS.md still installed)").option("--skip-hooks", "Skip hook installation").option("--force-hooks", "Force reinstall hooks even if unchanged").addHelpText("after", `
 Examples:
   $ omc setup                     Sync all OMC components
   $ omc setup --force             Force reinstall everything
   $ omc setup --no-plugin         Force local bundled skill installation
-  $ omc setup --plugin-dir-mode   Skip agent/skill copy (used with claude --plugin-dir)
+  $ omc setup --plugin-dir-mode   Skip agent/skill copy (used with qodercli --plugin-dir)
   $ omc setup --quiet             Silent setup for scripts
   $ omc setup --skip-hooks        Install without hooks
   $ omc setup --force-hooks       Force reinstall hooks`).action(async (options) => {
   if (!options.quiet) {
-    console.log(source_default.blue("Oh-My-ClaudeCode Setup\n"));
+    console.log(source_default.blue("Oh-My-Qoder Setup\n"));
   }
   if (!options.quiet) {
     console.log(source_default.gray("Syncing OMC components..."));
@@ -95390,7 +95390,7 @@ Examples:
     if (reportedVersion !== version2) {
       console.log(source_default.gray(`CLI package version: ${version2}`));
     }
-    console.log(source_default.gray("Start Claude Code and use /oh-my-claudecode:omc-setup for interactive setup."));
+    console.log(source_default.gray("Start Qoder and use /oh-my-qoder:omc-setup for interactive setup."));
   }
 });
 program2.command("postinstall", { hidden: true }).description("Run post-install setup (called automatically by npm)").action(async () => {
@@ -95400,12 +95400,12 @@ program2.command("postinstall", { hidden: true }).description("Run post-install 
     skipClaudeCheck: true
   });
   if (result.success) {
-    console.log(source_default.green("\u2713 Oh-My-ClaudeCode installed successfully!"));
-    console.log(source_default.gray('  Run "oh-my-claudecode info" to see available agents.'));
-    console.log(source_default.yellow('  Run "/omc-default" (project) or "/omc-default-global" (global) in Claude Code.'));
+    console.log(source_default.green("\u2713 Oh-My-Qoder installed successfully!"));
+    console.log(source_default.gray('  Run "oh-my-qoder info" to see available agents.'));
+    console.log(source_default.yellow('  Run "/omc-default" (project) or "/omc-default-global" (global) in Qoder.'));
   } else {
     console.warn(source_default.yellow("\u26A0 Could not complete OMC setup:"), result.message);
-    console.warn(source_default.gray('  Run "oh-my-claudecode install" manually to complete setup.'));
+    console.warn(source_default.gray('  Run "oh-my-qoder install" manually to complete setup.'));
   }
 });
 program2.command("hud").description("Run the OMC HUD statusline renderer").option("--watch", "Run in watch mode (continuous polling for tmux pane)").option("--interval <ms>", "Poll interval in milliseconds", "1000").action(async (options) => {
@@ -95442,7 +95442,7 @@ program2.command("autoresearch").description("Hard-deprecated shim that redirect
 program2.command("ralphthon").description("Autonomous hackathon lifecycle: interview -> execute -> harden -> done").helpOption(false).allowUnknownOption(true).allowExcessArguments(true).argument("[args...]", "ralphthon arguments").action(async (args) => {
   await ralphthonCommand(args);
 });
-program2.command("ultragoal").description("Durable repo-native multi-goal workflow with Claude Code /goal handoff (see omc ultragoal help)").helpOption(false).allowUnknownOption(true).allowExcessArguments(true).argument("[args...]", "ultragoal subcommand arguments").addHelpText("after", `
+program2.command("ultragoal").description("Durable repo-native multi-goal workflow with Qoder /goal handoff (see omc ultragoal help)").helpOption(false).allowUnknownOption(true).allowExcessArguments(true).argument("[args...]", "ultragoal subcommand arguments").addHelpText("after", `
 ${ULTRAGOAL_HELP}`).action(async (args) => {
   await ultragoalCommand(args);
 });

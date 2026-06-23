@@ -22,7 +22,7 @@ const { createHash } = require('crypto');
  * @returns {Promise<string>} Absolute path to the .omc root
  */
 async function resolveOmcStateRoot(directory) {
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  const pluginRoot = process.env.QODER_PLUGIN_ROOT;
   if (pluginRoot) {
     try {
       const { pathToFileURL } = require('url');
@@ -55,7 +55,7 @@ async function resolveOmcStateRoot(directory) {
  * @returns {Promise<{readPath: string, writePath: string}>} Unbranded path pair
  */
 async function resolveSessionStatePathsForHook(directory, stateName, sessionId) {
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  const pluginRoot = process.env.QODER_PLUGIN_ROOT;
   if (pluginRoot) {
     try {
       const { pathToFileURL } = require('url');

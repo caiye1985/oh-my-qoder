@@ -1075,7 +1075,7 @@ export function getAgentDashboard(directory: string, sessionId?: string): string
     const elapsed = Math.round(
       (now - new Date(agent.started_at).getTime()) / 1000,
     );
-    const shortType = agent.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = agent.agent_type.replace("oh-my-qoder:", "");
     const toolCount = agent.tool_usage?.length || 0;
     const lastTool =
       agent.tool_usage?.[agent.tool_usage.length - 1]?.tool_name || "-";
@@ -1124,7 +1124,7 @@ export function getAgentObservatory(directory: string, sessionId?: string): {
     const elapsed = Math.round(
       (now - new Date(agent.started_at).getTime()) / 1000,
     );
-    const shortType = agent.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = agent.agent_type.replace("oh-my-qoder:", "");
     const toolCount = agent.tool_usage?.length || 0;
 
     // Token and cost info
@@ -1162,7 +1162,7 @@ export function getAgentObservatory(directory: string, sessionId?: string): {
 
   // Add intervention warnings at the end
   for (const intervention of interventions.slice(0, 3)) {
-    const shortType = intervention.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = intervention.agent_type.replace("oh-my-qoder:", "");
     lines.push(`⚠ ${shortType}: ${intervention.reason}`);
   }
 
@@ -1244,7 +1244,7 @@ export function suggestInterventions(directory: string, sessionId?: string): Age
           type: "file_conflict",
           agent_id: agents[i].id,
           agent_type: agents[i].type,
-          reason: `File conflict on ${file} with ${agents[0].type.replace("oh-my-claudecode:", "")}`,
+          reason: `File conflict on ${file} with ${agents[0].type.replace("oh-my-qoder:", "")}`,
           suggested_action: "warn",
           auto_execute: false,
         });
@@ -1340,7 +1340,7 @@ export function detectFileConflicts(directory: string, sessionId?: string): Arra
       }
       fileToAgents
         .get(file)!
-        .push(agent.agent_type.replace("oh-my-claudecode:", ""));
+        .push(agent.agent_type.replace("oh-my-qoder:", ""));
     }
   }
 
@@ -1363,7 +1363,7 @@ export function getFileOwnershipMap(directory: string, sessionId?: string): Map<
   const map = new Map<string, string>();
 
   for (const agent of running) {
-    const shortType = agent.agent_type.replace("oh-my-claudecode:", "");
+    const shortType = agent.agent_type.replace("oh-my-qoder:", "");
     for (const file of agent.file_ownership || []) {
       map.set(file, shortType);
     }

@@ -63,14 +63,14 @@ level: 2
     - Spawn parallel explore agents (max 3) when searching 3+ areas simultaneously.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Claude Task agent:
-      - Use `Task(subagent_type="oh-my-claudecode:architect", ...)` for architectural cross-checks
+      - Use `Task(subagent_type="oh-my-qoder:architect", ...)` for architectural cross-checks
       - Use `/team` to spin up a CLI worker for large-context analysis tasks
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>
   </Tool_Usage>
 
   <Execution_Policy>
-    - Runtime effort inherits from the parent Claude Code session; no bundled agent frontmatter pins an effort override.
+    - Runtime effort inherits from the parent Qoder session; no bundled agent frontmatter pins an effort override.
     - Behavioral effort guidance: match complexity to task classification.
     - Trivial tasks: skip extensive exploration, verify only modified file.
     - Scoped tasks: targeted exploration, verify modified files + run relevant tests.

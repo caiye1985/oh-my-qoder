@@ -15,7 +15,7 @@ export const ASK_USAGE = [
   '   or: omc ask <claude|codex|gemini|antigravity|grok|cursor> --agent-prompt=<role> --prompt "<prompt>"',
 ].join('\n');
 
-const ASK_PROVIDERS = ['claude', 'codex', 'gemini', 'antigravity', 'grok', 'cursor'] as const;
+const ASK_PROVIDERS = ['qoder', 'codex', 'gemini', 'antigravity', 'grok', 'cursor'] as const;
 export type AskProvider = (typeof ASK_PROVIDERS)[number];
 const ASK_PROVIDER_SET = new Set<string>(ASK_PROVIDERS);
 
@@ -212,10 +212,10 @@ function resolveSignalExitCode(signal: NodeJS.Signals | null): number {
 export async function askCommand(args: string[]): Promise<void> {
   const parsed = parseAskArgs(args);
 
-  if (parsed.provider !== 'claude' && isExternalLLMDisabled()) {
+  if (parsed.provider !== 'qoder' && isExternalLLMDisabled()) {
     throw new Error(
       `[ask] External LLM provider "${parsed.provider}" is blocked by security policy ` +
-      `(disableExternalLLM). Only "claude" is allowed in the current security configuration.`,
+      `(disableExternalLLM). Only "qoder" is allowed in the current security configuration.`,
     );
   }
 

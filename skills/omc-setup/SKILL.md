@@ -1,6 +1,6 @@
 ---
 name: omc-setup
-description: Install or refresh oh-my-claudecode for plugin, npm, and local-dev setups from the canonical setup flow
+description: Install or refresh oh-my-qoder for plugin, npm, and local-dev setups from the canonical setup flow
 level: 2
 ---
 
@@ -10,14 +10,14 @@ This is the **only command you need to learn**. After running this, everything e
 
 **When this skill is invoked, immediately execute the workflow below. Do not only restate or summarize these instructions back to the user.**
 
-Note: All `~/.claude/...` paths in this guide respect `CLAUDE_CONFIG_DIR` when that environment variable is set.
+Note: All `~/.qoder/...` paths in this guide respect `QODER_CONFIG_DIR` when that environment variable is set.
 
 ## Best-Fit Use
 
 Choose this setup flow when the user wants to **install, refresh, or repair OMC itself**.
 
-- Marketplace/plugin install users should land here after `/plugin install oh-my-claudecode`
-- npm users should land here after `npm i -g oh-my-claude-sisyphus@latest`
+- Marketplace/plugin install users should land here after `/plugin install oh-my-qoder`
+- npm users should land here after `npm i -g oh-my-qoder@latest`
 - local-dev and worktree users should land here after updating the checked-out repo and rerunning setup
 
 ## Flag Parsing
@@ -34,19 +34,19 @@ Check for flags in the user's invocation:
 When user runs with `--help`, display this and stop:
 
 ```
-OMC Setup - Configure oh-my-claudecode
+OMC Setup - Configure oh-my-qoder
 
 USAGE:
-  /oh-my-claudecode:omc-setup           Run initial setup wizard (or update if already configured)
-  /oh-my-claudecode:omc-setup --local   Configure local project (.claude/CLAUDE.md)
-  /oh-my-claudecode:omc-setup --global  Configure global settings (~/.claude/CLAUDE.md)
-  /oh-my-claudecode:omc-setup --force   Force full setup wizard even if already configured
-  /oh-my-claudecode:omc-setup --help    Show this help
+  /oh-my-qoder:omc-setup           Run initial setup wizard (or update if already configured)
+  /oh-my-qoder:omc-setup --local   Configure local project (.qoder/AGENTS.md)
+  /oh-my-qoder:omc-setup --global  Configure global settings (~/.qoder/AGENTS.md)
+  /oh-my-qoder:omc-setup --force   Force full setup wizard even if already configured
+  /oh-my-qoder:omc-setup --help    Show this help
 
 MODES:
   Initial Setup (no flags)
     - Interactive wizard for first-time setup
-    - Configures CLAUDE.md (local or global)
+    - Configures AGENTS.md (local or global)
     - Sets up HUD statusline
     - Checks for updates
     - Offers MCP server configuration
@@ -54,17 +54,17 @@ MODES:
     - If already configured, offers quick update option
 
   Local Configuration (--local)
-    - Downloads fresh CLAUDE.md to ./.claude/
-    - Backs up existing CLAUDE.md to .claude/CLAUDE.md.backup.YYYY-MM-DD
+    - Downloads fresh AGENTS.md to ./.qoder/
+    - Backs up existing AGENTS.md to .qoder/AGENTS.md.backup.YYYY-MM-DD
     - Project-specific settings
     - Use this to update project config after OMC upgrades
 
   Global Configuration (--global)
-    - Downloads fresh CLAUDE.md to ~/.claude/
-    - Backs up existing CLAUDE.md to ~/.claude/CLAUDE.md.backup.YYYY-MM-DD
-    - Default: explicitly overwrites ~/.claude/CLAUDE.md so plain `claude` also uses OMC
-    - Optional preserve mode keeps the user's base `CLAUDE.md` and installs OMC into `CLAUDE-omc.md` for `omc` launches
-    - Applies to all Claude Code sessions
+    - Downloads fresh AGENTS.md to ~/.qoder/
+    - Backs up existing AGENTS.md to ~/.qoder/AGENTS.md.backup.YYYY-MM-DD
+    - Default: explicitly overwrites ~/.qoder/AGENTS.md so plain `claude` also uses OMC
+    - Optional preserve mode keeps the user's base `AGENTS.md` and installs OMC into `CLAUDE-omc.md` for `omc` launches
+    - Applies to all Qoder sessions
     - Cleans up legacy hooks
     - Use this to update global config after OMC upgrades
 
@@ -74,28 +74,28 @@ MODES:
     - Use when you want to reconfigure preferences
 
 EXAMPLES:
-  /oh-my-claudecode:omc-setup           # First time setup (or update CLAUDE.md if configured)
-  /oh-my-claudecode:omc-setup --local   # Update this project
-  /oh-my-claudecode:omc-setup --global  # Update all projects
-  /oh-my-claudecode:omc-setup --force   # Re-run full setup wizard
+  /oh-my-qoder:omc-setup           # First time setup (or update AGENTS.md if configured)
+  /oh-my-qoder:omc-setup --local   # Update this project
+  /oh-my-qoder:omc-setup --global  # Update all projects
+  /oh-my-qoder:omc-setup --force   # Re-run full setup wizard
 
-For more info: https://github.com/Yeachan-Heo/oh-my-claudecode
+For more info: https://github.com/Yeachan-Heo/oh-my-qoder
 ```
 
 
 ## Active Plugin Root Resolution
 
-Before running setup shell commands or reading phase files, resolve the current OMC plugin root. This prevents an already-running Claude Code session from continuing to use a stale `CLAUDE_PLUGIN_ROOT` after `/plugin marketplace update omc` installs a newer cache version.
+Before running setup shell commands or reading phase files, resolve the current OMC plugin root. This prevents an already-running Qoder session from continuing to use a stale `QODER_PLUGIN_ROOT` after `/plugin marketplace update omc` installs a newer cache version.
 
 ```bash
-OMC_SETUP_PLUGIN_ROOT=$(node -e "const f=require('fs'),p=require('path'),h=require('os').homedir(),d=(process.env.CLAUDE_CONFIG_DIR||p.join(h,'.claude')).replace(/[\\/]+$/,''),b=p.join(d,'plugins','cache','omc','oh-my-claudecode'),valid=r=>f.existsSync(p.join(r,'skills','omc-setup','SKILL.md'))||f.existsSync(p.join(r,'hooks','hooks.json'))||f.existsSync(p.join(r,'docs','CLAUDE.md'));try{const vs=f.readdirSync(b,{withFileTypes:true}).filter(e=>(e.isDirectory()||e.isSymbolicLink())&&/^\d+\.\d+\.\d+/.test(e.name)).map(e=>e.name).sort((a,c)=>c.localeCompare(a,void 0,{numeric:true}));const hit=vs.map(v=>p.join(b,v)).find(valid);if(hit)console.log(hit);else if(process.env.CLAUDE_PLUGIN_ROOT)console.log(process.env.CLAUDE_PLUGIN_ROOT)}catch{if(process.env.CLAUDE_PLUGIN_ROOT)console.log(process.env.CLAUDE_PLUGIN_ROOT)}")
+OMC_SETUP_PLUGIN_ROOT=$(node -e "const f=require('fs'),p=require('path'),h=require('os').homedir(),d=(process.env.QODER_CONFIG_DIR||p.join(h,'.claude')).replace(/[\\/]+$/,''),b=p.join(d,'plugins','cache','omc','oh-my-qoder'),valid=r=>f.existsSync(p.join(r,'skills','omc-setup','SKILL.md'))||f.existsSync(p.join(r,'hooks','hooks.json'))||f.existsSync(p.join(r,'docs','AGENTS.md'));try{const vs=f.readdirSync(b,{withFileTypes:true}).filter(e=>(e.isDirectory()||e.isSymbolicLink())&&/^\d+\.\d+\.\d+/.test(e.name)).map(e=>e.name).sort((a,c)=>c.localeCompare(a,void 0,{numeric:true}));const hit=vs.map(v=>p.join(b,v)).find(valid);if(hit)console.log(hit);else if(process.env.QODER_PLUGIN_ROOT)console.log(process.env.QODER_PLUGIN_ROOT)}catch{if(process.env.QODER_PLUGIN_ROOT)console.log(process.env.QODER_PLUGIN_ROOT)}")
 export OMC_SETUP_PLUGIN_ROOT
 ```
 
-Use `${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}` for all setup script and phase paths, then immediately repair stale cache references before any prompts or phase work:
+Use `${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}` for all setup script and phase paths, then immediately repair stale cache references before any prompts or phase work:
 
 ```bash
-node "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/repair-plugin-cache.mjs"
+node "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/repair-plugin-cache.mjs"
 ```
 
 ## Pre-Setup Check: Already Configured?
@@ -104,7 +104,7 @@ node "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/repair-plugin-cach
 
 ```bash
 # Check if setup was already completed
-CONFIG_FILE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
 
 if [ -f "$CONFIG_FILE" ]; then
   SETUP_COMPLETED=$(jq -r '.setupCompleted // empty' "$CONFIG_FILE" 2>/dev/null)
@@ -127,14 +127,14 @@ Use AskUserQuestion to prompt:
 **Question:** "OMC is already configured. What would you like to do?"
 
 **Options:**
-1. **Update CLAUDE.md only** - Download latest CLAUDE.md without re-running full setup
+1. **Update AGENTS.md only** - Download latest AGENTS.md without re-running full setup
 2. **Run full setup again** - Go through the complete setup wizard
 3. **Cancel** - Exit without changes
 
-**If user chooses "Update CLAUDE.md only":**
-- Detect if local (.claude/CLAUDE.md) or global (~/.claude/CLAUDE.md) config exists
-- If local exists, run: `bash "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/setup-claude-md.sh" local`
-- If only global exists, run: `bash "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/setup-claude-md.sh" global`
+**If user chooses "Update AGENTS.md only":**
+- Detect if local (.qoder/AGENTS.md) or global (~/.qoder/AGENTS.md) config exists
+- If local exists, run: `bash "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/setup-claude-md.sh" local`
+- If only global exists, run: `bash "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/setup-claude-md.sh" global`
 - Skip all other steps
 - Report success and exit
 
@@ -153,7 +153,7 @@ If user passes `--force` flag, skip this check and proceed directly to setup.
 Before starting any phase, check for existing state:
 
 ```bash
-bash "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/setup-progress.sh" resume
+bash "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/setup-progress.sh" resume
 ```
 
 If state exists (output is not "fresh"), use AskUserQuestion to prompt:
@@ -166,39 +166,39 @@ If state exists (output is not "fresh"), use AskUserQuestion to prompt:
 
 If user chooses "Start fresh":
 ```bash
-bash "${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/setup-progress.sh" clear
+bash "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/setup-progress.sh" clear
 ```
 
 ## Phase Execution
 
 ### For `--local` or `--global` flags:
-Read the file at `${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/skills/omc-setup/phases/01-install-claude-md.md` and follow its instructions.
+Read the file at `${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/skills/omc-setup/phases/01-install-claude-md.md` and follow its instructions.
 (The phase file handles early exit for flag mode.)
 
 ### For full setup (default or --force):
 Execute phases sequentially. For each phase, read the corresponding file and follow its instructions:
 
-1. **Phase 1 - Install CLAUDE.md**: Read `${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/skills/omc-setup/phases/01-install-claude-md.md` and follow its instructions.
+1. **Phase 1 - Install AGENTS.md**: Read `${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/skills/omc-setup/phases/01-install-claude-md.md` and follow its instructions.
 
-2. **Phase 2 - Environment Configuration**: Read `${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/skills/omc-setup/phases/02-configure.md` and follow its instructions. Phase 2 must delegate HUD/statusLine setup to the `hud` skill; do not generate or patch `statusLine` paths inline here.
+2. **Phase 2 - Environment Configuration**: Read `${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/skills/omc-setup/phases/02-configure.md` and follow its instructions. Phase 2 must delegate HUD/statusLine setup to the `hud` skill; do not generate or patch `statusLine` paths inline here.
 
-3. **Phase 3 - Integration Setup**: Read `${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/skills/omc-setup/phases/03-integrations.md` and follow its instructions.
+3. **Phase 3 - Integration Setup**: Read `${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/skills/omc-setup/phases/03-integrations.md` and follow its instructions.
 
-4. **Phase 4 - Completion**: Read `${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/skills/omc-setup/phases/04-welcome.md` and follow its instructions.
+4. **Phase 4 - Completion**: Read `${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/skills/omc-setup/phases/04-welcome.md` and follow its instructions.
 
 ## Graceful Interrupt Handling
 
-**IMPORTANT**: This setup process saves progress after each phase via `${OMC_SETUP_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/setup-progress.sh`. If interrupted (Ctrl+C or connection loss), the setup can resume from where it left off.
+**IMPORTANT**: This setup process saves progress after each phase via `${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/setup-progress.sh`. If interrupted (Ctrl+C or connection loss), the setup can resume from where it left off.
 
 ## Keeping Up to Date
 
-After installing oh-my-claudecode updates (via npm or plugin update):
+After installing oh-my-qoder updates (via npm or plugin update):
 
-**Automatic**: Just run `/oh-my-claudecode:omc-setup` - it will detect you've already configured and offer a quick "Update CLAUDE.md only" option that skips the full wizard.
+**Automatic**: Just run `/oh-my-qoder:omc-setup` - it will detect you've already configured and offer a quick "Update AGENTS.md only" option that skips the full wizard.
 
 **Manual options**:
-- `/oh-my-claudecode:omc-setup --local` to update project config only
-- `/oh-my-claudecode:omc-setup --global` to update global config only
-- `/oh-my-claudecode:omc-setup --force` to re-run the full wizard (reconfigure preferences)
+- `/oh-my-qoder:omc-setup --local` to update project config only
+- `/oh-my-qoder:omc-setup --global` to update global config only
+- `/oh-my-qoder:omc-setup --force` to re-run the full wizard (reconfigure preferences)
 
 This ensures you have the newest features and agent configurations without the token cost of repeating the full setup.

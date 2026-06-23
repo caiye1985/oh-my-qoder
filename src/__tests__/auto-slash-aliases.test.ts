@@ -8,7 +8,7 @@ vi.mock('../team/model-contract.js', () => ({
 }));
 
 const originalCwd = process.cwd();
-const originalPluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+const originalPluginRoot = process.env.QODER_PLUGIN_ROOT;
 const originalPath = process.env.PATH;
 let tempConfigDir: string;
 let tempProjectDir: string;
@@ -24,7 +24,7 @@ describe('auto slash aliases + skill guidance', () => {
     tempProjectDir = join(tmpdir(), `omc-auto-slash-project-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(tempConfigDir, { recursive: true });
     mkdirSync(tempProjectDir, { recursive: true });
-    process.env.CLAUDE_CONFIG_DIR = tempConfigDir;
+    process.env.QODER_CONFIG_DIR = tempConfigDir;
     process.chdir(tempProjectDir);
   });
 
@@ -32,11 +32,11 @@ describe('auto slash aliases + skill guidance', () => {
     process.chdir(originalCwd);
     rmSync(tempConfigDir, { recursive: true, force: true });
     rmSync(tempProjectDir, { recursive: true, force: true });
-    delete process.env.CLAUDE_CONFIG_DIR;
+    delete process.env.QODER_CONFIG_DIR;
     if (originalPluginRoot === undefined) {
-      delete process.env.CLAUDE_PLUGIN_ROOT;
+      delete process.env.QODER_PLUGIN_ROOT;
     } else {
-      process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+      process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
     }
     if (originalPath === undefined) {
       delete process.env.PATH;
@@ -56,9 +56,9 @@ description: Setup router
 
 ## Routing
 
-- doctor -> /oh-my-claudecode:omc-doctor with remaining args
-- mcp -> /oh-my-claudecode:mcp-setup with remaining args
-- otherwise -> /oh-my-claudecode:omc-setup with remaining args`
+- doctor -> /oh-my-qoder:omc-doctor with remaining args
+- mcp -> /oh-my-qoder:mcp-setup with remaining args
+- otherwise -> /oh-my-qoder:omc-setup with remaining args`
     );
 
     const { executeSlashCommand } = await loadExecutor();
@@ -69,7 +69,7 @@ description: Setup router
     });
 
     expect(result.success).toBe(true);
-    expect(result.replacementText).toContain('doctor -> /oh-my-claudecode:omc-doctor with remaining args');
+    expect(result.replacementText).toContain('doctor -> /oh-my-qoder:omc-doctor with remaining args');
     expect(result.replacementText).not.toContain('{{ARGUMENTS_AFTER_DOCTOR}}');
     expect(result.replacementText).not.toContain('{{ARGUMENTS_AFTER_MCP}}');
   });
@@ -205,7 +205,7 @@ Deep interview body`
     expect(result.replacementText).toContain('## Skill Pipeline');
     expect(result.replacementText).toContain('Pipeline: `deep-interview → plan → autopilot`');
     expect(result.replacementText).toContain('Next skill arguments: `--consensus --direct`');
-    expect(result.replacementText).toContain('Skill("oh-my-claudecode:plan")');
+    expect(result.replacementText).toContain('Skill("oh-my-qoder:plan")');
     expect(result.replacementText).toContain('`.omc/specs/deep-interview-{slug}.md`');
   });
 
@@ -242,7 +242,7 @@ Compatibility body`
     expect(result.replacementText).toContain('`templates/`');
   });
 
-  it('discovers workspace-local Claude Code skills from .claude/skills before OMC compatibility skills', async () => {
+  it('discovers workspace-local Qoder skills from .qoder/skills before OMC compatibility skills', async () => {
     mkdirSync(join(tempProjectDir, '.claude', 'skills', 'workspace-skill', 'references'), { recursive: true });
     writeFileSync(
       join(tempProjectDir, '.claude', 'skills', 'workspace-skill', 'SKILL.md'),
@@ -283,7 +283,7 @@ Compatibility duplicate body`
     expect(result.success).toBe(true);
     expect(result.replacementText).toContain('Workspace Claude skill body');
     expect(result.replacementText).toContain('## Skill Resources');
-    expect(result.replacementText).toContain('.claude/skills/workspace-skill');
+    expect(result.replacementText).toContain('.qoder/skills/workspace-skill');
     expect(result.replacementText).toContain('`references/`');
     expect(result.replacementText).not.toContain('Compatibility duplicate body');
   });
@@ -313,13 +313,13 @@ Deep interview body`
 
     expect(result.success).toBe(true);
     expect(result.replacementText).toContain('## Autoresearch Setup Mode');
-    expect(result.replacementText).toContain('Skill("oh-my-claudecode:autoresearch")');
+    expect(result.replacementText).toContain('Skill("oh-my-qoder:autoresearch")');
     expect(result.replacementText).toContain('Mission seed from invocation: `improve startup performance`');
     expect(result.replacementText).not.toContain('## Skill Pipeline');
   });
 
   it('renders plugin-safe autoresearch guidance when omc is unavailable in slash mode', async () => {
-    process.env.CLAUDE_PLUGIN_ROOT = '/plugin-root';
+    process.env.QODER_PLUGIN_ROOT = '/plugin-root';
     process.env.PATH = '';
 
     mkdirSync(join(tempConfigDir, 'skills', 'deep-interview'), { recursive: true });
@@ -342,13 +342,13 @@ Deep interview body`
 
     expect(result.success).toBe(true);
     expect(result.replacementText)
-      .toContain('Skill("oh-my-claudecode:autoresearch")');
+      .toContain('Skill("oh-my-qoder:autoresearch")');
   });
 
-  it('routes /ccg advisor asks through the plugin bridge inside an active Claude session when CLAUDE_PLUGIN_ROOT is set', async () => {
-    process.env.CLAUDE_PLUGIN_ROOT = '/plugin-root';
+  it('routes /ccg advisor asks through the plugin bridge inside an active Qoder session when QODER_PLUGIN_ROOT is set', async () => {
+    process.env.QODER_PLUGIN_ROOT = '/plugin-root';
     process.env.PATH = '';
-    process.env.CLAUDECODE = '1';
+    process.env.QODER = '1';
     process.env.CLAUDE_SESSION_ID = 'session-123';
 
     const { executeSlashCommand } = await loadExecutor();
@@ -359,8 +359,8 @@ Deep interview body`
     });
 
     expect(result.success).toBe(true);
-    expect(result.replacementText).toContain('`node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs ask codex "<codex prompt>"`');
-    expect(result.replacementText).toContain('`node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs ask gemini "<gemini prompt>"`');
+    expect(result.replacementText).toContain('`node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs ask codex "<codex prompt>"`');
+    expect(result.replacementText).toContain('`node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs ask gemini "<gemini prompt>"`');
     expect(result.replacementText).not.toContain('`omc ask codex "<codex prompt>"`');
     expect(result.replacementText).not.toContain('`omc ask gemini "<gemini prompt>"`');
   });

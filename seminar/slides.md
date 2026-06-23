@@ -1,11 +1,11 @@
 ---
-title: Oh-My-ClaudeCode
+title: Oh-My-Qoder
 subtitle: Multi-Agent Orchestration for Autonomous Development
 author: Yeachan Heo
 theme: night
 ---
 
-# Oh-My-ClaudeCode
+# Oh-My-Qoder
 
 **Multi-Agent Orchestration for Autonomous Development**
 
@@ -24,7 +24,7 @@ What do you need?
 *Drop your idea in the chat!*
 
 ---
-# oh-my-claudecode: Multi-Agent Orchestration for Claude Code
+# oh-my-qoder: Multi-Agent Orchestration for Qoder
 
 ## Zero learning curve. Maximum power.
 
@@ -46,7 +46,7 @@ Version 3.6.3
 | 0:54 | Getting Started |
 | 0:58 | Q&A |
 
-Note: This is a 60-minute seminar covering the complete oh-my-claudecode system. We'll focus on practical usage patterns.
+Note: This is a 60-minute seminar covering the complete oh-my-qoder system. We'll focus on practical usage patterns.
 
 ---
 
@@ -60,7 +60,7 @@ Note: This is a 60-minute seminar covering the complete oh-my-claudecode system.
 - No persistence - AI gives up when tasks get hard <!-- .element: class="fragment" -->
 - Token waste - using expensive models for simple tasks <!-- .element: class="fragment" -->
 
-Note: These are real problems I faced building production applications with Claude Code. OMC was born from frustration with manually orchestrating AI-assisted development.
+Note: These are real problems I faced building production applications with Qoder. OMC was born from frustration with manually orchestrating AI-assisted development.
 
 ---
 <!-- .slide: data-background="#1a1a2e" -->
@@ -70,9 +70,9 @@ Note: These are real problems I faced building production applications with Clau
 
 ---
 
-## What is oh-my-claudecode?
+## What is oh-my-qoder?
 
-**A multi-agent orchestration system for Claude Code**
+**A multi-agent orchestration system for Qoder**
 
 ```
                     +------------------+
@@ -296,7 +296,7 @@ I want a/an...
 ```
 autopilot: build a REST API with CRUD for inventory
 
-/oh-my-claudecode:autopilot Add OAuth2 authentication
+/oh-my-qoder:autopilot Add OAuth2 authentication
 
 autopilot: create a CLI tool that tracks daily habits
 ```
@@ -685,13 +685,13 @@ Note: The tier system is central to OMC's cost efficiency. Always start low and 
 **Delegation Code:**
 ```javascript
 Task(
-  subagent_type="oh-my-claudecode:executor-low",
+  subagent_type="oh-my-qoder:executor-low",
   model="haiku",
   prompt="Add validation to the login form"
 )
 ```
 
-Note: The model parameter is always passed explicitly - Claude Code doesn't auto-apply model from agent definitions.
+Note: The model parameter is always passed explicitly - Qoder doesn't auto-apply model from agent definitions.
 
 ---
 
@@ -993,7 +993,7 @@ Note: Keywords are optional - natural language works fine. Keywords just give yo
 
 **Setup:**
 ```
-/oh-my-claudecode:hud setup
+/oh-my-qoder:hud setup
 ```
 
 **Presets:**
@@ -1001,7 +1001,7 @@ Note: Keywords are optional - natural language works fine. Keywords just give yo
 - `focused` - Mode + progress (default)
 - `full` - Everything including cost
 
-Note: The HUD integrates with Claude Code's statusLine API to show real-time orchestration state.
+Note: The HUD integrates with Qoder's statusLine API to show real-time orchestration state.
 
 ---
 
@@ -1074,25 +1074,25 @@ Note: Analytics help you understand where tokens are going and optimize your usa
 
 **Method 1: Plugin Marketplace (Recommended)**
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 ```
 
 **Method 2: NPM Global**
 ```bash
-npm install -g oh-my-claudecode
+npm install -g oh-my-qoder
 ```
 
 **Method 3: Manual Git Clone**
 ```bash
-git clone https://github.com/Yeachan-Heo/oh-my-claudecode.git
-cd oh-my-claudecode
+git clone https://github.com/Yeachan-Heo/oh-my-qoder.git
+cd oh-my-qoder
 npm install && npm run build
 ```
 
 **Requirements:**
-- Claude Code CLI
-- Claude Max/Pro subscription OR Anthropic API key
+- Qoder CLI
+- Qoder Max/Pro subscription OR Anthropic API key
 - Node.js 20+
 
 Note: Plugin marketplace is the easiest - one command and you're done.
@@ -1103,13 +1103,13 @@ Note: Plugin marketplace is the easiest - one command and you're done.
 
 **Step 1: Install**
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 ```
 
 **Step 2: Setup**
 ```bash
-/oh-my-claudecode:omc-setup
+/oh-my-qoder:omc-setup
 ```
 (Configures defaults, HUD, preferences)
 
@@ -1126,13 +1126,13 @@ Note: Zero learning curve means you can start using OMC immediately after instal
 
 ## Configuration
 
-**Project-level:** `CLAUDE.md` in project root
-**Global:** `~/.claude/CLAUDE.md`
+**Project-level:** `AGENTS.md` in project root
+**Global:** `~/.qoder/AGENTS.md`
 
 **Key Settings:**
 
 ```json
-// ~/.claude/settings.json
+// ~/.qoder/settings.json
 {
   "omc": {
     "defaultExecutionMode": "ultrawork",  // or ""
@@ -1184,17 +1184,17 @@ Note: Matching the right mode to the task type is key to getting the most out of
 
 **GitHub Repository**
 ```
-github.com/Yeachan-Heo/oh-my-claudecode
+github.com/Yeachan-Heo/oh-my-qoder
 ```
 
 **Website & Documentation**
 ```
-yeachan-heo.github.io/oh-my-claudecode-website
+yeachan-heo.github.io/oh-my-qoder-website
 ```
 
 **NPM Package**
 ```
-npm install -g oh-my-claudecode
+npm install -g oh-my-qoder
 ```
 
 **Documentation Directory**
@@ -1206,8 +1206,8 @@ npm install -g oh-my-claudecode
 
 **Getting Help**
 ```
-/oh-my-claudecode:omc-help    - Usage guide
-/oh-my-claudecode:omc-doctor  - Diagnose issues
+/oh-my-qoder:omc-help    - Usage guide
+/oh-my-qoder:omc-doctor  - Diagnose issues
 ```
 
 Note: The GitHub repo has all documentation, examples, and issue tracking.
@@ -1221,9 +1221,9 @@ Note: The GitHub repo has all documentation, examples, and issue tracking.
 | Question | Answer |
 |----------|--------|
 | Does OMC work with Claude API keys? | Yes, both Max/Pro subscription and API keys work |
-| Can I use OMC with other AI models? | No, OMC is specifically for Claude Code |
-| How do I stop a runaway autopilot? | Say "stop", "cancel", or `/oh-my-claudecode:cancel` |
-| Why is my HUD not showing? | Run `/oh-my-claudecode:hud setup` |
+| Can I use OMC with other AI models? | No, OMC is specifically for Qoder |
+| How do I stop a runaway autopilot? | Say "stop", "cancel", or `/oh-my-qoder:cancel` |
+| Why is my HUD not showing? | Run `/oh-my-qoder:hud setup` |
 | Can I create custom agents? | Yes, add `.md` files to `agents/` directory |
 | Is there a cost limit? | No built-in limit, but  helps control costs |
 
@@ -1235,18 +1235,18 @@ Note: Thank you for attending! Feel free to reach out via GitHub issues for any 
 
 ## Thank You
 
-**oh-my-claudecode**
+**oh-my-qoder**
 
 Zero learning curve. Maximum power.
 
 ```
-github.com/Yeachan-Heo/oh-my-claudecode
+github.com/Yeachan-Heo/oh-my-qoder
 ```
 
 **Get Started Now:**
 ```
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 autopilot: build something amazing
 ```
 
@@ -1352,11 +1352,11 @@ autopilot: build something amazing
 
 | Shortcut | Full Command | Effect |
 |----------|--------------|--------|
-| `autopilot:` | `/oh-my-claudecode:autopilot` | Full autonomous mode |
-| `ralph:` | `/oh-my-claudecode:ralph` | Persistence mode |
-| `ulw` | `/oh-my-claudecode:ultrawork` | Parallel execution |
-| `eco:` | `/oh-my-claudecode:` | Token-efficient mode |
-| `plan` | `/oh-my-claudecode:plan` | Planning interview |
+| `autopilot:` | `/oh-my-qoder:autopilot` | Full autonomous mode |
+| `ralph:` | `/oh-my-qoder:ralph` | Persistence mode |
+| `ulw` | `/oh-my-qoder:ultrawork` | Parallel execution |
+| `eco:` | `/oh-my-qoder:` | Token-efficient mode |
+| `plan` | `/oh-my-qoder:plan` | Planning interview |
 
 **Combinations:**
 ```

@@ -84,7 +84,7 @@ if [ -z "${ANTHROPIC_AUTH_TOKEN:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
 fi
 
 log_info "=========================================="
-log_info "Running VANILLA Claude Code Benchmark"
+log_info "Running VANILLA Qoder Benchmark"
 log_info "=========================================="
 log_info "Mode: $RUN_MODE"
 log_info "Model: $MODEL"

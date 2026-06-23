@@ -42,7 +42,7 @@ export interface ReplayEvent {
   model?: string;
   /** Hook name (e.g., "keyword-detector") */
   hook?: string;
-  /** Claude Code event (e.g., "UserPromptSubmit") */
+  /** Qoder event (e.g., "UserPromptSubmit") */
   hook_event?: string;
   /** Detected keyword */
   keyword?: string;
@@ -183,7 +183,7 @@ export function recordAgentStart(
 ): void {
   appendReplayEvent(directory, sessionId, {
     agent: agentId.substring(0, 7),
-    agent_type: agentType.replace('oh-my-claudecode:', ''),
+    agent_type: agentType.replace('oh-my-qoder:', ''),
     event: 'agent_start',
     task: task?.substring(0, 100),
     parent_mode: parentMode,
@@ -204,7 +204,7 @@ export function recordAgentStop(
 ): void {
   appendReplayEvent(directory, sessionId, {
     agent: agentId.substring(0, 7),
-    agent_type: agentType.replace('oh-my-claudecode:', ''),
+    agent_type: agentType.replace('oh-my-qoder:', ''),
     event: 'agent_stop',
     success,
     duration_ms: durationMs,

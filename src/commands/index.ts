@@ -8,7 +8,7 @@
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 
 const PACKAGED_COMMANDS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'commands');
 export interface CommandInfo {
@@ -28,7 +28,7 @@ export interface ExpandedCommand {
  * Get the commands directory path
  */
 export function getCommandsDir(): string {
-  return join(getClaudeConfigDir(), 'commands');
+  return join(getQoderConfigDir(), 'commands');
 }
 
 /**
@@ -128,7 +128,7 @@ export function listCommands(): string[] {
  *
  * @example
  * ```typescript
- * import { expandCommand } from 'oh-my-claudecode';
+ * import { expandCommand } from 'oh-my-qoder';
  *
  * const prompt = expandCommand('ralph', 'Build a REST API');
  * // Returns the full ralph template with "Build a REST API" substituted
@@ -155,11 +155,11 @@ export function expandCommand(name: string, args: string = ''): ExpandedCommand 
  * Expand a command and return just the prompt string
  * Convenience function for direct use with SDK query
  * This is a Node.js library helper for programmatic Agent SDK usage;
- * it does not invoke Claude Code slash commands or require the VS Code extension.
+ * it does not invoke Qoder slash commands or require the VS Code extension.
  *
  * @example
  * ```typescript
- * import { expandCommandPrompt } from 'oh-my-claudecode';
+ * import { expandCommandPrompt } from 'oh-my-qoder';
  * import { query } from '@anthropic-ai/claude-agent-sdk';
  *
  * const prompt = expandCommandPrompt('ultrawork', 'Refactor the auth module');

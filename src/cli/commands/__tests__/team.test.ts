@@ -196,9 +196,9 @@ describe('teamCommand api operations', () => {
     await writeFile(join(stale, 'config.json'), JSON.stringify({
       name: 'stale-team',
       task: 'old launch',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_count: 1,
-      workers: [{ name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [] }],
+      workers: [{ name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [] }],
       created_at: new Date().toISOString(),
       next_task_id: 1,
     }, null, 2));
@@ -261,21 +261,21 @@ describe('teamCommand api operations', () => {
 describe('parseTeamArgs comma-separated multi-type specs', () => {
 
   it('honors N multipliers and duplicate agent entries in comma specs', () => {
-    const mixed = parseTeamArgs(['1:claude,2:codex', 'execute fixed plan']);
+    const mixed = parseTeamArgs(['1:qoder,2:codex', 'execute fixed plan']);
     expect(mixed.workerCount).toBe(3);
-    expect(mixed.agentTypes).toEqual(['claude', 'codex', 'codex']);
+    expect(mixed.agentTypes).toEqual(['qoder', 'codex', 'codex']);
     expect(mixed.workerSpecs).toEqual([
-      { agentType: 'claude' },
+      { agentType: 'qoder' },
       { agentType: 'codex' },
       { agentType: 'codex' },
     ]);
     expect(mixed.explicitWorkerSpec).toBe(true);
 
-    const duplicate = parseTeamArgs(['1:claude,1:codex,1:codex', 'execute fixed plan']);
+    const duplicate = parseTeamArgs(['1:qoder,1:codex,1:codex', 'execute fixed plan']);
     expect(duplicate.workerCount).toBe(3);
-    expect(duplicate.agentTypes).toEqual(['claude', 'codex', 'codex']);
+    expect(duplicate.agentTypes).toEqual(['qoder', 'codex', 'codex']);
     expect(duplicate.workerSpecs).toEqual([
-      { agentType: 'claude' },
+      { agentType: 'qoder' },
       { agentType: 'codex' },
       { agentType: 'codex' },
     ]);
@@ -368,7 +368,7 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
 
   it('maps pre-authored numbered scopes to explicit workers when counts match', () => {
     const parsed = parseTeamArgs([
-      '1:claude,2:codex',
+      '1:qoder,2:codex',
       '1. reviewer validates boundaries\n2. codex patches parser\n3. codex patches runtime',
     ]);
     const decomposition = splitTaskString(parsed.task);
@@ -425,13 +425,13 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
     await rm(slugWd, { recursive: true, force: true });
   });
 
-  it('treats role-only shorthand as claude workers plus a shared role', () => {
+  it('treats role-only shorthand as qoder workers plus a shared role', () => {
     const parsed = parseTeamArgs(['2:executor', 'fix the bug']);
     expect(parsed.workerCount).toBe(2);
-    expect(parsed.agentTypes).toEqual(['claude', 'claude']);
+    expect(parsed.agentTypes).toEqual(['qoder', 'qoder']);
     expect(parsed.workerSpecs).toEqual([
-      { agentType: 'claude', role: 'executor' },
-      { agentType: 'claude', role: 'executor' },
+      { agentType: 'qoder', role: 'executor' },
+      { agentType: 'qoder', role: 'executor' },
     ]);
     expect(parsed.role).toBe('executor');
     expect(parsed.task).toBe('fix the bug');
@@ -448,10 +448,10 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
   it('parses 2:claude,1:codex:architect with mixed counts and roles', () => {
     const parsed = parseTeamArgs(['2:claude,1:codex:architect', 'design system']);
     expect(parsed.workerCount).toBe(3);
-    expect(parsed.agentTypes).toEqual(['claude', 'claude', 'codex']);
+    expect(parsed.agentTypes).toEqual(['qoder', 'qoder', 'codex']);
     expect(parsed.workerSpecs).toEqual([
-      { agentType: 'claude' },
-      { agentType: 'claude' },
+      { agentType: 'qoder' },
+      { agentType: 'qoder' },
       { agentType: 'codex', role: 'architect' },
     ]);
     expect(parsed.role).toBeUndefined(); // mixed roles -> no single role
@@ -473,9 +473,9 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
   it('supports mixed explicit cli types and role-only shorthand in comma specs', () => {
     const parsed = parseTeamArgs(['1:executor,1:codex:architect', 'run tasks']);
     expect(parsed.workerCount).toBe(2);
-    expect(parsed.agentTypes).toEqual(['claude', 'codex']);
+    expect(parsed.agentTypes).toEqual(['qoder', 'codex']);
     expect(parsed.workerSpecs).toEqual([
-      { agentType: 'claude', role: 'executor' },
+      { agentType: 'qoder', role: 'executor' },
       { agentType: 'codex', role: 'architect' },
     ]);
     expect(parsed.role).toBeUndefined();
@@ -548,10 +548,10 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
     expect(parsed.agentTypes).toEqual(['antigravity', 'antigravity', 'antigravity']);
   });
 
-  it('defaults to 3 claude workers when no spec is given', () => {
+  it('defaults to 3 qoder workers when no spec is given', () => {
     const parsed = parseTeamArgs(['run all tests']);
     expect(parsed.workerCount).toBe(3);
-    expect(parsed.agentTypes).toEqual(['claude', 'claude', 'claude']);
+    expect(parsed.agentTypes).toEqual(['qoder', 'qoder', 'qoder']);
     expect(parsed.task).toBe('run all tests');
   });
 
@@ -567,11 +567,11 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
 
   it('falls back to claude when configured defaultAgentType is not a supported CLI provider', () => {
     const parsed = parseTeamArgs(['run all tests'], 'executor');
-    expect(parsed.agentTypes).toEqual(['claude', 'claude', 'claude']);
+    expect(parsed.agentTypes).toEqual(['qoder', 'qoder', 'qoder']);
     expect(parsed.workerSpecs).toEqual([
-      { agentType: 'claude' },
-      { agentType: 'claude' },
-      { agentType: 'claude' },
+      { agentType: 'qoder' },
+      { agentType: 'qoder' },
+      { agentType: 'qoder' },
     ]);
   });
 
@@ -607,8 +607,8 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
 
 
   it('fails loudly on a malformed worker spec instead of swallowing it into the task', () => {
-    expect(() => parseTeamArgs(['2:claude:executor:extra', 'go'])).toThrow(
-      /Invalid worker spec "2:claude:executor:extra"/,
+    expect(() => parseTeamArgs(['2:qoder:executor:extra', 'go'])).toThrow(
+      /Invalid worker spec "2:qoder:executor:extra"/,
     );
     expect(() => parseTeamArgs(['1:codex,bogus', 'go'])).toThrow(
       /Invalid worker spec "1:codex,bogus"/,
@@ -618,7 +618,7 @@ describe('parseTeamArgs comma-separated multi-type specs', () => {
   it('does not misread a time-like task prefix as a worker spec', () => {
     const parsed = parseTeamArgs(['12:00 standup notes']);
     expect(parsed.workerCount).toBe(3);
-    expect(parsed.agentTypes).toEqual(['claude', 'claude', 'claude']);
+    expect(parsed.agentTypes).toEqual(['qoder', 'qoder', 'qoder']);
     expect(parsed.task).toBe('12:00 standup notes');
   });
 

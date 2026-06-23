@@ -452,7 +452,7 @@ describe('team cli', () => {
     });
 
     const { teamCommand } = await import('../team.js');
-    await teamCommand(['start', '--agent', 'claude', '--task', 'do stuff', '--cwd', cwd]);
+    await teamCommand(['start', '--agent', 'qoder', '--task', 'do stuff', '--cwd', cwd]);
 
     expect(logSpy).toHaveBeenCalledTimes(1);
     // Without --json, output is a raw object (not JSON-stringified)
@@ -560,7 +560,7 @@ describe('team cli', () => {
     writeFileSync(join(stateRoot, 'config.json'), JSON.stringify({
       name: 'demo-team',
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 0,
       max_workers: 20,
@@ -615,7 +615,7 @@ describe('team cli', () => {
     writeFileSync(join(stateRoot, 'config.json'), JSON.stringify({
       name: 'demo-team',
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 1,
       max_workers: 20,

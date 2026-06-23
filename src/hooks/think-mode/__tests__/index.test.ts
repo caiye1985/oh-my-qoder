@@ -293,7 +293,7 @@ World`);
 
   describe('switcher - getThinkingConfig', () => {
     describe('Anthropic provider', () => {
-      it('should return config for Claude models', () => {
+      it('should return config for Qoder models', () => {
         const config = getThinkingConfig('anthropic', 'claude-sonnet-4-6');
         expect(config).not.toBeNull();
         expect(config).toHaveProperty('thinking');
@@ -306,7 +306,7 @@ World`);
     });
 
     describe('Amazon Bedrock provider', () => {
-      it('should return config for Claude models on Bedrock', () => {
+      it('should return config for Qoder models on Bedrock', () => {
         const config = getThinkingConfig('amazon-bedrock', 'anthropic.claude-3-sonnet');
         expect(config).not.toBeNull();
         expect(config).toHaveProperty('reasoningConfig');
@@ -335,7 +335,7 @@ World`);
     });
 
     describe('GitHub Copilot proxy', () => {
-      it('should resolve to anthropic for Claude model', () => {
+      it('should resolve to anthropic for Qoder model', () => {
         const config = getThinkingConfig('github-copilot', 'claude-sonnet-4-6');
         expect(config).not.toBeNull();
         expect(config).toHaveProperty('thinking');

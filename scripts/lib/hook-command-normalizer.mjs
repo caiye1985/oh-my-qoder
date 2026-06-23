@@ -1,5 +1,5 @@
-export const WINDOWS_HOOK_PREFIX = 'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs ';
-export const UNIX_HOOK_PREFIX = 'sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs ';
+export const WINDOWS_HOOK_PREFIX = 'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs ';
+export const UNIX_HOOK_PREFIX = 'sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs ';
 
 export function hookPrefixForPlatform(platform = process.platform) {
   return platform === 'win32' ? WINDOWS_HOOK_PREFIX : UNIX_HOOK_PREFIX;
@@ -7,21 +7,21 @@ export function hookPrefixForPlatform(platform = process.platform) {
 
 export function normalizeHookCommand(command, prefix = hookPrefixForPlatform()) {
   const legacyFindNodePattern =
-    /^sh "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
+    /^sh "\$\{QODER_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{QODER_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
   const currentFindNodePattern =
-    /^(?:"\/bin\/sh"|sh) "\$CLAUDE_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs "\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+    /^(?:"\/bin\/sh"|sh) "\$QODER_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs "\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
   const directRunCjsPattern =
-    /^node\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+    /^node\s+"\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
   const absoluteNodeRunCjsPattern =
-    /^"([^"]*\/node|[A-Za-z]:\\[^"]*\\node(?:\.exe)?)"\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+    /^"([^"]*\/node|[A-Za-z]:\\[^"]*\\node(?:\.exe)?)"\s+"\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
 
   const match = command.match(currentFindNodePattern)
     ?? command.match(legacyFindNodePattern)
     ?? command.match(directRunCjsPattern);
-  if (match) return `${prefix}"$CLAUDE_PLUGIN_ROOT"/scripts/${match[1]}${match[2]}`;
+  if (match) return `${prefix}"$QODER_PLUGIN_ROOT"/scripts/${match[1]}${match[2]}`;
 
   const absNodeMatch = command.match(absoluteNodeRunCjsPattern);
-  if (absNodeMatch) return `${prefix}"$CLAUDE_PLUGIN_ROOT"/scripts/${absNodeMatch[2]}${absNodeMatch[3]}`;
+  if (absNodeMatch) return `${prefix}"$QODER_PLUGIN_ROOT"/scripts/${absNodeMatch[2]}${absNodeMatch[3]}`;
 
   return command;
 }

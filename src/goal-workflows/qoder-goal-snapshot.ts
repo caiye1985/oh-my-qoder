@@ -2,32 +2,32 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-export type ClaudeGoalSnapshotStatus = 'active' | 'complete' | 'cancelled' | 'failed' | 'unknown';
+export type QoderGoalSnapshotStatus = 'active' | 'complete' | 'cancelled' | 'failed' | 'unknown';
 
-export interface ClaudeGoalSnapshot {
+export interface QoderGoalSnapshot {
   available: boolean;
   objective?: string;
-  status?: ClaudeGoalSnapshotStatus;
+  status?: QoderGoalSnapshotStatus;
   tokenBudget?: number;
   remainingTokens?: number | null;
   raw: unknown;
 }
 
-export interface ClaudeGoalReconciliation {
+export interface QoderGoalReconciliation {
   ok: boolean;
-  snapshot: ClaudeGoalSnapshot;
+  snapshot: QoderGoalSnapshot;
   warnings: string[];
   errors: string[];
 }
 
-export interface ReconcileClaudeGoalOptions {
+export interface ReconcileQoderGoalOptions {
   expectedObjective: string;
-  allowedStatuses?: readonly ClaudeGoalSnapshotStatus[];
+  allowedStatuses?: readonly QoderGoalSnapshotStatus[];
   requireSnapshot?: boolean;
   requireComplete?: boolean;
 }
 
-export class ClaudeGoalSnapshotError extends Error {}
+export class QoderGoalSnapshotError extends Error {}
 
 function safeObject(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -41,7 +41,7 @@ function safeNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
-function normalizeStatus(value: unknown): ClaudeGoalSnapshotStatus {
+function normalizeStatus(value: unknown): QoderGoalSnapshotStatus {
   const status = safeString(value).toLowerCase();
   if (status === 'complete' || status === 'completed' || status === 'done') return 'complete';
   if (status === 'cancelled' || status === 'canceled' || status === 'cleared') return 'cancelled';
@@ -55,7 +55,7 @@ function normalizeObjective(value: string): string {
 }
 
 /**
- * Parse a Claude goal snapshot JSON payload.
+ * Parse a Qoder goal snapshot JSON payload.
  *
  * The payload is whatever the active Claude agent shares as proof of the
  * current `/goal` condition state. Accepted shapes include:
@@ -63,11 +63,11 @@ function normalizeObjective(value: string): string {
  *   { objective, status, ... }
  * with `condition` accepted as a synonym for `objective`.
  *
- * NOTE: The Claude Code `/goal` slash command is not invokable from a shell.
+ * NOTE: The Qoder `/goal` slash command is not invokable from a shell.
  * This snapshot is a model-facing artifact; OMC only verifies textual
  * consistency between the model's reported state and the ultragoal plan.
  */
-export function parseClaudeGoalSnapshot(value: unknown): ClaudeGoalSnapshot {
+export function parseQoderGoalSnapshot(value: unknown): QoderGoalSnapshot {
   const root = safeObject(value);
   const goalValue = Object.hasOwn(root, 'goal') ? root.goal : value;
   if (goalValue === null || goalValue === undefined || goalValue === false) {
@@ -102,34 +102,34 @@ export function parseClaudeGoalSnapshot(value: unknown): ClaudeGoalSnapshot {
   };
 }
 
-export async function readClaudeGoalSnapshotInput(raw: string | undefined, cwd = process.cwd()): Promise<ClaudeGoalSnapshot | null> {
+export async function readQoderGoalSnapshotInput(raw: string | undefined, cwd = process.cwd()): Promise<QoderGoalSnapshot | null> {
   if (!raw?.trim()) return null;
   const trimmed = raw.trim();
   try {
-    return parseClaudeGoalSnapshot(JSON.parse(trimmed));
+    return parseQoderGoalSnapshot(JSON.parse(trimmed));
   } catch {
     const path = resolve(cwd, trimmed);
     if (!existsSync(path)) {
-      throw new ClaudeGoalSnapshotError(`Claude goal snapshot is neither valid JSON nor a readable path: ${trimmed}`);
+      throw new QoderGoalSnapshotError(`Qoder goal snapshot is neither valid JSON nor a readable path: ${trimmed}`);
     }
     try {
-      return parseClaudeGoalSnapshot(JSON.parse(await readFile(path, 'utf-8')));
+      return parseQoderGoalSnapshot(JSON.parse(await readFile(path, 'utf-8')));
     } catch (error) {
-      throw new ClaudeGoalSnapshotError(`Claude goal snapshot path does not contain valid JSON: ${trimmed}${error instanceof Error ? ` (${error.message})` : ''}`);
+      throw new QoderGoalSnapshotError(`Qoder goal snapshot path does not contain valid JSON: ${trimmed}${error instanceof Error ? ` (${error.message})` : ''}`);
     }
   }
 }
 
-export function reconcileClaudeGoalSnapshot(
-  snapshot: ClaudeGoalSnapshot | null | undefined,
-  options: ReconcileClaudeGoalOptions,
-): ClaudeGoalReconciliation {
+export function reconcileQoderGoalSnapshot(
+  snapshot: QoderGoalSnapshot | null | undefined,
+  options: ReconcileQoderGoalOptions,
+): QoderGoalReconciliation {
   const effectiveSnapshot = snapshot ?? { available: false, raw: null };
   const errors: string[] = [];
   const warnings: string[] = [];
 
   if (!effectiveSnapshot.available) {
-    const message = 'Claude goal snapshot is absent or reports no active goal; ask the active Claude agent to share the current /goal condition and pass its JSON with --claude-goal-json.';
+    const message = 'Qoder goal snapshot is absent or reports no active goal; ask the active Claude agent to share the current /goal condition and pass its JSON with --qoder-goal-json.';
     if (options.requireSnapshot) errors.push(message);
     else warnings.push(message);
     return { ok: errors.length === 0, snapshot: effectiveSnapshot, warnings, errors };
@@ -138,24 +138,24 @@ export function reconcileClaudeGoalSnapshot(
   const expected = normalizeObjective(options.expectedObjective);
   const actual = normalizeObjective(effectiveSnapshot.objective ?? '');
   if (!actual) {
-    errors.push('Claude goal snapshot is missing objective text.');
+    errors.push('Qoder goal snapshot is missing objective text.');
   } else if (actual !== expected) {
-    errors.push(`Claude goal objective mismatch: expected "${expected}", got "${actual}".`);
+    errors.push(`Qoder goal objective mismatch: expected "${expected}", got "${actual}".`);
   }
 
   const allowed = options.allowedStatuses ?? (options.requireComplete ? ['complete'] : ['active', 'complete']);
   const actualStatus = effectiveSnapshot.status ?? 'unknown';
   if (!allowed.includes(actualStatus)) {
-    errors.push(`Claude goal status mismatch: expected ${allowed.join(' or ')}, got ${actualStatus}.`);
+    errors.push(`Qoder goal status mismatch: expected ${allowed.join(' or ')}, got ${actualStatus}.`);
   }
   if (options.requireComplete && actualStatus !== 'complete') {
-    errors.push(`Claude goal is not complete; only after the active condition is genuinely satisfied (the /goal hook auto-clears, or you run /goal clear), share the fresh snapshot.`);
+    errors.push(`Qoder goal is not complete; only after the active condition is genuinely satisfied (the /goal hook auto-clears, or you run /goal clear), share the fresh snapshot.`);
   }
 
   return { ok: errors.length === 0, snapshot: effectiveSnapshot, warnings, errors };
 }
 
-export function formatClaudeGoalReconciliation(reconciliation: ClaudeGoalReconciliation): string {
+export function formatQoderGoalReconciliation(reconciliation: QoderGoalReconciliation): string {
   const parts = [...reconciliation.errors, ...reconciliation.warnings];
   return parts.join(' ');
 }

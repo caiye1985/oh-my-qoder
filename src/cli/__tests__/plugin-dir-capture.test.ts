@@ -4,7 +4,7 @@
  * Plan: binary-weaving-mountain — HUD wrapper resolves the active plugin root
  * from `process.env.OMC_PLUGIN_ROOT`, set by the `omc` CLI when the user
  * passes `--plugin-dir <path>`. The flag must NOT be consumed (it still
- * forwards to Claude Code's plugin loader untouched).
+ * forwards to Qoder's plugin loader untouched).
  */
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
@@ -62,9 +62,9 @@ describe('OMC_PLUGIN_ROOT tmux env forwarding', () => {
  *
  * We mock `child_process.execFileSync` so that any spawn of `claude` captures
  * the parent `process.env` snapshot at call time, then throws to short-circuit
- * the rest of `runClaude`. We also mock `./tmux-utils.js` so the launch policy
+ * the rest of `runQoder`. We also mock `./tmux-utils.js` so the launch policy
  * is forced to `direct` (no tmux dependency) and `claude` is reported as
- * available. CLAUDE_CONFIG_DIR is pointed at a throwaway tmpdir so
+ * available. QODER_CONFIG_DIR is pointed at a throwaway tmpdir so
  * `prepareOmcLaunchConfigDir` short-circuits cheaply.
  *
  * The thing under test: `launchCommand` mutates `process.env[OMC_PLUGIN_ROOT_ENV]`
@@ -81,13 +81,13 @@ vi.mock('child_process', async () => {
   return {
     ...actual,
     execFileSync: vi.fn((file: string, _args?: readonly string[], options?: { env?: NodeJS.ProcessEnv }) => {
-      if (file === 'claude') {
+      if (file === 'qoder') {
         // execFileSync inherits parent env when options.env is undefined,
         // so the source of truth is process.env at call time.
         capturedEnv = { ...(options?.env ?? process.env) };
         const err: NodeJS.ErrnoException & { __omc?: symbol } = new Error('mocked claude exit');
         err.__omc = SHORTCIRCUIT;
-        // Throwing aborts runClaude/launchCommand cleanly via the try/finally.
+        // Throwing aborts runQoder/launchCommand cleanly via the try/finally.
         throw err;
       }
       // Allow non-claude execFileSync calls (e.g. tmux probes) to be no-ops.
@@ -100,7 +100,7 @@ vi.mock('../tmux-utils.js', async () => {
   const actual = await vi.importActual<typeof import('../tmux-utils.js')>('../tmux-utils.js');
   return {
     ...actual,
-    isClaudeAvailable: () => true,
+    isQoderAvailable: () => true,
     resolveLaunchPolicy: () => 'direct' as const,
   };
 });
@@ -114,14 +114,14 @@ describe('launchCommand → child env propagation (OMC_PLUGIN_ROOT)', () => {
     tmpConfigDir = mkdtempSync(join(tmpdir(), 'omc-pdc-'));
     savedEnv = {
       [OMC_PLUGIN_ROOT_ENV]: process.env[OMC_PLUGIN_ROOT_ENV],
-      CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
-      CLAUDECODE: process.env.CLAUDECODE,
+      QODER_CONFIG_DIR: process.env.QODER_CONFIG_DIR,
+      QODER: process.env.QODER,
       OMC_NOTIFY: process.env.OMC_NOTIFY,
     };
     savedCwd = process.cwd();
     delete process.env[OMC_PLUGIN_ROOT_ENV];
-    delete process.env.CLAUDECODE;
-    process.env.CLAUDE_CONFIG_DIR = tmpConfigDir;
+    delete process.env.QODER;
+    process.env.QODER_CONFIG_DIR = tmpConfigDir;
     capturedEnv = null;
   });
 

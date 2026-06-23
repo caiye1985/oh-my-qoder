@@ -72,7 +72,7 @@ describe('team api cleanup', () => {
     await writeJson(cwd, `.omc/state/team/${teamName}/config.json`, {
       name: teamName,
       task: 'test',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       governance: {
         delegation_only: false,
@@ -108,7 +108,7 @@ describe('team api cleanup', () => {
     await writeJson(cwd, `.omc/state/team/${teamName}/config.json`, {
       name: teamName,
       task: 'test',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       governance: {
         delegation_only: false,

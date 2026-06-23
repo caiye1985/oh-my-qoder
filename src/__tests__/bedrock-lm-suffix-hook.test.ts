@@ -41,7 +41,7 @@ import { saveAndClear, restore } from '../config/__tests__/test-helpers.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const HOOK_PATH = resolve(__dirname, '../../scripts/pre-tool-enforcer.mjs');
 
-const ENV_KEYS = ['ANTHROPIC_MODEL', 'CLAUDE_MODEL', 'OMC_ROUTING_FORCE_INHERIT', 'OMC_SUBAGENT_MODEL'] as const;
+const ENV_KEYS = ['ANTHROPIC_MODEL', 'QODER_MODEL', 'OMC_ROUTING_FORCE_INHERIT', 'OMC_SUBAGENT_MODEL'] as const;
 
 // ---------------------------------------------------------------------------
 // Hook ALLOW path: explicit model param is a valid provider-specific ID
@@ -154,7 +154,7 @@ describe('environment-based session model detection', () => {
 
   // Helper matching the dual-check logic in pre-tool-enforcer.mjs
   const sessionHasLmSuffix = () =>
-    hasExtendedContextSuffix(process.env.CLAUDE_MODEL || '') ||
+    hasExtendedContextSuffix(process.env.QODER_MODEL || '') ||
     hasExtendedContextSuffix(process.env.ANTHROPIC_MODEL || '');
 
   it('detects [1m] session model via ANTHROPIC_MODEL env var', () => {
@@ -162,15 +162,15 @@ describe('environment-based session model detection', () => {
     expect(sessionHasLmSuffix()).toBe(true);
   });
 
-  it('detects [1m] session model via CLAUDE_MODEL env var', () => {
-    process.env.CLAUDE_MODEL = 'global.anthropic.claude-sonnet-4-6[1m]';
+  it('detects [1m] session model via QODER_MODEL env var', () => {
+    process.env.QODER_MODEL = 'global.anthropic.claude-sonnet-4-6[1m]';
     expect(sessionHasLmSuffix()).toBe(true);
   });
 
-  it('detects [1m] when only ANTHROPIC_MODEL has suffix and CLAUDE_MODEL is set without it', () => {
-    // Split-brain scenario: CLAUDE_MODEL is clean but ANTHROPIC_MODEL carries [1m].
-    // A single CLAUDE_MODEL || ANTHROPIC_MODEL lookup would miss this.
-    process.env.CLAUDE_MODEL = 'global.anthropic.claude-sonnet-4-6-v1:0';
+  it('detects [1m] when only ANTHROPIC_MODEL has suffix and QODER_MODEL is set without it', () => {
+    // Split-brain scenario: QODER_MODEL is clean but ANTHROPIC_MODEL carries [1m].
+    // A single QODER_MODEL || ANTHROPIC_MODEL lookup would miss this.
+    process.env.QODER_MODEL = 'global.anthropic.claude-sonnet-4-6-v1:0';
     process.env.ANTHROPIC_MODEL = 'global.anthropic.claude-sonnet-4-6[1m]';
     expect(sessionHasLmSuffix()).toBe(true);
   });
@@ -209,9 +209,9 @@ function runHook(
       OMC_MODEL_LOW: '',
       OMC_MODEL_MEDIUM: '',
       OMC_MODEL_HIGH: '',
-      CLAUDE_CODE_BEDROCK_HAIKU_MODEL: '',
-      CLAUDE_CODE_BEDROCK_SONNET_MODEL: '',
-      CLAUDE_CODE_BEDROCK_OPUS_MODEL: '',
+      QODER_BEDROCK_HAIKU_MODEL: '',
+      QODER_BEDROCK_SONNET_MODEL: '',
+      QODER_BEDROCK_OPUS_MODEL: '',
       ANTHROPIC_DEFAULT_HAIKU_MODEL: '',
       ANTHROPIC_DEFAULT_SONNET_MODEL: '',
       ANTHROPIC_DEFAULT_OPUS_MODEL: '',
@@ -274,7 +274,7 @@ describe('hook integration — force-inherit + [1m] scenarios', () => {
       },
     );
     expect(result.denied).toBe(true);
-    // normalizeToCcAlias(sessionModel) → 'sonnet'; resolvedSafe is truthy
+    // normalizeToQoderAlias(sessionModel) → 'sonnet'; resolvedSafe is truthy
     expect(result.reason).toMatch(/model="sonnet"/);
   });
 
@@ -296,7 +296,7 @@ describe('hook integration — force-inherit + [1m] scenarios', () => {
     const result = runHook(
       {},
       {
-        CLAUDE_MODEL: 'global.anthropic.claude-sonnet-4-6-v1:0',
+        QODER_MODEL: 'global.anthropic.claude-sonnet-4-6-v1:0',
         ANTHROPIC_MODEL: 'global.anthropic.claude-sonnet-4-6[1m]',
       },
     );
@@ -324,17 +324,17 @@ describe('hook integration — force-inherit + [1m] scenarios', () => {
       },
     );
     expect(result.denied).toBe(true);
-    // normalizeToCcAlias('claude-sonnet-4-6[1m]') → 'sonnet'; resolvedSafe is truthy
+    // normalizeToQoderAlias('claude-sonnet-4-6[1m]') → 'sonnet'; resolvedSafe is truthy
     expect(result.reason).toMatch(/model="sonnet"/);
   });
 
-  it('denies no-model call when CLAUDE_MODEL is provider-specific[1m] but ANTHROPIC_MODEL is bare[1m]', () => {
-    // Mixed case: CLAUDE_MODEL strips safely, but ANTHROPIC_MODEL strips to a bare Anthropic ID.
-    // The runtime (resolveClaudeWorkerModel) may pick ANTHROPIC_MODEL, so both must be safe.
+  it('denies no-model call when QODER_MODEL is provider-specific[1m] but ANTHROPIC_MODEL is bare[1m]', () => {
+    // Mixed case: QODER_MODEL strips safely, but ANTHROPIC_MODEL strips to a bare Anthropic ID.
+    // The runtime (resolveQoderWorkerModel) may pick ANTHROPIC_MODEL, so both must be safe.
     const result = runHook(
       {},
       {
-        CLAUDE_MODEL: 'global.anthropic.claude-sonnet-4-6[1m]',
+        QODER_MODEL: 'global.anthropic.claude-sonnet-4-6[1m]',
         ANTHROPIC_MODEL: 'claude-sonnet-4-6[1m]',
       },
     );

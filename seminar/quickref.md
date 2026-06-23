@@ -1,11 +1,11 @@
-# oh-my-claudecode Quick Reference Card
-**v3.6.3 | github.com/Yeachan-Heo/oh-my-claudecode**
+# oh-my-qoder Quick Reference Card
+**v3.6.3 | github.com/Yeachan-Heo/oh-my-qoder**
 
 ## Install
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
-/oh-my-claudecode:omc-setup
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
+/oh-my-qoder:omc-setup
 ```
 
 ## Execution Modes
@@ -59,17 +59,17 @@
 ## Key Commands
 | Command | Purpose |
 |---------|---------|
-| `/oh-my-claudecode:omc-setup` | Initial setup wizard |
-| `/oh-my-claudecode:hud setup` | Enable HUD statusline |
-| `/oh-my-claudecode:omc-doctor` | Diagnose issues |
-| `/oh-my-claudecode:omc-help` | Show usage guide |
-| `/oh-my-claudecode:cancel` | Stop current operation |
-| `/oh-my-claudecode:note` | Save compaction-resilient note |
-| `/oh-my-claudecode:learner` | Extract reusable skill |
-| `/oh-my-claudecode:analyze` | Deep analysis/debugging |
-| `/oh-my-claudecode:deepsearch` | Thorough codebase search |
-| `/oh-my-claudecode:ultraqa` | QA cycling (test/fix/repeat) |
-| `/oh-my-claudecode:tdd` | Test-driven development mode |
+| `/oh-my-qoder:omc-setup` | Initial setup wizard |
+| `/oh-my-qoder:hud setup` | Enable HUD statusline |
+| `/oh-my-qoder:omc-doctor` | Diagnose issues |
+| `/oh-my-qoder:omc-help` | Show usage guide |
+| `/oh-my-qoder:cancel` | Stop current operation |
+| `/oh-my-qoder:note` | Save compaction-resilient note |
+| `/oh-my-qoder:learner` | Extract reusable skill |
+| `/oh-my-qoder:analyze` | Deep analysis/debugging |
+| `/oh-my-qoder:deepsearch` | Thorough codebase search |
+| `/oh-my-qoder:ultraqa` | QA cycling (test/fix/repeat) |
+| `/oh-my-qoder:tdd` | Test-driven development mode |
 
 ## Natural Language (No Commands Needed)
 - "build me a todo app" → Autopilot activates
@@ -101,7 +101,7 @@
 - `.omc/state/pipeline-{id}.json` - Pipeline progress
 
 ## Configuration
-**File:** `~/.claude/.omc-config.json`
+**File:** `~/.qoder/.omc-config.json`
 ```json
 {
   "defaultExecutionMode": "ultrawork",  // or ""
@@ -129,10 +129,10 @@ Before claiming completion:
 - **LSP diagnostics:** Full project type checking with `lsp_diagnostics_directory`
 
 ## Resources
-- **GitHub:** github.com/Yeachan-Heo/oh-my-claudecode
+- **GitHub:** github.com/Yeachan-Heo/oh-my-qoder
 - **Docs:** /docs/REFERENCE.md
-- **Website:** yeachan-heo.github.io/oh-my-claudecode-website
-- **NPM:** `npm i -g oh-my-claudecode`
+- **Website:** yeachan-heo.github.io/oh-my-qoder-website
+- **NPM:** `npm i -g oh-my-qoder`
 - **Discord:** (community support - link in GitHub)
 
 ---

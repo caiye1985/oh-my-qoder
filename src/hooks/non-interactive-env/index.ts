@@ -48,7 +48,7 @@ function buildEnvPrefix(env: Record<string, string>): string {
 }
 
 /**
- * Non-interactive environment hook for Claude Code.
+ * Non-interactive environment hook for Qoder.
  *
  * Detects and handles non-interactive environments (CI, cron, etc.) by:
  * - Warning about banned interactive commands (vim, less, etc.)

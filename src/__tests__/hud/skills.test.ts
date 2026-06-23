@@ -66,18 +66,18 @@ describe('renderSkills', () => {
   });
 
   describe('namespaced skill names', () => {
-    it('displays only last segment for namespaced skills (oh-my-claudecode:plan)', () => {
-      const lastSkill: SkillInvocation = { name: 'oh-my-claudecode:plan', timestamp: new Date() };
+    it('displays only last segment for namespaced skills (oh-my-qoder:plan)', () => {
+      const lastSkill: SkillInvocation = { name: 'oh-my-qoder:plan', timestamp: new Date() };
       const result = renderSkills(inactiveUltrawork, inactiveRalph, lastSkill);
       expect(result).toContain('skill:plan');
-      expect(result).not.toContain('oh-my-claudecode');
+      expect(result).not.toContain('oh-my-qoder');
     });
 
     it('displays only last segment for namespaced skills with args', () => {
-      const lastSkill: SkillInvocation = { name: 'oh-my-claudecode:autopilot', args: 'build app', timestamp: new Date() };
+      const lastSkill: SkillInvocation = { name: 'oh-my-qoder:autopilot', args: 'build app', timestamp: new Date() };
       const result = renderSkills(inactiveUltrawork, inactiveRalph, lastSkill);
       expect(result).toContain('skill:autopilot(build app)');
-      expect(result).not.toContain('oh-my-claudecode');
+      expect(result).not.toContain('oh-my-qoder');
     });
 
     it('handles multiple colons in skill name', () => {
@@ -127,18 +127,18 @@ describe('renderLastSkill', () => {
   });
 
   describe('namespaced skill names', () => {
-    it('displays only last segment for namespaced skills (oh-my-claudecode:plan)', () => {
-      const lastSkill: SkillInvocation = { name: 'oh-my-claudecode:plan', timestamp: new Date() };
+    it('displays only last segment for namespaced skills (oh-my-qoder:plan)', () => {
+      const lastSkill: SkillInvocation = { name: 'oh-my-qoder:plan', timestamp: new Date() };
       const result = renderLastSkill(lastSkill);
       expect(result).toContain('skill:plan');
-      expect(result).not.toContain('oh-my-claudecode');
+      expect(result).not.toContain('oh-my-qoder');
     });
 
     it('displays only last segment for namespaced skills with args', () => {
-      const lastSkill: SkillInvocation = { name: 'oh-my-claudecode:autopilot', args: 'build app', timestamp: new Date() };
+      const lastSkill: SkillInvocation = { name: 'oh-my-qoder:autopilot', args: 'build app', timestamp: new Date() };
       const result = renderLastSkill(lastSkill);
       expect(result).toContain('skill:autopilot(build app)');
-      expect(result).not.toContain('oh-my-claudecode');
+      expect(result).not.toContain('oh-my-qoder');
     });
 
     it('handles multiple colons in skill name', () => {

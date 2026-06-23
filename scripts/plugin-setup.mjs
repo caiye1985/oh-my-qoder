@@ -11,14 +11,14 @@ import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { getClaudeConfigDir } from './lib/config-dir.mjs';
+import { getQoderConfigDir } from './lib/config-dir.mjs';
 import { buildHudWrapper } from './lib/hud-wrapper-template.mjs';
 import { hookPrefixForPlatform, normalizeHooksDataForPlatform } from './lib/hook-command-normalizer.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const CLAUDE_DIR = getClaudeConfigDir();
+const CLAUDE_DIR = getQoderConfigDir();
 const HUD_DIR = join(CLAUDE_DIR, 'hud');
 const HUD_LIB_DIR = join(HUD_DIR, 'lib');
 const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
@@ -39,7 +39,7 @@ function checkRalphRubyDependency() {
     console.log('[OMC] Warning: Ruby was not found on PATH. Ralph workflows require Ruby and may fail until it is installed.');
     console.log('[OMC] Ubuntu/Debian: sudo apt update && sudo apt install ruby-full');
     console.log('[OMC] macOS: brew install ruby');
-    console.log('[OMC] After installing Ruby, restart Claude Code and rerun /oh-my-claudecode:omc-setup if needed.');
+    console.log('[OMC] After installing Ruby, restart Qoder and rerun /oh-my-qoder:omc-setup if needed.');
   }
 }
 
@@ -108,7 +108,7 @@ try {
 }
 
 // Patch packaged plugin-cache hooks.json to keep plugin-provided hook commands
-// safe for the platform that is installing the plugin cache. Claude Code's
+// safe for the platform that is installing the plugin cache. Qoder's
 // plugin loader reads hooks/hooks.json directly, so the source manifest remains
 // native Windows-spawnable (direct node -> run.cjs, no sh/find-node). During
 // setup from a published plugin cache on Unix/macOS, repair the cached manifest
@@ -119,8 +119,8 @@ try {
 // accidentally baked absolute node path, or the Windows-safe direct node form.
 //
 // Patterns handled:
-//  1. Current find-node.sh format – sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh ...
-//  2. Legacy find-node.sh format – sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" ...
+//  1. Current find-node.sh format – sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh ...
+//  2. Legacy find-node.sh format – sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" ...
 //  3. Direct run.cjs format from the Windows-safe shipped manifest
 //  4. Absolute run.cjs format from older setup patches/publish mistakes
 //
@@ -143,7 +143,7 @@ try {
 
 // 5. Ensure runtime dependencies are installed in the plugin cache directory.
 //    The npm-published tarball includes only the files listed in "files" (package.json),
-//    which does NOT include node_modules.  When Claude Code extracts the plugin into its
+//    which does NOT include node_modules.  When Qoder extracts the plugin into its
 //    cache the dependencies are therefore missing, causing ERR_MODULE_NOT_FOUND at runtime.
 //    We detect this by probing for a known production dependency (commander) and running a
 //    production-only install when it is absent.  --ignore-scripts avoids re-triggering this
@@ -166,4 +166,4 @@ if (!existsSync(commanderCheck)) {
   console.log('[OMC] Runtime dependencies already present');
 }
 
-console.log('[OMC] Setup complete! Restart Claude Code to activate HUD.');
+console.log('[OMC] Setup complete! Restart Qoder to activate HUD.');

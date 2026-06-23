@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { resolveRoleAssignment, buildResolvedRoutingSnapshot } from '../stage-router.js';
 import { CANONICAL_TEAM_ROLES } from '../../shared/types.js';
 import type { CanonicalTeamRole, PluginConfig } from '../../shared/types.js';
-import { CLAUDE_FAMILY_DEFAULTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS } from '../../config/models.js';
+import { QODER_FAMILY_DEFAULTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS } from '../../config/models.js';
 
 type TeamRoleRoutingConfig = NonNullable<NonNullable<PluginConfig['team']>['roleRouting']>;
 
@@ -12,9 +12,9 @@ const ENV_KEYS = [
   'OMC_MODEL_HIGH',
   'OMC_MODEL_MEDIUM',
   'OMC_MODEL_LOW',
-  'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-  'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-  'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+  'QODER_BEDROCK_OPUS_MODEL',
+  'QODER_BEDROCK_SONNET_MODEL',
+  'QODER_BEDROCK_HAIKU_MODEL',
   'ANTHROPIC_DEFAULT_OPUS_MODEL',
   'ANTHROPIC_DEFAULT_SONNET_MODEL',
   'ANTHROPIC_DEFAULT_HAIKU_MODEL',
@@ -40,21 +40,21 @@ afterAll(() => {
 });
 
 const EXPECTED_DEFAULTS: Record<CanonicalTeamRole, { model: string; agent: string }> = {
-  orchestrator: { model: CLAUDE_FAMILY_DEFAULTS.OPUS, agent: 'omc' },
-  planner: { model: CLAUDE_FAMILY_DEFAULTS.OPUS, agent: 'planner' },
-  analyst: { model: CLAUDE_FAMILY_DEFAULTS.OPUS, agent: 'analyst' },
-  architect: { model: CLAUDE_FAMILY_DEFAULTS.OPUS, agent: 'architect' },
-  executor: { model: CLAUDE_FAMILY_DEFAULTS.SONNET, agent: 'executor' },
-  debugger: { model: CLAUDE_FAMILY_DEFAULTS.SONNET, agent: 'debugger' },
-  critic: { model: CLAUDE_FAMILY_DEFAULTS.OPUS, agent: 'critic' },
-  'code-reviewer': { model: CLAUDE_FAMILY_DEFAULTS.OPUS, agent: 'codeReviewer' },
-  'security-reviewer': { model: CLAUDE_FAMILY_DEFAULTS.SONNET, agent: 'securityReviewer' },
-  'test-engineer': { model: CLAUDE_FAMILY_DEFAULTS.SONNET, agent: 'testEngineer' },
-  designer: { model: CLAUDE_FAMILY_DEFAULTS.SONNET, agent: 'designer' },
-  writer: { model: CLAUDE_FAMILY_DEFAULTS.HAIKU, agent: 'writer' },
-  'code-simplifier': { model: CLAUDE_FAMILY_DEFAULTS.OPUS, agent: 'codeSimplifier' },
-  explore: { model: CLAUDE_FAMILY_DEFAULTS.HAIKU, agent: 'explore' },
-  'document-specialist': { model: CLAUDE_FAMILY_DEFAULTS.SONNET, agent: 'documentSpecialist' },
+  orchestrator: { model: QODER_FAMILY_DEFAULTS.OPUS, agent: 'omc' },
+  planner: { model: QODER_FAMILY_DEFAULTS.OPUS, agent: 'planner' },
+  analyst: { model: QODER_FAMILY_DEFAULTS.OPUS, agent: 'analyst' },
+  architect: { model: QODER_FAMILY_DEFAULTS.OPUS, agent: 'architect' },
+  executor: { model: QODER_FAMILY_DEFAULTS.SONNET, agent: 'executor' },
+  debugger: { model: QODER_FAMILY_DEFAULTS.SONNET, agent: 'debugger' },
+  critic: { model: QODER_FAMILY_DEFAULTS.OPUS, agent: 'critic' },
+  'code-reviewer': { model: QODER_FAMILY_DEFAULTS.OPUS, agent: 'codeReviewer' },
+  'security-reviewer': { model: QODER_FAMILY_DEFAULTS.SONNET, agent: 'securityReviewer' },
+  'test-engineer': { model: QODER_FAMILY_DEFAULTS.SONNET, agent: 'testEngineer' },
+  designer: { model: QODER_FAMILY_DEFAULTS.SONNET, agent: 'designer' },
+  writer: { model: QODER_FAMILY_DEFAULTS.HAIKU, agent: 'writer' },
+  'code-simplifier': { model: QODER_FAMILY_DEFAULTS.OPUS, agent: 'codeSimplifier' },
+  explore: { model: QODER_FAMILY_DEFAULTS.HAIKU, agent: 'explore' },
+  'document-specialist': { model: QODER_FAMILY_DEFAULTS.SONNET, agent: 'documentSpecialist' },
 };
 
 describe('stage-router resolveRoleAssignment', () => {
@@ -62,7 +62,7 @@ describe('stage-router resolveRoleAssignment', () => {
     for (const role of CANONICAL_TEAM_ROLES) {
       it(`resolves ${role} → claude + tier-default model + canonical agent`, () => {
         const out = resolveRoleAssignment(role, EMPTY);
-        expect(out.provider).toBe('claude');
+        expect(out.provider).toBe('qoder');
         expect(out.agent).toBe(EXPECTED_DEFAULTS[role].agent);
         expect(out.model).toBe(EXPECTED_DEFAULTS[role].model);
       });
@@ -99,7 +99,7 @@ describe('stage-router resolveRoleAssignment', () => {
       // grok has no builtin default model and none configured → resolves to ''
       // (NOT a Claude tier model id).
       expect(out.model).toBe('');
-      expect(out.model).not.toBe(CLAUDE_FAMILY_DEFAULTS.OPUS);
+      expect(out.model).not.toBe(QODER_FAMILY_DEFAULTS.OPUS);
       expect(out.agent).toBe('codeReviewer');
     });
 
@@ -120,7 +120,7 @@ describe('stage-router resolveRoleAssignment', () => {
       const out = resolveRoleAssignment('executor', cfg);
       expect(out.provider).toBe('cursor');
       expect(out.model).toBe('');
-      expect(out.model).not.toBe(CLAUDE_FAMILY_DEFAULTS.OPUS);
+      expect(out.model).not.toBe(QODER_FAMILY_DEFAULTS.OPUS);
       expect(out.agent).toBe('executor');
     });
 
@@ -152,16 +152,16 @@ describe('stage-router resolveRoleAssignment', () => {
       expect(out.provider).toBe('grok');
       // tier names are claude-centric → grok ignores them and uses its (empty) default
       expect(out.model).toBe('');
-      expect(out.model).not.toBe(CLAUDE_FAMILY_DEFAULTS.OPUS);
+      expect(out.model).not.toBe(QODER_FAMILY_DEFAULTS.OPUS);
     });
 
     it('resolves tier name (HIGH) into Claude opus model for claude provider', () => {
       const cfg: PluginConfig = {
-        team: { roleRouting: { executor: { provider: 'claude', model: 'HIGH' } } },
+        team: { roleRouting: { executor: { provider: 'qoder', model: 'HIGH' } } },
       };
       const out = resolveRoleAssignment('executor', cfg);
-      expect(out.provider).toBe('claude');
-      expect(out.model).toBe(CLAUDE_FAMILY_DEFAULTS.OPUS);
+      expect(out.provider).toBe('qoder');
+      expect(out.model).toBe(QODER_FAMILY_DEFAULTS.OPUS);
     });
 
     it('tier name on external provider falls back to provider builtin (tiers are claude-centric)', () => {
@@ -184,7 +184,7 @@ describe('stage-router resolveRoleAssignment', () => {
     it('respects routing.tierModels overrides for claude tier resolution', () => {
       const cfg: PluginConfig = {
         routing: { tierModels: { HIGH: 'claude-opus-custom-id' } },
-        team: { roleRouting: { critic: { provider: 'claude', model: 'HIGH' } } },
+        team: { roleRouting: { critic: { provider: 'qoder', model: 'HIGH' } } },
       };
       const out = resolveRoleAssignment('critic', cfg);
       expect(out.model).toBe('claude-opus-custom-id');
@@ -197,7 +197,7 @@ describe('stage-router resolveRoleAssignment', () => {
         team: { roleRouting: { orchestrator: { model: 'HIGH' } } },
       };
       const out = resolveRoleAssignment('orchestrator', cfg);
-      expect(out.provider).toBe('claude');
+      expect(out.provider).toBe('qoder');
       expect(out.agent).toBe('omc');
     });
   });

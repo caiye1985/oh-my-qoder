@@ -3,9 +3,9 @@ set -e
 
 echo "=== SWE-bench Evaluation Environment ==="
 echo "Run Mode: ${RUN_MODE:-vanilla}"
-echo "Claude Code version: $(claude --version 2>/dev/null || echo 'not installed')"
+echo "Qoder version: $(qodercli --version 2>/dev/null || echo 'not installed')"
 
-# Configure Claude Code if auth token is provided
+# Configure Qoder if auth token is provided
 if [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
     echo "Anthropic auth token configured"
     export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
@@ -21,7 +21,7 @@ fi
 
 # Install OMC if in omc mode
 if [ "$RUN_MODE" = "omc" ]; then
-    echo "Installing oh-my-claudecode for enhanced mode..."
+    echo "Installing oh-my-qoder for enhanced mode..."
 
     # Check if OMC source is mounted
     if [ -d "/workspace/omc-source" ]; then
@@ -29,11 +29,11 @@ if [ "$RUN_MODE" = "omc" ]; then
         cd /workspace/omc-source && npm install && npm link
     else
         echo "Installing OMC from npm..."
-        npm install -g oh-my-claudecode
+        npm install -g oh-my-qoder
     fi
 
     # Initialize OMC configuration
-    mkdir -p ~/.claude
+    mkdir -p ~/.qoder
 
     echo "OMC installation complete"
 fi

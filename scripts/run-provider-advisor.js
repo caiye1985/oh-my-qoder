@@ -6,7 +6,7 @@ import process from 'process';
 import { resolveOmcStateRoot } from './lib/state-root.mjs';
 
 const PROVIDER_BINARIES = {
-  claude: 'claude',
+  qoder: 'qoder',
   codex: 'codex',
   gemini: 'gemini',
   antigravity: 'agy',
@@ -41,7 +41,7 @@ const ANTIGRAVITY_TIMEOUT_MS = (() => {
 
 /**
  * Build CLI args for a given provider.
- * - claude: `claude -p <prompt>` (or `claude -p` reading the prompt from stdin)
+ * - qoder: `claude -p <prompt>` (or `claude -p` reading the prompt from stdin)
  * - codex: `codex exec --dangerously-bypass-approvals-and-sandbox <prompt>`
  * - gemini: `gemini -p <prompt> --yolo`
  * - antigravity: `agy --dangerously-skip-permissions -p <prompt>` (Antigravity CLI;
@@ -76,7 +76,7 @@ function buildProviderArgs(provider, prompt, { pipePromptViaStdin = false } = {}
     // closed so it cannot interpret advisor prompt bytes as interactive input.
     return ['--print', '--force', '--trust', '--sandbox', 'disabled', prompt];
   }
-  // claude: `claude -p` reads the prompt from stdin when no prompt arg is given.
+  // qoder: `claude -p` reads the prompt from stdin when no prompt arg is given.
   return pipePromptViaStdin ? ['-p'] : ['-p', prompt];
 }
 
@@ -98,7 +98,7 @@ function shouldPipePromptViaStdin(provider, prompt) {
   // frontmatter) token as an option and either errors out or drops the prompt.
   // Route those over stdin (`claude -p` reads the prompt from stdin). Short,
   // single-line, non-option prompts keep the existing `-p <prompt>` behavior.
-  if (provider === 'claude') {
+  if (provider === 'qoder') {
     if (typeof prompt !== 'string') {
       return false;
     }
@@ -117,7 +117,7 @@ const ASK_ORIGINAL_TASK_ENV_ALIAS = 'OMX_ASK_ORIGINAL_TASK';
 function usage() {
   console.error('Usage: omc ask <claude|codex|gemini|antigravity|grok|cursor> "<prompt>"');
   console.error('Legacy direct usage: node scripts/run-provider-advisor.js <claude|codex|gemini|antigravity|grok|cursor> <prompt...>');
-  console.error('                 or: node scripts/run-provider-advisor.js claude --print "<prompt>"');
+  console.error('                 or: node scripts/run-provider-advisor.js qodercli --print "<prompt>"');
   console.error('                 or: node scripts/run-provider-advisor.js gemini --prompt "<prompt>"');
 }
 
@@ -159,11 +159,11 @@ function parseArgs(argv) {
   return { provider, prompt: rest.join(' ').trim() };
 }
 
-// Strip Claude session markers so provider advisors do not detect or inherit the active Claude Code session.
+// Strip Qoder session markers so provider advisors do not detect or inherit the active Qoder session.
 const CLAUDE_SESSION_STRIPPED_ENV_VARS = new Set([
-  'CLAUDECODE',
+  'QODER',
   'CLAUDE_SESSION_ID',
-  'CLAUDECODE_SESSION_ID',
+  'QODER_SESSION_ID',
   'CLAUDE_CODE_ENTRYPOINT',
 ]);
 const CODEX_STRIPPED_ENV_VARS = new Set(['RUST_LOG', 'RUST_BACKTRACE', 'RUST_LIB_BACKTRACE']);

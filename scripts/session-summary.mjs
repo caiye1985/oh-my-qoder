@@ -3,7 +3,7 @@
  * Session Summary Generator
  *
  * Standalone script that generates a brief (<20 char) summary of the current
- * Claude Code session using `claude -p`.
+ * Qoder session using `claude -p`.
  *
  * Usage:
  *   node session-summary.mjs <transcript_path> <state_dir> <session_id> [--verbose]
@@ -155,7 +155,7 @@ ${conversationContext}
 Label:`;
 
   try {
-    const result = execFileSync('claude', ['-p', prompt], {
+    const result = execFileSync('qodercli', ['-p', prompt], {
       encoding: 'utf-8',
       timeout: 30_000,
       stdio: ['pipe', 'pipe', 'pipe'],

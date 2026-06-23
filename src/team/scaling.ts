@@ -16,7 +16,7 @@ import { tmuxExec, tmuxSpawn } from '../cli/tmux-utils.js';
 import {
   buildWorkerArgv,
   getWorkerEnv as getModelWorkerEnv,
-  resolveClaudeWorkerModel,
+  resolveQoderWorkerModel,
   assertHeadlessSupported,
   type CliAgentType,
 } from './model-contract.js';
@@ -55,7 +55,7 @@ import {
 // ── Environment gate ──────────────────────────────────────────────────────────
 
 const OMC_TEAM_SCALING_ENABLED_ENV = 'OMC_TEAM_SCALING_ENABLED';
-const CLI_AGENT_TYPES = new Set<CliAgentType>(['claude', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
+const CLI_AGENT_TYPES = new Set<CliAgentType>(['qoder', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
 
 export function isScalingEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   const raw = env[OMC_TEAM_SCALING_ENABLED_ENV];
@@ -322,9 +322,9 @@ export async function scaleUp(
           workerAgentType = primaryProvider;
           workerModel = primary.model;
         }
-      } else if (cliAgentType === 'claude') {
-        // Honor Bedrock/Vertex default-model resolution for non-routed claude workers.
-        workerModel = resolveClaudeWorkerModel(env);
+      } else if (cliAgentType === 'qoder') {
+        // Honor Bedrock/Vertex default-model resolution for non-routed qoder workers.
+        workerModel = resolveQoderWorkerModel(env);
       }
 
       // AC-8: try the resolved provider first; on trust-path / not-found
@@ -357,7 +357,7 @@ export async function scaleUp(
         const fallbackPair = routedPair?.fallback;
         const fallbackProvider = fallbackPair
           ? (fallbackPair.provider as CliAgentType)
-          : ('claude' as CliAgentType);
+          : ('qoder' as CliAgentType);
         const fallbackModel = fallbackPair?.model;
 
         process.stderr.write(

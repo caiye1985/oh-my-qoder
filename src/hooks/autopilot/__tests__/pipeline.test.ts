@@ -523,14 +523,14 @@ describe('autopilot team CLI worker configuration', () => {
     expect(prompt).not.toContain('test-engineer` with');
   });
 
-  it('uses implicit-team guidance for Claude-only team execution', () => {
+  it('uses implicit-team guidance for Qoder-only team execution', () => {
     const prompt = executionAdapter.getPrompt({
       idea: 'test',
       directory: '/tmp',
       config: {
         ...DEFAULT_PIPELINE_CONFIG,
         execution: 'team',
-        team: { agentTypes: ['claude'] },
+        team: { agentTypes: ['qoder'] },
       },
     });
 

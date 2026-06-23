@@ -1,10 +1,10 @@
 # Hooks System
 
-> OMC's 21 hooks intercept Claude Code lifecycle events to enable magic keywords, context injection, and quality enforcement.
+> OMC's 21 hooks intercept Qoder lifecycle events to enable magic keywords, context injection, and quality enforcement.
 
 ## What Are Hooks?
 
-Hooks are scripts that execute automatically in response to Claude Code lifecycle events. oh-my-claudecode extends Claude Code's default behavior with 21 hooks.
+Hooks are scripts that execute automatically in response to Qoder lifecycle events. oh-my-qoder extends Qoder's default behavior with 21 hooks.
 
 When a user submits a prompt, a tool runs, or a session starts/ends, hooks fire automatically to inject additional context, activate modes, and manage state.
 
@@ -90,7 +90,7 @@ Separate hook names with commas to skip only those hooks.
 
 ## Lifecycle Events
 
-Claude Code emits events throughout a session. OMC attaches hooks to these events to extend behavior. There are 11 lifecycle events.
+Qoder emits events throughout a session. OMC attaches hooks to these events to extend behavior. There are 11 lifecycle events.
 
 ### UserPromptSubmit
 
@@ -230,7 +230,7 @@ See the [Magic Keywords](#magic-keywords) section for the full keyword list.
 
 #### workflow-drift-guard
 
-Blocks only deterministic recurring workflow drift at the Claude Code `Stop` lifecycle point. The boundary follows the official Claude Code [hooks reference](https://code.claude.com/docs/en/hooks): Stop hooks receive `last_assistant_message`, may return `decision: "block"` with a `reason`, and must account for `stop_hook_active` to avoid self-reinforcing loops. Plugin/Hookify installs follow the official Claude Code [plugins reference](https://code.claude.com/docs/en/plugins-reference): plugin hooks can live in `hooks/hooks.json` at the plugin root and respond to the same lifecycle events as user hooks.
+Blocks only deterministic recurring workflow drift at the Qoder `Stop` lifecycle point. The boundary follows the official Qoder [hooks reference](https://code.claude.com/docs/en/hooks): Stop hooks receive `last_assistant_message`, may return `decision: "block"` with a `reason`, and must account for `stop_hook_active` to avoid self-reinforcing loops. Plugin/Hookify installs follow the official Qoder [plugins reference](https://code.claude.com/docs/en/plugins-reference): plugin hooks can live in `hooks/hooks.json` at the plugin root and respond to the same lifecycle events as user hooks.
 
 - **Event**: Stop
 - **Behavior**: Blocks when the final assistant message ends with a narrow preference/approval question that should be asked via structured `AskUserQuestion`; the reason tells Claude to use 2-4 options and keep `allowOther` enabled unless free-form input is unsafe.
@@ -247,7 +247,7 @@ Enforces continuation when an execution mode is active. This is the hook that ke
 - **Reinforcement message**: "The boulder never stops" — prompts Claude to continue working
 - **Staleness check**: States older than 2 hours are treated as inactive to prevent stale state from blocking new sessions
 - **Notification**: Sends Discord/Telegram/Slack notification on first stop (if configured)
-- **Cancel**: Use `/oh-my-claudecode:cancel` to deactivate modes
+- **Cancel**: Use `/oh-my-qoder:cancel` to deactivate modes
 
 > **Note**: autopilot, ralph, ultrawork, and ultraqa are **skills** (invoked via keyword-detector), not hooks. The persistent-mode hook is what enforces their continuation by blocking the Stop event.
 
@@ -276,11 +276,11 @@ When a session ID is present, state is stored in session scope under `.omc/state
 
 `ultragoal-state.json` is the session-scoped Stop/PreToolUse guard for `$ultragoal` runs. The durable plan and audit trail remain `.omc/ultragoal/goals.json` and `.omc/ultragoal/ledger.jsonl`; the state file only records the active runtime guard.
 
-- **Location**: `.omc/state/sessions/{sessionId}/ultragoal-state.json` when a Claude session id is available; legacy fallback is `.omc/state/ultragoal-state.json`.
+- **Location**: `.omc/state/sessions/{sessionId}/ultragoal-state.json` when a Qoder session id is available; legacy fallback is `.omc/state/ultragoal-state.json`.
 - **Active fields**: `active: true`, `session_id`, `project_path`, `started_at`, `last_checked_at`, `current_phase`, optional `claude_goal_objective`, and `reinforcement_count`.
 - **Stop hook**: reinforces only when the state is active, fresh (within the normal 2-hour mode-state freshness window), session-matching, and project-matching. Terminal phases (`complete`, `completed`, `done`, `all-done`, `failed`, `cancelled`) and all-done `.omc/ultragoal/goals.json` plans are ignored.
 - **PreToolUse guard**: while active, tools are denied unless the hook can see a matching active Claude `/goal` snapshot. Use `ALLOW_ULTRAGOAL_WITHOUT_GOAL=1` only as an intentional local bypass.
-- **Completion**: after the final quality gate and ultragoal checkpoint, mark the state inactive or run `/oh-my-claudecode:cancel` so the state file is cleared with other workflow state.
+- **Completion**: after the final quality gate and ultragoal checkpoint, mark the state inactive or run `/oh-my-qoder:cancel` so the state file is cleared with other workflow state.
 
 #### Canceling a Mode
 
@@ -291,7 +291,7 @@ cancelomc
 or
 
 ```
-/oh-my-claudecode:cancel
+/oh-my-qoder:cancel
 ```
 
 `cancel` removes state files for all active modes: ralph, autopilot, ultrawork, and any others.
@@ -300,7 +300,7 @@ or
 
 ## Context Management Hooks
 
-Claude Code's context window is finite. During long sessions, compaction occurs and previous conversation content is summarized. OMC's context management hooks prepare for compaction, preserve important information, and maintain project-level memory.
+Qoder's context window is finite. During long sessions, compaction occurs and previous conversation content is summarized. OMC's context management hooks prepare for compaction, preserve important information, and maintain project-level memory.
 
 ### notepad
 
@@ -330,7 +330,7 @@ Manages permanent project-level memory.
   - `project-memory-session.mjs` (SessionStart): Loads project memory when session starts
   - `project-memory-posttool.mjs` (PostToolUse): Updates memory after tool use
   - `project-memory-precompact.mjs` (PreCompact): Preserves memory before compaction
-- **Multi-session contract**: Both writers acquire `withProjectMemoryLock` (see `src/lib/file-lock.ts`) before reading or rewriting `project-memory.json`. Concurrent sessions in the same workspace serialize through this lock, so lost-update races between parallel Claude sessions are impossible. See `tests/integration/concurrent-project-memory.test.ts` for the regression guard.
+- **Multi-session contract**: Both writers acquire `withProjectMemoryLock` (see `src/lib/file-lock.ts`) before reading or rewriting `project-memory.json`. Concurrent sessions in the same workspace serialize through this lock, so lost-update races between parallel Qoder sessions are impossible. See `tests/integration/concurrent-project-memory.test.ts` for the regression guard.
 
 Two types of data are stored in project-memory:
 
@@ -393,7 +393,7 @@ These keywords invoke a skill and create a state file.
 | `ralph`, `don't stop`, `must complete`, `until done` | ralph | Persistent execution until verification completes |
 | `autopilot`, `build me`, `I want a`, `handle it all`, `end to end`, `auto-pilot`, `full auto`, `fullsend`, `e2e this` | autopilot | Fully autonomous execution |
 | `ultrawork`, `ulw`, `uw` | ultrawork | Maximum parallel execution |
-| `ccg`, `claude-codex-gemini` | ccg | Claude-Codex-Gemini tri-model orchestration (use `antigravity` workers when using the Antigravity CLI) |
+| `ccg`, `qoderx-gemini` | ccg | Claude-Codex-Gemini tri-model orchestration (use `antigravity` workers when using the Antigravity CLI) |
 | `ralplan` | ralplan | Consensus-based iterative planning |
 | `deep interview`, `ouroboros` | deep-interview | Socratic deep interview |
 
@@ -465,7 +465,7 @@ cancel  (highest priority, exclusive)
 ### Usage Examples
 
 ```bash
-# In Claude Code:
+# In Qoder:
 
 # Autonomous execution
 autopilot: implement user authentication with OAuth
@@ -491,5 +491,5 @@ stopomc
 `team` is not auto-detected. It must be invoked explicitly via the `/team` slash command to prevent infinite spawning.
 
 ```
-/oh-my-claudecode:team 3:executor "build a fullstack todo app"
+/oh-my-qoder:team 3:executor "build a fullstack todo app"
 ```

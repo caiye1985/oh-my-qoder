@@ -5,7 +5,7 @@
  * resolved to the original project's transcript path.
  *
  * Covers:
- *   - Claude internal worktrees (.claude/worktrees/X) — issue #1094
+ *   - Claude internal worktrees (.qoder/worktrees/X) — issue #1094
  *   - Native git worktrees (git worktree add) — issue #1191
  */
 
@@ -56,14 +56,14 @@ describe('resolveTranscriptPath', () => {
   });
 
   it('resolves worktree-encoded transcript path to original project path', () => {
-    // Simulate: ~/.claude/projects/-Users-user-project/<session>.jsonl (real)
+    // Simulate: ~/.qoder/projects/-Users-user-project/<session>.jsonl (real)
     const projectDir = join(tempDir, 'projects', '-Users-user-project');
     mkdirSync(projectDir, { recursive: true });
     const realTranscript = join(projectDir, 'abc123.jsonl');
     writeFileSync(realTranscript, '{}');
 
     // Worktree-encoded path that doesn't exist:
-    // ~/.claude/projects/-Users-user-project--claude-worktrees-refactor/<session>.jsonl
+    // ~/.qoder/projects/-Users-user-project--claude-worktrees-refactor/<session>.jsonl
     const worktreeDir = join(tempDir, 'projects', '-Users-user-project--claude-worktrees-refactor');
     const worktreePath = join(worktreeDir, 'abc123.jsonl');
 
@@ -128,15 +128,15 @@ describe('resolveTranscriptPath', () => {
     expect(resolveTranscriptPath(normalPath)).toBe(normalPath);
   });
 
-  it('resolves via a .claude/worktrees CWD using the OS-native separator (Strategy 2)', () => {
+  it('resolves via a .qoder/worktrees CWD using the OS-native separator (Strategy 2)', () => {
     // Regression: the worktree marker and the session-filename extraction must
     // be separator-agnostic. On Windows the CWD arrives with `\`, so a
-    // hard-coded `.claude/worktrees/` marker (and lastIndexOf('/')) never
+    // hard-coded `.qoder/worktrees/` marker (and lastIndexOf('/')) never
     // matched and Strategy 2 was dead. Uses join() so the CWD carries whatever
     // separator the host OS produces, exercising the fix on that OS.
-    const origClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
+    const origClaudeConfigDir = process.env.QODER_CONFIG_DIR;
     const fakeClaudeDir = join(tempDir, 'fake-claude');
-    process.env.CLAUDE_CONFIG_DIR = fakeClaudeDir;
+    process.env.QODER_CONFIG_DIR = fakeClaudeDir;
     try {
       const projectRoot = join(tempDir, 'myproject');
       const realDir = join(fakeClaudeDir, 'projects', encodeProjectPath(projectRoot));
@@ -154,9 +154,9 @@ describe('resolveTranscriptPath', () => {
       expect(resolveTranscriptPath(worktreePath, worktreeCwd)).toBe(realTranscript);
     } finally {
       if (origClaudeConfigDir === undefined) {
-        delete process.env.CLAUDE_CONFIG_DIR;
+        delete process.env.QODER_CONFIG_DIR;
       } else {
-        process.env.CLAUDE_CONFIG_DIR = origClaudeConfigDir;
+        process.env.QODER_CONFIG_DIR = origClaudeConfigDir;
       }
     }
   });
@@ -170,8 +170,8 @@ describe('resolveTranscriptPath', () => {
     let origClaudeConfigDir: string | undefined;
 
     beforeEach(() => {
-      // Save and override CLAUDE_CONFIG_DIR so Strategy 3 finds our fake projects dir
-      origClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
+      // Save and override QODER_CONFIG_DIR so Strategy 3 finds our fake projects dir
+      origClaudeConfigDir = process.env.QODER_CONFIG_DIR;
 
       // Create a real git repo with a linked worktree
       mainRepoDir = join(tempDir, 'main-repo');
@@ -194,9 +194,9 @@ describe('resolveTranscriptPath', () => {
         stdio: 'pipe',
       });
 
-      // Simulate ~/.claude/projects/ with a transcript at the main repo's encoded path
+      // Simulate ~/.qoder/projects/ with a transcript at the main repo's encoded path
       fakeClaudeDir = join(tempDir, 'fake-claude');
-      process.env.CLAUDE_CONFIG_DIR = fakeClaudeDir;
+      process.env.QODER_CONFIG_DIR = fakeClaudeDir;
       const encodedMain = encodeProjectPath(mainRepoDir);
       const projectDir = join(fakeClaudeDir, 'projects', encodedMain);
       mkdirSync(projectDir, { recursive: true });
@@ -204,11 +204,11 @@ describe('resolveTranscriptPath', () => {
     });
 
     afterEach(() => {
-      // Restore CLAUDE_CONFIG_DIR
+      // Restore QODER_CONFIG_DIR
       if (origClaudeConfigDir === undefined) {
-        delete process.env.CLAUDE_CONFIG_DIR;
+        delete process.env.QODER_CONFIG_DIR;
       } else {
-        process.env.CLAUDE_CONFIG_DIR = origClaudeConfigDir;
+        process.env.QODER_CONFIG_DIR = origClaudeConfigDir;
       }
 
       // Clean up worktree before the main afterEach removes tempDir

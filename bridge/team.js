@@ -808,7 +808,7 @@ function configFromManifest(manifest) {
   return {
     name: manifest.name,
     task: manifest.task,
-    agent_type: "claude",
+    agent_type: "qoder",
     policy: manifest.policy,
     governance: manifest.governance,
     worker_launch_mode: manifest.policy.worker_launch_mode,
@@ -3240,7 +3240,7 @@ function resolveOmcCliPrefix(options = {}) {
   if (omcAvailable) {
     return OMC_CLI_BINARY;
   }
-  const pluginRoot = typeof env.CLAUDE_PLUGIN_ROOT === "string" ? env.CLAUDE_PLUGIN_ROOT.trim() : "";
+  const pluginRoot = typeof env.QODER_PLUGIN_ROOT === "string" ? env.QODER_PLUGIN_ROOT.trim() : "";
   if (pluginRoot) {
     return OMC_PLUGIN_BRIDGE_PREFIX;
   }
@@ -3259,7 +3259,7 @@ var init_omc_cli_rendering = __esm({
   "src/utils/omc-cli-rendering.ts"() {
     "use strict";
     OMC_CLI_BINARY = "omc";
-    OMC_PLUGIN_BRIDGE_PREFIX = 'node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs';
+    OMC_PLUGIN_BRIDGE_PREFIX = 'node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs';
   }
 });
 
@@ -3629,9 +3629,9 @@ function getDefaultTierModels() {
     HIGH: getDefaultModelHigh()
   };
 }
-function resolveClaudeFamily(modelId) {
+function resolveQoderFamily(modelId) {
   const lower = modelId.toLowerCase();
-  if (!lower.includes("claude")) return null;
+  if (!lower.includes("qoder")) return null;
   if (lower.includes("sonnet")) return "SONNET";
   if (lower.includes("opus")) return "OPUS";
   if (lower.includes("haiku")) return "HAIKU";
@@ -3643,14 +3643,14 @@ function hasBedrockModelId(modelIds) {
     if (/^((us|eu|ap|global)\.anthropic\.|anthropic\.claude)/i.test(modelId)) {
       return true;
     }
-    if (/^arn:aws(-[^:]+)?:bedrock:/i.test(modelId) && /:(inference-profile|application-inference-profile)\//i.test(modelId) && modelId.toLowerCase().includes("claude")) {
+    if (/^arn:aws(-[^:]+)?:bedrock:/i.test(modelId) && /:(inference-profile|application-inference-profile)\//i.test(modelId) && modelId.toLowerCase().includes("qoder")) {
       return true;
     }
   }
   return false;
 }
 function isBedrock() {
-  if (process.env.CLAUDE_CODE_USE_BEDROCK === "1") {
+  if (process.env.QODER_USE_BEDROCK === "1") {
     return true;
   }
   return hasBedrockModelId(getProviderDetectionModelEnvValues());
@@ -3668,7 +3668,7 @@ function isProviderSpecificModelId(modelId) {
   return false;
 }
 function isVertexAI() {
-  if (process.env.CLAUDE_CODE_USE_VERTEX === "1") {
+  if (process.env.QODER_USE_VERTEX === "1") {
     return true;
   }
   return hasVertexModelId(getProviderDetectionModelEnvValues());
@@ -3679,7 +3679,7 @@ function hasVertexModelId(modelIds) {
 function hasNonClaudeModelId(modelIds) {
   for (const modelId of modelIds) {
     const lower = modelId.toLowerCase();
-    if (!lower.includes("claude") && !CLAUDE_TIER_ALIASES.has(lower)) {
+    if (!lower.includes("qoder") && !CLAUDE_TIER_ALIASES.has(lower)) {
       return true;
     }
   }
@@ -3689,10 +3689,10 @@ function shouldAutoForceInherit() {
   if (process.env.OMC_ROUTING_FORCE_INHERIT === "true") {
     return true;
   }
-  if (process.env.CLAUDE_CODE_USE_BEDROCK === "1") {
+  if (process.env.QODER_USE_BEDROCK === "1") {
     return true;
   }
-  if (process.env.CLAUDE_CODE_USE_VERTEX === "1") {
+  if (process.env.QODER_USE_VERTEX === "1") {
     return true;
   }
   const directModelValues = getDirectProviderDetectionModelEnvValues();
@@ -3712,47 +3712,47 @@ function shouldAutoForceInherit() {
   }
   return false;
 }
-var DIRECT_MODEL_ENV_KEYS, INHERIT_TIER_PRIORITY, CLAUDE_TIER_ALIASES, TIER_ENV_KEYS, CLAUDE_FAMILY_DEFAULTS, BUILTIN_TIER_MODEL_DEFAULTS, CLAUDE_FAMILY_HIGH_VARIANTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS;
+var DIRECT_MODEL_ENV_KEYS, INHERIT_TIER_PRIORITY, CLAUDE_TIER_ALIASES, TIER_ENV_KEYS, QODER_FAMILY_DEFAULTS, BUILTIN_TIER_MODEL_DEFAULTS, QODER_FAMILY_HIGH_VARIANTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS;
 var init_models = __esm({
   "src/config/models.ts"() {
     "use strict";
     init_ssrf_guard();
-    DIRECT_MODEL_ENV_KEYS = ["CLAUDE_MODEL", "ANTHROPIC_MODEL"];
+    DIRECT_MODEL_ENV_KEYS = ["QODER_MODEL", "ANTHROPIC_MODEL"];
     INHERIT_TIER_PRIORITY = ["MEDIUM", "HIGH", "LOW"];
     CLAUDE_TIER_ALIASES = /* @__PURE__ */ new Set(["sonnet", "opus", "haiku", "fable"]);
     TIER_ENV_KEYS = {
       LOW: [
         "OMC_MODEL_LOW",
-        "CLAUDE_CODE_BEDROCK_HAIKU_MODEL",
+        "QODER_BEDROCK_HAIKU_MODEL",
         "ANTHROPIC_DEFAULT_HAIKU_MODEL"
       ],
       MEDIUM: [
         "OMC_MODEL_MEDIUM",
-        "CLAUDE_CODE_BEDROCK_SONNET_MODEL",
+        "QODER_BEDROCK_SONNET_MODEL",
         "ANTHROPIC_DEFAULT_SONNET_MODEL"
       ],
       HIGH: [
         "OMC_MODEL_HIGH",
-        "CLAUDE_CODE_BEDROCK_OPUS_MODEL",
+        "QODER_BEDROCK_OPUS_MODEL",
         "ANTHROPIC_DEFAULT_OPUS_MODEL"
       ]
     };
-    CLAUDE_FAMILY_DEFAULTS = {
+    QODER_FAMILY_DEFAULTS = {
       HAIKU: "claude-haiku-4-5",
       SONNET: "claude-sonnet-4-6",
       OPUS: "claude-opus-4-8",
       FABLE: "claude-fable-5"
     };
     BUILTIN_TIER_MODEL_DEFAULTS = {
-      LOW: CLAUDE_FAMILY_DEFAULTS.HAIKU,
-      MEDIUM: CLAUDE_FAMILY_DEFAULTS.SONNET,
-      HIGH: CLAUDE_FAMILY_DEFAULTS.OPUS
+      LOW: QODER_FAMILY_DEFAULTS.HAIKU,
+      MEDIUM: QODER_FAMILY_DEFAULTS.SONNET,
+      HIGH: QODER_FAMILY_DEFAULTS.OPUS
     };
-    CLAUDE_FAMILY_HIGH_VARIANTS = {
-      HAIKU: `${CLAUDE_FAMILY_DEFAULTS.HAIKU}-high`,
-      SONNET: `${CLAUDE_FAMILY_DEFAULTS.SONNET}-high`,
-      OPUS: `${CLAUDE_FAMILY_DEFAULTS.OPUS}-high`,
-      FABLE: `${CLAUDE_FAMILY_DEFAULTS.FABLE}-high`
+    QODER_FAMILY_HIGH_VARIANTS = {
+      HAIKU: `${QODER_FAMILY_DEFAULTS.HAIKU}-high`,
+      SONNET: `${QODER_FAMILY_DEFAULTS.SONNET}-high`,
+      OPUS: `${QODER_FAMILY_DEFAULTS.OPUS}-high`,
+      FABLE: `${QODER_FAMILY_DEFAULTS.FABLE}-high`
     };
     BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
       codexModel: "gpt-5.3-codex",
@@ -3936,7 +3936,7 @@ function buildDefaultConfig() {
     // Delegation routing configuration (opt-in feature for external model routing)
     delegationRouting: {
       enabled: false,
-      defaultProvider: "claude",
+      defaultProvider: "qoder",
       roles: {}
     },
     // /team role routing (Option E — /team-scoped per-role provider & model)
@@ -3982,7 +3982,7 @@ function buildDefaultConfig() {
 function getConfigPaths() {
   const userConfigDir = getConfigDir();
   return {
-    user: join12(userConfigDir, "claude-omc", "config.jsonc"),
+    user: join12(userConfigDir, "qoder-omc", "config.jsonc"),
     project: join12(process.cwd(), ".claude", "omc.jsonc")
   };
 }
@@ -4121,7 +4121,7 @@ function loadEnvConfig() {
   };
   if (process.env.OMC_EXTERNAL_MODELS_FALLBACK_POLICY) {
     const policy = process.env.OMC_EXTERNAL_MODELS_FALLBACK_POLICY;
-    if (policy === "provider_chain" || policy === "cross_provider" || policy === "claude_only") {
+    if (policy === "provider_chain" || policy === "cross_provider" || policy === "qoder_only") {
       externalModelsFallback.onModelFailure = policy;
     }
   }
@@ -4139,7 +4139,7 @@ function loadEnvConfig() {
   }
   if (process.env.OMC_DELEGATION_ROUTING_DEFAULT_PROVIDER) {
     const provider = process.env.OMC_DELEGATION_ROUTING_DEFAULT_PROVIDER;
-    if (["claude", "codex", "gemini"].includes(provider)) {
+    if (["qoder", "codex", "gemini"].includes(provider)) {
       config.delegationRouting = {
         ...config.delegationRouting,
         defaultProvider: provider
@@ -4345,12 +4345,12 @@ var init_loader = __esm({
     CANONICAL_TEAM_ROLE_SET = new Set(CANONICAL_TEAM_ROLES);
     CURSOR_EXECUTOR_TEAM_ROLE_SET = new Set(CURSOR_EXECUTOR_TEAM_ROLES);
     KNOWN_AGENT_NAME_SET = new Set(KNOWN_AGENT_NAMES);
-    TEAM_ROLE_PROVIDERS = /* @__PURE__ */ new Set(["claude", "codex", "gemini", "grok", "cursor", "antigravity"]);
+    TEAM_ROLE_PROVIDERS = /* @__PURE__ */ new Set(["qoder", "codex", "gemini", "grok", "cursor", "antigravity"]);
     TEAM_ROLE_TIERS = /* @__PURE__ */ new Set(["HIGH", "MEDIUM", "LOW"]);
     AUTOPILOT_EXECUTION_BACKENDS = /* @__PURE__ */ new Set(["team", "solo"]);
     AUTOPILOT_PLANNING_MODES = /* @__PURE__ */ new Set(["ralplan", "direct"]);
     AUTOPILOT_TEAM_AGENT_TYPES = /* @__PURE__ */ new Set([
-      "claude",
+      "qoder",
       "codex",
       "gemini",
       "grok",
@@ -4961,11 +4961,11 @@ var init_definitions = __esm({
 });
 
 // src/features/delegation-enforcer.ts
-function normalizeToCcAlias(model) {
+function normalizeToQoderAlias(model) {
   if (isProviderSpecificModelId(model)) {
     return model;
   }
-  const family = resolveClaudeFamily(model);
+  const family = resolveQoderFamily(model);
   return family ? FAMILY_TO_ALIAS[family] ?? model : model;
 }
 var FAMILY_TO_ALIAS;
@@ -4991,7 +4991,7 @@ import { join as join13 } from "path";
 function loadSecurityFromConfigFiles() {
   const paths = [
     join13(process.cwd(), ".claude", "omc.jsonc"),
-    join13(getConfigDir(), "claude-omc", "config.jsonc")
+    join13(getConfigDir(), "qoder-omc", "config.jsonc")
   ];
   for (const configPath of paths) {
     if (!existsSync9(configPath)) continue;
@@ -5129,7 +5129,7 @@ function resolveCliBinaryPath(binary) {
   resolvedPathCache.set(binary, resolvedPath);
   return resolvedPath;
 }
-function shouldUseClaudeBareMode(env = process.env) {
+function shouldUseQoderBareMode(env = process.env) {
   return typeof env.ANTHROPIC_API_KEY === "string" && env.ANTHROPIC_API_KEY.trim().length > 0;
 }
 function getContract(agentType) {
@@ -5137,9 +5137,9 @@ function getContract(agentType) {
   if (!contract) {
     throw new Error(`Unknown agent type: ${agentType}. Supported: ${Object.keys(CONTRACTS).join(", ")}`);
   }
-  if (agentType !== "claude" && isExternalLLMDisabled()) {
+  if (agentType !== "qoder" && isExternalLLMDisabled()) {
     throw new Error(
-      `External LLM provider "${agentType}" is blocked by security policy (disableExternalLLM). Only Claude workers are allowed in the current security configuration.`
+      `External LLM provider "${agentType}" is blocked by security policy (disableExternalLLM). Only Qoder workers are allowed in the current security configuration.`
     );
   }
   return contract;
@@ -5200,18 +5200,18 @@ function isPromptModeAgent(agentType) {
   const contract = getContract(agentType);
   return !!contract.supportsPromptMode;
 }
-function resolveClaudeWorkerModel(env = process.env) {
+function resolveQoderWorkerModel(env = process.env) {
   if (env.OMC_ROUTING_FORCE_INHERIT === "true") {
     return void 0;
   }
   if (!isBedrock() && !isVertexAI()) {
     return void 0;
   }
-  const directModel = env.ANTHROPIC_MODEL || env.CLAUDE_MODEL || "";
+  const directModel = env.ANTHROPIC_MODEL || env.QODER_MODEL || "";
   if (directModel) {
     return directModel;
   }
-  const bedrockModel = env.CLAUDE_CODE_BEDROCK_SONNET_MODEL || env.ANTHROPIC_DEFAULT_SONNET_MODEL || "";
+  const bedrockModel = env.QODER_BEDROCK_SONNET_MODEL || env.ANTHROPIC_DEFAULT_SONNET_MODEL || "";
   if (bedrockModel) {
     return bedrockModel;
   }
@@ -5260,17 +5260,17 @@ var init_model_contract = __esm({
       /^\/dev\/shm(\/|$)/
     ];
     CONTRACTS = {
-      claude: {
-        agentType: "claude",
-        binary: "claude",
-        installInstructions: "Install Claude CLI: https://claude.ai/download",
+      qoder: {
+        agentType: "qoder",
+        binary: "qoder",
+        installInstructions: "Install Qoder CLI: https://qoder.ai/download",
         buildLaunchArgs(model, extraFlags = []) {
           const args = ["--dangerously-skip-permissions"];
-          if (shouldUseClaudeBareMode() && !extraFlags.includes("--bare")) {
+          if (shouldUseQoderBareMode() && !extraFlags.includes("--bare")) {
             args.push("--bare");
           }
           if (model) {
-            const resolved = isProviderSpecificModelId(model) ? model : normalizeToCcAlias(model);
+            const resolved = isProviderSpecificModelId(model) ? model : normalizeToQoderAlias(model);
             args.push("--model", resolved);
           }
           return [...args, ...extraFlags];
@@ -5373,13 +5373,13 @@ var init_model_contract = __esm({
     };
     WORKER_MODEL_ENV_ALLOWLIST = [
       "ANTHROPIC_MODEL",
-      "CLAUDE_MODEL",
+      "QODER_MODEL",
       "ANTHROPIC_BASE_URL",
-      "CLAUDE_CODE_USE_BEDROCK",
-      "CLAUDE_CODE_USE_VERTEX",
-      "CLAUDE_CODE_BEDROCK_OPUS_MODEL",
-      "CLAUDE_CODE_BEDROCK_SONNET_MODEL",
-      "CLAUDE_CODE_BEDROCK_HAIKU_MODEL",
+      "QODER_USE_BEDROCK",
+      "QODER_USE_VERTEX",
+      "QODER_BEDROCK_OPUS_MODEL",
+      "QODER_BEDROCK_SONNET_MODEL",
+      "QODER_BEDROCK_HAIKU_MODEL",
       "ANTHROPIC_DEFAULT_OPUS_MODEL",
       "ANTHROPIC_DEFAULT_SONNET_MODEL",
       "ANTHROPIC_DEFAULT_HAIKU_MODEL",
@@ -5469,7 +5469,7 @@ function agentTypeGuidance(agentType) {
         "- Keep commit-sized changes scoped to assigned files only; no broad refactors.",
         `- CRITICAL: You MUST run \`${claimTaskCommand}\` before starting work and \`${transitionTaskStatusCommand}\` when done. Do not exit without transitioning the task status.`
       ].join("\n");
-    case "claude":
+    case "qoder":
     default:
       return [
         "### Agent-Type Guidance (claude)",
@@ -6536,7 +6536,7 @@ function configFromManifest2(manifest) {
   return {
     name: manifest.name,
     task: manifest.task,
-    agent_type: "claude",
+    agent_type: "qoder",
     policy: manifest.policy,
     governance: manifest.governance,
     worker_launch_mode: manifest.policy.worker_launch_mode,
@@ -6864,13 +6864,13 @@ function resolveRoleAssignment(role, cfg) {
   const roleRouting = cfg.team?.roleRouting;
   const spec = getRoleRoutingSpec(roleRouting, canonical);
   const isOrchestrator = canonical === "orchestrator";
-  const provider = isOrchestrator ? "claude" : spec?.provider ?? "claude";
+  const provider = isOrchestrator ? "qoder" : spec?.provider ?? "qoder";
   if (provider === "cursor" && !CURSOR_EXECUTOR_TEAM_ROLE_SET2.has(canonical)) {
     throw new Error(
       `team.roleRouting.${canonical}.provider: cursor is only supported for executor-style roles (${[...CURSOR_EXECUTOR_TEAM_ROLE_SET2].join(", ")})`
     );
   }
-  const model = provider === "claude" ? resolveClaudeModel(canonical, spec?.model, cfg) : resolveExternalModel(provider, spec?.model, cfg);
+  const model = provider === "qoder" ? resolveClaudeModel(canonical, spec?.model, cfg) : resolveExternalModel(provider, spec?.model, cfg);
   const agent = spec?.agent ?? ROLE_TO_AGENT[canonical];
   return { provider, model, agent };
 }
@@ -6883,10 +6883,10 @@ function buildResolvedRoutingSnapshot(cfg) {
   for (const role of CANONICAL_TEAM_ROLES) {
     const primary = resolveRoleAssignment(role, cfg);
     const spec = getRoleRoutingSpec(roleRouting, role);
-    const isExternalPrimary = primary.provider !== "claude";
+    const isExternalPrimary = primary.provider !== "qoder";
     const fallbackModelInput = isExternalPrimary && spec?.model && !isTier(spec.model) ? void 0 : spec?.model;
     const fallback = {
-      provider: "claude",
+      provider: "qoder",
       model: resolveClaudeModel(role, fallbackModelInput, cfg),
       agent: primary.agent
     };
@@ -7128,7 +7128,7 @@ var init_role_router = __esm({
 // src/team/cli-worker-contract.ts
 function shouldInjectContract(role, provider) {
   if (!role || !provider) return false;
-  if (provider === "claude" || provider === "cursor") return false;
+  if (provider === "qoder" || provider === "cursor") return false;
   return CONTRACT_ROLES.has(role);
 }
 function renderCliWorkerOutputContract(role, output_file) {
@@ -7397,7 +7397,7 @@ var init_merge_coordinator = __esm({
     "use strict";
     init_git_worktree();
     BRANCH_NAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$/;
-    HARNESS_MERGE_PATHS = ["AGENTS.md", ".claude/**"];
+    HARNESS_MERGE_PATHS = ["AGENTS.md", ".qoder/**"];
   }
 });
 
@@ -7621,14 +7621,14 @@ async function installCommitCadence(ctx) {
   if (!ctx.enabled) {
     return { method: "none" };
   }
-  if (ctx.agentType === "claude") {
+  if (ctx.agentType === "qoder") {
     await installPostToolUseHook(ctx.worktreePath, ctx.workerName);
     return { method: "hook" };
   }
   return { method: "fallback-poll" };
 }
 async function uninstallCommitCadence(ctx) {
-  if (ctx.agentType !== "claude") return;
+  if (ctx.agentType !== "qoder") return;
   const settingsPath = join22(ctx.worktreePath, ".claude", "settings.json");
   try {
     const raw = await readFile9(settingsPath, "utf-8");
@@ -8361,7 +8361,7 @@ function resolveTaskAssignment(task, resolvedRouting, roleRoutingConfig, resolve
     }
     return { agentType: fallbackAgent, model: "", role: canonical };
   }
-  if (hasExplicitRole && !hasConfigForRole && fallbackAgent !== "claude") {
+  if (hasExplicitRole && !hasConfigForRole && fallbackAgent !== "qoder") {
     return { agentType: fallbackAgent, model: "", role: canonical };
   }
   const pair = resolvedRouting[canonical];
@@ -8570,7 +8570,7 @@ async function spawnV2Worker(opts) {
     if (opts.agentType === "cursor") {
       return void 0;
     }
-    return resolveClaudeWorkerModel();
+    return resolveQoderWorkerModel();
   })();
   const [launchBinary, ...launchArgs] = buildWorkerArgv(opts.agentType, {
     teamName: opts.teamName,
@@ -8649,7 +8649,7 @@ async function spawnV2Worker(opts) {
       startupFailureReason: dispatchOutcome.reason
     };
   }
-  if (opts.agentType === "claude") {
+  if (opts.agentType === "qoder") {
     let settled = await waitForWorkerStartupEvidence(
       opts.teamName,
       opts.workerName,
@@ -8775,7 +8775,7 @@ async function startTeamV2(config) {
         `[team/runtime-v2] ${t} headless mode is unsupported on this platform \u2014 using claude fallback for direct workers
 `
       );
-      return "claude";
+      return "qoder";
     }
     return t;
   });
@@ -8802,7 +8802,7 @@ async function startTeamV2(config) {
   }
   if (!resolvedBinaryPaths.claude) {
     try {
-      resolvedBinaryPaths.claude = resolveValidatedBinaryPath("claude");
+      resolvedBinaryPaths.claude = resolveValidatedBinaryPath("qoder");
     } catch {
     }
   }
@@ -8875,7 +8875,7 @@ async function startTeamV2(config) {
     }));
     const allocationWorkers = workerNames.map((name, i) => ({
       name,
-      role: config.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "claude"),
+      role: config.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "qoder"),
       currentLoad: 0
     }));
     for (const r of allocateTasksToWorkers(allocationTasks, allocationWorkers)) {
@@ -8885,7 +8885,7 @@ async function startTeamV2(config) {
   try {
     for (let i = 0; i < workerNames.length; i++) {
       const wName = workerNames[i];
-      const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "claude";
+      const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "qoder";
       await ensureWorkerStateDir(sanitized, wName, leaderCwd);
       const overlayPath = await writeWorkerOverlay({
         teamName: sanitized,
@@ -8928,7 +8928,7 @@ async function startTeamV2(config) {
     return {
       name: wName,
       index: i + 1,
-      role: config.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "claude"),
+      role: config.workerRoles?.[i] ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? "qoder"),
       assigned_tasks: [],
       working_dir: worktree?.path ?? leaderCwd,
       team_state_root: teamStateRoot(leaderCwd, sanitized),
@@ -8944,7 +8944,7 @@ async function startTeamV2(config) {
   const teamConfig = {
     name: sanitized,
     task: config.tasks.map((t) => t.subject).join("; "),
-    agent_type: agentTypes[0] || "claude",
+    agent_type: agentTypes[0] || "qoder",
     worker_launch_mode: "interactive",
     policy: DEFAULT_TEAM_TRANSPORT_POLICY,
     governance: DEFAULT_TEAM_GOVERNANCE,
@@ -9040,7 +9040,7 @@ async function startTeamV2(config) {
       const taskId = String(decision.taskIndex + 1);
       const task = config.tasks[decision.taskIndex];
       if (!task || workerIndex < 0) continue;
-      const fallbackAgent = agentTypes[workerIndex % agentTypes.length] ?? agentTypes[0] ?? "claude";
+      const fallbackAgent = agentTypes[workerIndex % agentTypes.length] ?? agentTypes[0] ?? "qoder";
       const assignment = resolveTaskAssignment(
         task,
         resolvedRouting,
@@ -10015,7 +10015,7 @@ async function shutdownTeam(teamName, sessionName2, cwd, timeoutMs = 3e4, worker
     teamName
   });
   const configData = await readJsonSafe2(join19(root, "config.json"));
-  const CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["claude", "codex", "gemini", "grok", "cursor", "antigravity"]);
+  const CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["qoder", "codex", "gemini", "grok", "cursor", "antigravity"]);
   const agentTypes = configData?.agentTypes ?? [];
   const isCliWorkerTeam = agentTypes.length > 0 && agentTypes.every((t) => CLI_AGENT_TYPES.has(t));
   if (!isCliWorkerTeam) {
@@ -11210,7 +11210,7 @@ function readApprovedExecutionLaunchHintOutcome(cwd, mode, options = {}) {
 // src/cli/team.ts
 init_worktree_paths();
 var JOB_ID_PATTERN = /^omc-[a-z0-9]{1,16}$/;
-var VALID_CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["claude", "codex", "gemini", "cursor", "grok", "antigravity"]);
+var VALID_CLI_AGENT_TYPES = /* @__PURE__ */ new Set(["qoder", "codex", "gemini", "cursor", "grok", "antigravity"]);
 var SUBCOMMANDS = /* @__PURE__ */ new Set(["start", "status", "wait", "cleanup", "resume", "shutdown", "api", "help", "--help", "-h"]);
 var SUPPORTED_API_OPERATIONS = /* @__PURE__ */ new Set([
   "send-message",

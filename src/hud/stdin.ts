@@ -1,7 +1,7 @@
 /**
  * OMC HUD - Stdin Parser
  *
- * Parse stdin JSON from Claude Code statusline interface.
+ * Parse stdin JSON from Qoder statusline interface.
  * Based on claude-hud reference implementation.
  */
 
@@ -23,10 +23,10 @@ const TRANSIENT_CONTEXT_PERCENT_TOLERANCE = 3;
 
 /**
  * Session-id environment variables consulted in priority order.
- * Claude Code populates `CLAUDE_SESSION_ID` first; `CLAUDECODE_SESSION_ID`
+ * Qoder populates `CLAUDE_SESSION_ID` first; `QODER_SESSION_ID`
  * is a legacy / compatibility alias for the same value.
  */
-const SESSION_ID_ENV_VARS = ['CLAUDE_SESSION_ID', 'CLAUDECODE_SESSION_ID'] as const;
+const SESSION_ID_ENV_VARS = ['CLAUDE_SESSION_ID', 'QODER_SESSION_ID'] as const;
 
 /**
  * Normalize an env value to a session-id candidate.
@@ -178,7 +178,7 @@ function readMostRecentSessionCache(root: string): StatuslineStdin | null {
 // ============================================================================
 
 /**
- * Read and parse stdin JSON from Claude Code.
+ * Read and parse stdin JSON from Qoder.
  * Returns null if stdin is not available or invalid.
  */
 export async function readStdin(): Promise<StatuslineStdin | null> {
@@ -308,7 +308,7 @@ function isSameContextStream(current: StatuslineStdin, previous: StatuslineStdin
 }
 
 /**
- * Preserve the last native context percentage across transient snapshots where Claude Code
+ * Preserve the last native context percentage across transient snapshots where Qoder
  * omits `used_percentage`, but only when the fallback calculation is close enough to suggest
  * the same underlying value rather than a real context jump.
  */
@@ -351,7 +351,7 @@ export function stabilizeContextPercent(
 
 /**
  * Get context window usage percentage.
- * Prefers a positive native percentage from Claude Code statusline stdin,
+ * Prefers a positive native percentage from Qoder statusline stdin,
  * then positive current_usage tokens, then positive total_input_tokens for
  * Anthropic-compatible providers that report zeroed native usage.
  */
@@ -365,7 +365,7 @@ export function getContextPercent(stdin: StatuslineStdin): number {
 }
 
 /**
- * Convert Claude Code stdin rate_limits into the existing HUD RateLimits shape.
+ * Convert Qoder stdin rate_limits into the existing HUD RateLimits shape.
  */
 export function getRateLimitsFromStdin(stdin: StatuslineStdin): RateLimits | null {
   const fiveHour = stdin.rate_limits?.five_hour?.used_percentage;
@@ -386,7 +386,7 @@ export function getRateLimitsFromStdin(stdin: StatuslineStdin): RateLimits | nul
 /**
  * Get model display name from stdin.
  * Prefer the official display name field, then fall back to the raw model id.
- * Returns null when Claude Code does not provide model metadata so the HUD
+ * Returns null when Qoder does not provide model metadata so the HUD
  * omits the model instead of guessing or showing a fake placeholder.
  */
 export function getModelId(stdin: StatuslineStdin): string | null {

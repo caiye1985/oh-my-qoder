@@ -26,8 +26,8 @@ type PackedPackage = {
   packageJson: PackageJson;
 };
 
-const CLI_BIN_TARGET = 'bin/oh-my-claudecode.js';
-const SUPPORTED_CLI_ALIASES = ['oh-my-claudecode', 'omc'] as const;
+const CLI_BIN_TARGET = 'bin/oh-my-qoder.js';
+const SUPPORTED_CLI_ALIASES = ['oh-my-qoder', 'omc'] as const;
 
 let packedPackageCache: PackedPackage | null = null;
 let packDirCache: string | null = null;
@@ -126,10 +126,10 @@ describe('npm package bin surface regression', () => {
         binNames.map((name) => [name, expectedNpmShimNames(name)]),
       ),
     ).toEqual({
-      'oh-my-claudecode': [
-        'oh-my-claudecode',
-        'oh-my-claudecode.cmd',
-        'oh-my-claudecode.ps1',
+      'oh-my-qoder': [
+        'oh-my-qoder',
+        'oh-my-qoder.cmd',
+        'oh-my-qoder.ps1',
       ],
       omc: ['omc', 'omc.cmd', 'omc.ps1'],
     });
@@ -153,10 +153,10 @@ describe('npm package bin surface regression', () => {
         packedBinNames.map((name) => [name, expectedNpmShimNames(name)]),
       ),
     ).toEqual({
-      'oh-my-claudecode': [
-        'oh-my-claudecode',
-        'oh-my-claudecode.cmd',
-        'oh-my-claudecode.ps1',
+      'oh-my-qoder': [
+        'oh-my-qoder',
+        'oh-my-qoder.cmd',
+        'oh-my-qoder.ps1',
       ],
       omc: ['omc', 'omc.cmd', 'omc.ps1'],
     });

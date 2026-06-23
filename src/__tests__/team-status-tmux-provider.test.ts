@@ -14,8 +14,8 @@ describe('BUG 6: team-status provider type for tmux workers', () => {
 
     // Should use a regex that strips both prefixes
     expect(source).toMatch(/replace\(.*mcp.*tmux/s);
-    // Should include 'claude' in the provider union type
-    expect(source).toContain("'claude'");
+    // Should include 'qoder' in the provider union type
+    expect(source).toContain("'qoder'");
   });
 
   it('WorkerStatus interface includes claude in provider union', async () => {
@@ -31,7 +31,7 @@ describe('BUG 6: team-status provider type for tmux workers', () => {
       /interface WorkerStatus[\s\S]*?provider:\s*([^;]+);/,
     );
     expect(interfaceMatch).not.toBeNull();
-    expect(interfaceMatch![1]).toContain("'claude'");
+    expect(interfaceMatch![1]).toContain("'qoder'");
     expect(interfaceMatch![1]).toContain("'codex'");
     expect(interfaceMatch![1]).toContain("'gemini'");
   });
@@ -43,7 +43,7 @@ describe('BUG 6: team-status provider type for tmux workers', () => {
 
   it('regex correctly strips tmux- prefix', () => {
     const regex = /^(?:mcp|tmux)-/;
-    expect('tmux-claude'.replace(regex, '')).toBe('claude');
+    expect('tmux-claude'.replace(regex, '')).toBe('qoder');
   });
 
   it('regex correctly strips tmux-codex to codex', () => {

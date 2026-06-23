@@ -59,7 +59,7 @@ const SKILL_PROTECTION = {
 };
 
 function getSkillProtection(skillName) {
-  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-claudecode:/, '');
+  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-qoder:/, '');
   return SKILL_PROTECTION[normalized] || 'light';
 }
 
@@ -79,7 +79,7 @@ async function writeSkillActiveState(directory, skillName, sessionId) {
 
   const config = PROTECTION_CONFIGS[protection];
   const now = new Date().toISOString();
-  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-claudecode:/, '');
+  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-qoder:/, '');
 
   const state = {
     active: true,
@@ -166,8 +166,8 @@ async function confirmSkillModeStates(directory, skillName, sessionId) {
 // Paths are normalized to forward slashes before matching
 const ALLOWED_PATH_PATTERNS = [
   /^\.omc\//,          // .omc/** (anchored)
-  /^\.claude\//,       // .claude/** (anchored)
-  /\/\.claude\//,      // any /.claude/ path (intentionally unanchored for absolute paths)
+  /^\.claude\//,       // .qoder/** (anchored)
+  /\/\.claude\//,      // any /.qoder/ path (intentionally unanchored for absolute paths)
   /CLAUDE\.md$/,
   /AGENTS\.md$/,
 ];
@@ -243,7 +243,7 @@ function checkBashCommand(command) {
     return `[DELEGATION NOTICE] Bash command may modify source files: ${command}
 
 Recommended: Delegate to executor agent instead:
-  Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="...")
+  Task(subagent_type="oh-my-qoder:executor", model="sonnet", prompt="...")
 
 This is a soft warning. Operation will proceed.`;
   }
@@ -355,7 +355,7 @@ async function main() {
     const warning = `[DELEGATION NOTICE] Direct ${toolName} on source file: ${filePath}
 
 Recommended: Delegate to executor agent instead:
-  Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="...")
+  Task(subagent_type="oh-my-qoder:executor", model="sonnet", prompt="...")
 
 This is a soft warning. Operation will proceed.`;
 

@@ -1,9 +1,9 @@
 /**
- * Claude Code Configuration Directory Resolution
+ * Qoder Configuration Directory Resolution
  *
- * Resolves the active Claude Code configuration directory, honouring
- * CLAUDE_CONFIG_DIR (absolute path, or ~-prefixed) with fallback to
- * ~/.claude.  Trailing separators are stripped; filesystem roots are
+ * Resolves the active Qoder configuration directory, honouring
+ * QODER_CONFIG_DIR (absolute path, or ~-prefixed) with fallback to
+ * ~/.qoder.  Trailing separators are stripped; filesystem roots are
  * preserved.
  *
  * Multi-surface mirrors (keep in sync):
@@ -27,15 +27,15 @@ function stripTrailingSep(p: string): string {
 }
 
 /**
- * Resolve the Claude Code configuration directory.
+ * Resolve the Qoder configuration directory.
  *
- * Honours CLAUDE_CONFIG_DIR (absolute path, or ~-prefixed) with fallback
- * to ~/.claude.  Trailing separators are stripped; filesystem roots are
+ * Honours QODER_CONFIG_DIR (absolute path, or ~-prefixed) with fallback
+ * to ~/.qoder.  Trailing separators are stripped; filesystem roots are
  * preserved.
  */
-export function getClaudeConfigDir(): string {
+export function getQoderConfigDir(): string {
   const home = homedir();
-  const configured = process.env.CLAUDE_CONFIG_DIR?.trim();
+  const configured = process.env.QODER_CONFIG_DIR?.trim();
 
   if (!configured) {
     return stripTrailingSep(normalize(join(home, '.claude')));
@@ -54,11 +54,11 @@ export function getClaudeConfigDir(): string {
 
 /**
  * Resolve the OMC global configuration/cache directory under the active Claude
- * config dir. This keeps hook/updater/HUD caches aligned with CLAUDE_CONFIG_DIR
+ * config dir. This keeps hook/updater/HUD caches aligned with QODER_CONFIG_DIR
  * instead of mixing in ~/.omc.
  */
 export function getOmcConfigDir(): string {
-  return join(getClaudeConfigDir(), '.omc');
+  return join(getQoderConfigDir(), '.omc');
 }
 
 /** Resolve the canonical update-check cache file path. */

@@ -1,13 +1,13 @@
 /**
  * Interop CLI Command - Split-pane tmux session with OMC and OMX
  *
- * Creates a tmux split-pane layout with Claude Code (OMC) on the left
+ * Creates a tmux split-pane layout with Qoder (OMC) on the left
  * and Codex CLI (OMX) on the right, with shared interop state.
  */
 
 import { execFileSync } from 'child_process';
 import { randomUUID } from 'crypto';
-import { isTmuxAvailable, isClaudeAvailable, tmuxExec } from './tmux-utils.js';
+import { isTmuxAvailable, isQoderAvailable, tmuxExec } from './tmux-utils.js';
 import { initInteropSession, getInteropDir } from '../interop/shared-state.js';
 
 export type InteropMode = 'off' | 'observe' | 'active';
@@ -75,15 +75,15 @@ export function launchInteropSession(cwd: string = process.cwd()): void {
   }
 
   const hasCodex = isCodexAvailable();
-  const hasClaude = isClaudeAvailable();
+  const hasClaude = isQoderAvailable();
 
   if (!hasClaude) {
-    console.error('Error: claude CLI is not available. Install Claude Code CLI first.');
+    console.error('Error: claude CLI is not available. Install Qoder CLI first.');
     process.exit(1);
   }
 
   if (!hasCodex) {
-    console.warn('Warning: codex CLI is not available. Only Claude Code will be launched.');
+    console.warn('Warning: codex CLI is not available. Only Qoder will be launched.');
     console.warn('Install oh-my-codex (npm install -g @openai/codex) for full interop support.\n');
   }
 
@@ -125,7 +125,7 @@ export function launchInteropSession(cwd: string = process.cwd()): void {
   try {
     if (hasCodex) {
       // Create right pane with codex
-      console.log('Splitting pane: Left (Claude Code) | Right (Codex)');
+      console.log('Splitting pane: Left (Qoder) | Right (Codex)');
 
       tmuxExec([
         'split-window',
@@ -139,7 +139,7 @@ export function launchInteropSession(cwd: string = process.cwd()): void {
       tmuxExec(['select-pane', '-t', currentPaneId], { stdio: 'ignore' });
 
       console.log('\nInterop session ready!');
-      console.log('- Left pane: Claude Code (this terminal)');
+      console.log('- Left pane: Qoder (this terminal)');
       console.log('- Right pane: Codex CLI');
       console.log('\nYou can now use interop MCP tools to communicate between the two:');
       console.log('- interop_send_task: Send tasks between tools');
@@ -148,7 +148,7 @@ export function launchInteropSession(cwd: string = process.cwd()): void {
       console.log('- interop_read_messages: Read messages');
     } else {
       // Codex not available, just inform user
-      console.log('\nClaude Code is ready in this pane.');
+      console.log('\nQoder is ready in this pane.');
       console.log('Install oh-my-codex to enable split-pane interop mode.');
       console.log('\nInstall: npm install -g @openai/codex');
     }

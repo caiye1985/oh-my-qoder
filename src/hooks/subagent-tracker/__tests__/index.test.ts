@@ -46,7 +46,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "test-agent-123",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -110,7 +110,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "test-agent-123",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -144,7 +144,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "test-agent-123",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -200,7 +200,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "abcd1234567890",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date(Date.now() - 5000).toISOString(), // 5 seconds ago
             parent_mode: "ultrawork",
             status: "running",
@@ -239,7 +239,7 @@ describe("subagent-tracker", () => {
     it("should format multiple (5) parallel agents", () => {
       const agents: SubagentInfo[] = Array.from({ length: 5 }, (_, i) => ({
         agent_id: `agent-${i}-123456`,
-        agent_type: "oh-my-claudecode:executor",
+        agent_type: "oh-my-qoder:executor",
         started_at: new Date(Date.now() - i * 1000).toISOString(),
         parent_mode: "ultrawork",
         status: "running",
@@ -276,7 +276,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "test-123",
-            agent_type: "oh-my-claudecode:architect",
+            agent_type: "oh-my-qoder:architect",
             started_at: new Date().toISOString(),
             parent_mode: "none",
             status: "running",
@@ -318,14 +318,14 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "stale-agent",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: sixMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
           },
           {
             agent_id: "fresh-agent",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -348,7 +348,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "very-long-agent-id-1234567890",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -367,12 +367,12 @@ describe("subagent-tracker", () => {
       expect(dashboard).not.toContain("very-long-agent-id");
     });
 
-    it("should strip oh-my-claudecode: prefix from agent type", () => {
+    it("should strip oh-my-qoder: prefix from agent type", () => {
       const state: SubagentTrackingState = {
         agents: [
           {
             agent_id: "test-123",
-            agent_type: "oh-my-claudecode:architect-high",
+            agent_type: "oh-my-qoder:architect-high",
             started_at: new Date().toISOString(),
             parent_mode: "none",
             status: "running",
@@ -388,7 +388,7 @@ describe("subagent-tracker", () => {
 
       const dashboard = getAgentDashboard(testDir);
       expect(dashboard).toContain("architect-high");
-      expect(dashboard).not.toContain("oh-my-claudecode:architect-high");
+      expect(dashboard).not.toContain("oh-my-qoder:architect-high");
     });
   });
 
@@ -398,14 +398,14 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "fresh-1",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date(Date.now() - 1000).toISOString(), // 1 second ago
             parent_mode: "ultrawork",
             status: "running",
           },
           {
             agent_id: "fresh-2",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date(Date.now() - 60000).toISOString(), // 1 minute ago
             parent_mode: "ultrawork",
             status: "running",
@@ -430,21 +430,21 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "stale-1",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: sixMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
           },
           {
             agent_id: "stale-2",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: tenMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
           },
           {
             agent_id: "fresh",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: twoMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
@@ -470,7 +470,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "completed",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: tenMinutesAgo,
             parent_mode: "ultrawork",
             status: "completed",
@@ -478,7 +478,7 @@ describe("subagent-tracker", () => {
           },
           {
             agent_id: "failed",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: tenMinutesAgo,
             parent_mode: "ultrawork",
             status: "failed",
@@ -486,7 +486,7 @@ describe("subagent-tracker", () => {
           },
           {
             agent_id: "stale-running",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: tenMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
@@ -510,21 +510,21 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "running-1",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
           },
           {
             agent_id: "running-2",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
           },
           {
             agent_id: "completed-1",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "completed",
@@ -532,7 +532,7 @@ describe("subagent-tracker", () => {
           },
           {
             agent_id: "failed-1",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "failed",
@@ -582,7 +582,7 @@ describe("subagent-tracker", () => {
         permission_mode: "default",
         hook_event_name: "SubagentStart" as const,
         agent_id: "worker-3",
-        agent_type: "oh-my-claudecode:executor",
+        agent_type: "oh-my-qoder:executor",
         prompt: "Implement the dispatch changes",
         model: "gpt-5.4-mini",
       };
@@ -643,7 +643,7 @@ describe("subagent-tracker", () => {
         permission_mode: "default",
         hook_event_name: "SubagentStart" as const,
         agent_id: "worker-mission-routing",
-        agent_type: "oh-my-claudecode:executor",
+        agent_type: "oh-my-qoder:executor",
         prompt: "regression check",
         model: "claude-sonnet-4-6",
       };
@@ -677,7 +677,7 @@ describe("subagent-tracker", () => {
         permission_mode: "default",
         hook_event_name: "SubagentStart" as const,
         agent_id: "worker-stop-output",
-        agent_type: "oh-my-claudecode:executor",
+        agent_type: "oh-my-qoder:executor",
         prompt: "Return a detailed final report",
         model: "claude-sonnet-4-6",
       };
@@ -692,7 +692,7 @@ describe("subagent-tracker", () => {
         permission_mode: "default",
         hook_event_name: "SubagentStop" as const,
         agent_id: "worker-stop-output",
-        agent_type: "oh-my-claudecode:executor",
+        agent_type: "oh-my-qoder:executor",
         output: "Detailed final report with implementation evidence.",
       });
       flushPendingWrites();
@@ -739,7 +739,7 @@ describe("subagent-tracker", () => {
         permission_mode: "default",
         hook_event_name: "SubagentStart" as const,
         agent_id: "registered-agent",
-        agent_type: "oh-my-claudecode:executor",
+        agent_type: "oh-my-qoder:executor",
         prompt: "do work",
       });
       flushPendingWrites();
@@ -768,8 +768,8 @@ describe("subagent-tracker", () => {
 
     it("reconciles an unmatched fork stop by agent_type when one type matches", () => {
       for (const [id, type] of [
-        ["exec-1", "oh-my-claudecode:executor"],
-        ["explore-1", "oh-my-claudecode:explorer"],
+        ["exec-1", "oh-my-qoder:executor"],
+        ["explore-1", "oh-my-qoder:explorer"],
       ] as const) {
         processSubagentStart({
           session_id: "session-unmatched-bytype",
@@ -791,7 +791,7 @@ describe("subagent-tracker", () => {
         permission_mode: "default",
         hook_event_name: "SubagentStop" as const,
         agent_id: "native-fork-id",
-        agent_type: "oh-my-claudecode:explorer",
+        agent_type: "oh-my-qoder:explorer",
         output: "explorer done",
       });
       flushPendingWrites();
@@ -814,14 +814,14 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "stale-1",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: tenMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
           },
           {
             agent_id: "stale-2",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: tenMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
@@ -869,7 +869,7 @@ describe("subagent-tracker", () => {
           permission_mode: "default",
           hook_event_name: "SubagentStart" as const,
           agent_id: id,
-          agent_type: "oh-my-claudecode:executor",
+          agent_type: "oh-my-qoder:executor",
           prompt: "do work",
         });
       }
@@ -902,7 +902,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "timing-test",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -934,7 +934,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "perf-test",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -989,7 +989,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "token-test",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -1030,7 +1030,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "file-test",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -1070,7 +1070,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "agent-1",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -1078,7 +1078,7 @@ describe("subagent-tracker", () => {
           },
           {
             agent_id: "agent-2",
-            agent_type: "oh-my-claudecode:designer",
+            agent_type: "oh-my-qoder:designer",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -1108,7 +1108,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "stale-agent",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: sixMinutesAgo,
             parent_mode: "ultrawork",
             status: "running",
@@ -1133,7 +1133,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "costly-agent",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",
@@ -1204,7 +1204,7 @@ describe("subagent-tracker", () => {
         agents: [
           {
             agent_id: "obs-agent",
-            agent_type: "oh-my-claudecode:executor",
+            agent_type: "oh-my-qoder:executor",
             started_at: new Date().toISOString(),
             parent_mode: "ultrawork",
             status: "running",

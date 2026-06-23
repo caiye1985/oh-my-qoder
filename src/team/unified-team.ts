@@ -3,13 +3,13 @@
 /**
  * Unified team member view across Claude native and MCP workers.
  *
- * Merges Claude Code's native team config with MCP shadow registry
+ * Merges Qoder's native team config with MCP shadow registry
  * to provide a single coherent view of all team members.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import type { WorkerBackend, WorkerCapability } from './types.js';
 import { listMcpWorkers } from './team-registration.js';
 import { readHeartbeat, isWorkerAlive } from './heartbeat.js';
@@ -37,7 +37,7 @@ export function getTeamMembers(
 
   // 1. Read Claude native members from config.json
   try {
-    const configPath = join(getClaudeConfigDir(), 'teams', teamName, 'config.json');
+    const configPath = join(getQoderConfigDir(), 'teams', teamName, 'config.json');
     if (existsSync(configPath)) {
       const config = JSON.parse(readFileSync(configPath, 'utf-8'));
       if (Array.isArray(config.members)) {

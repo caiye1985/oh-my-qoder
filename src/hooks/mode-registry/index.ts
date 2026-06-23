@@ -147,7 +147,7 @@ export function getMarkerFilePath(
 }
 
 /**
- * Get the global state file path (in ~/.claude/) for modes that support it
+ * Get the global state file path (in ~/.qoder/) for modes that support it
  * @deprecated Global state is no longer supported. All modes use local-only state in .omc/state/
  * @returns Always returns null
  */
@@ -366,7 +366,7 @@ export function canStartMode(mode: ExecutionMode, cwd: string): CanStartResult {
         return {
           allowed: false,
           blockedBy: exclusiveMode,
-          message: `Cannot start ${MODE_CONFIGS[mode].name} while ${config.name} is active. Cancel ${config.name} first with /oh-my-claudecode:cancel.`,
+          message: `Cannot start ${MODE_CONFIGS[mode].name} while ${config.name} is active. Cancel ${config.name} first with /oh-my-qoder:cancel.`,
         };
       }
     }
@@ -400,7 +400,7 @@ export function getAllModeStatuses(
  * - Local state file (.omc/state/{mode}-state.json)
  * - Session-scoped state file if sessionId provided
  * - Local marker file if applicable
- * - Global state file if applicable (~/.claude/{mode}-state.json)
+ * - Global state file if applicable (~/.qoder/{mode}-state.json)
  *
  * @returns true if all files were deleted successfully (or didn't exist)
  */

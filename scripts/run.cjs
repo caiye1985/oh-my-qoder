@@ -11,8 +11,8 @@
  * Fixes issues #909, #899, #892, #869.
  *
  * Manifest usage (from hooks.json):
- *   node "${CLAUDE_PLUGIN_ROOT}/scripts/run.cjs" \
- *       "${CLAUDE_PLUGIN_ROOT}/scripts/<hook>.mjs" [args...]
+ *   node "${QODER_PLUGIN_ROOT}/scripts/run.cjs" \
+ *       "${QODER_PLUGIN_ROOT}/scripts/<hook>.mjs" [args...]
  */
 
 const { spawnSync } = require('child_process');
@@ -21,16 +21,16 @@ const { join, basename, dirname } = require('path');
 
 const target = process.argv[2];
 if (!target) {
-  // Nothing to run — exit cleanly so Claude Code hooks are never blocked.
+  // Nothing to run — exit cleanly so Qoder hooks are never blocked.
   process.exit(0);
 }
 
 /**
- * Resolve the hook script target path, handling stale CLAUDE_PLUGIN_ROOT.
+ * Resolve the hook script target path, handling stale QODER_PLUGIN_ROOT.
  *
  * When a plugin update replaces an old version directory with a symlink (or
  * deletes it entirely), sessions that still reference the old version via
- * CLAUDE_PLUGIN_ROOT will fail with MODULE_NOT_FOUND.
+ * QODER_PLUGIN_ROOT will fail with MODULE_NOT_FOUND.
  *
  * Resolution strategy:
  *   1. Use the target as-is if it exists.
@@ -39,7 +39,7 @@ if (!target) {
  *      same script name and use that instead.
  *   4. If all else fails, return null (caller exits cleanly).
  *
- * See: https://github.com/Yeachan-Heo/oh-my-claudecode/issues/1007
+ * See: https://github.com/Yeachan-Heo/oh-my-qoder/issues/1007
  */
 function resolveTarget(targetPath) {
   // Fast path: target exists (common case)
@@ -54,13 +54,13 @@ function resolveTarget(targetPath) {
   }
 
   // Fallback: scan plugin cache for the same script in the latest version.
-  // CLAUDE_PLUGIN_ROOT is e.g. ~/.claude/plugins/cache/omc/oh-my-claudecode/4.2.14
+  // QODER_PLUGIN_ROOT is e.g. ~/.qoder/plugins/cache/omc/oh-my-qoder/4.2.14
   // We look one level up for sibling version directories.
   try {
-    const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+    const pluginRoot = process.env.QODER_PLUGIN_ROOT;
     if (!pluginRoot) return null;
 
-    const cacheBase = dirname(pluginRoot);          // .../oh-my-claudecode/
+    const cacheBase = dirname(pluginRoot);          // .../oh-my-qoder/
     const scriptRelative = targetPath.slice(pluginRoot.length); // /scripts/persistent-mode.cjs
 
     if (!scriptRelative || !existsSync(cacheBase)) return null;
@@ -131,7 +131,7 @@ function resolveHookTimeoutMs(targetPath, extraArgs) {
 const resolved = resolveTarget(target);
 if (!resolved) {
   // Target not found anywhere — exit cleanly so hooks are never blocked.
-  // This is the graceful fallback for stale CLAUDE_PLUGIN_ROOT paths.
+  // This is the graceful fallback for stale QODER_PLUGIN_ROOT paths.
   process.exit(0);
 }
 

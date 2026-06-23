@@ -6,7 +6,7 @@ import { encodeProjectPath as tsEncode } from '../utils/encode-project-path.js';
 // can't import the compiled TS util, so it uses this .mjs mirror. Before the
 // mirror existed the three hooks inlined `replace(/[/\\]/g, '-')`, which dropped
 // dots and the Windows drive colon — so native-git-worktree transcript
-// resolution looked under the wrong ~/.claude/projects/<dir> and silently found
+// resolution looked under the wrong ~/.qoder/projects/<dir> and silently found
 // nothing (any repo whose path contains a dot, cross-platform; all repos on Windows).
 describe('encode-project-path.mjs (hook-runtime mirror)', () => {
   it('folds path separators, dots, and the Windows drive colon', () => {

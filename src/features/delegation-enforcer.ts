@@ -4,7 +4,7 @@
  * Middleware that ensures model parameter is always present in Task/Agent calls.
  * Automatically injects the default model from agent definitions when not specified.
  *
- * This solves the problem where Claude Code doesn't automatically apply models
+ * This solves the problem where Qoder doesn't automatically apply models
  * from agent definitions - every Task call must explicitly pass the model parameter.
  *
  * For non-Claude providers (CC Switch, LiteLLM, etc.), forceInherit is auto-enabled
@@ -16,7 +16,7 @@
 import { getAgentDefinitions } from '../agents/definitions.js';
 import { normalizeDelegationRole } from './delegation-routing/types.js';
 import { loadConfig } from '../config/loader.js';
-import { isProviderSpecificModelId, resolveClaudeFamily } from '../config/models.js';
+import { isProviderSpecificModelId, resolveQoderFamily } from '../config/models.js';
 import type { PluginConfig } from '../shared/types.js';
 
 // ---------------------------------------------------------------------------
@@ -33,10 +33,10 @@ import type { PluginConfig } from '../shared/types.js';
 const CONFIG_ENV_KEYS = [
   // forceInherit auto-detection (isNonClaudeProvider)
   'ANTHROPIC_BASE_URL',
-  'CLAUDE_MODEL',
+  'QODER_MODEL',
   'ANTHROPIC_MODEL',
-  'CLAUDE_CODE_USE_BEDROCK',
-  'CLAUDE_CODE_USE_VERTEX',
+  'QODER_USE_BEDROCK',
+  'QODER_USE_VERTEX',
   // explicit routing overrides
   'OMC_ROUTING_FORCE_INHERIT',
   'OMC_ROUTING_ENABLED',
@@ -50,9 +50,9 @@ const CONFIG_ENV_KEYS = [
   'OMC_MODEL_HIGH',
   'OMC_MODEL_MEDIUM',
   'OMC_MODEL_LOW',
-  'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
-  'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-  'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
+  'QODER_BEDROCK_HAIKU_MODEL',
+  'QODER_BEDROCK_SONNET_MODEL',
+  'QODER_BEDROCK_OPUS_MODEL',
   'ANTHROPIC_DEFAULT_HAIKU_MODEL',
   'ANTHROPIC_DEFAULT_SONNET_MODEL',
   'ANTHROPIC_DEFAULT_OPUS_MODEL',
@@ -89,17 +89,17 @@ const FAMILY_TO_ALIAS: Record<string, string> = {
 };
 
 /** Normalize a model ID to a CC-supported alias (sonnet/opus/haiku/fable) if possible */
-export function normalizeToCcAlias(model: string): string {
+export function normalizeToQoderAlias(model: string): string {
   if (isProviderSpecificModelId(model)) {
     return model;
   }
 
-  const family = resolveClaudeFamily(model);
+  const family = resolveQoderFamily(model);
   return family ? (FAMILY_TO_ALIAS[family] ?? model) : model;
 }
 
 /**
- * Agent input structure from Claude Agent SDK
+ * Agent input structure from Qoder Agent SDK
  */
 export interface AgentInput {
   description: string;
@@ -132,10 +132,10 @@ function isDelegationToolName(toolName: string): boolean {
 }
 
 function canonicalizeSubagentType(subagentType: string): string {
-  const hasPrefix = subagentType.startsWith('oh-my-claudecode:');
-  const rawAgentType = subagentType.replace(/^oh-my-claudecode:/, '');
+  const hasPrefix = subagentType.startsWith('oh-my-qoder:');
+  const rawAgentType = subagentType.replace(/^oh-my-qoder:/, '');
   const canonicalAgentType = normalizeDelegationRole(rawAgentType);
-  return hasPrefix ? `oh-my-claudecode:${canonicalAgentType}` : canonicalAgentType;
+  return hasPrefix ? `oh-my-qoder:${canonicalAgentType}` : canonicalAgentType;
 }
 
 /**
@@ -152,7 +152,7 @@ export function enforceModel(agentInput: AgentInput): EnforcementResult {
   const canonicalSubagentType = canonicalizeSubagentType(agentInput.subagent_type);
 
   // If forceInherit is enabled, skip model injection entirely so agents
-  // inherit the user's Claude Code model setting (issue #1135)
+  // inherit the user's Qoder model setting (issue #1135)
   const config = getCachedConfig();
   if (config.routing?.forceInherit) {
     const { model: _existing, ...rest } = agentInput;
@@ -169,7 +169,7 @@ export function enforceModel(agentInput: AgentInput): EnforcementResult {
   // before passing through. Full IDs like 'claude-sonnet-4-6' cause 400
   // errors on Bedrock/Vertex. (issue #1415)
   if (agentInput.model) {
-    const normalizedModel = normalizeToCcAlias(agentInput.model);
+    const normalizedModel = normalizeToQoderAlias(agentInput.model);
     return {
       originalInput: agentInput,
       modifiedInput: { ...agentInput, subagent_type: canonicalSubagentType, model: normalizedModel },
@@ -178,7 +178,7 @@ export function enforceModel(agentInput: AgentInput): EnforcementResult {
     };
   }
 
-  const agentType = canonicalSubagentType.replace(/^oh-my-claudecode:/, '');
+  const agentType = canonicalSubagentType.replace(/^oh-my-qoder:/, '');
   const agentDefs = getAgentDefinitions({ config });
   const agentDef = agentDefs[agentType];
 
@@ -215,9 +215,9 @@ export function enforceModel(agentInput: AgentInput): EnforcementResult {
     };
   }
 
-  // Normalize model to Claude Code's supported aliases (sonnet/opus/haiku).
+  // Normalize model to Qoder's supported aliases (sonnet/opus/haiku).
   // Full IDs cause 400 errors on Bedrock/Vertex. (issue #1201, #1415)
-  const normalizedModel = normalizeToCcAlias(resolvedModel);
+  const normalizedModel = normalizeToQoderAlias(resolvedModel);
 
   const modifiedInput: AgentInput = {
     ...agentInput,
@@ -292,7 +292,7 @@ export function processPreToolUse(
  * Get model for an agent type (for testing/debugging)
  */
 export function getModelForAgent(agentType: string): string {
-  const normalizedType = normalizeDelegationRole(agentType.replace(/^oh-my-claudecode:/, ''));
+  const normalizedType = normalizeDelegationRole(agentType.replace(/^oh-my-qoder:/, ''));
   const agentDefs = getAgentDefinitions({ config: getCachedConfig() });
   const agentDef = agentDefs[normalizedType];
 
@@ -306,5 +306,5 @@ export function getModelForAgent(agentType: string): string {
 
   // Normalize standard Anthropic IDs to CC-supported aliases (sonnet/opus/haiku),
   // while preserving provider-specific IDs such as Bedrock/Vertex paths.
-  return normalizeToCcAlias(agentDef.model);
+  return normalizeToQoderAlias(agentDef.model);
 }

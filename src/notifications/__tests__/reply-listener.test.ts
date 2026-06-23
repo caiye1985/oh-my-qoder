@@ -387,7 +387,7 @@ describe("reply-listener", () => {
       const userMessageId = "999888777";
       const expectedUrl = `https://discord.com/api/v10/channels/${channelId}/messages`;
       const expectedBody = {
-        content: "Injected into Claude Code session.",
+        content: "Injected into Qoder session.",
         message_reference: { message_id: userMessageId },
         allowed_mentions: { parse: [] },
       };
@@ -414,11 +414,11 @@ describe("reply-listener", () => {
       const messageId = 789;
       const expectedBody = {
         chat_id: chatId,
-        text: "Injected into Claude Code session.",
+        text: "Injected into Qoder session.",
         reply_to_message_id: messageId,
       };
 
-      expect(expectedBody.text).toBe("Injected into Claude Code session.");
+      expect(expectedBody.text).toBe("Injected into Qoder session.");
       expect(expectedBody.reply_to_message_id).toBe(messageId);
     });
 
@@ -489,17 +489,17 @@ describe("reply-listener", () => {
     it("prefixes Discord feedback with mention when discordMention is set", () => {
       const mention = "<@123456789012345678>";
       const mentionPrefix = mention ? `${mention} ` : '';
-      const content = `${mentionPrefix}Injected into Claude Code session.`;
+      const content = `${mentionPrefix}Injected into Qoder session.`;
 
-      expect(content).toBe("<@123456789012345678> Injected into Claude Code session.");
+      expect(content).toBe("<@123456789012345678> Injected into Qoder session.");
     });
 
     it("omits mention prefix when discordMention is undefined", () => {
       const mention: string | undefined = undefined;
       const mentionPrefix = mention ? `${mention} ` : '';
-      const content = `${mentionPrefix}Injected into Claude Code session.`;
+      const content = `${mentionPrefix}Injected into Qoder session.`;
 
-      expect(content).toBe("Injected into Claude Code session.");
+      expect(content).toBe("Injected into Qoder session.");
     });
 
     it("builds allowed_mentions for user mention", () => {
@@ -576,7 +576,7 @@ describe("reply-listener", () => {
       // Telegram sendMessage body should not reference discordMention
       // Find the Telegram reply body - it uses a simple text string
       const telegramReplyMatch = source.match(
-        /text:\s*['"]Injected into Claude Code session\.['"]/g,
+        /text:\s*['"]Injected into Qoder session\.['"]/g,
       );
       expect(telegramReplyMatch).not.toBeNull();
       // Should have exactly 1 match (Telegram only; Discord now uses template)

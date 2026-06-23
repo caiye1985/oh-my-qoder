@@ -66,7 +66,7 @@ export function processThinkMode(
 }
 
 /**
- * Create the think mode hook for Claude Code integration.
+ * Create the think mode hook for Qoder integration.
  */
 export function createThinkModeHook() {
   return {

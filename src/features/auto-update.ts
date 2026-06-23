@@ -1,7 +1,7 @@
 /**
  * Auto-Update System
  *
- * Provides version checking and auto-update functionality for oh-my-claudecode.
+ * Provides version checking and auto-update functionality for oh-my-qoder.
  *
  * Features:
  * - Check for new versions from GitHub releases
@@ -22,7 +22,7 @@ import {
   copyPluginSyncPayload,
   syncInstalledPluginPayload,
 } from '../installer/index.js';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { purgeStalePluginCacheVersions } from '../utils/paths.js';
 import type { NotificationConfig } from '../notifications/types.js';
 import { isAutoUpdateDisabled } from '../lib/security-config.js';
@@ -30,11 +30,11 @@ import { OMC_CONFIG_FILE_REL } from '../lib/paths.js';
 
 /** GitHub repository information */
 export const REPO_OWNER = 'Yeachan-Heo';
-export const REPO_NAME = 'oh-my-claudecode';
+export const REPO_NAME = 'oh-my-qoder';
 export const GITHUB_API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
 export const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}`;
 
-const CLAUDE_CODE_NPM_PACKAGE = '@anthropic-ai/claude-code';
+const CLAUDE_CODE_NPM_PACKAGE = '@anthropic-ai/qoder';
 
 interface GlobalClaudeCodeInstall {
   status: 'present' | 'absent' | 'unknown';
@@ -99,19 +99,19 @@ function getFirstResolvedBinaryPath(output: string, binaryName: string): string 
 function resolveClaudeBinaryPath(): string | undefined {
   try {
     if (process.platform === 'win32') {
-      return getFirstResolvedBinaryPath(execFileSync('where.exe', ['claude'], {
+      return getFirstResolvedBinaryPath(execFileSync('where.exe', ['qoder'], {
         encoding: 'utf-8',
         stdio: 'pipe',
         timeout: 5000,
         windowsHide: true,
-      }), 'claude');
+      }), 'qoder');
     }
 
     return getFirstResolvedBinaryPath(execSync('command -v claude 2>/dev/null || which claude 2>/dev/null', {
       encoding: 'utf-8',
       stdio: 'pipe',
       timeout: 5000,
-    }), 'claude');
+    }), 'qoder');
   } catch {
     return undefined;
   }
@@ -119,7 +119,7 @@ function resolveClaudeBinaryPath(): string | undefined {
 
 function detectClaudeCodeFromBinary(npmRoot?: string): GlobalClaudeCodeInstall {
   try {
-    const versionOutput = String(execFileSync('claude', ['--version'], {
+    const versionOutput = String(execFileSync('qodercli', ['--version'], {
       encoding: 'utf-8',
       stdio: 'pipe',
       timeout: 10000,
@@ -128,7 +128,7 @@ function detectClaudeCodeFromBinary(npmRoot?: string): GlobalClaudeCodeInstall {
     const binaryPath = resolveClaudeBinaryPath();
     const version = parseClaudeCodeVersion(versionOutput);
     if (!version && !binaryPath) {
-      return { status: 'unknown', error: 'claude --version returned no parseable version and binary path could not be resolved' };
+      return { status: 'unknown', error: 'qodercli --version returned no parseable version and binary path could not be resolved' };
     }
 
     const normalizedBinaryPath = binaryPath?.replace(/\\/g, '/').toLowerCase();
@@ -170,7 +170,7 @@ function detectGlobalClaudeCodeInstall(): GlobalClaudeCodeInstall {
         : { status: 'unknown', error: 'npm root -g returned an empty path' };
     }
 
-    const packageJsonPath = join(npmRoot, '@anthropic-ai', 'claude-code', 'package.json');
+    const packageJsonPath = join(npmRoot, '@anthropic-ai', 'qoder', 'package.json');
     if (!existsSync(packageJsonPath)) {
       const binaryInstall = detectClaudeCodeFromBinary(npmRoot);
       return binaryInstall.status === 'present' ? binaryInstall : { status: 'absent' };
@@ -233,13 +233,13 @@ function restoreGlobalClaudeCodeIfNeeded(
 }
 
 /**
- * Best-effort sync of the Claude Code marketplace clone.
- * The marketplace clone at ~/.claude/plugins/marketplaces/omc/ is used by
- * Claude Code to populate the plugin cache. If it's stale, `/plugin install`
+ * Best-effort sync of the Qoder marketplace clone.
+ * The marketplace clone at ~/.qoder/plugins/marketplaces/omc/ is used by
+ * Qoder to populate the plugin cache. If it's stale, `/plugin install`
  * and cache rebuilds reinstall old versions. (See #506)
  */
 function syncMarketplaceClone(verbose: boolean = false): { ok: boolean; message: string } {
-  const marketplacePath = join(getClaudeConfigDir(), 'plugins', 'marketplaces', 'omc');
+  const marketplacePath = join(getQoderConfigDir(), 'plugins', 'marketplaces', 'omc');
   if (!existsSync(marketplacePath)) {
     return { ok: true, message: 'Marketplace clone not found; skipping' };
   }
@@ -349,7 +349,7 @@ function deriveUpdatedPluginInstallPath(
 ): string {
   if (existingInstallPath?.trim()) {
     const normalized = existingInstallPath.replace(/\\/g, '/').toLowerCase();
-    if (normalized.includes('/plugins/cache/') && normalized.includes('/oh-my-claudecode/')) {
+    if (normalized.includes('/plugins/cache/') && normalized.includes('/oh-my-qoder/')) {
       return replaceLastPathSegmentPreservingSeparators(existingInstallPath, newVersion);
     }
   }
@@ -376,7 +376,7 @@ function syncInstalledPluginRegistryVersion(
   newVersion: string,
   fallbackInstallPath: string,
 ): { updated: boolean; errors: string[] } {
-  const installedPluginsPath = join(getClaudeConfigDir(), 'plugins', 'installed_plugins.json');
+  const installedPluginsPath = join(getQoderConfigDir(), 'plugins', 'installed_plugins.json');
   if (!existsSync(installedPluginsPath)) {
     return { updated: false, errors: [] };
   }
@@ -399,8 +399,8 @@ function syncInstalledPluginRegistryVersion(
 
     for (const [pluginId, entriesValue] of Object.entries(plugins)) {
       const normalizedPluginId = pluginId.toLowerCase();
-      const isOmcPlugin = normalizedPluginId === 'oh-my-claudecode@omc'
-        || normalizedPluginId === 'oh-my-claudecode';
+      const isOmcPlugin = normalizedPluginId === 'oh-my-qoder@omc'
+        || normalizedPluginId === 'oh-my-qoder';
       if (!isOmcPlugin || !Array.isArray(entriesValue)) {
         continue;
       }
@@ -451,7 +451,7 @@ export function shouldBlockStandaloneUpdateInCurrentSession(): boolean {
     return true;
   }
 
-  const sessionId = process.env.CLAUDE_SESSION_ID?.trim() || process.env.CLAUDECODE_SESSION_ID?.trim();
+  const sessionId = process.env.CLAUDE_SESSION_ID?.trim() || process.env.QODER_SESSION_ID?.trim();
   if (sessionId) {
     return true;
   }
@@ -460,7 +460,7 @@ export function shouldBlockStandaloneUpdateInCurrentSession(): boolean {
 }
 
 export function syncPluginCache(verbose: boolean = false): { synced: boolean; skipped: boolean; errors: string[] } {
-  const pluginCacheRoot = join(getClaudeConfigDir(), 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+  const pluginCacheRoot = join(getQoderConfigDir(), 'plugins', 'cache', 'omc', 'oh-my-qoder');
   if (!existsSync(pluginCacheRoot)) {
     return { synced: false, skipped: true, errors: [] };
   }
@@ -477,7 +477,7 @@ export function syncPluginCache(verbose: boolean = false): { synced: boolean; sk
       throw new Error('npm root -g returned an empty path');
     }
 
-    const sourceRoot = join(npmRoot, 'oh-my-claude-sisyphus');
+    const sourceRoot = join(npmRoot, 'oh-my-qoder');
     const packageJsonPath = join(sourceRoot, 'package.json');
     const packageJsonRaw = String(readFileSync(packageJsonPath, 'utf-8') ?? '');
     const packageMetadata = JSON.parse(packageJsonRaw) as { version?: unknown };
@@ -498,7 +498,7 @@ export function syncPluginCache(verbose: boolean = false): { synced: boolean; sk
     }
 
     if (result.synced && result.errors.length === 0) {
-      // Keep Claude Code's plugin registry update after a successful cache copy.
+      // Keep Qoder's plugin registry update after a successful cache copy.
       // If copying fails, installed_plugins.json is left untouched so sessions do
       // not point at a partially refreshed version directory.
       const registryResult = syncInstalledPluginRegistryVersion(version, versionedPluginCacheRoot);
@@ -524,10 +524,10 @@ export function syncPluginCache(verbose: boolean = false): { synced: boolean; sk
   }
 }
 
-/** Installation paths (respects CLAUDE_CONFIG_DIR env var) */
-export const CLAUDE_CONFIG_DIR = getClaudeConfigDir();
-export const VERSION_FILE = join(CLAUDE_CONFIG_DIR, '.omc-version.json');
-export const CONFIG_FILE = join(CLAUDE_CONFIG_DIR, OMC_CONFIG_FILE_REL);
+/** Installation paths (respects QODER_CONFIG_DIR env var) */
+export const QODER_CONFIG_DIR = getQoderConfigDir();
+export const VERSION_FILE = join(QODER_CONFIG_DIR, '.omc-version.json');
+export const CONFIG_FILE = join(QODER_CONFIG_DIR, OMC_CONFIG_FILE_REL);
 
 /**
  * Stop hook callback configuration for file logging
@@ -676,14 +676,14 @@ export function isAutoUpgradePromptEnabled(): boolean {
 /**
  * Check if team feature is enabled
  * Returns false by default - requires explicit opt-in
- * Checks ~/.claude/settings.json first, then env var fallback
+ * Checks ~/.qoder/settings.json first, then env var fallback
  */
 export function isTeamEnabled(): boolean {
   try {
-    const settingsPath = join(CLAUDE_CONFIG_DIR, 'settings.json');
+    const settingsPath = join(QODER_CONFIG_DIR, 'settings.json');
     if (existsSync(settingsPath)) {
       const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-      const val = settings.env?.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS;
+      const val = settings.env?.QODER_EXPERIMENTAL_AGENT_TEAMS;
       if (val === '1' || val === 'true') {
         return true;
       }
@@ -691,7 +691,7 @@ export function isTeamEnabled(): boolean {
   } catch {
     // Fall through to env check
   }
-  const envVal = process.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS;
+  const envVal = process.env.QODER_EXPERIMENTAL_AGENT_TEAMS;
   return envVal === '1' || envVal === 'true';
 }
 
@@ -760,15 +760,15 @@ export function getInstalledVersion(): VersionMetadata | null {
     // Try to detect version from package.json if installed via npm
     try {
       // Check if we can find the package in node_modules
-      const result = execSync('npm list -g oh-my-claude-sisyphus --json', {
+      const result = execSync('npm list -g oh-my-qoder --json', {
         encoding: 'utf-8',
         timeout: 5000,
         stdio: 'pipe'
       });
       const data = JSON.parse(result);
-      if (data.dependencies?.['oh-my-claude-sisyphus']?.version) {
+      if (data.dependencies?.['oh-my-qoder']?.version) {
         return {
-          version: data.dependencies['oh-my-claude-sisyphus'].version,
+          version: data.dependencies['oh-my-qoder'].version,
           installedAt: new Date().toISOString(),
           installMethod: 'npm'
         };
@@ -818,7 +818,7 @@ function getGitHubUpdateToken(): string | null {
 function getGitHubReleaseHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
     'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'oh-my-claudecode-updater'
+    'User-Agent': 'oh-my-qoder-updater'
   };
 
   const token = getGitHubUpdateToken();
@@ -886,7 +886,7 @@ export async function fetchLatestRelease(): Promise<ReleaseInfo> {
     // No releases found - try to get version from package.json in repo
     const pkgResponse = await fetch(`${GITHUB_RAW_URL}/main/package.json`, {
       headers: {
-        'User-Agent': 'oh-my-claudecode-updater'
+        'User-Agent': 'oh-my-qoder-updater'
       }
     });
 
@@ -974,9 +974,9 @@ export function reconcileUpdateRuntime(options?: { verbose?: boolean; skipGraceP
   const projectScopedPlugin = isProjectScopedPlugin();
   // Plugin installs execute hooks from <pluginRoot>/hooks/hooks.json. Re-running
   // the standalone settings.json hook merge during `omc update` re-injects the
-  // legacy ~/.claude/hooks/* entries and causes duplicate hook execution.
+  // legacy ~/.qoder/hooks/* entries and causes duplicate hook execution.
   //
-  // Reconciliation should still refresh shared installer artifacts (CLAUDE.md,
+  // Reconciliation should still refresh shared installer artifacts (AGENTS.md,
   // HUD, MCP registry, statusLine, etc.), but it must leave settings.json hook
   // ownership alone for plugin installs so the plugin hook manifest remains the
   // single source of truth.
@@ -1087,14 +1087,14 @@ export async function performUpdate(options?: {
   const previousVersion = installed?.version ?? null;
 
   try {
-    // Block npm update only from active Claude Code/plugin sessions.
-    // Standalone terminals may inherit CLAUDE_PLUGIN_ROOT and should still update.
+    // Block npm update only from active Qoder/plugin sessions.
+    // Standalone terminals may inherit QODER_PLUGIN_ROOT and should still update.
     if (shouldBlockStandaloneUpdateInCurrentSession() && !options?.standalone) {
       return {
         success: false,
         previousVersion,
         newVersion: 'unknown',
-        message: 'Running inside an active Claude Code plugin session. Use "/plugin install oh-my-claudecode" to update, or pass --standalone to force npm update.',
+        message: 'Running inside an active Qoder plugin session. Use "/plugin install oh-my-qoder" to update, or pass --standalone to force npm update.',
       };
     }
 
@@ -1105,7 +1105,7 @@ export async function performUpdate(options?: {
 
     // Use npm for updates on all platforms (install.sh was removed)
     try {
-      execSync('npm install -g oh-my-claude-sisyphus@latest', npmExecOptions(options?.verbose ?? false));
+      execSync('npm install -g oh-my-qoder@latest', npmExecOptions(options?.verbose ?? false));
 
       try {
         restoreGlobalClaudeCodeIfNeeded(claudeCodeBeforeUpdate, options?.verbose ?? false);
@@ -1119,7 +1119,7 @@ export async function performUpdate(options?: {
         };
       }
 
-      // Sync Claude Code marketplace clone so plugin cache picks up new version (#506)
+      // Sync Qoder marketplace clone so plugin cache picks up new version (#506)
       const marketplaceSync = syncMarketplaceClone(options?.verbose ?? false);
       if (!marketplaceSync.ok && options?.verbose) {
         console.warn(`[omc update] ${marketplaceSync.message}`);
@@ -1197,8 +1197,8 @@ export async function performUpdate(options?: {
     } catch (npmError) {
       throw new Error(
         'Auto-update via npm failed. Please run manually:\n' +
-        '  npm install -g oh-my-claude-sisyphus@latest\n' +
-        'Or use: /plugin install oh-my-claudecode\n' +
+        '  npm install -g oh-my-qoder@latest\n' +
+        'Or use: /plugin install oh-my-qoder\n' +
         `Error: ${npmError instanceof Error ? npmError.message : npmError}`
       );
     }
@@ -1219,19 +1219,19 @@ export async function performUpdate(options?: {
  */
 export function formatUpdateNotification(checkResult: UpdateCheckResult): string {
   if (!checkResult.updateAvailable) {
-    return `oh-my-claudecode is up to date (v${checkResult.currentVersion ?? 'unknown'})`;
+    return `oh-my-qoder is up to date (v${checkResult.currentVersion ?? 'unknown'})`;
   }
 
   const lines = [
     '╔═══════════════════════════════════════════════════════════╗',
-    '║           oh-my-claudecode Update Available!              ║',
+    '║           oh-my-qoder Update Available!              ║',
     '╚═══════════════════════════════════════════════════════════╝',
     '',
     `  Current version: ${checkResult.currentVersion ?? 'unknown'}`,
     `  Latest version:  ${checkResult.latestVersion}`,
     '',
     '  To update, run: /update',
-    '  Or reinstall via: /plugin install oh-my-claudecode',
+    '  Or reinstall via: /plugin install oh-my-qoder',
     ''
   ];
 
@@ -1313,7 +1313,7 @@ export async function interactiveUpdate(): Promise<void> {
 
     if (result.success) {
       console.log(`\n✓ ${result.message}`);
-      console.log('\nPlease restart your Claude Code session to use the new version.');
+      console.log('\nPlease restart your Qoder session to use the new version.');
     } else {
       console.error(`\n✗ ${result.message}`);
       if (result.errors) {
@@ -1342,7 +1342,7 @@ export interface SilentUpdateConfig {
 }
 
 /** State file for tracking silent update status */
-const SILENT_UPDATE_STATE_FILE = join(CLAUDE_CONFIG_DIR, '.omc-silent-update.json');
+const SILENT_UPDATE_STATE_FILE = join(QODER_CONFIG_DIR, '.omc-silent-update.json');
 
 interface SilentUpdateState {
   lastAttempt?: string;
@@ -1417,7 +1417,7 @@ export async function silentAutoUpdate(config: SilentUpdateConfig = {}): Promise
   const {
     checkIntervalHours = 24,
     autoApply = true,
-    logFile = join(CLAUDE_CONFIG_DIR, '.omc-update.log'),
+    logFile = join(QODER_CONFIG_DIR, '.omc-update.log'),
     maxRetries = 3
   } = config;
 

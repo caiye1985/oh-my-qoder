@@ -161,7 +161,7 @@ else
 fi
 
 # 14. Does NOT match arbitrary text
-if ! _psm_pane_has_claude_prompt "Welcome to Claude Code!"; then
+if ! _psm_pane_has_claude_prompt "Welcome to Qoder!"; then
     pass "rejects non-prompt welcome text"
 else
     fail "rejects non-prompt welcome text" "should have returned non-zero"

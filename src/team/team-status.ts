@@ -9,7 +9,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { listMcpWorkers } from './team-registration.js';
 import { readHeartbeat, isWorkerAlive } from './heartbeat.js';
 import { listTaskIds, readTask } from './task-file-ops.js';
@@ -37,7 +37,7 @@ function peekRecentOutboxMessages(
 ): OutboxMessage[] {
   const safeName = sanitizeName(teamName);
   const safeWorker = sanitizeName(workerName);
-  const outboxPath = join(getClaudeConfigDir(), 'teams', safeName, 'outbox', `${safeWorker}.jsonl`);
+  const outboxPath = join(getQoderConfigDir(), 'teams', safeName, 'outbox', `${safeWorker}.jsonl`);
 
   if (!existsSync(outboxPath)) return [];
 
@@ -59,7 +59,7 @@ function peekRecentOutboxMessages(
 
 export interface WorkerStatus {
   workerName: string;
-  provider: 'claude' | 'codex' | 'gemini' | 'grok' | 'cursor' | 'antigravity';
+  provider: 'qoder' | 'codex' | 'gemini' | 'grok' | 'cursor' | 'antigravity';
   heartbeat: HeartbeatData | null;
   isAlive: boolean;
   currentTask: TaskFile | null;
@@ -133,7 +133,7 @@ export function getTeamStatus(
     };
 
     const currentTask = workerTasks.find(t => t.status === 'in_progress') || null;
-    const provider = w.agentType.replace(/^(?:mcp|tmux)-/, '') as 'claude' | 'codex' | 'gemini' | 'grok' | 'cursor' | 'antigravity';
+    const provider = w.agentType.replace(/^(?:mcp|tmux)-/, '') as 'qoder' | 'codex' | 'gemini' | 'grok' | 'cursor' | 'antigravity';
 
     return {
       workerName: w.name,

@@ -1,14 +1,14 @@
 # Architecture
 
-> How oh-my-claudecode orchestrates multi-agent workflows.
+> How oh-my-qoder orchestrates multi-agent workflows.
 
 ## Overview
 
-oh-my-claudecode enables Claude Code to orchestrate specialized agents through a skill-based routing system. It is built on four interlocking systems: **Hooks** detect lifecycle events, **Skills** inject behaviors, **Agents** execute specialized work, and **State** tracks progress across context resets.
+oh-my-qoder enables Qoder to orchestrate specialized agents through a skill-based routing system. It is built on four interlocking systems: **Hooks** detect lifecycle events, **Skills** inject behaviors, **Agents** execute specialized work, and **State** tracks progress across context resets.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         OH-MY-CLAUDECODE                                 │
+│                         OH-MY-QODER                                 │
 │                     Intelligent Skill Activation                         │
 └─────────────────────────────────────────────────────────────────────────┘
 
@@ -17,7 +17,7 @@ oh-my-claudecode enables Claude Code to orchestrate specialized agents through a
        │                                │                              │
        ▼                                ▼                              ▼
 ┌─────────────┐              ┌──────────────────┐           ┌─────────────────┐
-│  "ultrawork │              │   CLAUDE.md      │           │ SKILL ACTIVATED │
+│  "ultrawork │              │   AGENTS.md      │           │ SKILL ACTIVATED │
 │   refactor  │─────────────▶│   Auto-Routing   │──────────▶│                 │
 │   the API"  │              │                  │           │ ultrawork +     │
 └─────────────┘              │ Task Type:       │           │ default +       │
@@ -49,7 +49,7 @@ User Input --> Hooks (event detection) --> Skills (behavior injection)
 
 ### Overview
 
-OMC provides 19 specialized agents organized into 4 lanes. Each agent is invoked as `oh-my-claudecode:<agent-name>` and runs on the appropriate model tier.
+OMC provides 19 specialized agents organized into 4 lanes. Each agent is invoked as `oh-my-qoder:<agent-name>` and runs on the appropriate model tier.
 
 ### Build/Analysis Lane
 
@@ -119,7 +119,7 @@ Work is delegated through the Task tool with intelligent model routing:
 
 ```typescript
 Task(
-  subagent_type="oh-my-claudecode:executor",
+  subagent_type="oh-my-qoder:executor",
   model="sonnet",
   prompt="Implement feature..."
 )
@@ -212,9 +212,9 @@ Active skills: ultrawork + default + git-master
 
 **Slash commands:**
 ```bash
-/oh-my-claudecode:autopilot build me a todo app
-/oh-my-claudecode:ralph refactor the auth module
-/oh-my-claudecode:team 3:executor "implement fullstack app"
+/oh-my-qoder:autopilot build me a todo app
+/oh-my-qoder:ralph refactor the auth module
+/oh-my-qoder:team 3:executor "implement fullstack app"
 ```
 
 **Magic keywords** — include a keyword in natural language and the skill activates automatically:
@@ -250,12 +250,12 @@ ultrawork implement user authentication with OAuth
 #### team
 Coordinates N Claude agents with a 5-stage pipeline: `plan → prd → exec → verify → fix`
 ```bash
-/oh-my-claudecode:team 3:executor "implement fullstack todo app"
+/oh-my-qoder:team 3:executor "implement fullstack todo app"
 ```
 
 #### ccg (Claude-Codex-Gemini)
 Fans out to Codex and Gemini simultaneously; Claude synthesizes the results. Use `antigravity` workers in place of `gemini` when using the Antigravity CLI (Google's successor to the Gemini CLI).
-- Trigger: `ccg`, `claude-codex-gemini`
+- Trigger: `ccg`, `qoderx-gemini`
 ```bash
 ccg: review this authentication implementation
 ```
@@ -271,20 +271,20 @@ ralplan this feature
 
 | Skill | Description | Command |
 |-------|-------------|---------|
-| `cancel` | Cancel active execution mode | `/oh-my-claudecode:cancel` |
-| `hud` | Status bar configuration | `/oh-my-claudecode:hud` |
-| `omc-setup` | Initial setup wizard | `/oh-my-claudecode:omc-setup` |
-| `omc-doctor` | Diagnose installation | `/oh-my-claudecode:omc-doctor` |
-| `skillify` | Extract reusable skills from session | `/oh-my-claudecode:skillify` (`learner` deprecated alias) |
-| `skill` | Manage local skills (list/add/remove) | `/oh-my-claudecode:skill` |
-| `trace` | Evidence-driven causal tracing | `/oh-my-claudecode:trace` |
-| `release` | Automated release workflow | `/oh-my-claudecode:release` |
-| `deepinit` | Generate hierarchical AGENTS.md | `/oh-my-claudecode:deepinit` |
+| `cancel` | Cancel active execution mode | `/oh-my-qoder:cancel` |
+| `hud` | Status bar configuration | `/oh-my-qoder:hud` |
+| `omc-setup` | Initial setup wizard | `/oh-my-qoder:omc-setup` |
+| `omc-doctor` | Diagnose installation | `/oh-my-qoder:omc-doctor` |
+| `skillify` | Extract reusable skills from session | `/oh-my-qoder:skillify` (`learner` deprecated alias) |
+| `skill` | Manage local skills (list/add/remove) | `/oh-my-qoder:skill` |
+| `trace` | Evidence-driven causal tracing | `/oh-my-qoder:trace` |
+| `release` | Automated release workflow | `/oh-my-qoder:release` |
+| `deepinit` | Generate hierarchical AGENTS.md | `/oh-my-qoder:deepinit` |
 | `deep-interview` | Socratic deep interview | `/deep-interview` |
-| `sciomc` | Parallel scientist agent orchestration | `/oh-my-claudecode:sciomc` |
-| `external-context` | Parallel document-specialist research | `/oh-my-claudecode:external-context` |
-| `ai-slop-cleaner` | Clean AI expression patterns | `/oh-my-claudecode:ai-slop-cleaner` |
-| `writer-memory` | Memory system for writing projects | `/oh-my-claudecode:writer-memory` |
+| `sciomc` | Parallel scientist agent orchestration | `/oh-my-qoder:sciomc` |
+| `external-context` | Parallel document-specialist research | `/oh-my-qoder:external-context` |
+| `ai-slop-cleaner` | Clean AI expression patterns | `/oh-my-qoder:ai-slop-cleaner` |
+| `writer-memory` | Memory system for writing projects | `/oh-my-qoder:writer-memory` |
 
 ### Magic Keyword Reference
 
@@ -293,7 +293,7 @@ ralplan this feature
 | `ultrawork`, `ulw`, `uw` | Parallel agent orchestration |
 | `autopilot`, `build me`, `I want a`, `handle it all`, `end to end`, `e2e this` | Autonomous execution pipeline |
 | `ralph`, `don't stop`, `must complete`, `until done` | Loop until verified complete |
-| `ccg`, `claude-codex-gemini` | 3-model orchestration (use `antigravity` workers when using the Antigravity CLI) |
+| `ccg`, `qoderx-gemini` | 3-model orchestration (use `antigravity` workers when using the Antigravity CLI) |
 | `ralplan` | Consensus-based planning |
 | `deep interview`, `ouroboros` | Socratic deep interview |
 | `code review`, `review code` | Comprehensive code review mode |
@@ -322,11 +322,11 @@ The `autopilot`, `ralph`, and `ccg` triggers are hardcoded in the hook and canno
 
 ### Overview
 
-Hooks are code that reacts to Claude Code lifecycle events. They run automatically when a user submits a prompt, uses a tool, or starts/ends a session. OMC implements agent delegation, keyword detection, and state persistence through this hook system.
+Hooks are code that reacts to Qoder lifecycle events. They run automatically when a user submits a prompt, uses a tool, or starts/ends a session. OMC implements agent delegation, keyword detection, and state persistence through this hook system.
 
 ### Lifecycle Events
 
-Claude Code provides 11 lifecycle events. OMC registers hooks on these events:
+Qoder provides 11 lifecycle events. OMC registers hooks on these events:
 
 | Event | When It Fires | OMC Usage |
 |-------|---------------|-----------|
@@ -569,10 +569,10 @@ To preserve state across worktree deletions, set the `OMC_STATE_DIR` environment
 
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
-export OMC_STATE_DIR="$HOME/.claude/omc"
+export OMC_STATE_DIR="$HOME/.qoder/omc"
 ```
 
-State is then stored at `~/.claude/omc/{project-identifier}/`. The project identifier is a hash of the Git remote URL, so the same repository shares state across different worktrees.
+State is then stored at `~/.qoder/omc/{project-identifier}/`. The project identifier is a hash of the Git remote URL, so the same repository shares state across different worktrees.
 
 ### Persistent Memory Tags
 
@@ -615,4 +615,4 @@ Evidence must be fresh (within 5 minutes) and include actual command output.
 - **Complete Reference**: See [REFERENCE.md](./REFERENCE.md)
 - **Internal API**: See [FEATURES.md](./FEATURES.md)
 - **User Guide**: See [README.md](../README.md)
-- **Skills Reference**: See CLAUDE.md in your project
+- **Skills Reference**: See AGENTS.md in your project

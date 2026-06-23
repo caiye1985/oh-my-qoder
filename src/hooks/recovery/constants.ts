@@ -9,10 +9,10 @@ import { tmpdir } from 'node:os';
 import { getDataDir } from '../../utils/paths.js';
 
 /**
- * Get the Claude Code storage directory
+ * Get the Qoder storage directory
  */
 function getClaudeCodeStorageDir(): string {
-  return join(getDataDir(), 'claude-code', 'storage');
+  return join(getDataDir(), 'qoder', 'storage');
 }
 
 export const CLAUDE_CODE_STORAGE = getClaudeCodeStorageDir();

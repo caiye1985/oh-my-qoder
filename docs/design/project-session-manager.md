@@ -2,12 +2,12 @@
 
 > **Skill Name:** `project-session-manager` (alias: `psm`)
 > **Version:** 1.0.0
-> **Author:** oh-my-claudecode
+> **Author:** oh-my-qoder
 > **Status:** Design Draft
 
 ## Executive Summary
 
-Project Session Manager (PSM) automates the creation and management of isolated development environments using git worktrees and tmux sessions with Claude Code. It enables parallel work across multiple tasks, projects, and repositories while maintaining clean separation and easy context switching.
+Project Session Manager (PSM) automates the creation and management of isolated development environments using git worktrees and tmux sessions with Qoder. It enables parallel work across multiple tasks, projects, and repositories while maintaining clean separation and easy context switching.
 
 ---
 
@@ -33,7 +33,7 @@ Project Session Manager (PSM) automates the creation and management of isolated 
 
 ### Current Pain Points
 
-1. **Context Switching Overhead**: Switching between tasks requires stashing changes, switching branches, and losing Claude Code context
+1. **Context Switching Overhead**: Switching between tasks requires stashing changes, switching branches, and losing Qoder context
 2. **PR Review Isolation**: Reviewing PRs often contaminates the working directory
 3. **Parallel Work Limitation**: Can only work on one task at a time per repository
 4. **Session Management**: Manual tmux session creation is tedious and inconsistent
@@ -43,7 +43,7 @@ Project Session Manager (PSM) automates the creation and management of isolated 
 
 PSM provides a unified interface to:
 - Create isolated worktrees with a single command
-- Spawn pre-configured tmux sessions with Claude Code
+- Spawn pre-configured tmux sessions with Qoder
 - Track and manage all active sessions
 - Automate cleanup of completed work
 
@@ -54,11 +54,11 @@ PSM provides a unified interface to:
 ### 2.1 PR Review
 
 ```bash
-# Review PR #123 from oh-my-claudecode repo
+# Review PR #123 from oh-my-qoder repo
 /psm review omc#123
 
 # Review PR from any GitHub URL
-/psm review https://github.com/anthropics/claude-code/pull/456
+/psm review https://github.com/anthropics/qoder/pull/456
 
 # Review with specific focus
 /psm review omc#123 --focus "security implications"
@@ -68,7 +68,7 @@ PSM provides a unified interface to:
 1. Fetches PR branch
 2. Creates worktree at `~/.psm/worktrees/omc/pr-123`
 3. Spawns tmux session `psm:omc:pr-123`
-4. Launches Claude Code with PR context pre-loaded
+4. Launches Qoder with PR context pre-loaded
 5. Opens diff in editor (optional)
 
 ### 2.2 Issue Fixing
@@ -81,7 +81,7 @@ PSM provides a unified interface to:
 /psm fix omc#42 --branch fix/auth-timeout
 
 # Fix from issue URL
-/psm fix https://github.com/anthropics/claude-code/issues/789
+/psm fix https://github.com/anthropics/qoder/issues/789
 ```
 
 **What happens:**
@@ -89,7 +89,7 @@ PSM provides a unified interface to:
 2. Creates feature branch from main
 3. Creates worktree at `~/.psm/worktrees/omc/issue-42`
 4. Spawns tmux session with issue context
-5. Pre-populates Claude Code with issue description
+5. Pre-populates Qoder with issue description
 
 ### 2.3 Feature Development
 
@@ -192,7 +192,7 @@ PSM provides a unified interface to:
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--project`, `-p` | Project identifier or path | Current directory |
-| `--no-claude` | Skip Claude Code launch | false |
+| `--no-claude` | Skip Qoder launch | false |
 | `--no-tmux` | Use current terminal | false |
 | `--editor`, `-e` | Open in editor after | false |
 | `--verbose`, `-v` | Verbose output | false |
@@ -207,10 +207,10 @@ PSM supports multiple reference formats:
 omc#123
 
 # Full GitHub reference
-anthropics/claude-code#123
+anthropics/qoder#123
 
 # GitHub URL
-https://github.com/anthropics/claude-code/pull/123
+https://github.com/anthropics/qoder/pull/123
 
 # Local path
 /path/to/repo#123
@@ -226,13 +226,13 @@ https://github.com/anthropics/claude-code/pull/123
 {
   "aliases": {
     "omc": {
-      "repo": "anthropics/oh-my-claudecode",
-      "local": "~/Workspace/oh-my-claudecode",
+      "repo": "anthropics/oh-my-qoder",
+      "local": "~/Workspace/oh-my-qoder",
       "default_base": "main"
     },
     "cc": {
-      "repo": "anthropics/claude-code",
-      "local": "~/Workspace/claude-code",
+      "repo": "anthropics/qoder",
+      "local": "~/Workspace/qoder",
       "default_base": "main"
     },
     "myapp": {
@@ -258,7 +258,7 @@ https://github.com/anthropics/claude-code/pull/123
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    PSM Skill Entry Point                     │
-│                   /oh-my-claudecode:psm                      │
+│                   /oh-my-qoder:psm                      │
 └─────────────────────────────────────────────────────────────┘
                               │
               ┌───────────────┼───────────────┐
@@ -338,7 +338,7 @@ User Command
      ▼
 ┌─────────────────┐
 │ Launch Tmux +   │
-│ Claude Code     │
+│ Qoder     │
 └─────────────────┘
 ```
 
@@ -365,7 +365,7 @@ User Command
     │   ├── pr-123/
     │   ├── issue-42/
     │   └── feature-auth/
-    └── claude-code/
+    └── qoder/
         └── pr-456/
 ```
 
@@ -395,12 +395,12 @@ User Command
   "last_accessed": "2024-01-26T14:45:00Z",
   "tmux_session": "psm:omc:pr-123",
   "worktree_path": "~/.psm/worktrees/omc/pr-123",
-  "source_repo": "~/Workspace/oh-my-claudecode",
+  "source_repo": "~/Workspace/oh-my-qoder",
   "github": {
     "pr_number": 123,
     "pr_title": "Add webhook support",
     "pr_author": "contributor",
-    "pr_url": "https://github.com/anthropics/oh-my-claudecode/pull/123"
+    "pr_url": "https://github.com/anthropics/oh-my-qoder/pull/123"
   },
   "state": "active",
   "notes": []
@@ -976,7 +976,7 @@ interface PSMPlugin {
     "default_layout": "main-vertical",
     "status_bar": true
   },
-  "claude": {
+  "qoder": {
     "auto_context": true,
     "context_template": "default",
     "model": "opus"
@@ -1000,7 +1000,7 @@ interface PSMPlugin {
 ```bash
 $ /psm review omc#123
 
-🔍 Fetching PR #123 from oh-my-claudecode...
+🔍 Fetching PR #123 from oh-my-qoder...
    Title: "Add webhook support for external integrations"
    Author: @contributor
    Changed: 12 files (+450, -23)
@@ -1011,7 +1011,7 @@ $ /psm review omc#123
 
 🖥️  Creating tmux session: psm:omc:pr-123...
 
-🤖 Launching Claude Code with PR context...
+🤖 Launching Qoder with PR context...
 
 ✅ Session ready!
 

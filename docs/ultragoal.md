@@ -1,7 +1,7 @@
 # omc ultragoal
 
 `omc ultragoal` is a durable, repo-native multi-goal workflow that pairs with
-the Claude Code `/goal` slash command. It stores plan/ledger artifacts under
+the Qoder `/goal` slash command. It stores plan/ledger artifacts under
 `.omc/ultragoal/` and prints model-facing handoff text that tells the active
 Claude agent when to invoke `/goal <condition>`, when to clear it, and what
 snapshot JSON to share back for ledger reconciliation.
@@ -12,7 +12,7 @@ snapshot JSON to share back for ledger reconciliation.
   ordered stories, recording attempts/checkpoints, and gating final
   completion behind `ai-slop-cleaner` + verification + `$code-review`
   evidence.
-- **It isn't**: a way for a shell command to mutate Claude Code `/goal`
+- **It isn't**: a way for a shell command to mutate Qoder `/goal`
   state. Claude `/goal` is a session-scoped, model-facing directive (it
   registers a stop hook until a condition holds, and auto-clears on
   success). OMC cannot invoke `/goal` for the model — the handoff text is
@@ -27,7 +27,7 @@ snapshot JSON to share back for ledger reconciliation.
   ledger.jsonl   Append-only audit trail of plan/goal events
 ```
 
-The plan stores a `claudeGoalMode`:
+The plan stores a `qoderGoalMode`:
 
 - `aggregate` (default): one Claude `/goal` covers the whole ultragoal run;
   OMC stories `G001`/`G002`/… are bookkeeping in the ledger.
@@ -46,12 +46,12 @@ omc ultragoal add-goal       --title <title> --objective <text> [--evidence <tex
 omc ultragoal record-review-blockers
                             --goal-id <id> --title <title> --objective <text>
                             --evidence <review-findings>
-                            --claude-goal-json <active-json-or-path> [--json]
+                            --qoder-goal-json <active-json-or-path> [--json]
 omc ultragoal checkpoint    --goal-id <id> --status <complete|failed|blocked>
                             [--evidence <text>]
-                            [--claude-goal-json <json-or-path>]
+                            [--qoder-goal-json <json-or-path>]
                             [--quality-gate-json <json-or-path>] [--json]
-omc ultragoal status        [--claude-goal-json <json-or-path>] [--json]
+omc ultragoal status        [--qoder-goal-json <json-or-path>] [--json]
 ```
 
 Aliases: `create` → `create-goals`, `complete|next|start-next` →
@@ -59,8 +59,8 @@ Aliases: `create` → `create-goals`, `complete|next|start-next` →
 
 ## Claude `/goal` snapshots
 
-`--claude-goal-json` accepts either inline JSON or a path to a JSON file
-containing the snapshot the model shares from the active Claude session.
+`--qoder-goal-json` accepts either inline JSON or a path to a JSON file
+containing the snapshot the model shares from the active Qoder session.
 Accepted shapes:
 
 ```json

@@ -1,5 +1,5 @@
 /**
- * Atomic file writes for oh-my-claudecode hooks.
+ * Atomic file writes for oh-my-qoder hooks.
  * Self-contained module with no external dependencies.
  */
 

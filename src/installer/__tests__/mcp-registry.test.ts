@@ -32,7 +32,7 @@ describe('unified MCP registry sync', () => {
     mkdirSync(claudeDir, { recursive: true });
     mkdirSync(codexDir, { recursive: true });
     mkdirSync(omcDir, { recursive: true });
-    process.env.CLAUDE_CONFIG_DIR = claudeDir;
+    process.env.QODER_CONFIG_DIR = claudeDir;
     process.env.CLAUDE_MCP_CONFIG_PATH = join(testRoot, '.claude.json');
     process.env.CODEX_HOME = codexDir;
     process.env.OMC_HOME = omcDir;
@@ -86,7 +86,7 @@ describe('unified MCP registry sync', () => {
       mcpServers: {
         team: {
           command: 'node',
-          args: ['${CLAUDE_PLUGIN_ROOT}/bridge/team-mcp.cjs'],
+          args: ['${QODER_PLUGIN_ROOT}/bridge/team-mcp.cjs'],
         },
         gitnexus: {
           command: 'gitnexus',
@@ -613,7 +613,7 @@ describe('unified MCP registry sync', () => {
   });
 
 
-  it('respects explicit removal from ~/.claude.json when legacy settings still contain a stale copy', () => {
+  it('respects explicit removal from ~/.qoder.json when legacy settings still contain a stale copy', () => {
     writeFileSync(getUnifiedMcpRegistryPath(), JSON.stringify({
       gitnexus: { command: 'gitnexus', args: ['mcp'] },
     }, null, 2));

@@ -61,7 +61,7 @@ describe('shutdownTeamV2 detached worktree cleanup', () => {
     writeFileSync(join(teamRoot, 'config.json'), JSON.stringify({
       name: teamName,
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 0,
       max_workers: 20,
@@ -91,7 +91,7 @@ describe('shutdownTeamV2 detached worktree cleanup', () => {
     writeFileSync(join(teamRoot, 'config.json'), JSON.stringify({
       name: teamName,
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 0,
       max_workers: 20,
@@ -177,7 +177,7 @@ describe('shutdownTeamV2 detached worktree cleanup', () => {
     writeFileSync(join(teamRoot, 'config.json'), JSON.stringify({
       name: teamName,
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 1,
       max_workers: 20,
@@ -216,7 +216,7 @@ describe('shutdownTeamV2 detached worktree cleanup', () => {
     writeFileSync(join(teamRoot, 'config.json'), JSON.stringify({
       name: teamName,
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 1,
       max_workers: 20,
@@ -259,7 +259,7 @@ describe('shutdownTeamV2 detached worktree cleanup', () => {
     writeFileSync(join(teamRoot, 'config.json'), JSON.stringify({
       name: teamName,
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 1,
       max_workers: 20,
@@ -300,7 +300,7 @@ describe('shutdownTeamV2 detached worktree cleanup', () => {
     writeFileSync(join(teamRoot, 'config.json'), JSON.stringify({
       name: teamName,
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 1,
       max_workers: 20,

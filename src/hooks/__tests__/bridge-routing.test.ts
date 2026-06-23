@@ -406,7 +406,7 @@ Read src/hooks/bridge.ts first.`,
           prompt: `Investigate why this pasted transcript branched sessions:
 
 [MAGIC KEYWORD: RALPH]
-Skill: oh-my-claudecode:ralph
+Skill: oh-my-qoder:ralph
 User request:
 ralph fix parser`,
           directory: tempDir,
@@ -549,7 +549,7 @@ $ ultrawork search the codebase`,
         const input: HookInput = {
           sessionId,
           toolName: 'Skill',
-          toolInput: { skill: 'oh-my-claudecode:ralph' },
+          toolInput: { skill: 'oh-my-qoder:ralph' },
           directory: tempDir,
         };
 
@@ -642,7 +642,7 @@ $ ultrawork search the codebase`,
         const result = await processHook('pre-tool-use', {
           sessionId,
           toolName: 'Skill',
-          toolInput: { skill: 'oh-my-claudecode:ralph' },
+          toolInput: { skill: 'oh-my-qoder:ralph' },
           directory: tempDir,
         });
 
@@ -675,7 +675,7 @@ $ ultrawork search the codebase`,
         const result = await processHook('pre-tool-use', {
           sessionId,
           toolName: 'Skill',
-          toolInput: { skill: 'oh-my-claudecode:ralplan' },
+          toolInput: { skill: 'oh-my-qoder:ralplan' },
           directory: tempDir,
         });
 
@@ -800,7 +800,7 @@ $ ultrawork search the codebase`,
 
         const result = await processHook('keyword-detector', {
           sessionId,
-          prompt: '/oh-my-claudecode:ralplan issue #2622',
+          prompt: '/oh-my-qoder:ralplan issue #2622',
           directory: tempDir,
         });
 
@@ -810,7 +810,7 @@ $ ultrawork search the codebase`,
         expect(result.message).toBeUndefined();
         expect(hookSpecificOutput.hookEventName).toBe('UserPromptSubmit');
         expect(hookSpecificOutput.additionalContext).toContain('[RALPLAN INIT]');
-        expect(hookSpecificOutput.additionalContext).toContain('/oh-my-claudecode:ralplan issue #2622');
+        expect(hookSpecificOutput.additionalContext).toContain('/oh-my-qoder:ralplan issue #2622');
 
         const ralplanPath = join(tempDir, '.omc', 'state', 'sessions', sessionId, 'ralplan-state.json');
         expect(existsSync(ralplanPath)).toBe(true);
@@ -915,7 +915,7 @@ $ ultrawork search the codebase`,
           sessionId,
           toolName: 'Skill',
           toolInput: {
-            skill: 'oh-my-claudecode:plan',
+            skill: 'oh-my-qoder:plan',
             args: '--consensus issue #1926',
           },
           directory: tempDir,
@@ -949,14 +949,14 @@ $ ultrawork search the codebase`,
         await processHook('pre-tool-use', {
           sessionId,
           toolName: 'Skill',
-          toolInput: { skill: 'oh-my-claudecode:ralplan' },
+          toolInput: { skill: 'oh-my-qoder:ralplan' },
           directory: tempDir,
         });
 
         const postResult = await processHook('post-tool-use', {
           sessionId,
           toolName: 'Skill',
-          toolInput: { skill: 'oh-my-claudecode:ralplan' },
+          toolInput: { skill: 'oh-my-qoder:ralplan' },
           toolOutput: { ok: true },
           directory: tempDir,
         });
@@ -997,7 +997,7 @@ $ ultrawork search the codebase`,
 
         const result = await processHook('keyword-detector', {
           sessionId,
-          prompt: '/oh-my-claudecode:deep-interview explore auth flows',
+          prompt: '/oh-my-qoder:deep-interview explore auth flows',
           directory: tempDir,
         });
 
@@ -1047,7 +1047,7 @@ $ ultrawork search the codebase`,
       }
     });
 
-    it('seeds workflow slot when Skill tool invokes oh-my-claudecode:deep-interview', async () => {
+    it('seeds workflow slot when Skill tool invokes oh-my-qoder:deep-interview', async () => {
       const tempDir = mkdtempSync(join(tmpdir(), 'bridge-routing-di-skill-'));
       try {
         execFileSync('git', ['init'], { cwd: tempDir, stdio: 'pipe' });
@@ -1056,7 +1056,7 @@ $ ultrawork search the codebase`,
         const result = await processHook('pre-tool-use', {
           sessionId,
           toolName: 'Skill',
-          toolInput: { skill: 'oh-my-claudecode:deep-interview' },
+          toolInput: { skill: 'oh-my-qoder:deep-interview' },
           directory: tempDir,
         });
 
@@ -1077,7 +1077,7 @@ $ ultrawork search the codebase`,
       }
     });
 
-    it('seeds workflow slot when Skill tool invokes oh-my-claudecode:self-improve', async () => {
+    it('seeds workflow slot when Skill tool invokes oh-my-qoder:self-improve', async () => {
       const tempDir = mkdtempSync(join(tmpdir(), 'bridge-routing-si-skill-'));
       try {
         execFileSync('git', ['init'], { cwd: tempDir, stdio: 'pipe' });
@@ -1086,7 +1086,7 @@ $ ultrawork search the codebase`,
         const result = await processHook('pre-tool-use', {
           sessionId,
           toolName: 'Skill',
-          toolInput: { skill: 'oh-my-claudecode:self-improve' },
+          toolInput: { skill: 'oh-my-qoder:self-improve' },
           directory: tempDir,
         });
 
@@ -1474,7 +1474,7 @@ $ ultrawork search the codebase`,
 
   describe('input normalization', () => {
     it('should normalize snake_case tool_name to camelCase toolName', async () => {
-      // Send snake_case input (as Claude Code would)
+      // Send snake_case input (as Qoder would)
       const rawInput = {
         session_id: 'test-session',
         tool_name: 'Bash',
@@ -1786,7 +1786,7 @@ $ ultrawork search the codebase`,
     it('snake_case input should be normalized and pass validation', async () => {
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      // Raw snake_case input as Claude Code would send
+      // Raw snake_case input as Qoder would send
       const rawInput = {
         session_id: 'test-session-xyz',
         cwd: '/tmp/test-routing',
@@ -1948,7 +1948,7 @@ $ ultrawork search the codebase`,
   // --------------------------------------------------------------------------
   // Regression #858 — snake_case fields must reach handlers after normalization
   //
-  // processHook() normalizes Claude Code's snake_case payload (session_id,
+  // processHook() normalizes Qoder's snake_case payload (session_id,
   // cwd, tool_name, tool_input) to camelCase before routing.  The handlers
   // for session-end, pre-compact, setup-init, setup-maintenance, and
   // permission-request all expect the original snake_case field names, so

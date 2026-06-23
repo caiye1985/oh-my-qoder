@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Oh-My-ClaudeCode CLI
+ * Oh-My-Qoder CLI
  *
  * Command-line interface for the OMC multi-agent system.
  *
@@ -15,7 +15,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { join } from 'path';
 import { writeFileSync, existsSync } from 'fs';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { OMC_PLUGIN_ROOT_ENV } from '../lib/env-vars.js';
 import {
   loadConfig,
@@ -117,21 +117,21 @@ async function defaultAction() {
 
 program
   .name('omc')
-  .description('Multi-agent orchestration system for Claude Agent SDK')
+  .description('Multi-agent orchestration system for Qoder Agent SDK')
   .version(version)
   .allowUnknownOption()
   .action(defaultAction);
 
 /**
- * Launch command - Native tmux shell launch for Claude Code
+ * Launch command - Native tmux shell launch for Qoder
  */
 program
   .command('launch [args...]')
-  .description('Launch Claude Code with native tmux shell integration')
+  .description('Launch Qoder with native tmux shell integration')
   .allowUnknownOption()
   .addHelpText('after', `
 Examples:
-  $ omc                                Launch Claude Code
+  $ omc                                Launch Qoder
   $ omc --madmax                       Launch with permissions bypass
   $ omc --yolo                         Launch with permissions bypass (alias)
   $ omc --notify false                 Launch without CCNotifier events
@@ -155,11 +155,11 @@ Environment:
  */
 program
   .command('interop')
-  .description('Launch split-pane tmux session with Claude Code (OMC) and Codex (OMX)')
+  .description('Launch split-pane tmux session with Qoder (OMC) and Codex (OMX)')
   .addHelpText('after', `
 Requirements:
   - Must be running inside a tmux session
-  - Claude CLI must be installed
+  - Qoder CLI must be installed
   - Codex CLI recommended (graceful fallback if missing)`)
   .action(() => {
     interopCommand();
@@ -277,7 +277,7 @@ Profile types (use with --profile):
   webhook      Generic webhook (POST with JSON body)
 
 Examples:
-  $ omc config-stop-callback file --enable --path ${join(getClaudeConfigDir(), 'logs/{date}.md')}
+  $ omc config-stop-callback file --enable --path ${join(getQoderConfigDir(), 'logs/{date}.md')}
   $ omc config-stop-callback telegram --enable --token <token> --chat <id>
   $ omc config-stop-callback discord --enable --webhook <url>
   $ omc config-stop-callback file --disable
@@ -495,7 +495,7 @@ Examples:
         const current = config.stopHookCallbacks.file;
         config.stopHookCallbacks.file = {
           enabled: enabled ?? current?.enabled ?? false,
-          path: options.path ?? current?.path ?? join(getClaudeConfigDir(), 'session-logs/{session_id}.md'),
+          path: options.path ?? current?.path ?? join(getQoderConfigDir(), 'session-logs/{session_id}.md'),
           format: (options.format as 'markdown' | 'json') ?? current?.format ?? 'markdown',
         };
         break;
@@ -663,7 +663,7 @@ Examples:
   .action(async () => {
     const session = createOmcSession();
 
-    console.log(chalk.blue.bold('\nOh-My-ClaudeCode System Information\n'));
+    console.log(chalk.blue.bold('\nOh-My-Qoder System Information\n'));
     console.log(chalk.gray('━'.repeat(50)));
 
     console.log(chalk.blue('\nAvailable Agents:'));
@@ -743,7 +743,7 @@ Examples:
   $ omc update --standalone      Force npm update in plugin context`)
   .action(async (options) => {
     if (!options.quiet) {
-      console.log(chalk.blue('Oh-My-ClaudeCode Update\n'));
+      console.log(chalk.blue('Oh-My-Qoder Update\n'));
     }
 
     try {
@@ -791,7 +791,7 @@ Examples:
       if (result.success) {
         if (!options.quiet) {
           console.log(chalk.green(`\n✓ ${result.message}`));
-          console.log(chalk.gray('\nPlease restart your Claude Code session to use the new version.'));
+          console.log(chalk.gray('\nPlease restart your Qoder session to use the new version.'));
         }
       } else {
         console.error(chalk.red(`\n✗ ${result.message}`));
@@ -849,7 +849,7 @@ Examples:
   .action(async () => {
     const installed = getInstalledVersion();
 
-    console.log(chalk.blue.bold('\nOh-My-ClaudeCode Version Information\n'));
+    console.log(chalk.blue.bold('\nOh-My-Qoder Version Information\n'));
     console.log(chalk.gray('━'.repeat(50)));
 
     console.log(`\n  Package version:   ${chalk.green(version)}`);
@@ -870,29 +870,29 @@ Examples:
     }
 
     console.log(chalk.gray('\n━'.repeat(50)));
-    console.log(chalk.gray('\nTo check for updates, run: oh-my-claudecode update --check'));
+    console.log(chalk.gray('\nTo check for updates, run: oh-my-qoder update --check'));
   });
 
 /**
- * Install command - Install agents and commands (default: ~/.claude/)
+ * Install command - Install agents and commands (default: ~/.qoder/)
  */
 program
   .command('install')
-  .description('Install OMC agents and commands to Claude Code config directory (default: ~/.claude/)')
+  .description('Install OMC agents and commands to Qoder config directory (default: ~/.qoder/)')
   .option('-f, --force', 'Overwrite existing files')
   .option('-q, --quiet', 'Suppress output except for errors')
-  .option('--skip-claude-check', 'Skip checking if Claude Code is installed')
+  .option('--skip-claude-check', 'Skip checking if Qoder is installed')
   .addHelpText('after', `
 Examples:
-  $ omc install                  Install to config directory (default: ~/.claude/)
+  $ omc install                  Install to config directory (default: ~/.qoder/)
   $ omc install --force          Reinstall, overwriting existing files
   $ omc install --quiet          Silent install for scripts
-  $ CLAUDE_CONFIG_DIR=$HOME/.claude-isolated-workspace omc install  Isolated config directory`)
+  $ QODER_CONFIG_DIR=$HOME/.claude-isolated-workspace omc install  Isolated config directory`)
   .action(async (options) => {
     if (!options.quiet) {
       console.log(chalk.blue('╔═══════════════════════════════════════════════════════════╗'));
-      console.log(chalk.blue('║         Oh-My-ClaudeCode Installer                        ║'));
-      console.log(chalk.blue('║   Multi-Agent Orchestration for Claude Code               ║'));
+      console.log(chalk.blue('║         Oh-My-Qoder Installer                        ║'));
+      console.log(chalk.blue('║   Multi-Agent Orchestration for Qoder               ║'));
       console.log(chalk.blue('╚═══════════════════════════════════════════════════════════╝'));
       console.log('');
     }
@@ -925,10 +925,10 @@ Examples:
         console.log(chalk.green('║         Installation Complete!                            ║'));
         console.log(chalk.green('╚═══════════════════════════════════════════════════════════╝'));
         console.log('');
-        console.log(chalk.gray(`Installed to: ${getClaudeConfigDir()}`));
+        console.log(chalk.gray(`Installed to: ${getQoderConfigDir()}`));
         console.log('');
         console.log(chalk.yellow('Usage:'));
-        console.log('  claude                        # Start Claude Code normally');
+        console.log('  claude                        # Start Qoder normally');
         console.log('');
         console.log(chalk.yellow('Slash Commands:'));
         console.log('  /omc <task>              # Activate OMC orchestration mode');
@@ -964,11 +964,11 @@ Examples:
         console.log('');
         console.log(chalk.yellow('After Updates:'));
         console.log('  Run \'/omc-default\' (project) or \'/omc-default-global\' (global)');
-        console.log('  to download the latest CLAUDE.md configuration.');
+        console.log('  to download the latest AGENTS.md configuration.');
         console.log('  This ensures you get the newest features and agent behaviors.');
         console.log('');
         console.log(chalk.blue('Quick Start:'));
-        console.log('  1. Run \'claude\' to start Claude Code');
+        console.log('  1. Run \'claude\' to start Qoder');
         console.log('  2. Type \'/omc-default\' for project or \'/omc-default-global\' for global');
         console.log('  3. Or use \'/omc <task>\' for one-time activation');
       }
@@ -1043,7 +1043,7 @@ Examples:
 
 waitCmd
   .command('detect')
-  .description('Scan for blocked Claude Code sessions in tmux')
+  .description('Scan for blocked Qoder sessions in tmux')
   .option('--json', 'Output as JSON')
   .option('-l, --lines <number>', 'Number of pane lines to analyze', '15')
   .action(async (options) => {
@@ -1237,7 +1237,7 @@ program
   .option('-f, --force', 'Force reinstall even if already up to date')
   .option('-q, --quiet', 'Suppress output except for errors')
   .option('--no-plugin', 'Install bundled skills from the current package instead of relying on plugin-provided skills')
-  .option('--plugin-dir-mode', 'Treat OMC as launched via --plugin-dir at runtime (skip agent/skill copy; HUD + hooks + CLAUDE.md still installed)')
+  .option('--plugin-dir-mode', 'Treat OMC as launched via --plugin-dir at runtime (skip agent/skill copy; HUD + hooks + AGENTS.md still installed)')
   .option('--skip-hooks', 'Skip hook installation')
   .option('--force-hooks', 'Force reinstall hooks even if unchanged')
   .addHelpText('after', `
@@ -1245,13 +1245,13 @@ Examples:
   $ omc setup                     Sync all OMC components
   $ omc setup --force             Force reinstall everything
   $ omc setup --no-plugin         Force local bundled skill installation
-  $ omc setup --plugin-dir-mode   Skip agent/skill copy (used with claude --plugin-dir)
+  $ omc setup --plugin-dir-mode   Skip agent/skill copy (used with qodercli --plugin-dir)
   $ omc setup --quiet             Silent setup for scripts
   $ omc setup --skip-hooks        Install without hooks
   $ omc setup --force-hooks       Force reinstall hooks`)
   .action(async (options) => {
     if (!options.quiet) {
-      console.log(chalk.blue('Oh-My-ClaudeCode Setup\n'));
+      console.log(chalk.blue('Oh-My-Qoder Setup\n'));
     }
 
     // Step 1: Run installation (which handles hooks, agents, skills)
@@ -1264,7 +1264,7 @@ Examples:
     const useLocalBundledSkills = options.plugin === false;
 
     // Dev plugin-dir mode: skip agent/skill copy because the plugin already
-    // provides them at runtime via `claude --plugin-dir <path>` (or `omc --plugin-dir`).
+    // provides them at runtime via `qodercli --plugin-dir <path>` (or `omc --plugin-dir`).
     // Auto-detected from OMC_PLUGIN_ROOT (set by `omc --plugin-dir` in src/cli/launch.ts).
     let pluginDirMode = !!options.pluginDirMode;
     if (!pluginDirMode && process.env[OMC_PLUGIN_ROOT_ENV]) {
@@ -1334,7 +1334,7 @@ Examples:
       if (reportedVersion !== version) {
         console.log(chalk.gray(`CLI package version: ${version}`));
       }
-      console.log(chalk.gray('Start Claude Code and use /oh-my-claudecode:omc-setup for interactive setup.'));
+      console.log(chalk.gray('Start Qoder and use /oh-my-qoder:omc-setup for interactive setup.'));
     }
   });
 
@@ -1353,13 +1353,13 @@ program
     });
 
     if (result.success) {
-      console.log(chalk.green('✓ Oh-My-ClaudeCode installed successfully!'));
-      console.log(chalk.gray('  Run "oh-my-claudecode info" to see available agents.'));
-      console.log(chalk.yellow('  Run "/omc-default" (project) or "/omc-default-global" (global) in Claude Code.'));
+      console.log(chalk.green('✓ Oh-My-Qoder installed successfully!'));
+      console.log(chalk.gray('  Run "oh-my-qoder info" to see available agents.'));
+      console.log(chalk.yellow('  Run "/omc-default" (project) or "/omc-default-global" (global) in Qoder.'));
     } else {
       // Don't fail the npm install, just warn
       console.warn(chalk.yellow('⚠ Could not complete OMC setup:'), result.message);
-      console.warn(chalk.gray('  Run "oh-my-claudecode install" manually to complete setup.'));
+      console.warn(chalk.gray('  Run "oh-my-qoder install" manually to complete setup.'));
     }
   });
 
@@ -1455,7 +1455,7 @@ program
   });
 
 /**
- * Ultragoal command - Durable repo-native multi-goal workflow with Claude /goal handoff
+ * Ultragoal command - Durable repo-native multi-goal workflow with Qoder /goal handoff
  *
  * Writes plan/ledger artifacts under .omc/ultragoal/ and prints model-facing
  * handoff text that tells the active Claude agent when to invoke /goal,
@@ -1465,7 +1465,7 @@ program
  */
 program
   .command('ultragoal')
-  .description('Durable repo-native multi-goal workflow with Claude Code /goal handoff (see omc ultragoal help)')
+  .description('Durable repo-native multi-goal workflow with Qoder /goal handoff (see omc ultragoal help)')
   .helpOption(false)
   .allowUnknownOption(true)
   .allowExcessArguments(true)

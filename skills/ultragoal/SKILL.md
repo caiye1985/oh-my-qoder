@@ -1,16 +1,16 @@
 ---
 name: ultragoal
-description: Durable multi-goal workflow that persists plan/ledger artifacts under .omc/ultragoal and prints Claude /goal handoff text for the active session
+description: Durable multi-goal workflow that persists plan/ledger artifacts under .omc/ultragoal and prints Qoder /goal handoff text for the active session
 argument-hint: "<brief or subcommand>"
 level: 3
 ---
 
 <Purpose>
-Ultragoal breaks a brief into an ordered set of goals, records start/checkpoint/blocker/failure events in a durable append-only ledger, and tells the active Claude agent how to drive the Claude Code `/goal` slash command alongside the plan. It does not — and cannot — mutate Claude `/goal` state from the shell; it persists durable repo state and prints a model-facing handoff that the active agent must act on in-session.
+Ultragoal breaks a brief into an ordered set of goals, records start/checkpoint/blocker/failure events in a durable append-only ledger, and tells the active Claude agent how to drive the Qoder `/goal` slash command alongside the plan. It does not — and cannot — mutate Claude `/goal` state from the shell; it persists durable repo state and prints a model-facing handoff that the active agent must act on in-session.
 </Purpose>
 
 <Use_When>
-- The user wants a durable, repo-native way to track an ultragoal across multiple Claude sessions or worktrees
+- The user wants a durable, repo-native way to track an ultragoal across multiple Qoder sessions or worktrees
 - The work is large enough to warrant multiple ordered "stories" with attempt counts and per-story evidence
 - The user wants the final completion gated behind ai-slop-cleaner + verification + $code-review
 - The user wants the active Claude `/goal` directive coordinated with the ledger so that a session restart does not lose progress
@@ -23,7 +23,7 @@ Ultragoal breaks a brief into an ordered set of goals, records start/checkpoint/
 </Do_Not_Use_When>
 
 <Why_This_Exists>
-Claude Code `/goal` is a session-scoped Stop hook: it blocks the session from stopping until a condition holds, and auto-clears on success. That is a great single-session execution primitive, but it loses state across sessions and does not by itself enforce a final review gate. `omc ultragoal` adds a durable plan, ledger, and gating layer so a long multi-step initiative can survive session restarts, fresh worktrees, and review iterations while still leveraging Claude `/goal` to keep the active agent focused.
+Qoder `/goal` is a session-scoped Stop hook: it blocks the session from stopping until a condition holds, and auto-clears on success. That is a great single-session execution primitive, but it loses state across sessions and does not by itself enforce a final review gate. `omc ultragoal` adds a durable plan, ledger, and gating layer so a long multi-step initiative can survive session restarts, fresh worktrees, and review iterations while still leveraging Claude `/goal` to keep the active agent focused.
 </Why_This_Exists>
 
 <How_To_Use>
@@ -42,7 +42,7 @@ Claude Code `/goal` is a session-scoped Stop hook: it blocks the session from st
    The default mode is `aggregate` (one Claude `/goal` covers the run).
    Pass `--claude-goal-mode per-story` if you want each story to have its own `/goal`.
 
-   **Multi-repo workspaces / parallel sessions:** when several Claude sessions
+   **Multi-repo workspaces / parallel sessions:** when several Qoder sessions
    in the same workspace need to run `/ultragoal` concurrently, pass either
    `--plan-id <stable-id>` or `--auto-plan-id` so the plan is written to
    `.omc/ultragoal/plans/{planId}/` instead of the shared single-plan path.
@@ -64,7 +64,7 @@ Claude Code `/goal` is a session-scoped Stop hook: it blocks the session from st
    ```
    omc ultragoal checkpoint --goal-id G001-... --status complete \
      --evidence "tests/files/PR evidence" \
-     --claude-goal-json '{"goal":{"objective":"...","status":"active"}}'
+     --qoder-goal-json '{"goal":{"objective":"...","status":"active"}}'
    ```
    For the final story, also pass `--quality-gate-json` containing
    `aiSlopCleaner`, `verification`, and `codeReview` evidence (all clean).
@@ -75,7 +75,7 @@ Claude Code `/goal` is a session-scoped Stop hook: it blocks the session from st
      --title "Resolve final code-review blockers" \
      --objective "Fix the listed review findings and rerun final gates" \
      --evidence "<the review findings>" \
-     --claude-goal-json '{"goal":{"objective":"...","status":"active"}}'
+     --qoder-goal-json '{"goal":{"objective":"...","status":"active"}}'
    ```
    This appends a new blocker story and keeps the Claude `/goal` active.
 
@@ -87,7 +87,7 @@ Claude Code `/goal` is a session-scoped Stop hook: it blocks the session from st
 </How_To_Use>
 
 <Important_Limitations>
-- The shell cannot invoke or mutate Claude Code `/goal` state. `omc ultragoal` only persists durable artifacts and prints instructions that the active Claude agent reads and acts on in-session.
-- Snapshots passed via `--claude-goal-json` are model-supplied proof of the active `/goal` state; OMC validates them for textual consistency with the plan's expected objective and ledger event, but it cannot independently observe Claude `/goal` state.
+- The shell cannot invoke or mutate Qoder `/goal` state. `omc ultragoal` only persists durable artifacts and prints instructions that the active Claude agent reads and acts on in-session.
+- Snapshots passed via `--qoder-goal-json` are model-supplied proof of the active `/goal` state; OMC validates them for textual consistency with the plan's expected objective and ledger event, but it cannot independently observe Claude `/goal` state.
 - If the Claude `/goal` slash command is renamed or restructured, only the handoff wording needs to change; the reconciliation logic is name-agnostic.
 </Important_Limitations>

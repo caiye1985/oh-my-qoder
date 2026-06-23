@@ -7,13 +7,13 @@ import { detectSlashCommand } from '../hooks/auto-slash-command/detector.js';
 
 const PROJECT_ROOT = join(__dirname, '..', '..');
 const COMMAND_PATH = join(PROJECT_ROOT, 'commands', 'compact.md');
-const PLUGIN_MANIFEST_PATH = join(PROJECT_ROOT, '.claude-plugin', 'plugin.json');
+const PLUGIN_MANIFEST_PATH = join(PROJECT_ROOT, '.qoder-plugin', 'plugin.json');
 
-const originalConfigDir = process.env.CLAUDE_CONFIG_DIR;
+const originalConfigDir = process.env.QODER_CONFIG_DIR;
 let tempConfigDir: string;
 
 async function loadCommandsModule() {
-  // getClaudeConfigDir reads env at module load time in some call paths.
+  // getQoderConfigDir reads env at module load time in some call paths.
   return import('../commands/index.js');
 }
 
@@ -21,15 +21,15 @@ describe('manual compact command', () => {
   beforeEach(() => {
     tempConfigDir = join(tmpdir(), `omc-manual-compact-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     mkdirSync(join(tempConfigDir, 'commands'), { recursive: true });
-    process.env.CLAUDE_CONFIG_DIR = tempConfigDir;
+    process.env.QODER_CONFIG_DIR = tempConfigDir;
   });
 
   afterEach(() => {
     rmSync(tempConfigDir, { recursive: true, force: true });
     if (originalConfigDir === undefined) {
-      delete process.env.CLAUDE_CONFIG_DIR;
+      delete process.env.QODER_CONFIG_DIR;
     } else {
-      process.env.CLAUDE_CONFIG_DIR = originalConfigDir;
+      process.env.QODER_CONFIG_DIR = originalConfigDir;
     }
   });
 
@@ -40,11 +40,11 @@ describe('manual compact command', () => {
     expect(manifest.commands).toBe('./commands/');
 
     const command = readFileSync(COMMAND_PATH, 'utf-8');
-    expect(command).toContain('/oh-my-claudecode:compact');
-    expect(command).toContain('Bare `/compact` is reserved for Claude Code');
+    expect(command).toContain('/oh-my-qoder:compact');
+    expect(command).toContain('Bare `/compact` is reserved for Qoder');
     expect(command).not.toContain('Skill("compact")');
     expect(command).toContain('instruction-only');
-    expect(command).toContain('Run this as a bare Claude Code command now');
+    expect(command).toContain('Run this as a bare Qoder command now');
     expect(command).toContain('$ARGUMENTS');
     expect(command).toContain('PreCompact');
 
@@ -64,15 +64,15 @@ describe('manual compact command', () => {
     const expanded = expandCommand('compact', 'preserve current issue and PR state');
 
     expect(expanded).not.toBeNull();
-    expect(expanded?.description).toContain('Prepare OMC context for a manual Claude Code /compact handoff');
+    expect(expanded?.description).toContain('Prepare OMC context for a manual Qoder /compact handoff');
     expect(expanded?.prompt).not.toContain('Skill("compact")');
     expect(expanded?.prompt).toContain('/compact preserve current issue and PR state');
-    expect(expanded?.prompt).toContain('plugin commands cannot trigger Claude Code');
+    expect(expanded?.prompt).toContain('plugin commands cannot trigger Qoder');
     expect(expanded?.prompt).toContain('preserve current issue and PR state');
     expect(expanded?.prompt).toContain('Do not create a separate OMC summarizer');
   });
 
-  it('falls back to packaged commands when Claude config has no command templates', async () => {
+  it('falls back to packaged commands when Qoder config has no command templates', async () => {
     rmSync(join(tempConfigDir, 'commands'), { recursive: true, force: true });
 
     const { expandCommand, getCommand, listCommands } = await loadCommandsModule();

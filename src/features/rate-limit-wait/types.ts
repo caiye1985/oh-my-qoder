@@ -58,7 +58,7 @@ export interface TmuxPane {
 }
 
 export interface PaneAnalysisResult {
-  /** Whether this pane appears to have Claude Code */
+  /** Whether this pane appears to have Qoder */
   hasClaudeCode: boolean;
   /** Whether rate limit message is visible */
   hasRateLimitMessage: boolean;

@@ -1,21 +1,21 @@
 [English](README.md) | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Tiếng Việt](README.vi.md) | Português
 
-# oh-my-claudecode
+# oh-my-qoder
 
-[![npm version](https://img.shields.io/npm/v/oh-my-claude-sisyphus?color=cb3837)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![npm downloads](https://img.shields.io/npm/dm/oh-my-claude-sisyphus?color=blue)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-claudecode?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-claudecode/stargazers)
+[![npm version](https://img.shields.io/npm/v/oh-my-qoder?color=cb3837)](https://www.npmjs.com/package/oh-my-qoder)
+[![npm downloads](https://img.shields.io/npm/dm/oh-my-qoder?color=blue)](https://www.npmjs.com/package/oh-my-qoder)
+[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-qoder?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-qoder/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Sponsor](https://img.shields.io/badge/Sponsor-❤️-red?style=flat&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 [![Discord](https://img.shields.io/discord/1452487457085063218?color=5865F2&logo=discord&logoColor=white&label=Discord)](https://discord.gg/sj4exxQ9v)
 
 > **Para usuários do Codex:** Confira [oh-my-codex](https://github.com/Yeachan-Heo/oh-my-codex) — a mesma experiência de orquestração para o OpenAI Codex CLI.
 
-**Orquestração multiagente para Claude Code. Curva de aprendizado zero.**
+**Orquestração multiagente para Qoder. Curva de aprendizado zero.**
 
-*Não aprenda Claude Code. Só use OMC.*
+*Não aprenda Qoder. Só use OMC.*
 
-[Começar Rápido](#início-rápido) • [Documentação](https://yeachan-heo.github.io/oh-my-claudecode-website) • [Referência CLI](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#cli-reference) • [Workflows](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#workflows) • [Guia de Migração](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
+[Começar Rápido](#início-rápido) • [Documentação](https://yeachan-heo.github.io/oh-my-qoder-website) • [Referência CLI](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#cli-reference) • [Workflows](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#workflows) • [Guia de Migração](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
 
 ---
 
@@ -23,8 +23,8 @@
 
 **Passo 1: Instale**
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 ```
 
 **Passo 2: Configure**
@@ -32,7 +32,7 @@
 /omc-setup
 ```
 
-Se você executar OMC via `omc --plugin-dir <path>` ou `claude --plugin-dir <path>`, adicione `--plugin-dir-mode` a `omc setup` (ou exporte `OMC_PLUGIN_ROOT` antes) para evitar duplicar habilidades/agentes que o plugin já fornece em tempo de execução. Consulte a [seção Plugin directory flags em REFERENCE.md](./docs/REFERENCE.md#plugin-directory-flags) para uma matriz de decisão completa e todos os sinalizadores disponíveis.
+Se você executar OMC via `omc --plugin-dir <path>` ou `qodercli --plugin-dir <path>`, adicione `--plugin-dir-mode` a `omc setup` (ou exporte `OMC_PLUGIN_ROOT` antes) para evitar duplicar habilidades/agentes que o plugin já fornece em tempo de execução. Consulte a [seção Plugin directory flags em REFERENCE.md](./docs/REFERENCE.md#plugin-directory-flags) para uma matriz de decisão completa e todos os sinalizadores disponíveis.
 
 <!-- TODO(i18n): verify translation -->
 
@@ -65,12 +65,12 @@ O Team roda como um pipeline em estágios:
 
 `team-plan → team-prd → team-exec → team-verify → team-fix (loop)`
 
-Ative os times nativos do Claude Code em `~/.claude/settings.json`:
+Ative os times nativos do Qoder em `~/.qoder/settings.json`:
 
 ```json
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "QODER_EXPERIMENTAL_AGENT_TEAMS": "1"
   }
 }
 ```
@@ -84,7 +84,7 @@ Ative os times nativos do Claude Code em `~/.claude/settings.json`:
 ```bash
 /omc-teams 2:codex   "review auth module for security issues"
 /omc-teams 2:gemini  "redesign UI components for accessibility"
-/omc-teams 1:claude  "implement the payment flow"
+/omc-teams 1:qoder  "implement the payment flow"
 ```
 
 Para trabalho misto de Codex + Gemini em um único comando, use a skill **`/ccg`**:
@@ -97,12 +97,12 @@ Para trabalho misto de Codex + Gemini em um único comando, use a skill **`/ccg`
 |-------|---------|----------|
 | `/omc-teams N:codex` | N painéis Codex CLI | Revisão de código, análise de segurança, arquitetura |
 | `/omc-teams N:gemini` | N painéis Gemini CLI | Design UI/UX, docs, tarefas de grande contexto |
-| `/omc-teams N:claude` | N painéis Claude CLI | Tarefas gerais via Claude CLI no tmux |
+| `/omc-teams N:qoder` | N painéis Qoder CLI | Tarefas gerais via Qoder CLI no tmux |
 | `/ccg` | 1 Codex + 1 Gemini | Orquestração tri-modelo em paralelo |
 
 Trabalhadores são iniciados sob demanda e encerrados quando a tarefa é concluída — sem uso ocioso de recursos. Requer as CLIs `codex` / `gemini` instaladas e uma sessão tmux ativa.
 
-> **Observação: Nome do pacote** — O projeto usa a marca **oh-my-claudecode** (repo, plugin, comandos), mas o pacote npm é publicado como [`oh-my-claude-sisyphus`](https://www.npmjs.com/package/oh-my-claude-sisyphus). Se você instalar as ferramentas de CLI via npm/bun, use `npm install -g oh-my-claude-sisyphus`.
+> **Observação: Nome do pacote** — O projeto usa a marca **oh-my-qoder** (repo, plugin, comandos), mas o pacote npm é publicado como [`oh-my-qoder`](https://www.npmjs.com/package/oh-my-qoder). Se você instalar as ferramentas de CLI via npm/bun, use `npm install -g oh-my-qoder`.
 
 ### Atualizando
 
@@ -125,12 +125,12 @@ Se você tiver problemas depois de atualizar, limpe o cache antigo do plugin:
 <h1 align="center">Seu Claude acabou de tomar esteroides.</h1>
 
 <p align="center">
-  <img src="assets/omc-character.jpg" alt="oh-my-claudecode" width="400" />
+  <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
 </p>
 
 ---
 
-## Por que oh-my-claudecode?
+## Por que oh-my-qoder?
 
 - **Configuração zero** - Funciona de cara com padrões inteligentes
 - **Orquestração team-first** - Team é a superfície canônica multiagente (swarm/ultrapilot são fachadas de compatibilidade)
@@ -146,7 +146,7 @@ Se você tiver problemas depois de atualizar, limpe o cache antigo do plugin:
 ## Recursos
 
 ### Modos de Orquestração
-Múltiplas estratégias para diferentes casos de uso — da orquestração com Team até refatoração com eficiência de tokens. [Saiba mais →](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#execution-modes)
+Múltiplas estratégias para diferentes casos de uso — da orquestração com Team até refatoração com eficiência de tokens. [Saiba mais →](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#execution-modes)
 
 | Modo | O que é | Usar para |
 |------|---------|-----------|
@@ -169,7 +169,7 @@ Múltiplas estratégias para diferentes casos de uso — da orquestração com T
 
 - **Magic keywords** - `ralph`, `ulw`, `plan` para controle explícito
 - **HUD statusline** - Métricas de orquestração em tempo real na sua barra de status
-  - Se você iniciar Claude Code diretamente com `claude --plugin-dir <path>` (ignorando o shim `omc`), exporte `OMC_PLUGIN_ROOT=<path>` no seu shell para que o bundle HUD se resolva para o mesmo checkout do carregador de plugins. Veja a [seção Plugin directory flags em REFERENCE.md](./docs/REFERENCE.md#plugin-directory-flags) para detalhes.
+  - Se você iniciar Qoder diretamente com `qodercli --plugin-dir <path>` (ignorando o shim `omc`), exporte `OMC_PLUGIN_ROOT=<path>` no seu shell para que o bundle HUD se resolva para o mesmo checkout do carregador de plugins. Veja a [seção Plugin directory flags em REFERENCE.md](./docs/REFERENCE.md#plugin-directory-flags) para detalhes.
 
   <!-- TODO(i18n): verify translation -->
 - **Aprendizado de skills** - Extraia padrões reutilizáveis das suas sessões
@@ -236,7 +236,7 @@ Atalhos opcionais para usuários avançados. Linguagem natural funciona bem sem 
 
 ### Espera de Rate Limit
 
-Retoma automaticamente sessões do Claude Code quando os rate limits são resetados.
+Retoma automaticamente sessões do Qoder quando os rate limits são resetados.
 
 ```bash
 omc wait          # Check status, get guidance
@@ -270,16 +270,16 @@ Comportamento das tags:
 
 ### Integração com OpenClaw
 
-Encaminhe eventos de sessão do Claude Code para um gateway do [OpenClaw](https://openclaw.ai/) para habilitar respostas automatizadas e workflows através do seu agente OpenClaw.
+Encaminhe eventos de sessão do Qoder para um gateway do [OpenClaw](https://openclaw.ai/) para habilitar respostas automatizadas e workflows através do seu agente OpenClaw.
 
 **Configuração rápida (recomendado):**
 
 ```bash
-/oh-my-claudecode:configure-notifications
+/oh-my-qoder:configure-notifications
 # → Digite "openclaw" quando solicitado → escolha "OpenClaw Gateway"
 ```
 
-**Configuração manual:** crie `~/.claude/omc_config.openclaw.json`:
+**Configuração manual:** crie `~/.qoder/omc_config.openclaw.json`:
 
 ```json
 {
@@ -333,11 +333,11 @@ Veja `scripts/openclaw-gateway-demo.mjs` para um gateway de referência que retr
 ## Documentação
 
 - **[Referência Completa](docs/REFERENCE.md)** - Documentação completa de recursos
-- **[Referência CLI](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#cli-reference)** - Todos os comandos, flags e ferramentas do `omc`
-- **[Guia de Notificações](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#notifications)** - Configuração de Discord, Telegram, Slack e webhooks
-- **[Workflows Recomendados](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#workflows)** - Cadeias de skills testadas em batalha para tarefas comuns
-- **[Notas de Lançamento](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#release-notes)** - Novidades em cada versão
-- **[Website](https://yeachan-heo.github.io/oh-my-claudecode-website)** - Guias interativos e exemplos
+- **[Referência CLI](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#cli-reference)** - Todos os comandos, flags e ferramentas do `omc`
+- **[Guia de Notificações](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#notifications)** - Configuração de Discord, Telegram, Slack e webhooks
+- **[Workflows Recomendados](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#workflows)** - Cadeias de skills testadas em batalha para tarefas comuns
+- **[Notas de Lançamento](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#release-notes)** - Novidades em cada versão
+- **[Website](https://yeachan-heo.github.io/oh-my-qoder-website)** - Guias interativos e exemplos
 - **[Guia de Migração](docs/MIGRATION.md)** - Upgrade a partir da v2.x
 - **[Arquitetura](docs/ARCHITECTURE.md)** - Como funciona por baixo dos panos
 - **[Monitoramento de Performance](docs/PERFORMANCE-MONITORING.md)** - Rastreamento de agentes, debugging e otimização
@@ -346,8 +346,8 @@ Veja `scripts/openclaw-gateway-demo.mjs` para um gateway de referência que retr
 
 ## Requisitos
 
-- [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- Assinatura Claude Max/Pro OU chave de API da Anthropic
+- [Qoder](https://docs.anthropic.com/claude-code) CLI
+- Assinatura Qoder Max/Pro OU chave de API da Anthropic
 
 ### Opcional: Orquestração Multi-AI
 
@@ -358,7 +358,7 @@ O OMC pode opcionalmente orquestrar provedores externos de IA para validação c
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` | Revisão de design, consistência de UI (contexto de 1M tokens) |
 | [Codex CLI](https://github.com/openai/codex) | `npm install -g @openai/codex` | Validação de arquitetura, checagem cruzada de code review |
 
-**Custo:** 3 planos Pro (Claude + Gemini + ChatGPT) cobrem tudo por cerca de US$60/mês.
+**Custo:** 3 planos Pro (Qoder + Gemini + ChatGPT) cobrem tudo por cerca de US$60/mês.
 
 ---
 
@@ -378,11 +378,11 @@ MIT
 
 ## Histórico de Stars
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)
 
 ## 💖 Apoie Este Projeto
 
-Se o Oh-My-ClaudeCode ajuda no seu fluxo de trabalho, considere patrocinar:
+Se o Oh-My-Qoder ajuda no seu fluxo de trabalho, considere patrocinar:
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-❤️-red?style=for-the-badge&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 

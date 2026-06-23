@@ -99,7 +99,7 @@ export function injectContextIntoText(
 
 /**
  * Create a hook handler for context injection.
- * This is a factory function for creating Claude Code compatible hooks.
+ * This is a factory function for creating Qoder compatible hooks.
  */
 export function createContextInjectorHook(collector: ContextCollector) {
   return {

@@ -18,7 +18,7 @@ import { compactPluginSkillPayload, copyPluginSyncPayload } from '../installer/i
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const REPO_ROOT = join(__dirname, '..', '..');
-const PLUGIN_JSON = join(REPO_ROOT, '.claude-plugin', 'plugin.json');
+const PLUGIN_JSON = join(REPO_ROOT, '.qoder-plugin', 'plugin.json');
 const SKILLS_DIR = join(REPO_ROOT, 'skills');
 const COMMANDS_DIR = join(REPO_ROOT, 'commands');
 const COMPACT_PLUGIN_SKILL_BUDGET_BYTES = 64 * 1024;
@@ -85,7 +85,7 @@ describe('plugin skill context budget gate (issues #2943, #2986)', () => {
         expect(shim, `${skillDir} shim should point to archived body`).toContain(`../../skill-bodies/${skillDir}/SKILL.md`);
         expect(shim, `${skillDir} shim should expose runtime body override`).toContain('omc-full-body:');
         expect(shim, `${skillDir} shim should prefer plugin root env vars`).toContain(
-          `\${CLAUDE_PLUGIN_ROOT:-\${OMC_PLUGIN_ROOT}}/skill-bodies/${skillDir}/SKILL.md`,
+          `\${QODER_PLUGIN_ROOT:-\${OMC_PLUGIN_ROOT}}/skill-bodies/${skillDir}/SKILL.md`,
         );
         expect(shim, `${skillDir} shim should define plugin root by containing directories`).toContain(
           'The plugin root is the directory containing both `skills/` and `skill-bodies/`.',
@@ -104,7 +104,7 @@ describe('plugin skill context budget gate (issues #2943, #2986)', () => {
   });
 
   it('uses platform-safe containment for archived full-body skill paths', () => {
-    const winRoot = 'C:\\Users\\me\\.claude\\plugins\\cache\\omc\\oh-my-claudecode\\4.13.7';
+    const winRoot = 'C:\\Users\\me\\.claude\\plugins\\cache\\omc\\oh-my-qoder\\4.13.7';
     const winArchivedBody = win32.join(winRoot, 'skill-bodies', 'plan', 'SKILL.md');
     const winEscapedBody = win32.join(winRoot, '..', 'other-plugin', 'SKILL.md');
 
@@ -135,15 +135,15 @@ describe('plugin skill context budget gate (issues #2943, #2986)', () => {
     const tempRoot = mkdtempSync(join(tmpdir(), 'omc-plugin-commands-cache-'));
     try {
       const sourceRoot = join(tempRoot, 'source');
-      const targetRoot = join(tempRoot, 'cache', 'omc', 'oh-my-claudecode', '4.14.1');
-      mkdirSync(join(sourceRoot, '.claude-plugin'), { recursive: true });
+      const targetRoot = join(tempRoot, 'cache', 'omc', 'oh-my-qoder', '4.14.1');
+      mkdirSync(join(sourceRoot, '.qoder-plugin'), { recursive: true });
       mkdirSync(join(sourceRoot, 'commands'), { recursive: true });
       mkdirSync(join(sourceRoot, 'dist', 'hooks'), { recursive: true });
       mkdirSync(join(sourceRoot, 'bridge'), { recursive: true });
       mkdirSync(join(sourceRoot, 'hooks'), { recursive: true });
       mkdirSync(join(sourceRoot, 'skills', 'plan'), { recursive: true });
-      writeFileSync(join(sourceRoot, '.claude-plugin', 'plugin.json'), JSON.stringify({
-        name: 'oh-my-claudecode',
+      writeFileSync(join(sourceRoot, '.qoder-plugin', 'plugin.json'), JSON.stringify({
+        name: 'oh-my-qoder',
         commands: './commands/',
         skills: ['./skills/plan/'],
       }, null, 2));
@@ -152,7 +152,7 @@ describe('plugin skill context budget gate (issues #2943, #2986)', () => {
       writeFileSync(join(sourceRoot, 'bridge', 'cli.cjs'), 'console.log("bridge");\n');
       writeFileSync(join(sourceRoot, 'hooks', 'hooks.json'), '{}\n');
       writeFileSync(join(sourceRoot, 'skills', 'plan', 'SKILL.md'), 'name: plan\n');
-      writeFileSync(join(sourceRoot, 'package.json'), JSON.stringify({ name: 'oh-my-claude-sisyphus', version: '4.14.1' }));
+      writeFileSync(join(sourceRoot, 'package.json'), JSON.stringify({ name: 'oh-my-qoder', version: '4.14.1' }));
 
       const result = copyPluginSyncPayload(sourceRoot, [targetRoot]);
 
@@ -160,7 +160,7 @@ describe('plugin skill context budget gate (issues #2943, #2986)', () => {
       expect(result.synced).toBe(true);
 
       const manifest = JSON.parse(
-        readFileSync(join(targetRoot, '.claude-plugin', 'plugin.json'), 'utf-8')
+        readFileSync(join(targetRoot, '.qoder-plugin', 'plugin.json'), 'utf-8')
       ) as { commands?: string; skills?: string[] };
       expect(manifest.commands).toBe('./commands/');
       expect(manifest.skills).toEqual(['./skills/plan/']);

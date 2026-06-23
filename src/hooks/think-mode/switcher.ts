@@ -9,8 +9,8 @@
 
 import type { ThinkingConfig } from './types.js';
 import {
-  CLAUDE_FAMILY_DEFAULTS,
-  CLAUDE_FAMILY_HIGH_VARIANTS,
+  QODER_FAMILY_DEFAULTS,
+  QODER_FAMILY_HIGH_VARIANTS,
   getClaudeHighVariantFromModel,
 } from '../../config/models.js';
 
@@ -43,9 +43,9 @@ function normalizeModelId(modelId: string): string {
  */
 const HIGH_VARIANT_MAP: Record<string, string> = {
   // Claude canonical families
-  [CLAUDE_FAMILY_DEFAULTS.SONNET]: CLAUDE_FAMILY_HIGH_VARIANTS.SONNET,
-  [CLAUDE_FAMILY_DEFAULTS.OPUS]: CLAUDE_FAMILY_HIGH_VARIANTS.OPUS,
-  [CLAUDE_FAMILY_DEFAULTS.HAIKU]: CLAUDE_FAMILY_HIGH_VARIANTS.HAIKU,
+  [QODER_FAMILY_DEFAULTS.SONNET]: QODER_FAMILY_HIGH_VARIANTS.SONNET,
+  [QODER_FAMILY_DEFAULTS.OPUS]: QODER_FAMILY_HIGH_VARIANTS.OPUS,
+  [QODER_FAMILY_DEFAULTS.HAIKU]: QODER_FAMILY_HIGH_VARIANTS.HAIKU,
   // GPT-4
   'gpt-4': 'gpt-4-high',
   'gpt-4-turbo': 'gpt-4-turbo-high',
@@ -98,8 +98,8 @@ export const THINKING_CONFIGS: Record<string, ThinkingConfig> = {
  * Models capable of thinking mode by provider.
  */
 const THINKING_CAPABLE_MODELS: Record<string, readonly string[]> = {
-  anthropic: ['claude'],
-  'amazon-bedrock': ['claude', 'anthropic'],
+  anthropic: ['qoder'],
+  'amazon-bedrock': ['qoder', 'anthropic'],
   google: ['gemini-2', 'gemini-3'],
   openai: ['gpt-4', 'gpt-5', 'o1', 'o3'],
 };
@@ -145,7 +145,7 @@ function resolveProvider(providerId: string, modelId: string): string {
   // GitHub Copilot is a proxy - infer actual provider from model name
   if (providerId === 'github-copilot') {
     const modelLower = modelId.toLowerCase();
-    if (modelLower.includes('claude')) return 'anthropic';
+    if (modelLower.includes('qoder')) return 'anthropic';
     if (modelLower.includes('gemini')) return 'google';
     if (modelLower.includes('gpt') || modelLower.includes('o1') || modelLower.includes('o3')) {
       return 'openai';
@@ -200,7 +200,7 @@ export function getThinkingConfig(
 
 /**
  * Get Claude-specific thinking configuration.
- * This is used by Claude Code for extended thinking.
+ * This is used by Qoder for extended thinking.
  */
 export function getClaudeThinkingConfig(budgetTokens: number = 64000) {
   return {

@@ -114,7 +114,7 @@ echo ""
 
 # Step 1: Run vanilla benchmark
 if [ "$SKIP_VANILLA" = false ]; then
-    log_step "Step 1/4: Running vanilla Claude Code benchmark..."
+    log_step "Step 1/4: Running vanilla Qoder benchmark..."
     echo ""
     "$SCRIPT_DIR/run_vanilla.sh" $ARGS
     if [ $? -ne 0 ]; then
@@ -208,7 +208,7 @@ $([ -n "$SKIP" ] && echo "- Skip: $SKIP instances")
 
 ## Results
 
-### Vanilla Claude Code
+### Vanilla Qoder
 Location: \`predictions/vanilla/\`
 Results: \`results/vanilla_results.json\`
 

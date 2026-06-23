@@ -7,7 +7,7 @@
  *
  * Usage (from repo root):
  *   node scripts/audit-multirepo-e2e.mjs
- *   CLAUDE_PLUGIN_ROOT=/other/path node scripts/audit-multirepo-e2e.mjs
+ *   QODER_PLUGIN_ROOT=/other/path node scripts/audit-multirepo-e2e.mjs
  */
 
 import { mkdirSync, writeFileSync, existsSync, readFileSync, mkdtempSync, rmSync } from 'node:fs';
@@ -19,7 +19,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT   = resolve(__filename, '..', '..');
 // Always use the local repo's dist, not the globally installed package.
-// CLAUDE_PLUGIN_ROOT may point to the npm-installed version which predates
+// QODER_PLUGIN_ROOT may point to the npm-installed version which predates
 // the multi-repo changes under test.
 const PLUGIN_ROOT = REPO_ROOT;
 const DIST_WP     = join(PLUGIN_ROOT, 'dist', 'lib', 'worktree-paths.js');
@@ -79,11 +79,11 @@ function probe(scriptBody, extraEnv = {}) {
   const dir = getProbeDir();
   const file = join(dir, `probe-${++_probeCounter}.mjs`);
   writeFileSync(file, PROBE_PREAMBLE + '\n' + scriptBody);
-  // Explicitly set CLAUDE_PLUGIN_ROOT to REPO_ROOT so subprocess probes load
+  // Explicitly set QODER_PLUGIN_ROOT to REPO_ROOT so subprocess probes load
   // the local dist, not the globally installed npm package.
-  const env = { ...process.env, CLAUDE_PLUGIN_ROOT: PLUGIN_ROOT, ...extraEnv };
-  delete env.CLAUDE_PLUGIN_ROOT; // remove first to avoid stale value
-  env.CLAUDE_PLUGIN_ROOT = PLUGIN_ROOT;
+  const env = { ...process.env, QODER_PLUGIN_ROOT: PLUGIN_ROOT, ...extraEnv };
+  delete env.QODER_PLUGIN_ROOT; // remove first to avoid stale value
+  env.QODER_PLUGIN_ROOT = PLUGIN_ROOT;
   const sp = spawnSync(process.execPath, [file], {
     encoding: 'utf-8',
     timeout: 20000,
@@ -238,7 +238,7 @@ process.stdout.write(JSON.stringify({ write: p.effectiveWrite }) + '\\n');
         process.execPath,
         [SI_SCRIPT, '--project-root', join(base, 'api'), '--format', 'json'],
         { encoding: 'utf-8', timeout: 15000,
-          env: { ...process.env, CLAUDE_PLUGIN_ROOT: PLUGIN_ROOT } }
+          env: { ...process.env, QODER_PLUGIN_ROOT: PLUGIN_ROOT } }
       );
       const stdout = sp.stdout ?? '';
       if (sp.status !== 0) {

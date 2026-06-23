@@ -26,9 +26,9 @@ import { getOmcRoot } from '../../lib/worktree-paths.js';
 const HELP_TOKENS = new Set(['--help', '-h', 'help']);
 const MIN_WORKER_COUNT = 1;
 const MAX_WORKER_COUNT = 20;
-const VALID_TEAM_CLI_AGENT_TYPES = new Set(['claude', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
+const VALID_TEAM_CLI_AGENT_TYPES = new Set(['qoder', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
 const CURSOR_ALLOWED_TEAM_ROLES = new Set(['executor']);
-const DEFAULT_TEAM_CLI_AGENT_TYPE: CliAgentType = 'claude';
+const DEFAULT_TEAM_CLI_AGENT_TYPE: CliAgentType = 'qoder';
 
 const TEAM_HELP = `
 Usage: omc team [N:agent-type[:role]] [--new-window] [--auto-merge] [--no-decompose] "<task description>"
@@ -356,7 +356,7 @@ function normalizeWorkerSpecSegment(match: RegExpMatchArray): NormalizedWorkerSp
   const token = match[2]?.toLowerCase();
   const explicitRole = match[3]?.toLowerCase();
   if (!token) {
-    return { count, agentType: 'claude' };
+    return { count, agentType: 'qoder' };
   }
 
   if (explicitRole) {
@@ -380,11 +380,11 @@ function normalizeWorkerSpecSegment(match: RegExpMatchArray): NormalizedWorkerSp
     return { count, agentType: token };
   }
 
-  return { count, agentType: 'claude', role: token };
+  return { count, agentType: 'qoder', role: token };
 }
 
 /** @internal Exported for testing */
-export function parseTeamArgs(tokens: string[], defaultAgentType: string = 'claude'): ParsedTeamArgs {
+export function parseTeamArgs(tokens: string[], defaultAgentType: string = 'qoder'): ParsedTeamArgs {
   const args = [...tokens];
   let workerCount = 3;
   let agentTypes: string[] = [];
@@ -472,7 +472,7 @@ export function parseTeamArgs(tokens: string[], defaultAgentType: string = 'clau
 
   // A token that clearly looks like a worker spec ("N:<word>...") but failed to
   // fully parse must fail loudly rather than being silently swallowed into the
-  // task text, which would default the team to claude workers (see #3224).
+  // task text, which would default the team to qoder workers (see #3224).
   if (!explicitWorkerSpec && /^\d+:[a-z]/i.test(first)) {
     throw new Error(
       `Invalid worker spec "${first}". Expected "N:agent-type[:role]" ` +

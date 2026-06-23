@@ -228,7 +228,7 @@ describe('omc_run_team_start timeoutSeconds rejection', () => {
   it('throws when timeoutSeconds is present', () => {
     expect(() => handleStartGuard({
       teamName: 'test',
-      agentTypes: ['claude'],
+      agentTypes: ['qoder'],
       tasks: [{ subject: 'x', description: 'y' }],
       cwd: '/tmp',
       timeoutSeconds: 60,
@@ -238,7 +238,7 @@ describe('omc_run_team_start timeoutSeconds rejection', () => {
   it('error message includes migration guidance (omc_run_team_wait + omc_run_team_cleanup)', () => {
     expect(() => handleStartGuard({
       teamName: 'test',
-      agentTypes: ['claude'],
+      agentTypes: ['qoder'],
       tasks: [],
       cwd: '/tmp',
       timeoutSeconds: 30,
@@ -249,7 +249,7 @@ describe('omc_run_team_start timeoutSeconds rejection', () => {
     // Should not throw — the guard passes for well-formed input
     expect(() => handleStartGuard({
       teamName: 'test',
-      agentTypes: ['claude'],
+      agentTypes: ['qoder'],
       tasks: [],
       cwd: '/tmp',
     })).not.toThrow();

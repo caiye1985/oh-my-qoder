@@ -3,7 +3,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { tmuxExecAsync } from '../cli/tmux-utils.js';
 import type { CliAgentType } from './model-contract.js';
-import { buildWorkerArgv, resolveValidatedBinaryPath, getWorkerEnv as getModelWorkerEnv, isPromptModeAgent, getPromptModeArgs, resolveClaudeWorkerModel, assertHeadlessSupported } from './model-contract.js';
+import { buildWorkerArgv, resolveValidatedBinaryPath, getWorkerEnv as getModelWorkerEnv, isPromptModeAgent, getPromptModeArgs, resolveQoderWorkerModel, assertHeadlessSupported } from './model-contract.js';
 import { validateTeamName } from './team-name.js';
 import {
   createTeamSession, spawnWorkerInPane, sendToWorker,
@@ -411,7 +411,7 @@ export async function startTeam(config: TeamConfig): Promise<TeamRuntime> {
   for (let i = 0; i < tasks.length; i++) {
     const wName = workerName(i);
     workerNames.push(wName);
-    const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'claude';
+    const agentType = agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'qoder';
     await ensureWorkerStateDir(teamName, wName, cwd);
     await writeWorkerOverlay({
       teamName, workerName: wName, agentType,
@@ -689,7 +689,7 @@ export async function spawnWorkerForTask(
   const workerIndex = parseWorkerIndex(workerNameValue);
   const agentType = runtime.config.agentTypes[workerIndex % runtime.config.agentTypes.length]
     ?? runtime.config.agentTypes[0]
-    ?? 'claude';
+    ?? 'qoder';
   // Guard headless-unsupported providers (e.g. antigravity on Windows) BEFORE any
   // task-state mutation or pane split, so legacy v1 startup rejects cleanly instead
   // of leaving a task stuck `in_progress` with a stray pane (parity with v2/scale-up).
@@ -755,7 +755,7 @@ export async function spawnWorkerForTask(
       return undefined;
     }
     // Claude agents: resolve Bedrock/Vertex model when on those providers
-    return resolveClaudeWorkerModel();
+    return resolveQoderWorkerModel();
   })();
 
   const [launchBinary, ...launchArgs] = buildWorkerArgv(agentType, {
@@ -946,7 +946,7 @@ export async function shutdownTeam(
   // Polling for ACK files on CLI worker teams wastes the full timeoutMs on every shutdown.
   // Detect CLI worker teams by checking if all agent types are known CLI types, and skip
   // ACK polling — the tmux kill below handles process cleanup instead.
-  const CLI_AGENT_TYPES = new Set<string>(['claude', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
+  const CLI_AGENT_TYPES = new Set<string>(['qoder', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
   const agentTypes: string[] = configData?.agentTypes ?? [];
   const isCliWorkerTeam = agentTypes.length > 0 && agentTypes.every(t => CLI_AGENT_TYPES.has(t));
 

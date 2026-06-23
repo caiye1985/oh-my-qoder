@@ -3,24 +3,24 @@ import { validateAnthropicBaseUrl } from '../utils/ssrf-guard.js';
 export type ModelTier = 'LOW' | 'MEDIUM' | 'HIGH';
 export type ClaudeModelFamily = 'HAIKU' | 'SONNET' | 'OPUS' | 'FABLE';
 
-const DIRECT_MODEL_ENV_KEYS = ['CLAUDE_MODEL', 'ANTHROPIC_MODEL'] as const;
+const DIRECT_MODEL_ENV_KEYS = ['QODER_MODEL', 'ANTHROPIC_MODEL'] as const;
 const INHERIT_TIER_PRIORITY: readonly ModelTier[] = ['MEDIUM', 'HIGH', 'LOW'];
 const CLAUDE_TIER_ALIASES = new Set(['sonnet', 'opus', 'haiku', 'fable']);
 
 const TIER_ENV_KEYS: Record<ModelTier, readonly string[]> = {
   LOW: [
     'OMC_MODEL_LOW',
-    'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+    'QODER_BEDROCK_HAIKU_MODEL',
     'ANTHROPIC_DEFAULT_HAIKU_MODEL',
   ],
   MEDIUM: [
     'OMC_MODEL_MEDIUM',
-    'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
+    'QODER_BEDROCK_SONNET_MODEL',
     'ANTHROPIC_DEFAULT_SONNET_MODEL',
   ],
   HIGH: [
     'OMC_MODEL_HIGH',
-    'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
+    'QODER_BEDROCK_OPUS_MODEL',
     'ANTHROPIC_DEFAULT_OPUS_MODEL',
   ],
 };
@@ -29,7 +29,7 @@ const TIER_ENV_KEYS: Record<ModelTier, readonly string[]> = {
  * Canonical Claude family defaults.
  * Keep these date-less so version bumps are a one-line edit per family.
  */
-export const CLAUDE_FAMILY_DEFAULTS: Record<ClaudeModelFamily, string> = {
+export const QODER_FAMILY_DEFAULTS: Record<ClaudeModelFamily, string> = {
   HAIKU: 'claude-haiku-4-5',
   SONNET: 'claude-sonnet-4-6',
   OPUS: 'claude-opus-4-8',
@@ -38,17 +38,17 @@ export const CLAUDE_FAMILY_DEFAULTS: Record<ClaudeModelFamily, string> = {
 
 /** Canonical tier->model mapping used as built-in defaults */
 export const BUILTIN_TIER_MODEL_DEFAULTS: Record<ModelTier, string> = {
-  LOW: CLAUDE_FAMILY_DEFAULTS.HAIKU,
-  MEDIUM: CLAUDE_FAMILY_DEFAULTS.SONNET,
-  HIGH: CLAUDE_FAMILY_DEFAULTS.OPUS,
+  LOW: QODER_FAMILY_DEFAULTS.HAIKU,
+  MEDIUM: QODER_FAMILY_DEFAULTS.SONNET,
+  HIGH: QODER_FAMILY_DEFAULTS.OPUS,
 };
 
 /** Canonical Claude high-reasoning variants by family */
-export const CLAUDE_FAMILY_HIGH_VARIANTS: Record<ClaudeModelFamily, string> = {
-  HAIKU: `${CLAUDE_FAMILY_DEFAULTS.HAIKU}-high`,
-  SONNET: `${CLAUDE_FAMILY_DEFAULTS.SONNET}-high`,
-  OPUS: `${CLAUDE_FAMILY_DEFAULTS.OPUS}-high`,
-  FABLE: `${CLAUDE_FAMILY_DEFAULTS.FABLE}-high`,
+export const QODER_FAMILY_HIGH_VARIANTS: Record<ClaudeModelFamily, string> = {
+  HAIKU: `${QODER_FAMILY_DEFAULTS.HAIKU}-high`,
+  SONNET: `${QODER_FAMILY_DEFAULTS.SONNET}-high`,
+  OPUS: `${QODER_FAMILY_DEFAULTS.OPUS}-high`,
+  FABLE: `${QODER_FAMILY_DEFAULTS.FABLE}-high`,
 };
 
 /** Built-in defaults for external provider models */
@@ -69,7 +69,7 @@ export const BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
  *   OMC_MODEL_MEDIUM  - Model ID for MEDIUM tier (sonnet-class)
  *   OMC_MODEL_LOW     - Model ID for LOW tier (haiku-class)
  *
- * User config (~/.config/claude-omc/config.jsonc) can also override
+ * User config (~/.config/qoder-omc/config.jsonc) can also override
  * via `routing.tierModels` or per-agent `agents.<name>.model`.
  */
 
@@ -78,7 +78,7 @@ export const BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
  *
  * Resolution order:
  * 1. OMC tier env vars (OMC_MODEL_HIGH / OMC_MODEL_MEDIUM / OMC_MODEL_LOW)
- * 2. Claude Code provider env vars (for example Bedrock app-profile model IDs)
+ * 2. Qoder provider env vars (for example Bedrock app-profile model IDs)
  * 3. Anthropic family-default env vars
  * 4. Built-in fallback
  *
@@ -186,9 +186,9 @@ export function getDefaultTierModels(): Record<ModelTier, string> {
  * Resolve a Claude family from an arbitrary model ID.
  * Supports Anthropic IDs and provider-prefixed forms (e.g. vertex_ai/...).
  */
-export function resolveClaudeFamily(modelId: string): ClaudeModelFamily | null {
+export function resolveQoderFamily(modelId: string): ClaudeModelFamily | null {
   const lower = modelId.toLowerCase();
-  if (!lower.includes('claude')) return null;
+  if (!lower.includes('qoder')) return null;
 
   if (lower.includes('sonnet')) return 'SONNET';
   if (lower.includes('opus')) return 'OPUS';
@@ -203,8 +203,8 @@ export function resolveClaudeFamily(modelId: string): ClaudeModelFamily | null {
  * Returns null for non-Claude model IDs.
  */
 export function getClaudeHighVariantFromModel(modelId: string): string | null {
-  const family = resolveClaudeFamily(modelId);
-  return family ? CLAUDE_FAMILY_HIGH_VARIANTS[family] : null;
+  const family = resolveQoderFamily(modelId);
+  return family ? QODER_FAMILY_HIGH_VARIANTS[family] : null;
 }
 
 /** Get built-in default model for an external provider */
@@ -223,7 +223,7 @@ function hasBedrockModelId(modelIds: readonly string[]): boolean {
     if (
       /^arn:aws(-[^:]+)?:bedrock:/i.test(modelId)
       && /:(inference-profile|application-inference-profile)\//i.test(modelId)
-      && modelId.toLowerCase().includes('claude')
+      && modelId.toLowerCase().includes('qoder')
     ) {
       return true;
     }
@@ -233,9 +233,9 @@ function hasBedrockModelId(modelIds: readonly string[]): boolean {
 }
 
 /**
- * Detect whether Claude Code is running on AWS Bedrock.
+ * Detect whether Qoder is running on AWS Bedrock.
  *
- * Claude Code sets CLAUDE_CODE_USE_BEDROCK=1 when configured for Bedrock.
+ * Qoder sets QODER_USE_BEDROCK=1 when configured for Bedrock.
  * As a fallback, Bedrock model IDs use prefixed formats like:
  *   - us.anthropic.claude-sonnet-4-6-v1:0
  *   - global.anthropic.claude-sonnet-4-6-v1:0
@@ -246,14 +246,14 @@ function hasBedrockModelId(modelIds: readonly string[]): boolean {
  * model IDs with region/inference-profile prefixes.
  */
 export function isBedrock(): boolean {
-  // Primary signal: Claude Code's own env var
-  if (process.env.CLAUDE_CODE_USE_BEDROCK === '1') {
+  // Primary signal: Qoder's own env var
+  if (process.env.QODER_USE_BEDROCK === '1') {
     return true;
   }
 
   // Fallback: detect Bedrock model ID patterns in the active model env value.
   // Direct session model env vars win over lower-precedence tier defaults, so a
-  // stale tier/default env must not mark a standard Claude session as Bedrock.
+  // stale tier/default env must not mark a standard Qoder session as Bedrock.
   // Covers region prefixes (us, eu, ap), cross-region (global), and bare (anthropic.)
   return hasBedrockModelId(getProviderDetectionModelEnvValues());
 }
@@ -268,7 +268,7 @@ export function isBedrock(): boolean {
  *   - Vertex AI: vertex_ai/...
  *
  * These IDs must be passed through to the CLI as-is because normalizing them
- * to aliases like "sonnet" causes Claude Code to expand them to Anthropic API
+ * to aliases like "sonnet" causes Qoder to expand them to Anthropic API
  * model names (e.g. claude-sonnet-4-6) which are invalid on Bedrock/Vertex.
  */
 export function isProviderSpecificModelId(modelId: string): boolean {
@@ -288,10 +288,10 @@ export function isProviderSpecificModelId(modelId: string): boolean {
 }
 
 /**
- * Detect whether a model ID has a Claude Code extended-context window suffix
+ * Detect whether a model ID has a Qoder extended-context window suffix
  * (e.g., `[1m]`, `[200k]`) that is NOT a valid Bedrock API identifier.
  *
- * The `[1m]` suffix is a Claude Code internal annotation for the 1M context
+ * The `[1m]` suffix is a Qoder internal annotation for the 1M context
  * window variant. It is valid for the parent session's API path but is
  * rejected by the sub-agent spawning runtime, which strips it to a bare
  * Anthropic model ID (e.g., `claude-sonnet-4-6`) that is invalid on Bedrock.
@@ -305,7 +305,7 @@ export function hasExtendedContextSuffix(modelId: string): boolean {
  * spawning sub-agents on non-standard providers (Bedrock, Vertex AI).
  *
  * A model ID is sub-agent safe if it is provider-specific (full Bedrock or
- * Vertex AI format) AND does not carry a Claude Code context-window suffix
+ * Vertex AI format) AND does not carry a Qoder context-window suffix
  * like `[1m]` that the sub-agent runtime cannot handle.
  */
 export function isSubagentSafeModelId(modelId: string): boolean {
@@ -313,16 +313,16 @@ export function isSubagentSafeModelId(modelId: string): boolean {
 }
 
 /**
- * Detect whether Claude Code is running on Google Vertex AI.
+ * Detect whether Qoder is running on Google Vertex AI.
  *
- * Claude Code sets CLAUDE_CODE_USE_VERTEX=1 when configured for Vertex AI.
+ * Qoder sets QODER_USE_VERTEX=1 when configured for Vertex AI.
  * Vertex model IDs typically use a "vertex_ai/" prefix.
  *
  * On Vertex, passing bare tier names causes errors because the provider
  * expects full Vertex model paths.
  */
 export function isVertexAI(): boolean {
-  if (process.env.CLAUDE_CODE_USE_VERTEX === '1') {
+  if (process.env.QODER_USE_VERTEX === '1') {
     return true;
   }
 
@@ -337,7 +337,7 @@ function hasVertexModelId(modelIds: readonly string[]): boolean {
 function hasNonClaudeModelId(modelIds: readonly string[]): boolean {
   for (const modelId of modelIds) {
     const lower = modelId.toLowerCase();
-    if (!lower.includes('claude') && !CLAUDE_TIER_ALIASES.has(lower)) {
+    if (!lower.includes('qoder') && !CLAUDE_TIER_ALIASES.has(lower)) {
       return true;
     }
   }
@@ -373,10 +373,10 @@ export function isNonClaudeProvider(): boolean {
   }
 
   // Check the active model env value for non-Claude model IDs.
-  // Direct CLAUDE_MODEL/ANTHROPIC_MODEL env vars intentionally short-circuit
+  // Direct QODER_MODEL/ANTHROPIC_MODEL env vars intentionally short-circuit
   // lower-precedence tier defaults so stale tier envs do not force inheritance.
   // Note: this check comes AFTER Bedrock/Vertex because their model IDs
-  // contain "claude" and would incorrectly return false here.
+  // contain "qoder" and would incorrectly return false here.
   if (hasNonClaudeModelId(getProviderDetectionModelEnvValues())) {
     return true;
   }
@@ -410,11 +410,11 @@ export function shouldAutoForceInherit(): boolean {
     return true;
   }
 
-  if (process.env.CLAUDE_CODE_USE_BEDROCK === '1') {
+  if (process.env.QODER_USE_BEDROCK === '1') {
     return true;
   }
 
-  if (process.env.CLAUDE_CODE_USE_VERTEX === '1') {
+  if (process.env.QODER_USE_VERTEX === '1') {
     return true;
   }
 

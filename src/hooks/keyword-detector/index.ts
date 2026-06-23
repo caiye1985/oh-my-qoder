@@ -49,7 +49,7 @@ const KEYWORD_PATTERNS: Record<KeywordType, RegExp> = {
   autopilot: /\b(autopilot|auto[\s-]?pilot|fullsend|full\s+auto)\b|(오토파일럿)|(オートパイロット)/i,
   ultrawork: /\b(ultrawork|ulw)\b|(울트라워크)|(ウルトラワーク)/i,
   // Team keyword detection disabled — team mode is now explicit-only via /team skill.
-  // This prevents infinite spawning when Claude workers receive prompts containing "team".
+  // This prevents infinite spawning when Qoder workers receive prompts containing "team".
   team: /(?!x)x/,  // never-match placeholder (type system requires the key)
   ralplan: /\b(ralplan)\b|(랄플랜)|(ラルプラン)/i,
   tdd: /\b(tdd)\b|\btest\s+first\b|(테스트\s?퍼스트)|(テスト\s?ファースト)/i,
@@ -59,7 +59,7 @@ const KEYWORD_PATTERNS: Record<KeywordType, RegExp> = {
   deepsearch: /\b(deepsearch)\b|\bsearch\s+the\s+codebase\b|\bfind\s+in\s+(the\s+)?codebase\b|(딥\s?서치)|(ディープ\s?サーチ)/i,
   analyze: /\b(deep[\s-]?analyze|deepanalyze)\b|(딥\s?분석)|(ディープ\s?アナライズ)/i,
   'deep-interview': /\b(deep[\s-]interview|ouroboros)\b|(딥인터뷰)|(ディープインタビュー)/i,
-  ccg: /\b(ccg|claude-codex-gemini)\b|(씨씨지)|(シーシージー)/i,
+  ccg: /\b(ccg|qoderx-gemini)\b|(씨씨지)|(シーシージー)/i,
   codex: /\b(ask|use|delegate\s+to)\s+(codex|gpt)\b/i,
   gemini: /\b(ask|use|delegate\s+to)\s+gemini\b/i,
   cursor: /\b(ask|use|delegate\s+to)\s+cursor\b/i,
@@ -136,7 +136,7 @@ const SLASH_SKILL_TO_KEYWORD_TYPE: Partial<
 };
 
 const WORKFLOW_SLASH_PATTERN = new RegExp(
-  '^\\s*/(?:oh-my-claudecode:|omc:)?(' +
+  '^\\s*/(?:oh-my-qoder:|omc:)?(' +
     CANONICAL_WORKFLOW_SLASH_SKILLS
       .map((skill) => skill.replace(/-/g, '\\-'))
       .join('|') +
@@ -145,7 +145,7 @@ const WORKFLOW_SLASH_PATTERN = new RegExp(
 );
 
 export interface ExplicitWorkflowSlashInvocation {
-  /** Canonical workflow skill name (lowercase, no `oh-my-claudecode:` prefix). */
+  /** Canonical workflow skill name (lowercase, no `oh-my-qoder:` prefix). */
   skill: CanonicalWorkflowSlashSkill;
   /** Trailing arguments after the slash command. */
   args: string;
@@ -156,7 +156,7 @@ export interface ExplicitWorkflowSlashInvocation {
 /**
  * Parse an explicit workflow slash invocation at the start of a prompt.
  *
- * Recognizes `/<skill>`, `/omc:<skill>`, and `/oh-my-claudecode:<skill>` for
+ * Recognizes `/<skill>`, `/omc:<skill>`, and `/oh-my-qoder:<skill>` for
  * the canonical workflow skill list. Code fences and inline backticks are
  * stripped first so quoted commands do not match. The trailing lookahead
  * (whitespace, end-of-text, or punctuation) prevents file paths like
@@ -413,7 +413,7 @@ const QUESTION_FOLLOWUP_PATTERNS: RegExp[] = [
   /(?:왜|얼마|몇\s*번|몇번|토큰|가격|비용|질문)/u,
 ];
 const MODE_REFERENCE_PATTERN =
-  /\b(?:ralph|autopilot|auto[\s-]?pilot|ultrawork|ulw|ralplan|ultrathink|deepsearch|deep[\s-]?analyze|deepanalyze|deep[\s-]interview|ouroboros|ccg|claude-codex-gemini|deerflow)\b/gi;
+  /\b(?:ralph|autopilot|auto[\s-]?pilot|ultrawork|ulw|ralplan|ultrathink|deepsearch|deep[\s-]?analyze|deepanalyze|deep[\s-]interview|ouroboros|ccg|qoderx-gemini|deerflow)\b/gi;
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -708,7 +708,7 @@ export function detectKeywordsWithType(
   // The general sanitizer strips bare `/word` tokens as file paths, so bare
   // commands like `/ralph fix auth` would otherwise never match. This must be
   // robust to surrounding whitespace, namespace prefixes (`/omc:`,
-  // `/oh-my-claudecode:`), and code-fence/backtick wrapping (handled inside
+  // `/oh-my-qoder:`), and code-fence/backtick wrapping (handled inside
   // the parser via removeCodeBlocks).
   const explicitSlash = parseExplicitWorkflowSlashInvocation(text);
   const explicitSlashType = explicitSlash

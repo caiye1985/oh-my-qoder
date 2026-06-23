@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { buildResolvedRoutingSnapshot } from '../stage-router.js';
 import { CANONICAL_TEAM_ROLES } from '../../shared/types.js';
 import type { PluginConfig } from '../../shared/types.js';
-import { CLAUDE_FAMILY_DEFAULTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS } from '../../config/models.js';
+import { QODER_FAMILY_DEFAULTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS } from '../../config/models.js';
 
 type TeamRoleRoutingConfig = NonNullable<NonNullable<PluginConfig['team']>['roleRouting']>;
 
@@ -10,9 +10,9 @@ const ENV_KEYS = [
   'OMC_MODEL_HIGH',
   'OMC_MODEL_MEDIUM',
   'OMC_MODEL_LOW',
-  'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-  'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-  'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+  'QODER_BEDROCK_OPUS_MODEL',
+  'QODER_BEDROCK_SONNET_MODEL',
+  'QODER_BEDROCK_HAIKU_MODEL',
   'ANTHROPIC_DEFAULT_OPUS_MODEL',
   'ANTHROPIC_DEFAULT_SONNET_MODEL',
   'ANTHROPIC_DEFAULT_HAIKU_MODEL',
@@ -48,23 +48,23 @@ describe('buildResolvedRoutingSnapshot', () => {
     expect(Object.keys(snap)).toHaveLength(CANONICAL_TEAM_ROLES.length);
   });
 
-  it('fallback is always a Claude worker even for codex/gemini primaries', () => {
+  it('fallback is always a Qoder worker even for codex/gemini primaries', () => {
     const cfg: PluginConfig = {
       team: {
         roleRouting: {
           critic: { provider: 'codex', model: 'gpt-5.3-codex' },
           'code-reviewer': { provider: 'gemini' },
-          executor: { provider: 'claude' },
+          executor: { provider: 'qoder' },
         },
       },
     };
     const snap = buildResolvedRoutingSnapshot(cfg);
     expect(snap.critic.primary.provider).toBe('codex');
-    expect(snap.critic.fallback.provider).toBe('claude');
+    expect(snap.critic.fallback.provider).toBe('qoder');
     expect(snap['code-reviewer'].primary.provider).toBe('gemini');
-    expect(snap['code-reviewer'].fallback.provider).toBe('claude');
-    expect(snap.executor.primary.provider).toBe('claude');
-    expect(snap.executor.fallback.provider).toBe('claude');
+    expect(snap['code-reviewer'].fallback.provider).toBe('qoder');
+    expect(snap.executor.primary.provider).toBe('qoder');
+    expect(snap.executor.fallback.provider).toBe('qoder');
   });
 
   it('fallback shares the agent with primary', () => {
@@ -84,7 +84,7 @@ describe('buildResolvedRoutingSnapshot', () => {
     // primary is the explicit codex model
     expect(snap.critic.primary.model).toBe('gpt-5.3-codex');
     // fallback is claude — must NOT echo the codex id; resolves to claude tier default for critic (HIGH = opus)
-    expect(snap.critic.fallback.model).toBe(CLAUDE_FAMILY_DEFAULTS.OPUS);
+    expect(snap.critic.fallback.model).toBe(QODER_FAMILY_DEFAULTS.OPUS);
   });
 
   it('fallback respects tier when primary spec uses a tier name', () => {
@@ -95,7 +95,7 @@ describe('buildResolvedRoutingSnapshot', () => {
     // primary on codex: tier maps to codex builtin (tiers are claude-centric)
     expect(snap.executor.primary.model).toBe(BUILTIN_EXTERNAL_MODEL_DEFAULTS.codexModel);
     // fallback on claude with same tier "HIGH" → claude opus
-    expect(snap.executor.fallback.model).toBe(CLAUDE_FAMILY_DEFAULTS.OPUS);
+    expect(snap.executor.fallback.model).toBe(QODER_FAMILY_DEFAULTS.OPUS);
   });
 
   it('orchestrator primary AND fallback are both claude (provider pinned)', () => {
@@ -103,8 +103,8 @@ describe('buildResolvedRoutingSnapshot', () => {
       team: { roleRouting: { orchestrator: { model: 'HIGH' } } },
     };
     const snap = buildResolvedRoutingSnapshot(cfg);
-    expect(snap.orchestrator.primary.provider).toBe('claude');
-    expect(snap.orchestrator.fallback.provider).toBe('claude');
+    expect(snap.orchestrator.primary.provider).toBe('qoder');
+    expect(snap.orchestrator.fallback.provider).toBe('qoder');
     expect(snap.orchestrator.primary.agent).toBe('omc');
   });
 
@@ -113,7 +113,7 @@ describe('buildResolvedRoutingSnapshot', () => {
       team: {
         roleRouting: {
           critic: { provider: 'codex' },
-          executor: { provider: 'claude', model: 'MEDIUM' },
+          executor: { provider: 'qoder', model: 'MEDIUM' },
         },
       },
     };
@@ -137,6 +137,6 @@ describe('buildResolvedRoutingSnapshot', () => {
     };
     const snap = buildResolvedRoutingSnapshot(cfg);
     expect(snap['code-reviewer'].primary.provider).toBe('gemini');
-    expect(snap['code-reviewer'].fallback.provider).toBe('claude');
+    expect(snap['code-reviewer'].fallback.provider).toBe('qoder');
   });
 });

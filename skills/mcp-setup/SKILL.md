@@ -6,15 +6,15 @@ level: 2
 
 # MCP Setup
 
-Configure Model Context Protocol (MCP) servers to extend Claude Code's capabilities with external tools like web search, file system access, and GitHub integration.
+Configure Model Context Protocol (MCP) servers to extend Qoder's capabilities with external tools like web search, file system access, and GitHub integration.
 
 ## Overview
 
-MCP servers provide additional tools that Claude Code agents can use. This skill helps you configure popular MCP servers using the `claude mcp add` command-line interface.
+MCP servers provide additional tools that Qoder agents can use. This skill helps you configure popular MCP servers using the `claude mcp add` command-line interface.
 
 ## Step 1: Choose a Setup Path
 
-Use **AskUserQuestion** with **one question at a time** and **no more than 3 options per question**. Recent Claude Code builds reject larger option payloads as invalid tool parameters, so keep the MCP selection flow staged.
+Use **AskUserQuestion** with **one question at a time** and **no more than 3 options per question**. Recent Qoder builds reject larger option payloads as invalid tool parameters, so keep the MCP selection flow staged.
 
 ### Step 1.1: First menu
 
@@ -145,7 +145,7 @@ CONFIGURED SERVERS:
 [List the servers that were configured]
 
 NEXT STEPS:
-1. Restart Claude Code for changes to take effect
+1. Restart Qoder for changes to take effect
 2. The configured MCP tools will be available to all agents
 3. Run `claude mcp list` to verify configuration
 
@@ -159,10 +159,10 @@ TROUBLESHOOTING:
 - If MCP servers don't appear, run `claude mcp list` to check status
 - Ensure you have Node.js 18+ installed for npx-based servers
 - For GitHub Docker option, ensure Docker is installed and running
-- Run /oh-my-claudecode:omc-doctor to diagnose issues
+- Run /oh-my-qoder:omc-doctor to diagnose issues
 
 MANAGING MCP SERVERS:
-- Add more servers: /oh-my-claudecode:mcp-setup or `claude mcp add ...`
+- Add more servers: /oh-my-qoder:mcp-setup or `claude mcp add ...`
 - List servers: `claude mcp list`
 - Remove a server: `claude mcp remove <server-name>`
 ```
@@ -209,7 +209,7 @@ Example local registration:
 claude mcp add company-context -- node examples/vendor-mcp-server/server.mjs
 ```
 
-Then point OMC at the full tool name in `.claude/omc.jsonc` or `~/.config/claude-omc/config.jsonc`:
+Then point OMC at the full tool name in `.qoder/omc.jsonc` or `~/.config/qoder-omc/config.jsonc`:
 
 ```jsonc
 {
@@ -236,7 +236,7 @@ This remains advisory prompt context, not runtime enforcement.
 - Re-run `claude mcp add` with correct credentials if needed
 
 ### Agents Still Using Built-in Tools
-- Restart Claude Code after configuration
+- Restart Qoder after configuration
 - The built-in websearch will be deprioritized when exa is configured
 - Run `claude mcp list` to confirm servers are active
 

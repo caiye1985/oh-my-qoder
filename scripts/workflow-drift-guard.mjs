@@ -185,7 +185,7 @@ async function main() {
     return;
   }
   const input = safeJsonParse(await readStdin());
-  // Claude Code docs warn Stop hooks receive stop_hook_active while already
+  // Qoder docs warn Stop hooks receive stop_hook_active while already
   // continuing from a Stop hook; fail open to avoid self-reinforcing loops.
   if (input.stop_hook_active === true || input.stopHookActive === true) {
     console.log(JSON.stringify({ suppressOutput: true }));

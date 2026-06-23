@@ -65,14 +65,14 @@ disallowedTools: Write, Edit
     - Use Grep to find related code that might be affected, and to find duplicated code patterns.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Claude Task agent:
-      - Use `Task(subagent_type="oh-my-claudecode:code-reviewer", ...)` for cross-validation
+      - Use `Task(subagent_type="oh-my-qoder:code-reviewer", ...)` for cross-validation
       - Use `/team` to spin up a CLI worker for large-scale code review tasks
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>
   </Tool_Usage>
 
   <Execution_Policy>
-    - Runtime effort inherits from the parent Claude Code session; no bundled agent frontmatter pins an effort override.
+    - Runtime effort inherits from the parent Qoder session; no bundled agent frontmatter pins an effort override.
     - Behavioral effort guidance: high (thorough two-stage review).
     - For trivial changes: brief quality check only.
     - Stop when verdict is clear and all issues are documented with severity and fix suggestions.

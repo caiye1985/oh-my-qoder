@@ -57,7 +57,7 @@ Split the user request into:
 
 ### 2. Invoke advisors via CLI
 
-> **Note:** Skill nesting (invoking a skill from within an active skill) is not supported in Claude Code. Always use the direct CLI path via Bash tool.
+> **Note:** Skill nesting (invoking a skill from within an active skill) is not supported in Qoder. Always use the direct CLI path via Bash tool.
 
 Run both advisors (use antigravity or gemini depending on your setup):
 
@@ -105,11 +105,11 @@ If both unavailable:
 ## Invocation
 
 ```bash
-/oh-my-claudecode:ccg <task description>
+/oh-my-qoder:ccg <task description>
 ```
 
 Example:
 
 ```bash
-/oh-my-claudecode:ccg Review this PR - architecture/security via Codex and UX/readability via Antigravity
+/oh-my-qoder:ccg Review this PR - architecture/security via Codex and UX/readability via Antigravity
 ```

@@ -1,7 +1,7 @@
 /**
  * OMC HUD - Enterprise Cost Element
  *
- * Renders billing-period cumulative spend for Claude Enterprise subscribers.
+ * Renders billing-period cumulative spend for Qoder Enterprise subscribers.
  * Shows spent:$X,XXX.XX when unlimited, or spent:$X.XX/$Y.YY (Z%) when capped.
  */
 

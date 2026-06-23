@@ -65,7 +65,7 @@ describe('runtime-v2 role routing — processCliWorkerVerdicts (AC-7)', () => {
   async function bootstrap(opts: {
     verdict: 'approve' | 'revise' | 'reject';
     paneAlive?: boolean;
-    workerCli?: 'codex' | 'gemini' | 'claude';
+    workerCli?: 'codex' | 'gemini' | 'qoder';
     omitVerdictFile?: boolean;
     invalidVerdictJson?: boolean;
   }): Promise<{ teamRoot: string; outputFile: string; taskPath: string }> {
@@ -260,7 +260,7 @@ describe('runtime-v2 role routing — processCliWorkerVerdicts (AC-7)', () => {
         {
           name: teamName,
           task: 'demo',
-          agent_type: 'claude',
+          agent_type: 'qoder',
           worker_launch_mode: 'interactive',
           worker_count: 1,
           max_workers: 20,
@@ -268,7 +268,7 @@ describe('runtime-v2 role routing — processCliWorkerVerdicts (AC-7)', () => {
             name: 'worker-1',
             index: 1,
             role: 'executor',
-            worker_cli: 'claude',
+            worker_cli: 'qoder',
             assigned_tasks: [],
             pane_id: '%2',
             working_dir: cwd,

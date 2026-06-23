@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 // plugin-setup.mjs rewrites hooks/hooks.json with an absolute node binary path
-// (it always resolves the path relative to its own __dirname, ignoring CLAUDE_CONFIG_DIR).
+// (it always resolves the path relative to its own __dirname, ignoring QODER_CONFIG_DIR).
 // Restore the committed version after all tests in this file so sibling test
 // suites (e.g. setup-contracts-regression) don't see a mutated working tree.
 afterAll(() => {
@@ -54,7 +54,7 @@ describe('HUD marketplace resolution', () => {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
       },
       stdio: 'pipe',
@@ -77,7 +77,7 @@ describe('HUD marketplace resolution', () => {
 
     const content = readFileSync(hudScriptPath, 'utf-8');
     expect(content).toContain('import { fileURLToPath, pathToFileURL } from "node:url"');
-    expect(content).toContain('const { getClaudeConfigDir } = await import(pathToFileURL(join(__dirname, "lib", "config-dir.mjs")).href);');
+    expect(content).toContain('const { getQoderConfigDir } = await import(pathToFileURL(join(__dirname, "lib", "config-dir.mjs")).href);');
     expect(content).toContain('await import(pathToFileURL(pluginPath).href);');
     // OMC_PLUGIN_ROOT replaced the legacy devPath branch (binary-weaving-mountain).
     expect(content).toContain('await import(pathToFileURL(envHudPath).href);');
@@ -107,7 +107,7 @@ describe('HUD marketplace resolution', () => {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
       },
       stdio: 'pipe',
@@ -120,7 +120,7 @@ describe('HUD marketplace resolution', () => {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
       },
       stdio: 'pipe',
@@ -140,7 +140,7 @@ describe('HUD marketplace resolution', () => {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
       },
       stdio: 'pipe',
@@ -160,7 +160,7 @@ describe('HUD marketplace resolution', () => {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
         OMC_PLUGIN_ROOT: pluginRoot,
         OMC_HUD_DISABLE_NPM_FALLBACK: '1',
@@ -188,7 +188,7 @@ describe('HUD marketplace resolution', () => {
     const npmRoot = process.platform === 'win32'
       ? join(npmPrefix, 'node_modules')
       : join(npmPrefix, 'lib', 'node_modules');
-    const npmPackageRoot = join(npmRoot, 'oh-my-claude-sisyphus');
+    const npmPackageRoot = join(npmRoot, 'oh-my-qoder');
     const npmHudDir = join(npmPackageRoot, 'dist', 'hud');
     mkdirSync(npmHudDir, { recursive: true });
     writeFileSync(join(npmPackageRoot, 'package.json'), '{"type":"module"}\n');
@@ -201,7 +201,7 @@ describe('HUD marketplace resolution', () => {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
       },
       stdio: 'pipe',
@@ -214,7 +214,7 @@ describe('HUD marketplace resolution', () => {
       cwd: outsideCwd,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
         npm_config_prefix: npmPrefix,
       },
@@ -232,7 +232,7 @@ describe('HUD marketplace resolution', () => {
     mkdirSync(fakeHome, { recursive: true });
 
     const sentinelPath = join(configDir, 'npm-package-loaded.txt');
-    const npmPackageRoot = join(configDir, 'node_modules', 'oh-my-claude-sisyphus');
+    const npmPackageRoot = join(configDir, 'node_modules', 'oh-my-qoder');
     const npmHudDir = join(npmPackageRoot, 'dist', 'hud');
     mkdirSync(npmHudDir, { recursive: true });
     writeFileSync(join(npmPackageRoot, 'package.json'), '{"type":"module"}\n');
@@ -245,7 +245,7 @@ describe('HUD marketplace resolution', () => {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
       },
       stdio: 'pipe',
@@ -255,17 +255,17 @@ describe('HUD marketplace resolution', () => {
     expect(existsSync(hudScriptPath)).toBe(true);
 
     const content = readFileSync(hudScriptPath, 'utf-8');
-    expect(content).toContain('"oh-my-claude-sisyphus/dist/hud/index.js"');
-    expect(content).toContain('"oh-my-claudecode/dist/hud/index.js"');
-    expect(content.indexOf('"oh-my-claude-sisyphus/dist/hud/index.js"')).toBeLessThan(
-      content.indexOf('"oh-my-claudecode/dist/hud/index.js"')
+    expect(content).toContain('"oh-my-qoder/dist/hud/index.js"');
+    expect(content).toContain('"oh-my-qoder/dist/hud/index.js"');
+    expect(content.indexOf('"oh-my-qoder/dist/hud/index.js"')).toBeLessThan(
+      content.indexOf('"oh-my-qoder/dist/hud/index.js"')
     );
 
     execFileSync(process.execPath, [hudScriptPath], {
       cwd: root,
       env: {
         ...process.env,
-        CLAUDE_CONFIG_DIR: configDir,
+        QODER_CONFIG_DIR: configDir,
         HOME: fakeHome,
       },
       stdio: 'pipe',

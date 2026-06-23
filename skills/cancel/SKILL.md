@@ -26,13 +26,13 @@ Automatically detects which mode is active and cancels it:
 - **Swarm**: Stops coordinated agent swarm, releases claimed tasks
 - **Ultrapilot**: Stops parallel autopilot workers
 - **Pipeline**: Stops sequential agent pipeline
-- **Team**: Requests shutdown from all teammates through the active team/conversation surface, waits for responses/timeouts, clears OMC team state, clears linked ralph if present. Claude Code 2.1.178+ has no TeamDelete.
+- **Team**: Requests shutdown from all teammates through the active team/conversation surface, waits for responses/timeouts, clears OMC team state, clears linked ralph if present. Qoder 2.1.178+ has no TeamDelete.
 - **Team+Ralph (linked)**: Cancels team first (graceful shutdown), then clears ralph state. Cancelling ralph when linked also cancels team first.
 
 ## Usage
 
 ```
-/oh-my-claudecode:cancel
+/oh-my-qoder:cancel
 ```
 
 Or say: "cancelomc", "stopomc"
@@ -40,11 +40,11 @@ Or say: "cancelomc", "stopomc"
 ## Critical: Deferred Tool Handling
 
 The state management tools (`state_clear`, `state_read`, `state_write`, `state_list_active`,
-`state_get_status`) may be registered as **deferred tools** by Claude Code. Before calling
+`state_get_status`) may be registered as **deferred tools** by Qoder. Before calling
 any state tool, you MUST first load all of them via `ToolSearch`:
 
 ```
-ToolSearch(query="select:mcp__plugin_oh-my-claudecode_t__state_clear,mcp__plugin_oh-my-claudecode_t__state_read,mcp__plugin_oh-my-claudecode_t__state_write,mcp__plugin_oh-my-claudecode_t__state_list_active,mcp__plugin_oh-my-claudecode_t__state_get_status")
+ToolSearch(query="select:mcp__plugin_oh-my-qoder_t__state_clear,mcp__plugin_oh-my-qoder_t__state_read,mcp__plugin_oh-my-qoder_t__state_write,mcp__plugin_oh-my-qoder_t__state_list_active,mcp__plugin_oh-my-qoder_t__state_get_status")
 ```
 
 If `state_clear` is unavailable or fails, use this **bash fallback** as an **emergency
@@ -60,7 +60,7 @@ cleanup that cannot be done via file deletion alone.
 
 ```bash
 # Fallback: direct file removal when state_clear MCP tool is unavailable
-SESSION_ID="${CLAUDE_SESSION_ID:-${CLAUDECODE_SESSION_ID:-}}"
+SESSION_ID="${CLAUDE_SESSION_ID:-${QODER_SESSION_ID:-}}"
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || { d="$PWD"; while [ "$d" != "/" ] && [ ! -d "$d/.omc" ]; do d="$(dirname "$d")"; done; echo "$d"; })"
 
 # Cross-platform SHA-256 (macOS: shasum, Linux: sha256sum)
@@ -102,7 +102,7 @@ fi
 
 ## Auto-Detection
 
-`/oh-my-claudecode:cancel` follows the session-aware state contract:
+`/oh-my-qoder:cancel` follows the session-aware state contract:
 - By default the command inspects the current session via `state_list_active` and `state_get_status`, navigating `.omc/state/sessions/{sessionId}/…` to discover which mode is active.
 - When a session id is provided or already known, that session-scoped path is authoritative. Legacy files in `.omc/state/*.json` are consulted only as a compatibility fallback if the session id is missing or empty.
 - Swarm is a shared SQLite/marker mode (`.omc/state/swarm.db` / `.omc/state/swarm-active.marker`) and is not session-scoped.
@@ -116,7 +116,7 @@ Active modes are still cancelled in dependency order:
 5. Swarm (standalone)
 6. Ultrapilot (standalone)
 7. Pipeline (standalone)
-8. Team (Claude Code native)
+8. Team (Qoder native)
 9. OMC Teams (tmux CLI workers)
 10. Plan Consensus (standalone)
 11. Self-Improve (standalone — clear state, clean orphaned worktrees, preserve iteration_state for resume, set status: "user_stopped" in the resolved `<self-improve-root>/state/agent-settings.json`; new runs use `.omc/self-improve/topics/<topic-slug>/`, with flat `.omc/self-improve/` retained only for legacy single-track resumes)
@@ -126,18 +126,18 @@ Active modes are still cancelled in dependency order:
 Use `--force` or `--all` when you need to erase every session plus legacy artifacts, e.g., to reset the workspace entirely.
 
 ```
-/oh-my-claudecode:cancel --force
+/oh-my-qoder:cancel --force
 ```
 
 ```
-/oh-my-claudecode:cancel --all
+/oh-my-qoder:cancel --all
 ```
 
 Steps under the hood:
 1. `state_list_active` enumerates `.omc/state/sessions/{sessionId}/…` to find every known session.
 2. `state_clear` runs once per session to drop that session’s files.
 3. A global `state_clear` without `session_id` removes legacy files under `.omc/state/*.json`, `.omc/state/swarm*.db`, and compatibility artifacts (see list).
-4. Team artifacts (`~/.claude/teams/*/`, `~/.claude/tasks/*/`, `.omc/state/team-state.json`) are best-effort cleared as part of the legacy fallback.
+4. Team artifacts (`~/.qoder/teams/*/`, `~/.qoder/tasks/*/`, `.omc/state/team-state.json`) are best-effort cleared as part of the legacy fallback.
    - Cancel for native team does NOT affect omc-teams state, and vice versa.
 
 Every `state_clear` command honors the `session_id` argument, so even force mode still uses the session-aware paths first before deleting legacy files.
@@ -188,7 +188,7 @@ fi
 The skill now relies on the session-aware state contract rather than hard-coded file paths:
 1. Call `state_list_active` to enumerate `.omc/state/sessions/{sessionId}/…` and discover every active session.
 2. For each session id, call `state_get_status` to learn which mode is running (`autopilot`, `ralph`, `ultrawork`, etc.) and whether dependent modes exist.
-3. If a `session_id` was supplied to `/oh-my-claudecode:cancel`, skip legacy fallback entirely and operate solely within that session path; otherwise, consult legacy files in `.omc/state/*.json` only if the state tools report no active session. Swarm remains a shared SQLite/marker mode outside session scoping.
+3. If a `session_id` was supplied to `/oh-my-qoder:cancel`, skip legacy fallback entirely and operate solely within that session path; otherwise, consult legacy files in `.omc/state/*.json` only if the state tools report no active session. Swarm remains a shared SQLite/marker mode outside session scoping.
 4. Any cancellation logic in this doc mirrors the dependency order discovered via state tools (autopilot → ralph → …).
 
 ### 3A. Force Mode (if --force or --all)
@@ -197,9 +197,9 @@ Use force mode to clear every session plus legacy artifacts via `state_clear`. D
 
 ### 3B. Smart Cancellation (default)
 
-#### If Team Active (Claude Code implicit team)
+#### If Team Active (Qoder implicit team)
 
-Teams are detected through OMC team state, not removed Claude Code `~/.claude/teams` config directories:
+Teams are detected through OMC team state, not removed Qoder `~/.qoder/teams` config directories:
 
 ```bash
 # Check for active OMC team state
@@ -225,7 +225,7 @@ For the active OMC team state:
 After graceful pass:
   1. Wait 5 more seconds for unresponsive teammates that may still be processing
   2. Record any remaining unresponsive teammates in the cancellation report
-  3. Do not call TeamDelete; Claude Code 2.1.178+ removed per-team native cleanup
+  3. Do not call TeamDelete; Qoder 2.1.178+ removed per-team native cleanup
 ```
 
 **OMC State Cleanup:**
@@ -242,7 +242,7 @@ After graceful pass:
 
 For legacy OMC tmux/CLI worker runs, verify no worker processes remain:
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-orphans.mjs" --team-name "{team_name}"
+node "${QODER_PLUGIN_ROOT}/scripts/cleanup-orphans.mjs" --team-name "{team_name}"
 ```
 
 The orphan scanner:
@@ -313,7 +313,7 @@ The cancel skill runs as follows:
 2. Use `state_list_active` to enumerate known session ids and `state_get_status` to learn the active mode (`autopilot`, `ralph`, `ultrawork`, etc.) for each session.
 3. When operating in default mode, call `state_clear` with that session_id to remove only the session’s files, then run mode-specific cleanup (autopilot → ralph → …) based on the state tool signals.
 4. In force mode, iterate every active session, call `state_clear` per session, then run a global `state_clear` without `session_id` to drop legacy files (`.omc/state/*.json`, compatibility artifacts) and report success. Swarm remains a shared SQLite/marker mode outside session scoping.
-5. Team artifacts (`~/.claude/teams/*/`, `~/.claude/tasks/*/`, `.omc/state/team-state.json`) remain best-effort cleanup items invoked during the legacy/global pass.
+5. Team artifacts (`~/.qoder/teams/*/`, `~/.qoder/tasks/*/`, `.omc/state/team-state.json`) remain best-effort cleanup items invoked during the legacy/global pass.
 6. **Always** clear skill-active state as the final step, regardless of which mode was active or whether `--force` was used:
    ```
    state_clear(mode="skill-active", session_id)
@@ -343,7 +343,7 @@ Mode-specific subsections below describe what extra cleanup each handler perform
 
 | Mode | State Preserved | Resume Command |
 |------|-----------------|----------------|
-| Autopilot | Yes (phase, files, spec, plan, verdicts) | `/oh-my-claudecode:autopilot` |
+| Autopilot | Yes (phase, files, spec, plan, verdicts) | `/oh-my-qoder:autopilot` |
 | Ralph | No | N/A |
 | Ultrawork | No | N/A |
 | UltraQA | No | N/A |
@@ -359,7 +359,7 @@ Mode-specific subsections below describe what extra cleanup each handler perform
 - **Safe**: Only clears linked Ultrawork, preserves standalone Ultrawork
 - **Local-only**: Clears state files in `.omc/state/` directory
 - **Resume-friendly**: Autopilot state is preserved for seamless resume
-- **Team-aware**: Detects native Claude Code teams and performs graceful shutdown
+- **Team-aware**: Detects native Qoder teams and performs graceful shutdown
 
 ## MCP Worker Cleanup
 

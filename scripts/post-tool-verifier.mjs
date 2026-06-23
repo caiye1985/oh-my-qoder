@@ -13,7 +13,7 @@ import { closeSync, openSync, readSync, statSync } from 'fs';
 import { basename, join, dirname, resolve } from 'path';
 import { homedir, tmpdir } from 'os';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { getClaudeConfigDir } from './lib/config-dir.mjs';
+import { getQoderConfigDir } from './lib/config-dir.mjs';
 import { encodeProjectPath } from './lib/encode-project-path.mjs';
 import { resolveOmcStateRoot } from './lib/state-root.mjs';
 import { readStdin } from './lib/stdin.mjs';
@@ -129,7 +129,7 @@ const debugLog = (...args) => {
 };
 
 // State file for session tracking
-const cfgDir = getClaudeConfigDir();
+const cfgDir = getQoderConfigDir();
 const STATE_FILE = join(cfgDir, '.session-stats.json');
 
 // Ensure state directory exists
@@ -220,18 +220,18 @@ function appendToBashHistory(command) {
   }
 }
 
-// Pattern to match Claude Code temp CWD permission errors (false positives on macOS)
+// Pattern to match Qoder temp CWD permission errors (false positives on macOS)
 // e.g. "zsh:1: permission denied: /var/folders/.../T/claude-abc123-cwd"
-const CLAUDE_TEMP_CWD_PATTERN = /zsh:\d+: permission denied:.*\/T\/claude-[a-z0-9]+-cwd/gi;
+const QODER_TEMP_CWD_PATTERN = /zsh:\d+: permission denied:.*\/T\/claude-[a-z0-9]+-cwd/gi;
 
-// Strip Claude Code temp CWD noise before pattern matching
-function stripClaudeTempCwdErrors(output) {
-  return output.replace(CLAUDE_TEMP_CWD_PATTERN, '');
+// Strip Qoder temp CWD noise before pattern matching
+function stripQoderTempCwdErrors(output) {
+  return output.replace(QODER_TEMP_CWD_PATTERN, '');
 }
 
-// Pattern matching Claude Code's "Error: Exit code N" prefix line
+// Pattern matching Qoder's "Error: Exit code N" prefix line
 // Note: no /g flag — module-level regex with /g is stateful (.lastIndex persists across calls)
-const CLAUDE_EXIT_CODE_PREFIX = /^Error: Exit code \d+\s*$/m;
+const QODER_EXIT_CODE_PREFIX = /^Error: Exit code \d+\s*$/m;
 const QUOTED_SPAN_PATTERN =
   /"[^"\n]{1,400}"|'[^'\n]{1,400}'|“[^”\n]{1,400}”|‘[^’\n]{1,400}’/g;
 const NON_ACTIONABLE_ERROR_LINES = [
@@ -249,7 +249,7 @@ function stripQuotedSpans(output) {
 function isPytestRunOutput(output) {
   if (!output) return false;
 
-  const cleaned = stripClaudeTempCwdErrors(output);
+  const cleaned = stripQoderTempCwdErrors(output);
   const hasPytestHeader =
     /(^|\n)=+\s*test session starts\s*=+/i.test(cleaned) ||
     /(^|\n).*pytest-\d/i.test(cleaned) ||
@@ -277,19 +277,19 @@ function stripNonActionableErrorContext(output) {
 
 /**
  * Detect non-zero exit code with valid stdout (issue #960).
- * Returns true when output has Claude Code's "Error: Exit code N" prefix
+ * Returns true when output has Qoder's "Error: Exit code N" prefix
  * AND substantial content that doesn't itself indicate real errors.
  * Example: `gh pr checks` exits 8 (pending) but outputs valid CI status.
  */
 export function isNonZeroExitWithOutput(output) {
   if (!output) return false;
-  const cleaned = stripNonActionableErrorContext(stripClaudeTempCwdErrors(output));
+  const cleaned = stripNonActionableErrorContext(stripQoderTempCwdErrors(output));
 
-  // Must contain Claude Code's exit code prefix
-  if (!CLAUDE_EXIT_CODE_PREFIX.test(cleaned)) return false;
+  // Must contain Qoder's exit code prefix
+  if (!QODER_EXIT_CODE_PREFIX.test(cleaned)) return false;
 
   // Strip exit code prefix line(s) and check remaining content
-  const remaining = cleaned.replace(CLAUDE_EXIT_CODE_PREFIX, '').trim();
+  const remaining = cleaned.replace(QODER_EXIT_CODE_PREFIX, '').trim();
 
   // Must have at least one non-empty line of real output
   const contentLines = remaining.split('\n').filter(l => l.trim().length > 0);
@@ -314,7 +314,7 @@ export function isNonZeroExitWithOutput(output) {
 export function detectBashFailure(output) {
   if (!output) return false;
 
-  const cleaned = stripClaudeTempCwdErrors(output);
+  const cleaned = stripQoderTempCwdErrors(output);
 
   if (isPytestRunOutput(cleaned)) {
     return false;
@@ -396,7 +396,7 @@ function resolveTranscriptPath(transcriptPath, cwd) {
     if (mainRepoRoot !== worktreeTop) {
       const sessionFile = basename(transcriptPath);
       if (sessionFile) {
-        const projectsDir = join(getClaudeConfigDir(), 'projects');
+        const projectsDir = join(getQoderConfigDir(), 'projects');
         if (existsSync(projectsDir)) {
           const encodedMain = encodeProjectPath(mainRepoRoot);
           const resolvedPath = join(projectsDir, encodedMain, sessionFile);
@@ -750,7 +750,7 @@ function processRememberTags(output, directory) {
 // Patterns are tightened to tool-level failure phrases to avoid false positives
 // when edited file content contains error-handling code (issue #1005)
 export function detectWriteFailure(output) {
-  const cleaned = stripQuotedSpans(stripClaudeTempCwdErrors(output));
+  const cleaned = stripQuotedSpans(stripQoderTempCwdErrors(output));
   const errorPatterns = [
     /\berror:/i,              // "error:" with word boundary — avoids "setError", "console.error"
     /\bfailed to\b/i,        // "failed to write" — avoids "failedOidc", UI strings
@@ -765,12 +765,12 @@ export function detectWriteFailure(output) {
   return errorPatterns.some(pattern => pattern.test(cleaned));
 }
 
-// Detect Claude Code's deterministic write/edit success markers so docs or
+// Detect Qoder's deterministic write/edit success markers so docs or
 // serialized tool output containing diagnostic prose do not override success.
 export function isClaudeCodeWriteSuccess(output) {
   if (!output) return false;
 
-  const cleaned = stripClaudeTempCwdErrors(output);
+  const cleaned = stripQoderTempCwdErrors(output);
   const successPatterns = [
     /(^|\n)The file has been updated successfully\.?(\n|$)/i,
     /(^|\n)The file .+ has been updated successfully\.?(\n|$)/i,
@@ -946,7 +946,7 @@ function getAgentCompletionSummary(directory, quietLevel = QUIET_LEVEL, sessionI
 
       const parts = [];
       if (quietLevel < 2 && running.length > 0) {
-        parts.push(`Running: ${running.length} [${running.map(a => a.agent_type.replace('oh-my-claudecode:', '')).join(', ')}]`);
+        parts.push(`Running: ${running.length} [${running.map(a => a.agent_type.replace('oh-my-qoder:', '')).join(', ')}]`);
       }
       if (quietLevel < 2 && completed > 0) parts.push(`Completed: ${completed}`);
       if (failed > 0) parts.push(`Failed: ${failed}`);
@@ -1115,7 +1115,7 @@ async function main() {
       const currentState = readSkillActiveState(directory, sessionId);
       const completingSkill = (skillName ?? '')
         .toLowerCase()
-        .replace(/^oh-my-claudecode:/, '');
+        .replace(/^oh-my-qoder:/, '');
       if (!currentState || !currentState.active || currentState.skill_name === completingSkill) {
         clearSkillActiveState(directory, sessionId);
       }

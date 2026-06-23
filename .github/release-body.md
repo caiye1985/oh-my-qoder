@@ -1,4 +1,4 @@
-# oh-my-claudecode v4.15.0: add antigravity (agy), surface usage hint
+# oh-my-qoder v4.15.0: add antigravity (agy), surface usage hint
 
 ## Release Notes
 
@@ -30,7 +30,7 @@ Release with **2 new features**, **8 bug fixes**, **2 other changes** across **2
 - **docs(release): include PR #3300 in v4.14.8 notes**
 - **docs: clarify psmux Windows team caveats** (#3312)
 - **docs: clarify OMC automation and SDK surfaces**
-- **docs: audit Claude Code changelog compatibility** (#3303)
+- **docs: audit Qoder changelog compatibility** (#3303)
 
 ### Other Changes
 
@@ -44,12 +44,12 @@ Release with **2 new features**, **8 bug fixes**, **2 other changes** across **2
 ### Install / Update
 
 ```bash
-npm install -g oh-my-claude-sisyphus@4.15.0
+npm install -g oh-my-qoder@4.15.0
 ```
 
 Or reinstall the plugin:
 ```bash
-claude /install-plugin oh-my-claudecode
+claude /install-plugin oh-my-qoder
 ```
 
-**Full Changelog**: https://github.com/Yeachan-Heo/oh-my-claudecode/compare/v4.14.7...v4.15.0
+**Full Changelog**: https://github.com/Yeachan-Heo/oh-my-qoder/compare/v4.14.7...v4.15.0

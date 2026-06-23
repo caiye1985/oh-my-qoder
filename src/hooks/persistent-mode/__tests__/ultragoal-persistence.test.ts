@@ -13,7 +13,7 @@ function runHook(script: string, payload: Record<string, unknown>, env: Record<s
     input: JSON.stringify(payload),
     encoding: 'utf-8',
     cwd: process.cwd(),
-    env: { ...process.env, CLAUDE_PLUGIN_ROOT: '', ...env },
+    env: { ...process.env, QODER_PLUGIN_ROOT: '', ...env },
   });
   return JSON.parse(stdout);
 }
@@ -43,8 +43,8 @@ function writeUltragoalState(cwd: string, overrides: Record<string, unknown> = {
   return state;
 }
 
-describe('ultragoal persistence and Claude /goal enforcement', () => {
-  it('allows PreToolUse when active ultragoal has a matching active Claude /goal', () => {
+describe('ultragoal persistence and Qoder /goal enforcement', () => {
+  it('allows PreToolUse when active ultragoal has a matching active Qoder /goal', () => {
     const cwd = makeTempProject('omc-ultragoal-pass-');
     writeUltragoalState(cwd);
 
@@ -59,7 +59,7 @@ describe('ultragoal persistence and Claude /goal enforcement', () => {
     expect(result.hookSpecificOutput?.permissionDecision).not.toBe('deny');
   });
 
-  it('allows ultragoal CLI bootstrap commands before Claude /goal is visible', () => {
+  it('allows ultragoal CLI bootstrap commands before Qoder /goal is visible', () => {
     const cwd = makeTempProject('omc-ultragoal-bootstrap-');
     writeUltragoalState(cwd);
 
@@ -80,7 +80,7 @@ describe('ultragoal persistence and Claude /goal enforcement', () => {
     expect(completeGoals.hookSpecificOutput?.permissionDecision).not.toBe('deny');
   });
 
-  it('denies PreToolUse when active ultragoal has no visible Claude /goal', () => {
+  it('denies PreToolUse when active ultragoal has no visible Qoder /goal', () => {
     const cwd = makeTempProject('omc-ultragoal-deny-');
     writeUltragoalState(cwd);
 

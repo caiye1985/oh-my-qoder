@@ -93,7 +93,7 @@ describe('HUD CLI diagnostic (no stdin, no watch mode)', () => {
       getOmcRoot: vi.fn(() => '/tmp/.omc'),
     }));
     vi.doMock('../../utils/config-dir.js', () => ({
-      getClaudeConfigDir: vi.fn(() => overrides.configDir ?? tempConfigDir),
+      getQoderConfigDir: vi.fn(() => overrides.configDir ?? tempConfigDir),
     }));
 
     return import('../../hud/index.js');
@@ -169,7 +169,7 @@ describe('HUD CLI diagnostic (no stdin, no watch mode)', () => {
     writeFileSync(join(tempConfigDir, 'hud', 'omc-hud.mjs'), '// stub');
     writeFileSync(
       join(tempConfigDir, 'settings.json'),
-      JSON.stringify({ statusLine: { type: 'command', command: 'node $HOME/.claude/hud/omc-hud.mjs' } }),
+      JSON.stringify({ statusLine: { type: 'command', command: 'node $HOME/.qoder/hud/omc-hud.mjs' } }),
     );
     const hud = await importHudModule();
     await hud.main(false, false);
@@ -177,7 +177,7 @@ describe('HUD CLI diagnostic (no stdin, no watch mode)', () => {
     const output = consoleLogSpy.mock.calls.map((c: unknown[]) => c[0]).join('\n');
     expect(output).toContain('statusLine:');
     expect(output).toContain('configured');
-    expect(output).toContain('HUD renders automatically inside Claude Code sessions.');
+    expect(output).toContain('HUD renders automatically inside Qoder sessions.');
   });
 
   it('shows statusLine as NOT configured when settings.json has no statusLine', async () => {
@@ -187,14 +187,14 @@ describe('HUD CLI diagnostic (no stdin, no watch mode)', () => {
 
     const output = consoleLogSpy.mock.calls.map((c: unknown[]) => c[0]).join('\n');
     expect(output).toContain('NOT configured');
-    expect(output).toContain('Run /oh-my-claudecode:hud setup to fix.');
+    expect(output).toContain('Run /oh-my-qoder:hud setup to fix.');
   });
 
   it('handles legacy string statusLine format', async () => {
     writeFileSync(join(tempConfigDir, 'hud', 'omc-hud.mjs'), '// stub');
     writeFileSync(
       join(tempConfigDir, 'settings.json'),
-      JSON.stringify({ statusLine: '~/.claude/hud/omc-hud.mjs' }),
+      JSON.stringify({ statusLine: '~/.qoder/hud/omc-hud.mjs' }),
     );
     const hud = await importHudModule();
     await hud.main(false, false);
@@ -216,6 +216,6 @@ describe('HUD CLI diagnostic (no stdin, no watch mode)', () => {
     await hud.main(false, false);
 
     const output = consoleLogSpy.mock.calls.map((c: unknown[]) => c[0]).join('\n');
-    expect(output).toContain('Run /oh-my-claudecode:hud setup to fix.');
+    expect(output).toContain('Run /oh-my-qoder:hud setup to fix.');
   });
 });

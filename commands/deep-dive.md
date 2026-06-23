@@ -4,7 +4,7 @@ description: ""
 
 # OMC deep-dive
 
-This compatibility command keeps `/oh-my-claudecode:deep-dive` available without loading the full `deep-dive` skill description in every Claude Code session.
+This compatibility command keeps `/oh-my-qoder:deep-dive` available without loading the full `deep-dive` skill description in every Qoder session.
 
 ## Dispatch
 
@@ -15,4 +15,4 @@ This compatibility command keeps `/oh-my-claudecode:deep-dive` available without
 $ARGUMENTS
 ```
 
-If the file is not directly readable from the current working directory, locate it under the active `CLAUDE_PLUGIN_ROOT`/`OMC_PLUGIN_ROOT`, package root, or installed OMC plugin directory, then continue.
+If the file is not directly readable from the current working directory, locate it under the active `QODER_PLUGIN_ROOT`/`OMC_PLUGIN_ROOT`, package root, or installed OMC plugin directory, then continue.

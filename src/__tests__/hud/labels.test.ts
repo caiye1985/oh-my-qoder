@@ -18,7 +18,7 @@ import {
 
 const ANSI_REGEX = /\x1b\[[0-9;]*m/g;
 const tempDirs: string[] = [];
-const originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
+const originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
 
 function stripAnsi(value: string): string {
   return value.replace(ANSI_REGEX, '');
@@ -116,9 +116,9 @@ describe('HUD labels', () => {
       if (dir) rmSync(dir, { recursive: true, force: true });
     }
     if (originalClaudeConfigDir === undefined) {
-      delete process.env.CLAUDE_CONFIG_DIR;
+      delete process.env.QODER_CONFIG_DIR;
     } else {
-      process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+      process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
     }
   });
 
@@ -154,7 +154,7 @@ describe('HUD labels', () => {
         },
       },
     });
-    process.env.CLAUDE_CONFIG_DIR = configDir;
+    process.env.QODER_CONFIG_DIR = configDir;
 
     const config = readHudConfig();
 

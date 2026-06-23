@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Hooks intercept Claude Code events to enable:
+Hooks intercept Qoder events to enable:
 - **Execution modes**: autopilot, ultrawork, ralph, ultrapilot, swarm, pipeline (mode-registry)
 - **Validation**: thinking blocks, empty messages, comments
 - **Recovery**: edit errors, session recovery, context window
@@ -228,7 +228,7 @@ return {
 };
 ```
 
-**Why soft enforcement**: Hard blocking (`continue: false`) would prevent context compaction and could deadlock Claude Code.
+**Why soft enforcement**: Hard blocking (`continue: false`) would prevent context compaction and could deadlock Qoder.
 
 **Bypass conditions** (checked first, allow stopping):
 1. `context-limit` - Context window exhausted, must allow compaction
@@ -255,6 +255,6 @@ return {
 | ultrapilot | `.omc/state/ultrapilot-state.json` |
 | ralph | `.omc/state/ralph-state.json` |
 | swarm | `.omc/state/swarm-tasks.db` (SQLite) |
-| learner | `~/.claude/local-skills/` |
+| learner | `~/.qoder/local-skills/` |
 
 <!-- MANUAL: -->

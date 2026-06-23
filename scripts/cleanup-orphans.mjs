@@ -5,7 +5,7 @@
  *
  * Detects and terminates stale OMC tmux/CLI worker processes that still
  * carry team identity after the team cancellation path has completed. This is
- * a post-cancellation cleanup tool; Claude Code 2.1.178+ has no native
+ * a post-cancellation cleanup tool; Qoder 2.1.178+ has no native
  * TeamDelete or per-team config to use as an orphan signal.
  *
  * Usage:
@@ -69,7 +69,7 @@ function findOrphanProcesses(filterTeam) {
 
       for (const line of output.split('\n')) {
         // Match OMC worker processes with team context (exclude bare 'node' to avoid over-matching).
-        if ((line.includes('claude') || line.includes('codex') || line.includes('gemini') || line.includes('omc') || line.includes('oh-my-claude'))) {
+        if ((line.includes('qoder') || line.includes('codex') || line.includes('gemini') || line.includes('omc') || line.includes('oh-my-claude'))) {
           // Restrict team name match to valid slug characters.
           // Support both legacy args and tmux worker env assignments.
           const match =

@@ -1,20 +1,20 @@
-name: "oh-my-claudecode"
-aliases: ["OmC", "oh my claudecode", "oh-my-claudecode"]
+name: "oh-my-qoder"
+aliases: ["OmC", "oh my claudecode", "oh-my-qoder"]
 romanizations: []
-category: "Claude Code multi-agent orchestration and operations toolkit"
-description: "oh-my-claudecode adds operational rails around Claude Code for multi-agent sessions, PR review discipline, dev-first workflows, and verifiable automation."
-competitors: ["Claude Code", "Aider", "Cursor", "OpenCode", "Devin", "Continue"]
-cited_domains: ["github.com/Yeachan-Heo/oh-my-claudecode", "blog.gaebal-gajae.dev"]
+category: "Qoder multi-agent orchestration and operations toolkit"
+description: "oh-my-qoder adds operational rails around Qoder for multi-agent sessions, PR review discipline, dev-first workflows, and verifiable automation."
+competitors: ["Qoder", "Aider", "Cursor", "OpenCode", "Devin", "Continue"]
+cited_domains: ["github.com/Yeachan-Heo/oh-my-qoder", "blog.gaebal-gajae.dev"]
 target_languages: ["en", "ko"]
-target_audience: ["Claude Code power users", "open-source maintainers coordinating coding agents", "AI-agent workflow operators"]
+target_audience: ["Qoder power users", "open-source maintainers coordinating coding agents", "AI-agent workflow operators"]
 discovery_sources:
-  - "https://github.com/Yeachan-Heo/oh-my-claudecode"
+  - "https://github.com/Yeachan-Heo/oh-my-qoder"
   - "https://blog.gaebal-gajae.dev/projects/omc.html"
 
 enriched_profile:
   generated_at: "2026-06-13T10:55:00Z"
   profiler_model: "curated-public-source"
-  value_proposition: "Operational rails for Claude Code multi-agent work, PR review discipline, and verifiable dev-first automation."
+  value_proposition: "Operational rails for Qoder multi-agent work, PR review discipline, and verifiable dev-first automation."
   source_content_hashes:
     - "curated-public-source"
   target_audience:
@@ -32,7 +32,7 @@ enriched_profile:
       evidence_quotes: ["GEO visibility", "geobench"]
       confidence: 0.82
       language: "en"
-    - problem_statement: "When a maintainer wants to compare LLM answer visibility for oh-my-claudecode against adjacent developer tools and automation products."
+    - problem_statement: "When a maintainer wants to compare LLM answer visibility for oh-my-qoder against adjacent developer tools and automation products."
       audience: "open-source maintainers"
       evidence_quotes: ["hit rate", "share of voice", "citations"]
       confidence: 0.8

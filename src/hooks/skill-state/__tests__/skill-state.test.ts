@@ -109,9 +109,9 @@ describe('skill-state', () => {
       expect(getSkillProtection('my-custom-skill')).toBe('none');
     });
 
-    it('strips oh-my-claudecode: prefix', () => {
-      expect(getSkillProtection('oh-my-claudecode:plan')).toBe('medium');
-      expect(getSkillProtection('oh-my-claudecode:ralph')).toBe('none');
+    it('strips oh-my-qoder: prefix', () => {
+      expect(getSkillProtection('oh-my-qoder:plan')).toBe('medium');
+      expect(getSkillProtection('oh-my-qoder:ralph')).toBe('none');
     });
 
     it('is case-insensitive', () => {
@@ -120,15 +120,15 @@ describe('skill-state', () => {
     });
 
     it('returns none for project custom skills with same name as OMC skills (issue #1581)', () => {
-      // rawSkillName without oh-my-claudecode: prefix → project custom skill
+      // rawSkillName without oh-my-qoder: prefix → project custom skill
       expect(getSkillProtection('plan', 'plan')).toBe('none');
       expect(getSkillProtection('review', 'review')).toBe('none');
       expect(getSkillProtection('tdd', 'tdd')).toBe('none');
     });
 
     it('returns protection for OMC skills when rawSkillName has prefix', () => {
-      expect(getSkillProtection('plan', 'oh-my-claudecode:plan')).toBe('medium');
-      expect(getSkillProtection('deepinit', 'oh-my-claudecode:deepinit')).toBe('heavy');
+      expect(getSkillProtection('plan', 'oh-my-qoder:plan')).toBe('medium');
+      expect(getSkillProtection('deepinit', 'oh-my-qoder:deepinit')).toBe('heavy');
     });
 
     it('returns none for other plugin skills with rawSkillName', () => {
@@ -208,7 +208,7 @@ describe('skill-state', () => {
     });
 
     it('strips namespace prefix from skill name', () => {
-      const state = writeSkillActiveState(tempDir, 'oh-my-claudecode:plan', 'session-1');
+      const state = writeSkillActiveState(tempDir, 'oh-my-qoder:plan', 'session-1');
       expect(state!.skill_name).toBe('plan');
     });
 
@@ -220,7 +220,7 @@ describe('skill-state', () => {
     });
 
     it('writes state for OMC skills when rawSkillName has prefix', () => {
-      const state = writeSkillActiveState(tempDir, 'plan', 'session-1', 'oh-my-claudecode:plan');
+      const state = writeSkillActiveState(tempDir, 'plan', 'session-1', 'oh-my-qoder:plan');
       expect(state).not.toBeNull();
       expect(state!.skill_name).toBe('plan');
       expect(state!.max_reinforcements).toBe(5);
@@ -1045,8 +1045,8 @@ describe('skill-state', () => {
       expect(confirmed.active_skills['ralph']?.last_confirmed_at).toBe('2026-04-17T00:00:00Z');
     });
 
-    it('strips oh-my-claudecode: prefix from skill name', () => {
-      const state = upsertWorkflowSkillSlot(emptySkillActiveStateV2(), 'oh-my-claudecode:ralph', {
+    it('strips oh-my-qoder: prefix from skill name', () => {
+      const state = upsertWorkflowSkillSlot(emptySkillActiveStateV2(), 'oh-my-qoder:ralph', {
         session_id: 's1',
         mode_state_path: 'r.json',
         initialized_mode: 'ralph',
@@ -1054,7 +1054,7 @@ describe('skill-state', () => {
         initialized_session_state_path: '',
       });
       expect(state.active_skills['ralph']).toBeDefined();
-      expect(state.active_skills['oh-my-claudecode:ralph']).toBeUndefined();
+      expect(state.active_skills['oh-my-qoder:ralph']).toBeUndefined();
     });
 
     it('does not mutate the original state object', () => {

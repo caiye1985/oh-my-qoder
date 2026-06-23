@@ -85,7 +85,7 @@ Reference formats:
 
 Examples:
   psm review omc#123
-  psm fix Yeachan-Heo/oh-my-claudecode#42
+  psm fix Yeachan-Heo/oh-my-qoder#42
   psm feature omc add-webhooks
   psm list
   psm attach omc:pr-123
@@ -229,9 +229,9 @@ cmd_review() {
         else
             log_success "Tmux session created: $session_name"
 
-            # Launch Claude Code with review context so it starts on the PR task
+            # Launch Qoder with review context so it starts on the PR task
             if [[ "$no_claude" != "true" ]]; then
-                log_info "Launching Claude Code..."
+                log_info "Launching Qoder..."
                 psm_launch_claude "$session_name" "$context_rel"
             fi
         fi

@@ -1,13 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import {
-  ClaudeGoalSnapshotError,
-  formatClaudeGoalReconciliation,
-  readClaudeGoalSnapshotInput,
-  reconcileClaudeGoalSnapshot,
-} from '../../goal-workflows/claude-goal-snapshot.js';
+  QoderGoalSnapshotError,
+  formatQoderGoalReconciliation,
+  readQoderGoalSnapshotInput,
+  reconcileQoderGoalSnapshot,
+} from '../../goal-workflows/qoder-goal-snapshot.js';
 import {
   addUltragoalGoal,
-  buildClaudeGoalInstruction,
+  buildQoderGoalInstruction,
   checkpointUltragoal,
   createUltragoalPlan,
   listUltragoalPlanIds,
@@ -20,15 +20,15 @@ import {
   UltragoalError,
 } from '../../ultragoal/artifacts.js';
 
-export const ULTRAGOAL_HELP = `omc ultragoal - Durable repo-native multi-goal workflow with Claude Code /goal handoff
+export const ULTRAGOAL_HELP = `omc ultragoal - Durable repo-native multi-goal workflow with Qoder /goal handoff
 
 Usage:
   omc ultragoal create-goals [--brief <text> | --brief-file <path> | --from-stdin] [--goal <title::objective>] [--claude-goal-mode <aggregate|per-story>] [--force] [--plan-id <id> | --auto-plan-id] [--json]
   omc ultragoal complete-goals [--retry-failed] [--plan-id <id>] [--json]
   omc ultragoal add-goal --title <title> --objective <text> [--evidence <text>] [--plan-id <id>] [--json]
-  omc ultragoal record-review-blockers --goal-id <id> --title <title> --objective <text> --evidence <review-findings> --claude-goal-json <active-json-or-path> [--plan-id <id>] [--json]
-  omc ultragoal checkpoint --goal-id <id> --status <complete|failed|blocked> [--evidence <text>] [--claude-goal-json <json-or-path>] [--quality-gate-json <json-or-path>] [--plan-id <id>] [--json]
-  omc ultragoal status [--claude-goal-json <json-or-path>] [--plan-id <id>] [--json]
+  omc ultragoal record-review-blockers --goal-id <id> --title <title> --objective <text> --evidence <review-findings> --qoder-goal-json <active-json-or-path> [--plan-id <id>] [--json]
+  omc ultragoal checkpoint --goal-id <id> --status <complete|failed|blocked> [--evidence <text>] [--qoder-goal-json <json-or-path>] [--quality-gate-json <json-or-path>] [--plan-id <id>] [--json]
+  omc ultragoal status [--qoder-goal-json <json-or-path>] [--plan-id <id>] [--json]
   omc ultragoal list-plans [--json]
 
 Aliases:
@@ -50,13 +50,13 @@ Multi-plan resolution:
   exist, --plan-id becomes required. Use multi-plan mode for parallel
   ultragoal runs in a shared .omc/ (multi-repo workspaces; see .omc-workspace).
 
-Claude /goal integration:
-  This command cannot directly invoke the Claude Code /goal slash command from a shell;
+Qoder /goal integration:
+  This command cannot directly invoke the Qoder /goal slash command from a shell;
   /goal is a model-facing in-session directive that registers a session-scoped Stop hook
   until its condition holds (auto-clears on success). complete-goals writes durable state
   and prints a model-facing handoff that tells the active Claude agent when to invoke
   /goal <condition>, when to clear it, and what snapshot JSON to share back.
-  New plans default to aggregate mode: one Claude /goal covers the whole ultragoal run
+  New plans default to aggregate mode: one Qoder /goal covers the whole ultragoal run
   while OMC checkpoints G001/G002 stories in the durable ledger.
   Final completion is mandatory-gated: run ai-slop-cleaner, rerun verification,
   run $code-review, and pass --quality-gate-json with APPROVE + CLEAR evidence.
@@ -102,7 +102,7 @@ async function readStdin(): Promise<string> {
 }
 
 function positionalText(args: readonly string[]): string {
-  const valueTaking = new Set(['--brief', '--brief-file', '--goal', '--goal-id', '--status', '--evidence', '--claude-goal-json', '--claude-goal-mode', '--title', '--objective', '--quality-gate-json', '--plan-id']);
+  const valueTaking = new Set(['--brief', '--brief-file', '--goal', '--goal-id', '--status', '--evidence', '--qoder-goal-json', '--claude-goal-mode', '--title', '--objective', '--quality-gate-json', '--plan-id']);
   const words: string[] = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -117,7 +117,7 @@ function printJson(value: unknown): void {
   console.log(JSON.stringify(value, null, 2));
 }
 
-function normalizeClaudeGoalMode(raw: string | undefined): 'aggregate' | 'per_story' | undefined {
+function normalizeQoderGoalMode(raw: string | undefined): 'aggregate' | 'per_story' | undefined {
   if (!raw) return undefined;
   if (raw === 'aggregate') return 'aggregate';
   if (raw === 'per-story' || raw === 'per_story') return 'per_story';
@@ -138,9 +138,9 @@ function printStatus(plan: Awaited<ReturnType<typeof readUltragoalPlan>>): void 
   }
 }
 
-async function parseClaudeGoalJson(raw: string | undefined): Promise<unknown> {
+async function parseQoderGoalJson(raw: string | undefined): Promise<unknown> {
   if (!raw) return undefined;
-  return readClaudeGoalSnapshotInput(raw, process.cwd());
+  return readQoderGoalSnapshotInput(raw, process.cwd());
 }
 
 async function readJsonInput(raw: string | undefined): Promise<unknown> {
@@ -178,7 +178,7 @@ export async function ultragoalCommand(args: string[]): Promise<void> {
       const plan = await createUltragoalPlan(cwd, {
         brief,
         goals,
-        claudeGoalMode: normalizeClaudeGoalMode(readValue(rest, '--claude-goal-mode')),
+        qoderGoalMode: normalizeQoderGoalMode(readValue(rest, '--claude-goal-mode')),
         force: hasFlag(rest, '--force'),
         planId: readValue(rest, '--plan-id'),
         autoPlanId: hasFlag(rest, '--auto-plan-id'),
@@ -209,23 +209,23 @@ export async function ultragoalCommand(args: string[]): Promise<void> {
     if (command === 'status') {
       const planId = await resolveActivePlanId(cwd, readValue(rest, '--plan-id'));
       const plan = await readUltragoalPlan(cwd, planId);
-      const snapshot = await readClaudeGoalSnapshotInput(readValue(rest, '--claude-goal-json'), cwd);
+      const snapshot = await readQoderGoalSnapshotInput(readValue(rest, '--qoder-goal-json'), cwd);
       const activeGoal = plan.goals.find((goal) => goal.id === plan.activeGoalId || goal.status === 'in_progress');
-      const expectedObjective = plan.claudeGoalMode === 'aggregate'
-        ? plan.claudeObjective
+      const expectedObjective = plan.qoderGoalMode === 'aggregate'
+        ? plan.qoderObjective
         : activeGoal?.objective;
       const reconciliation = activeGoal
-        ? reconcileClaudeGoalSnapshot(snapshot, {
+        ? reconcileQoderGoalSnapshot(snapshot, {
           expectedObjective: expectedObjective ?? activeGoal.objective,
-          allowedStatuses: plan.claudeGoalMode === 'aggregate' ? ['active'] : ['active', 'complete'],
+          allowedStatuses: plan.qoderGoalMode === 'aggregate' ? ['active'] : ['active', 'complete'],
           requireSnapshot: false,
         })
         : null;
       if (json) printJson({ plan, summary: summarizeUltragoalPlan(plan), reconciliation });
       else {
         printStatus(plan);
-        if (reconciliation && !reconciliation.ok) console.log(`claude goal warning: ${formatClaudeGoalReconciliation(reconciliation)}`);
-        else if (reconciliation?.warnings.length) console.log(`claude goal warning: ${formatClaudeGoalReconciliation(reconciliation)}`);
+        if (reconciliation && !reconciliation.ok) console.log(`qoder goal warning: ${formatQoderGoalReconciliation(reconciliation)}`);
+        else if (reconciliation?.warnings.length) console.log(`qoder goal warning: ${formatQoderGoalReconciliation(reconciliation)}`);
       }
       return;
     }
@@ -254,9 +254,9 @@ export async function ultragoalCommand(args: string[]): Promise<void> {
       if (!title?.trim()) throw new UltragoalError('Missing --title.');
       if (!objective?.trim()) throw new UltragoalError('Missing --objective.');
       if (!evidence?.trim()) throw new UltragoalError('Missing --evidence.');
-      const claudeGoal = await parseClaudeGoalJson(readValue(rest, '--claude-goal-json'));
+      const qoderGoal = await parseQoderGoalJson(readValue(rest, '--qoder-goal-json'));
       const planId = await resolveActivePlanId(cwd, readValue(rest, '--plan-id'));
-      const result = await recordFinalReviewBlockers(cwd, { goalId, title, objective, evidence, claudeGoal, planId });
+      const result = await recordFinalReviewBlockers(cwd, { goalId, title, objective, evidence, qoderGoal, planId });
       if (json) printJson({ ok: true, plan: result.plan, blockedGoal: result.blockedGoal, addedGoal: result.addedGoal, summary: summarizeUltragoalPlan(result.plan) });
       else {
         console.log(`ultragoal final review blockers recorded: ${result.blockedGoal.id} -> review_blocked; added ${result.addedGoal.id}`);
@@ -273,7 +273,7 @@ export async function ultragoalCommand(args: string[]): Promise<void> {
         else console.log(result.done ? 'ultragoal: all goals complete' : 'ultragoal: no pending goals (use --retry-failed to retry failed goals)');
         return;
       }
-      const instruction = buildClaudeGoalInstruction(result.goal, result.plan);
+      const instruction = buildQoderGoalInstruction(result.goal, result.plan);
       if (json) printJson({ ok: true, resumed: result.resumed, goal: result.goal, instruction });
       else console.log(instruction);
       return;
@@ -285,10 +285,10 @@ export async function ultragoalCommand(args: string[]): Promise<void> {
       if (!goalId) throw new UltragoalError('Missing --goal-id.');
       if (status !== 'complete' && status !== 'failed' && status !== 'blocked') throw new UltragoalError('Missing or invalid --status; expected complete, failed, or blocked.');
       const evidence = readValue(rest, '--evidence');
-      const claudeGoal = await parseClaudeGoalJson(readValue(rest, '--claude-goal-json'));
+      const qoderGoal = await parseQoderGoalJson(readValue(rest, '--qoder-goal-json'));
       const qualityGate = await readJsonInput(readValue(rest, '--quality-gate-json'));
       const planId = await resolveActivePlanId(cwd, readValue(rest, '--plan-id'));
-      const plan = await checkpointUltragoal(cwd, { goalId, status, evidence, claudeGoal, qualityGate, planId });
+      const plan = await checkpointUltragoal(cwd, { goalId, status, evidence, qoderGoal, qualityGate, planId });
       if (json) printJson({ ok: true, plan, summary: summarizeUltragoalPlan(plan) });
       else {
         const goal = plan.goals.find((candidate: UltragoalItem) => candidate.id === goalId);
@@ -300,7 +300,7 @@ export async function ultragoalCommand(args: string[]): Promise<void> {
 
     throw new UltragoalError(`Unknown ultragoal command: ${command}\n\n${ULTRAGOAL_HELP}`);
   } catch (error) {
-    if (error instanceof UltragoalError || error instanceof ClaudeGoalSnapshotError) {
+    if (error instanceof UltragoalError || error instanceof QoderGoalSnapshotError) {
       console.error(`[ultragoal] ${error.message}`);
       process.exitCode = 1;
       return;

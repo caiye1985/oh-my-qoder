@@ -31,7 +31,7 @@ function buildHookEnv(extraEnv: Record<string, string> = {}): Record<string, str
   }
   // Remove OMC_STATE_DIR from parent env so only extraEnv controls it.
   delete env.OMC_STATE_DIR;
-  return { ...env, CLAUDE_PLUGIN_ROOT: REPO_ROOT, ...extraEnv };
+  return { ...env, QODER_PLUGIN_ROOT: REPO_ROOT, ...extraEnv };
 }
 
 /** Run a hook script synchronously and return the parsed JSON output. */
@@ -552,7 +552,7 @@ describe('OMC_STATE_DIR state-root resolution (issue #2532)', () => {
         tool_name: 'Skill',
         // `skill` needs a non-'none' protection level. The OMC-prefixed `skill`
         // slash-command maps to 'light' protection, which triggers the write.
-        tool_input: { skill: 'oh-my-claudecode:skill' },
+        tool_input: { skill: 'oh-my-qoder:skill' },
         session_id: sessionId,
         cwd: fakeProject,
       },

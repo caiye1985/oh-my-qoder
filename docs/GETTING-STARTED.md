@@ -16,8 +16,8 @@ If you're new to Oh My ClaudeCode (OMC), follow the steps below in order.
 
 ### Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/claude-code) must be installed
-- Claude Max/Pro subscription or an Anthropic API key is required
+- [Qoder](https://docs.anthropic.com/qoder) must be installed
+- Qoder Max/Pro subscription or an Anthropic API key is required
 
 ---
 
@@ -27,19 +27,19 @@ OMC ships two surfaces and they are designed to coexist:
 
 | Surface | What you get | Recommended install |
 |---|---|---|
-| **Claude Code plugin** (`oh-my-claudecode@omc`) | In-session skills, agents, hooks, statusline, MCP servers — the `/autopilot`, `/ralph`, `/ultrawork`, `/team` slash commands | Marketplace plugin install (Step 1–2 below) |
-| **Terminal CLI** (`omc` binary, package `oh-my-claude-sisyphus`) | Shell commands: `omc setup`, `omc update`, `omc team`, `omc ask`, and a hard-deprecated `omc autoresearch` shim | `npm i -g oh-my-claude-sisyphus@latest` |
+| **Qoder plugin** (`oh-my-qoder@omc`) | In-session skills, agents, hooks, statusline, MCP servers — the `/autopilot`, `/ralph`, `/ultrawork`, `/team` slash commands | Marketplace plugin install (Step 1–2 below) |
+| **Terminal CLI** (`omc` binary, package `oh-my-qoder`) | Shell commands: `omc setup`, `omc update`, `omc team`, `omc ask`, and a hard-deprecated `omc autoresearch` shim | `npm i -g oh-my-qoder@latest` |
 
 Most users want **both**: the plugin for the in-session experience, and the npm CLI for shell-side automation and updates. Running them in parallel is fully supported — `omc update` and `omc setup` are idempotent and detect the plugin install to avoid duplicating in-session skills (#2252).
 
-> Older versions of this doc said OMC was "plugin-only". That was incorrect: the `omc` CLI is the canonical entry point for `omc setup`/`omc update` and is published on npm as `oh-my-claude-sisyphus`. See the [Quick Start in README.md](../README.md#quick-start) for the same two-path layout.
+> Older versions of this doc said OMC was "plugin-only". That was incorrect: the `omc` CLI is the canonical entry point for `omc setup`/`omc update` and is published on npm as `oh-my-qoder`. See the [Quick Start in README.md](../README.md#quick-start) for the same two-path layout.
 
 ### Step 1: Add the marketplace source
 
-Run the following command inside Claude Code:
+Run the following command inside Qoder:
 
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
 ```
 
 ### Step 2: Install the plugin
@@ -47,7 +47,7 @@ Run the following command inside Claude Code:
 After adding the marketplace, install the plugin:
 
 ```bash
-/plugin install oh-my-claudecode
+/plugin install oh-my-qoder
 ```
 
 ### Step 2b (optional but recommended): install the terminal CLI
@@ -55,36 +55,36 @@ After adding the marketplace, install the plugin:
 If you want `omc setup`, `omc update`, `omc team`, `omc ask`, etc. on your shell:
 
 ```bash
-npm i -g oh-my-claude-sisyphus@latest
+npm i -g oh-my-qoder@latest
 ```
 
 > **Known npm warning:** npm may print `deprecated prebuild-install@7.1.3` during this CLI install.
 > The warning currently comes from the upstream `better-sqlite3` native-addon dependency
 > (`better-sqlite3 -> prebuild-install`); `prebuild-install@7.1.3` is still the latest
 > published version, so there is no safe repo-side dependency bump or override to remove it
-> yet. The warning is tracked in [#2913](https://github.com/Yeachan-Heo/oh-my-claudecode/issues/2913)
+> yet. The warning is tracked in [#2913](https://github.com/Yeachan-Heo/oh-my-qoder/issues/2913)
 > and does not by itself mean the OMC CLI install failed.
 
-Both can be installed at the same time. The CLI auto-detects the plugin install and will not double-register skills under `~/.claude/skills/` (if you previously hit the duplicate-skill bug, run `omc update` once on 4.11.2+ — it self-heals leftover standalone skills that the plugin now provides via `prunePluginDuplicateSkills`).
+Both can be installed at the same time. The CLI auto-detects the plugin install and will not double-register skills under `~/.qoder/skills/` (if you previously hit the duplicate-skill bug, run `omc update` once on 4.11.2+ — it self-heals leftover standalone skills that the plugin now provides via `prunePluginDuplicateSkills`).
 
 ### Step 3: Run initial setup
 
-After installation, enter one of the following in Claude Code:
+After installation, enter one of the following in Qoder:
 
 ```bash
 # Option 1: natural language
 setup omc
 
 # Option 2: skill command
-/oh-my-claudecode:omc-setup
+/oh-my-qoder:omc-setup
 ```
 
 ### Prerequisites summary
 
 | Item | Requirement |
 |------|-------------|
-| Claude Code | Must be installed |
-| Authentication | Claude Max/Pro subscription or `ANTHROPIC_API_KEY` environment variable |
+| Qoder | Must be installed |
+| Authentication | Qoder Max/Pro subscription or `ANTHROPIC_API_KEY` environment variable |
 
 ### Choosing a setup scope
 
@@ -93,32 +93,32 @@ setup omc
 Applies OMC only to the current project:
 
 ```bash
-/oh-my-claudecode:omc-setup --local
+/oh-my-qoder:omc-setup --local
 ```
 
-- Settings are saved to `./.claude/CLAUDE.md`
+- Settings are saved to `./.qoder/AGENTS.md`
 - No effect on other projects
-- Existing global `CLAUDE.md` is preserved
+- Existing global `AGENTS.md` is preserved
 
 #### Global setup
 
-Applies OMC to all Claude Code sessions:
+Applies OMC to all Qoder sessions:
 
 ```bash
-/oh-my-claudecode:omc-setup
+/oh-my-qoder:omc-setup
 ```
 
-- Settings are saved to `~/.claude/CLAUDE.md`
+- Settings are saved to `~/.qoder/AGENTS.md`
 - Applied across all projects
 
-> ⚠️ **Warning:** Global setup now asks explicitly before changing your base `~/.claude/CLAUDE.md`. The default choice is still overwrite. If you choose preserve mode instead, plain `claude` stays on your base config and `omc` force-loads the OMC companion config.
+> ⚠️ **Warning:** Global setup now asks explicitly before changing your base `~/.qoder/AGENTS.md`. The default choice is still overwrite. If you choose preserve mode instead, plain `claude` stays on your base config and `omc` force-loads the OMC companion config.
 
 ### Verifying the installation
 
 To confirm everything is working, run the diagnostics tool:
 
 ```bash
-/oh-my-claudecode:omc-doctor
+/oh-my-qoder:omc-doctor
 ```
 
 This checks the following:
@@ -131,41 +131,41 @@ This checks the following:
 
 ### Running from a local checkout
 
-If you're developing OMC or want to test unreleased features from a specific branch, you can launch Claude Code with your local checkout as the plugin:
+If you're developing OMC or want to test unreleased features from a specific branch, you can launch Qoder with your local checkout as the plugin:
 
 ```bash
-omc --plugin-dir /path/to/oh-my-claudecode setup --plugin-dir-mode
+omc --plugin-dir /path/to/oh-my-qoder setup --plugin-dir-mode
 ```
 
-This loads agents, skills, and commands directly from your checkout without copying them to `~/.claude/`. For detailed instructions and alternative flows, see [LOCAL_PLUGIN_INSTALL.md](./LOCAL_PLUGIN_INSTALL.md). For a complete decision matrix of plugin-dir flags and modes, see the [Plugin directory flags section in REFERENCE.md](./REFERENCE.md#plugin-directory-flags).
+This loads agents, skills, and commands directly from your checkout without copying them to `~/.qoder/`. For detailed instructions and alternative flows, see [LOCAL_PLUGIN_INSTALL.md](./LOCAL_PLUGIN_INSTALL.md). For a complete decision matrix of plugin-dir flags and modes, see the [Plugin directory flags section in REFERENCE.md](./REFERENCE.md#plugin-directory-flags).
 
 ### Platform support
 
 | Platform | Installation | Hook type |
 |----------|--------------|-----------|
-| macOS | Claude Code Plugin | Bash (.sh) |
-| Linux | Claude Code Plugin | Bash (.sh) |
+| macOS | Qoder Plugin | Bash (.sh) |
+| Linux | Qoder Plugin | Bash (.sh) |
 | Windows | WSL2 recommended | Node.js (.mjs) |
 
-> ℹ️ **Note:** Native Windows support is experimental. For tmux-backed Team workers, OMC checks for a tmux-compatible binary first; native [psmux](https://github.com/psmux/psmux) is supported for PowerShell 7+ users who want visible Claude Code teammate panes in interactive team workflows. WSL2 remains the fallback when no compatible tmux is available or native Windows behavior is insufficient. psmux does not force worktree agents, non-interactive/print-mode agents, or model-selected in-process agents into visible panes.
+> ℹ️ **Note:** Native Windows support is experimental. For tmux-backed Team workers, OMC checks for a tmux-compatible binary first; native [psmux](https://github.com/psmux/psmux) is supported for PowerShell 7+ users who want visible Qoder teammate panes in interactive team workflows. WSL2 remains the fallback when no compatible tmux is available or native Windows behavior is insufficient. psmux does not force worktree agents, non-interactive/print-mode agents, or model-selected in-process agents into visible panes.
 
 ### Updates
 
 OMC automatically checks for updates every 24 hours. To update manually, re-run the plugin install command.
 
-> ⚠️ **Warning:** After a plugin update, run `/oh-my-claudecode:omc-setup` again to apply the latest configuration.
+> ⚠️ **Warning:** After a plugin update, run `/oh-my-qoder:omc-setup` again to apply the latest configuration.
 
 ### Uninstalling
 
 ```bash
-/plugin uninstall oh-my-claudecode@oh-my-claudecode
+/plugin uninstall oh-my-qoder@oh-my-qoder
 ```
 
 ---
 
 ## First Session
 
-Once OMC is installed, run your first task immediately. Open Claude Code and type:
+Once OMC is installed, run your first task immediately. Open Qoder and type:
 
 ```bash
 autopilot build me a hello world app
@@ -199,7 +199,7 @@ Specialist agents perform a final review of functionality, security, and code qu
 
 ### HUD status display
 
-While work is in progress, you can monitor the current state in the Claude Code status bar (HUD):
+While work is in progress, you can monitor the current state in the Qoder status bar (HUD):
 
 ```
 [OMC] autopilot:execution | agents:3 | todos:2/5 | ctx:45%
@@ -215,7 +215,7 @@ While work is in progress, you can monitor the current state in the Claude Code 
 To configure the HUD display, run:
 
 ```bash
-/oh-my-claudecode:hud setup
+/oh-my-qoder:hud setup
 ```
 
 ### Starting smaller
@@ -248,8 +248,8 @@ OMC supports two levels of configuration files.
 
 | Scope | File path | Purpose |
 |-------|-----------|---------|
-| User (global) | `~/.config/claude-omc/config.jsonc` | Applied to all projects |
-| Project | `.claude/omc.jsonc` | Applied to current project only |
+| User (global) | `~/.config/qoder-omc/config.jsonc` | Applied to all projects |
+| Project | `.qoder/omc.jsonc` | Applied to current project only |
 
 > ⚠️ **Warning:** The configuration file format is JSONC (JSON with comments support). It is not a TypeScript config file (`omc.config.ts`).
 
@@ -258,8 +258,8 @@ OMC supports two levels of configuration files.
 When settings exist from multiple sources, they are merged in the following order (lower entries take precedence):
 
 ```
-Defaults → User config (~/.config/claude-omc/config.jsonc)
-         → Project config (.claude/omc.jsonc)
+Defaults → User config (~/.config/qoder-omc/config.jsonc)
+         → Project config (.qoder/omc.jsonc)
          → Environment variables
 ```
 
@@ -405,14 +405,14 @@ OMC automatically selects a model tier based on task complexity:
 | MEDIUM | sonnet | Standard implementation, general tasks |
 | HIGH | opus | Architecture, deep analysis |
 
-### CLAUDE.md configuration
+### AGENTS.md configuration
 
-OMC's default behavior is also configured via `CLAUDE.md` files. Running `/oh-my-claudecode:omc-setup` generates this file automatically.
+OMC's default behavior is also configured via `AGENTS.md` files. Running `/oh-my-qoder:omc-setup` generates this file automatically.
 
 | Scope | File | Description |
 |-------|------|-------------|
-| Global | `~/.claude/CLAUDE.md` | Shared settings across all projects |
-| Project | `.claude/CLAUDE.md` | Per-project context and overrides |
+| Global | `~/.qoder/AGENTS.md` | Shared settings across all projects |
+| Project | `.qoder/AGENTS.md` | Per-project context and overrides |
 
 ### When to re-run setup
 

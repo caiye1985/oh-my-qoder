@@ -1,24 +1,24 @@
-# Claude Code `/goal` Adapter Design
+# Qoder `/goal` Adapter Design
 
 ## Context
 
-Claude Code exposes `/goal` as a native, session-scoped work loop. OMC can use that loop as an execution surface, but OMC must keep its own durable audit trail, hook safety rules, and Ralph/Team/UltraQA boundaries. The adapter described here is a design contract for future implementation; it does not mutate hidden Claude Code goal state.
+Qoder exposes `/goal` as a native, session-scoped work loop. OMC can use that loop as an execution surface, but OMC must keep its own durable audit trail, hook safety rules, and Ralph/Team/UltraQA boundaries. The adapter described here is a design contract for future implementation; it does not mutate hidden Qoder goal state.
 
 ## Source authority boundary
 
-Claude Code `/goal` facts in OMC docs and code comments must come only from Claude Code or Anthropic sources, such as:
+Qoder `/goal` facts in OMC docs and code comments must come only from Qoder or Anthropic sources, such as:
 
-- Claude Code docs: <https://code.claude.com/docs/en/goal>
-- Anthropic Claude Code changelog: <https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md>
+- Qoder docs: <https://code.claude.com/docs/en/goal>
+- Anthropic Qoder changelog: <https://raw.githubusercontent.com/anthropics/qoder/main/CHANGELOG.md>
 
-OpenAI, Codex, OMX, or OMO references may be used for comparisons with their own goal/runtime behavior, but they are not authority for Claude Code `/goal` facts.
+OpenAI, Codex, OMX, or OMO references may be used for comparisons with their own goal/runtime behavior, but they are not authority for Qoder `/goal` facts.
 
 ## Adapter responsibilities
 
-The Claude Code `/goal` adapter is an OMC-facing boundary that renders safe handoff text and durable evidence. It must:
+The Qoder `/goal` adapter is an OMC-facing boundary that renders safe handoff text and durable evidence. It must:
 
 1. Detect or receive a capability verdict for `/goal` before suggesting native handoff.
-2. Render a measurable `/goal <completion condition>` handoff prompt instead of writing hidden Claude Code session state directly.
+2. Render a measurable `/goal <completion condition>` handoff prompt instead of writing hidden Qoder session state directly.
 3. Preserve OMC auditability by recording the requested condition, status snapshots, surfaced evaluator reasons, command evidence, and final review outcome in OMC-owned artifacts.
 4. Refuse or degrade when workspace trust, hook settings, or managed-hook policy makes `/goal` unavailable.
 5. Enforce one active loop authority per session so `/goal` does not compete with Ralph, Team, autopilot, UltraQA, or Stop-hook continuation loops.
@@ -32,10 +32,10 @@ Future implementation should map each goal item into the shared durable contract
 | `goal_id`              | Stable repo-local identifier for handoffs, checkpoints, and review.                                             |
 | `objective`            | Human-readable outcome.                                                                                         |
 | `completion_condition` | Measurable condition suitable for `/goal <condition>` handoff.                                                  |
-| `runtime_target`       | `claude-code-goal` for native `/goal`, or `artifact-only` fallback.                                             |
-| `loop_authority`       | Exactly one primary authority: `claude-code-goal`, `ralph`, `team`, `ultraqa`, `autopilot`, or `artifact-only`. |
+| `runtime_target`       | `qoder-goal` for native `/goal`, or `artifact-only` fallback.                                             |
+| `loop_authority`       | Exactly one primary authority: `qoder-goal`, `ralph`, `team`, `ultraqa`, `autopilot`, or `artifact-only`. |
 | `conflict_policy`      | One of `refuse`, `adopt_existing`, or `artifact_only`.                                                          |
-| `source_refs`          | Claude Code `/goal` claims cite only Claude Code/Anthropic sources.                                             |
+| `source_refs`          | Qoder `/goal` claims cite only Qoder/Anthropic sources.                                             |
 | `evidence`             | Surfaced command output, docs updates, test output, reviewer verdicts, and status snapshots.                    |
 | `status`               | Distinguishes evaluator success from OMC final review: `evaluator_passed` is not `complete`.                    |
 
@@ -47,7 +47,7 @@ When another primary loop is active, the adapter must apply one of these determi
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `refuse`         | Stop before rendering a `/goal` handoff. Explain the active authority and the exact command or state the user must clear first. |
 | `adopt_existing` | Keep the existing loop authority and attach the goal contract as evidence/checkpoints for that loop. Do not start `/goal`.      |
-| `artifact_only`  | Write the durable goal ledger and handoff artifact only. Do not ask Claude Code to activate `/goal`.                            |
+| `artifact_only`  | Write the durable goal ledger and handoff artifact only. Do not ask Qoder to activate `/goal`.                            |
 
 The adapter must never “warn and continue” with a competing loop. Any unknown policy is invalid and must fail with an actionable diagnostic.
 

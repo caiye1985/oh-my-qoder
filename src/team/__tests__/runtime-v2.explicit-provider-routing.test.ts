@@ -6,7 +6,7 @@ import type { CliAgentType } from '../model-contract.js';
 
 const resolvedRouting = buildResolvedRoutingSnapshot({});
 const binaries: Partial<Record<CliAgentType, string>> = {
-  claude: '/usr/bin/claude',
+  qoder: '/usr/bin/claude',
   gemini: '/usr/bin/gemini',
   codex: '/usr/bin/codex',
   antigravity: '/usr/bin/agy',
@@ -45,9 +45,9 @@ describe('runtime-v2 explicit provider + role preservation', () => {
       resolvedRouting,
       undefined,
       binaries,
-      'claude',
+      'qoder',
     );
-    expect(assignment.agentType).toBe('claude');
+    expect(assignment.agentType).toBe('qoder');
     expect(assignment.role).toBe('executor');
   });
 });

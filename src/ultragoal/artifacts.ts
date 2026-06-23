@@ -2,10 +2,10 @@ import { existsSync } from 'node:fs';
 import { appendFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import {
-  formatClaudeGoalReconciliation,
-  parseClaudeGoalSnapshot,
-  reconcileClaudeGoalSnapshot,
-} from '../goal-workflows/claude-goal-snapshot.js';
+  formatQoderGoalReconciliation,
+  parseQoderGoalSnapshot,
+  reconcileQoderGoalSnapshot,
+} from '../goal-workflows/qoder-goal-snapshot.js';
 import { getOmcRoot } from '../lib/worktree-paths.js';
 
 export const ULTRAGOAL_DIR = '.omc/ultragoal';
@@ -33,7 +33,7 @@ export const ULTRAGOAL_PLANS_SUBDIR = 'plans';
  */
 
 export type UltragoalStatus = 'pending' | 'in_progress' | 'complete' | 'failed' | 'review_blocked';
-export type UltragoalClaudeGoalMode = 'aggregate' | 'per_story';
+export type UltragoalQoderGoalMode = 'aggregate' | 'per_story';
 
 export interface UltragoalItem {
   id: string;
@@ -56,7 +56,7 @@ export interface UltragoalAggregateCompletion {
   status: 'complete';
   completedAt: string;
   evidence: string;
-  claudeGoal?: unknown;
+  qoderGoal?: unknown;
 }
 
 export interface UltragoalPlan {
@@ -72,8 +72,8 @@ export interface UltragoalPlan {
   briefPath: string;
   goalsPath: string;
   ledgerPath: string;
-  claudeGoalMode?: UltragoalClaudeGoalMode;
-  claudeObjective?: string;
+  qoderGoalMode?: UltragoalQoderGoalMode;
+  qoderObjective?: string;
   aggregateCompletion?: UltragoalAggregateCompletion;
   activeGoalId?: string;
   goals: UltragoalItem[];
@@ -96,7 +96,7 @@ export interface UltragoalLedgerEntry {
   goalId?: string;
   status?: UltragoalStatus;
   message?: string;
-  claudeGoal?: unknown;
+  qoderGoal?: unknown;
   evidence?: string;
   qualityGate?: UltragoalQualityGate;
 }
@@ -104,7 +104,7 @@ export interface UltragoalLedgerEntry {
 export interface CreateUltragoalOptions {
   brief: string;
   goals?: Array<{ title?: string; objective: string; tokenBudget?: number }>;
-  claudeGoalMode?: UltragoalClaudeGoalMode;
+  qoderGoalMode?: UltragoalQoderGoalMode;
   now?: Date;
   force?: boolean;
   /**
@@ -130,9 +130,9 @@ export interface CheckpointOptions {
   goalId: string;
   status: Extract<UltragoalStatus, 'complete' | 'failed'> | 'blocked';
   evidence?: string;
-  claudeGoal?: unknown;
+  qoderGoal?: unknown;
   qualityGate?: unknown;
-  allowActiveFinalClaudeGoal?: boolean;
+  allowActiveFinalQoderGoal?: boolean;
   now?: Date;
   planId?: string;
 }
@@ -147,7 +147,7 @@ export interface AddUltragoalGoalOptions {
 
 export interface RecordFinalReviewBlockersOptions extends AddUltragoalGoalOptions {
   goalId: string;
-  claudeGoal?: unknown;
+  qoderGoal?: unknown;
 }
 
 export interface UltragoalQualityGate {
@@ -299,7 +299,7 @@ async function canReconcileCompletedTaskScopedAggregateSnapshot(
   snapshotObjective: string,
   evidence: string | undefined,
 ): Promise<boolean> {
-  if (claudeGoalMode(plan) !== 'aggregate') return false;
+  if (qoderGoalMode(plan) !== 'aggregate') return false;
   if (goal.status !== 'in_progress' || plan.activeGoalId !== goal.id) return false;
   if (!textMentionsUltragoalPlanArtifact(evidence)) return false;
   if (!textMentionsGoalId(evidence, goal.id)) return false;
@@ -316,13 +316,13 @@ function assertActiveInProgressCheckpoint(plan: UltragoalPlan, goal: UltragoalIt
 function buildCompletedLegacyGoalRemediation(goal: UltragoalItem): string {
   return [
     'If the active /goal condition is a different completed legacy goal, do not repeat --status complete in this session.',
-    `Record a non-terminal blocker with: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Claude goal blocks setting a new /goal in this session>" --claude-goal-json "<different completed goal snapshot JSON or path>".`,
-    'Then continue this ultragoal in a fresh Claude Code session in the same repo/worktree and set the intended /goal there.',
+    `Record a non-terminal blocker with: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Qoder goal blocks setting a new /goal in this session>" --qoder-goal-json "<different completed goal snapshot JSON or path>".`,
+    'Then continue this ultragoal in a fresh Qoder session in the same repo/worktree and set the intended /goal there.',
   ].join(' ');
 }
 
-function claudeGoalMode(plan: UltragoalPlan): UltragoalClaudeGoalMode {
-  return plan.claudeGoalMode ?? 'per_story';
+function qoderGoalMode(plan: UltragoalPlan): UltragoalQoderGoalMode {
+  return plan.qoderGoalMode ?? 'per_story';
 }
 
 function isResolvedStatus(status: UltragoalStatus): boolean {
@@ -333,7 +333,7 @@ function planDirRelative(planId?: string): string {
   return planId ? `${ULTRAGOAL_DIR}/${ULTRAGOAL_PLANS_SUBDIR}/${planId}` : ULTRAGOAL_DIR;
 }
 
-function aggregateClaudeObjective(goals: readonly UltragoalItem[], planId?: string): string {
+function aggregateQoderObjective(goals: readonly UltragoalItem[], planId?: string): string {
   const planDir = planDirRelative(planId);
   const prefix = `Complete all ultragoal stories in ${planDir}/${ULTRAGOAL_GOALS}: `;
   const suffix = goals.map((goal) => `${goal.id} ${goal.title}`).join('; ');
@@ -341,12 +341,12 @@ function aggregateClaudeObjective(goals: readonly UltragoalItem[], planId?: stri
   if (full.length <= 4000) return full;
   const fallback = `Complete all ultragoal stories listed in ${planDir}/${ULTRAGOAL_GOALS}. Use ${planDir}/${ULTRAGOAL_LEDGER} as the durable audit trail.`;
   if (fallback.length <= 4000) return fallback;
-  throw new UltragoalError('Generated aggregate Claude /goal objective exceeds the 4,000 character limit.');
+  throw new UltragoalError('Generated aggregate Qoder /goal objective exceeds the 4,000 character limit.');
 }
 
-function expectedClaudeObjective(plan: UltragoalPlan, goal: UltragoalItem): string {
-  return claudeGoalMode(plan) === 'aggregate'
-    ? (plan.claudeObjective ?? aggregateClaudeObjective(plan.goals, plan.planId))
+function expectedQoderObjective(plan: UltragoalPlan, goal: UltragoalItem): string {
+  return qoderGoalMode(plan) === 'aggregate'
+    ? (plan.qoderObjective ?? aggregateQoderObjective(plan.goals, plan.planId))
     : goal.objective;
 }
 
@@ -476,10 +476,10 @@ export async function createUltragoalPlan(cwd: string, options: CreateUltragoalO
     briefPath: `${planDir}/${ULTRAGOAL_BRIEF}`,
     goalsPath: `${planDir}/${ULTRAGOAL_GOALS}`,
     ledgerPath: `${planDir}/${ULTRAGOAL_LEDGER}`,
-    claudeGoalMode: options.claudeGoalMode ?? 'aggregate',
+    qoderGoalMode: options.qoderGoalMode ?? 'aggregate',
     goals: candidates,
   };
-  if (plan.claudeGoalMode === 'aggregate') plan.claudeObjective = aggregateClaudeObjective(candidates, planId);
+  if (plan.qoderGoalMode === 'aggregate') plan.qoderObjective = aggregateQoderObjective(candidates, planId);
 
   await mkdir(ultragoalDir(cwd, planId), { recursive: true });
   await writeFile(ultragoalBriefPath(cwd, planId), options.brief.endsWith('\n') ? options.brief : `${options.brief}\n`);
@@ -609,18 +609,18 @@ export async function checkpointUltragoal(cwd: string, options: CheckpointOption
   const now = iso(options.now);
   if (options.status === 'blocked') {
     assertActiveInProgressCheckpoint(plan, goal, 'blocked');
-    const snapshot = options.claudeGoal === undefined ? null : parseClaudeGoalSnapshot(options.claudeGoal);
+    const snapshot = options.qoderGoal === undefined ? null : parseQoderGoalSnapshot(options.qoderGoal);
     if (!snapshot?.available) {
-      throw new UltragoalError('Blocked ultragoal checkpoints require a Claude /goal snapshot for the completed legacy goal that blocked a new /goal directive; pass --claude-goal-json.');
+      throw new UltragoalError('Blocked ultragoal checkpoints require a Qoder /goal snapshot for the completed legacy goal that blocked a new /goal directive; pass --qoder-goal-json.');
     }
     if (snapshot.status !== 'complete') {
-      throw new UltragoalError(`Cannot record a blocked ultragoal checkpoint while the existing Claude /goal is ${snapshot.status ?? 'unknown'}; strict objective mismatch protection remains required for active or incomplete goals.`);
+      throw new UltragoalError(`Cannot record a blocked ultragoal checkpoint while the existing Qoder /goal is ${snapshot.status ?? 'unknown'}; strict objective mismatch protection remains required for active or incomplete goals.`);
     }
     if (!snapshot.objective) {
-      throw new UltragoalError('Blocked ultragoal checkpoint Claude snapshot is missing objective text.');
+      throw new UltragoalError('Blocked ultragoal checkpoint Qoder snapshot is missing objective text.');
     }
-    if (normalizeObjective(snapshot.objective) === normalizeObjective(expectedClaudeObjective(plan, goal))) {
-      throw new UltragoalError('Blocked ultragoal checkpoint is only for a different completed legacy Claude goal; complete this ultragoal with --status complete after its audit passes.');
+    if (normalizeObjective(snapshot.objective) === normalizeObjective(expectedQoderObjective(plan, goal))) {
+      throw new UltragoalError('Blocked ultragoal checkpoint is only for a different completed legacy Qoder goal; complete this ultragoal with --status complete after its audit passes.');
     }
     goal.updatedAt = now;
     plan.activeGoalId = goal.id;
@@ -632,7 +632,7 @@ export async function checkpointUltragoal(cwd: string, options: CheckpointOption
       goalId: goal.id,
       status: goal.status,
       evidence: options.evidence,
-      claudeGoal: options.claudeGoal,
+      qoderGoal: options.qoderGoal,
     }, plan.planId);
     return plan;
   }
@@ -642,19 +642,19 @@ export async function checkpointUltragoal(cwd: string, options: CheckpointOption
   let aggregateCompletion: UltragoalAggregateCompletion | undefined;
   if (options.status === 'complete') {
     assertActiveInProgressCheckpoint(plan, goal, 'complete');
-    const expectedObjective = expectedClaudeObjective(plan, goal);
-    const aggregateMode = claudeGoalMode(plan) === 'aggregate';
+    const expectedObjective = expectedQoderObjective(plan, goal);
+    const aggregateMode = qoderGoalMode(plan) === 'aggregate';
     const finalRunCheckpoint = isFinalRunCompletionCandidate(plan, goal);
-    const snapshot = options.claudeGoal === undefined ? null : parseClaudeGoalSnapshot(options.claudeGoal);
-    const reconciliation = reconcileClaudeGoalSnapshot(
+    const snapshot = options.qoderGoal === undefined ? null : parseQoderGoalSnapshot(options.qoderGoal);
+    const reconciliation = reconcileQoderGoalSnapshot(
       snapshot,
       {
         expectedObjective,
         allowedStatuses: aggregateMode
-          ? (finalRunCheckpoint && !options.allowActiveFinalClaudeGoal ? ['complete'] : ['active'])
+          ? (finalRunCheckpoint && !options.allowActiveFinalQoderGoal ? ['complete'] : ['active'])
           : ['complete'],
         requireSnapshot: true,
-        requireComplete: !aggregateMode || (finalRunCheckpoint && !options.allowActiveFinalClaudeGoal),
+        requireComplete: !aggregateMode || (finalRunCheckpoint && !options.allowActiveFinalQoderGoal),
       },
     );
     if (!reconciliation.ok) {
@@ -668,11 +668,11 @@ export async function checkpointUltragoal(cwd: string, options: CheckpointOption
           status: 'complete',
           completedAt: now,
           evidence: assertNonEmpty(options.evidence, '--evidence'),
-          claudeGoal: options.claudeGoal,
+          qoderGoal: options.qoderGoal,
         };
       } else {
         const taskScopedRequirement = aggregateMode && snapshot?.status === 'complete' && Boolean(snapshot.objective)
-          ? ' Completed task-scoped aggregate reconciliation requires the checkpoint goal to be the active in-progress OMC goal, evidence that names that active OMC goal id, names .omc/ultragoal/goals.json or ledger.jsonl, includes completed implementation plus validation/review evidence, and a Claude /goal objective that maps to the ultragoal brief/artifact.'
+          ? ' Completed task-scoped aggregate reconciliation requires the checkpoint goal to be the active in-progress OMC goal, evidence that names that active OMC goal id, names .omc/ultragoal/goals.json or ledger.jsonl, includes completed implementation plus validation/review evidence, and a Qoder /goal objective that maps to the ultragoal brief/artifact.'
           : '';
         const remediation = reconciliation.snapshot.available
           && reconciliation.snapshot.status === 'complete'
@@ -680,12 +680,12 @@ export async function checkpointUltragoal(cwd: string, options: CheckpointOption
           && normalizeObjective(reconciliation.snapshot.objective ?? '') !== normalizeObjective(expectedObjective)
           ? ` ${buildCompletedLegacyGoalRemediation(goal)}`
           : '';
-        throw new UltragoalError(`${formatClaudeGoalReconciliation(reconciliation)}${taskScopedRequirement}${remediation}`);
+        throw new UltragoalError(`${formatQoderGoalReconciliation(reconciliation)}${taskScopedRequirement}${remediation}`);
       }
     }
-    if (finalRunCheckpoint && !options.allowActiveFinalClaudeGoal) goal.evidence = options.evidence;
+    if (finalRunCheckpoint && !options.allowActiveFinalQoderGoal) goal.evidence = options.evidence;
   }
-  const qualityGate = options.status === 'complete' && (aggregateCompletion !== undefined || (isFinalRunCompletionCandidate(plan, goal) && !options.allowActiveFinalClaudeGoal))
+  const qualityGate = options.status === 'complete' && (aggregateCompletion !== undefined || (isFinalRunCompletionCandidate(plan, goal) && !options.allowActiveFinalQoderGoal))
     ? validateQualityGate(options.qualityGate)
     : undefined;
   if (aggregateCompletion) {
@@ -699,9 +699,9 @@ export async function checkpointUltragoal(cwd: string, options: CheckpointOption
       goalId: goal.id,
       status: goal.status,
       evidence: options.evidence,
-      claudeGoal: options.claudeGoal,
+      qoderGoal: options.qoderGoal,
       qualityGate,
-      message: 'Aggregate ultragoal plan completed via task-scoped Claude /goal snapshot; microgoal ledger progress remains independent.',
+      message: 'Aggregate ultragoal plan completed via task-scoped Qoder /goal snapshot; microgoal ledger progress remains independent.',
     }, plan.planId);
     return plan;
   }
@@ -726,7 +726,7 @@ export async function checkpointUltragoal(cwd: string, options: CheckpointOption
     goalId: goal.id,
     status: goal.status,
     evidence: options.evidence,
-    claudeGoal: options.claudeGoal,
+    qoderGoal: options.qoderGoal,
     qualityGate,
   }, plan.planId);
   return plan;
@@ -745,10 +745,10 @@ export async function recordFinalReviewBlockers(cwd: string, options: RecordFina
   }
 
   const now = iso(options.now);
-  const expectedObjective = expectedClaudeObjective(plan, goal);
-  const aggregateMode = claudeGoalMode(plan) === 'aggregate';
-  const reconciliation = reconcileClaudeGoalSnapshot(
-    options.claudeGoal === undefined ? null : parseClaudeGoalSnapshot(options.claudeGoal),
+  const expectedObjective = expectedQoderObjective(plan, goal);
+  const aggregateMode = qoderGoalMode(plan) === 'aggregate';
+  const reconciliation = reconcileQoderGoalSnapshot(
+    options.qoderGoal === undefined ? null : parseQoderGoalSnapshot(options.qoderGoal),
     {
       expectedObjective,
       allowedStatuses: ['active'],
@@ -757,7 +757,7 @@ export async function recordFinalReviewBlockers(cwd: string, options: RecordFina
     },
   );
   if (!reconciliation.ok) {
-    throw new UltragoalError(formatClaudeGoalReconciliation(reconciliation));
+    throw new UltragoalError(formatQoderGoalReconciliation(reconciliation));
   }
 
   const addedGoal = appendGoalToPlan(plan, options, now);
@@ -778,10 +778,10 @@ export async function recordFinalReviewBlockers(cwd: string, options: RecordFina
     goalId: goal.id,
     status: goal.status,
     evidence: options.evidence,
-    claudeGoal: options.claudeGoal,
+    qoderGoal: options.qoderGoal,
     message: aggregateMode
-      ? 'Final aggregate code-review was not clean; blocker story was appended while Claude /goal remains active.'
-      : 'Final per-story code-review was not clean; blocker story was appended and may require a fresh/available Claude /goal context.',
+      ? 'Final aggregate code-review was not clean; blocker story was appended while Qoder /goal remains active.'
+      : 'Final per-story code-review was not clean; blocker story was appended and may require a fresh/available Qoder /goal context.',
   }, plan.planId);
   await appendLedger(cwd, {
     ts: now,
@@ -797,17 +797,17 @@ export async function recordFinalReviewBlockers(cwd: string, options: RecordFina
     goalId: goal.id,
     status: goal.status,
     evidence: options.evidence,
-    claudeGoal: options.claudeGoal,
+    qoderGoal: options.qoderGoal,
   }, plan.planId);
   return { plan, blockedGoal: goal, addedGoal };
 }
 
-export function buildClaudeGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string {
-  if (claudeGoalMode(plan) === 'aggregate') return buildAggregateClaudeGoalInstruction(goal, plan);
-  return buildPerStoryClaudeGoalInstruction(goal, plan);
+export function buildQoderGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string {
+  if (qoderGoalMode(plan) === 'aggregate') return buildAggregateQoderGoalInstruction(goal, plan);
+  return buildPerStoryQoderGoalInstruction(goal, plan);
 }
 
-function buildPerStoryClaudeGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string {
+function buildPerStoryQoderGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string {
   const createPayload = {
     condition: goal.objective,
     ...(goal.tokenBudget ? { token_budget: goal.tokenBudget } : {}),
@@ -819,11 +819,11 @@ function buildPerStoryClaudeGoalInstruction(goal: UltragoalItem, plan: Ultragoal
     `Ledger: ${plan.ledgerPath}`,
     `Goal: ${goal.id} — ${goal.title}`,
     '',
-    'Claude /goal integration constraints (model-facing — OMC cannot mutate Claude /goal state from a shell):',
-    '- First confirm the active Claude /goal condition for this session. If none is active, invoke /goal <condition> with the payload below.',
-    '- If a different active Claude /goal exists, finish or clear that /goal before starting this ultragoal.',
-    '- If the active /goal is a different completed legacy goal and the Claude session refuses to set a new /goal, continue this ultragoal in a fresh Claude Code session (same repo/worktree) and invoke /goal there.',
-    `- To preserve the durable ledger before switching sessions, record the non-terminal blocker without failing this goal: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Claude goal blocks new /goal in this session>" --claude-goal-json "<goal snapshot JSON or path>"`,
+    'Qoder /goal integration constraints (model-facing — OMC cannot mutate Qoder /goal state from a shell):',
+    '- First confirm the active Qoder /goal condition for this session. If none is active, invoke /goal <condition> with the payload below.',
+    '- If a different active Qoder /goal exists, finish or clear that /goal before starting this ultragoal.',
+    '- If the active /goal is a different completed legacy goal and the Qoder session refuses to set a new /goal, continue this ultragoal in a fresh Qoder session (same repo/worktree) and invoke /goal there.',
+    `- To preserve the durable ledger before switching sessions, record the non-terminal blocker without failing this goal: omc ultragoal checkpoint --goal-id ${goal.id} --status blocked --evidence "<completed legacy Qoder goal blocks new /goal in this session>" --qoder-goal-json "<goal snapshot JSON or path>"`,
     '- Work only this goal until its completion audit passes.',
     finalStory
       ? '- Final mandatory quality gate: run ai-slop-cleaner on changed files even when it is a no-op, rerun verification, then run $code-review.'
@@ -832,16 +832,16 @@ function buildPerStoryClaudeGoalInstruction(goal: UltragoalItem, plan: Ultragoal
       ? '- If final $code-review is not APPROVE with architect status CLEAR, do not clear the /goal. Record blockers with:'
       : '- After the goal is actually complete, clear or update the active /goal (run /goal clear once the auto-clear has not already fired), then share a fresh /goal snapshot and checkpoint the ledger with:',
     finalStory
-      ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --claude-goal-json "<active /goal snapshot JSON or path>"`
-      : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh /goal snapshot JSON or path>"`,
+      ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --qoder-goal-json "<active /goal snapshot JSON or path>"`
+      : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh /goal snapshot JSON or path>"`,
     finalStory
-      ? '- In legacy per-story mode, the blocker story may require a fresh/available Claude /goal context because this story remains an active incomplete /goal; do not claim it is complete.'
+      ? '- In legacy per-story mode, the blocker story may require a fresh/available Qoder /goal context because this story remains an active incomplete /goal; do not claim it is complete.'
       : null,
     finalStory
       ? '- If final $code-review is clean (APPROVE + CLEAR), clear the /goal (or wait for the auto-clear), then checkpoint with --quality-gate-json:'
       : null,
     finalStory
-      ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"`
+      ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"`
       : null,
     '- If blocked or failed, checkpoint with --status failed and the failure evidence; rerun complete-goals --retry-failed to resume.',
     '',
@@ -853,8 +853,8 @@ function buildPerStoryClaudeGoalInstruction(goal: UltragoalItem, plan: Ultragoal
   ].filter((line): line is string => line !== null).join('\n');
 }
 
-function buildAggregateClaudeGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string {
-  const objective = plan.claudeObjective ?? aggregateClaudeObjective(plan.goals, plan.planId);
+function buildAggregateQoderGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string {
+  const objective = plan.qoderObjective ?? aggregateQoderObjective(plan.goals, plan.planId);
   const finalStory = isFinalRunCompletionCandidate(plan, goal);
   const createPayload = { condition: objective };
   const checkpointStatus = finalStory ? 'complete' : 'active';
@@ -864,27 +864,27 @@ function buildAggregateClaudeGoalInstruction(goal: UltragoalItem, plan: Ultragoa
     `Ledger: ${plan.ledgerPath}`,
     `Goal: ${goal.id} — ${goal.title}`,
     '',
-    'Claude /goal integration constraints (model-facing — OMC cannot mutate Claude /goal state from a shell):',
-    '- Claude /goal = the whole ultragoal run; OMC G001/G002/etc. = ledger stories.',
-    '- First confirm the active Claude /goal condition for this session. If none is active, invoke /goal <condition> with the aggregate payload below.',
+    'Qoder /goal integration constraints (model-facing — OMC cannot mutate Qoder /goal state from a shell):',
+    '- Qoder /goal = the whole ultragoal run; OMC G001/G002/etc. = ledger stories.',
+    '- First confirm the active Qoder /goal condition for this session. If none is active, invoke /goal <condition> with the aggregate payload below.',
     '- If the active /goal already reports the same aggregate objective as active, continue this OMC story without setting a new /goal.',
-    '- If a different active or incomplete Claude /goal exists, finish or clear that /goal before starting this ultragoal; do not claim a shell command can replace Claude /goal state.',
+    '- If a different active or incomplete Qoder /goal exists, finish or clear that /goal before starting this ultragoal; do not claim a shell command can replace Qoder /goal state.',
     finalStory
       ? '- This is the final pending story: run the mandatory final ai-slop-cleaner pass, rerun verification, and run $code-review before any /goal clear.'
-      : '- This is not the final story: do not clear the /goal yet; the aggregate Claude /goal must remain active while later OMC stories remain.',
+      : '- This is not the final story: do not clear the /goal yet; the aggregate Qoder /goal must remain active while later OMC stories remain.',
     finalStory
       ? '- If final $code-review is not APPROVE with architect status CLEAR, do not clear the /goal. Record durable blocker work first:'
       : null,
     finalStory
-      ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --claude-goal-json "<active /goal snapshot JSON or path>"`
+      ? `  omc ultragoal record-review-blockers --goal-id ${goal.id} --title "Resolve final code-review blockers" --objective "<blocker-resolution objective>" --evidence "<review findings>" --qoder-goal-json "<active /goal snapshot JSON or path>"`
       : null,
     finalStory
       ? '- If final $code-review is clean (APPROVE + CLEAR), clear the /goal (or let the auto-clear fire when the condition holds), share a fresh complete /goal snapshot, then checkpoint with --quality-gate-json.'
       : null,
     `- Checkpoint this OMC story with a fresh /goal snapshot whose objective matches the aggregate payload and whose status is ${checkpointStatus}:`,
     finalStory
-      ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"`
-      : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --claude-goal-json "<fresh /goal snapshot JSON or path>"`,
+      ? `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh complete /goal snapshot JSON or path>" --quality-gate-json "<quality gate JSON or path>"`
+      : `  omc ultragoal checkpoint --goal-id ${goal.id} --status complete --evidence "<tests/files/PR evidence>" --qoder-goal-json "<fresh /goal snapshot JSON or path>"`,
     '- If blocked or failed, checkpoint with --status failed and the failure evidence; rerun complete-goals --retry-failed to resume.',
     '',
     'Suggested /goal payload (model-facing — invoke /goal yourself in-session):',

@@ -12,7 +12,7 @@ import { dirname, join, resolve, basename } from 'path';
 import { homedir } from 'os';
 import { execSync } from 'child_process';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { getClaudeConfigDir } from './lib/config-dir.mjs';
+import { getQoderConfigDir } from './lib/config-dir.mjs';
 import { encodeProjectPath } from './lib/encode-project-path.mjs';
 import { evaluateAgentHeavyPreflight } from './lib/pre-tool-enforcer-preflight.mjs';
 import { evaluateForceAgentDelegation } from './lib/force-agent-delegation-preflight.mjs';
@@ -35,29 +35,29 @@ function isSubagentSafeModelId(modelId) {
   return isProviderSpecificModelId(modelId) && !hasExtendedContextSuffix(modelId);
 }
 function isBedrockProviderEnv() {
-  if (process.env.CLAUDE_CODE_USE_BEDROCK === '1') return true;
-  const modelId = process.env.CLAUDE_MODEL || process.env.ANTHROPIC_MODEL || '';
+  if (process.env.QODER_USE_BEDROCK === '1') return true;
+  const modelId = process.env.QODER_MODEL || process.env.ANTHROPIC_MODEL || '';
   if (/^((us|eu|ap|global)\.anthropic\.|anthropic\.claude)/i.test(modelId)) return true;
   if (
     /^arn:aws(-[^:]+)?:bedrock:/i.test(modelId)
     && /:(inference-profile|application-inference-profile)\//i.test(modelId)
-    && modelId.toLowerCase().includes('claude')
+    && modelId.toLowerCase().includes('qoder')
   ) {
     return true;
   }
   return false;
 }
 function isVertexProviderEnv() {
-  if (process.env.CLAUDE_CODE_USE_VERTEX === '1') return true;
-  const modelId = process.env.CLAUDE_MODEL || process.env.ANTHROPIC_MODEL || '';
+  if (process.env.QODER_USE_VERTEX === '1') return true;
+  const modelId = process.env.QODER_MODEL || process.env.ANTHROPIC_MODEL || '';
   return !!modelId && modelId.toLowerCase().startsWith('vertex_ai/');
 }
 function getActiveModelIds() {
-  return [process.env.CLAUDE_MODEL || '', process.env.ANTHROPIC_MODEL || ''].filter(Boolean);
+  return [process.env.QODER_MODEL || '', process.env.ANTHROPIC_MODEL || ''].filter(Boolean);
 }
 function isNormalClaudeModelId(modelId) {
   const lower = (modelId || '').toLowerCase();
-  return Boolean(lower) && lower.includes('claude') && !isProviderSpecificModelId(modelId);
+  return Boolean(lower) && lower.includes('qoder') && !isProviderSpecificModelId(modelId);
 }
 function hasNormalClaudeActiveModel() {
   return getActiveModelIds().some(isNormalClaudeModelId);
@@ -68,8 +68,8 @@ function isConfigForceInheritProxyEnv() {
 }
 function isNonClaudeProviderEnv() {
   if (isBedrockProviderEnv() || isVertexProviderEnv()) return true;
-  const modelId = process.env.CLAUDE_MODEL || process.env.ANTHROPIC_MODEL || '';
-  if (modelId && !modelId.toLowerCase().includes('claude')) return true;
+  const modelId = process.env.QODER_MODEL || process.env.ANTHROPIC_MODEL || '';
+  if (modelId && !modelId.toLowerCase().includes('qoder')) return true;
   const baseUrl = process.env.ANTHROPIC_BASE_URL || '';
   if (baseUrl && !baseUrl.includes('anthropic.com')) return true;
   return isConfigForceInheritProxyEnv();
@@ -94,29 +94,29 @@ function isTierAlias(modelId) {
 // (sonnet/haiku/opus). Allowing OMC_MODEL_* as proof would let the hook pass while CC
 // still fails to route the alias, reintroducing the downstream deadlock this gate prevents.
 const TIER_TO_DEFAULT_ENV_KEYS = {
-  haiku:  ['OMC_SUBAGENT_MODEL', 'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',  'ANTHROPIC_DEFAULT_HAIKU_MODEL'],
-  sonnet: ['OMC_SUBAGENT_MODEL', 'CLAUDE_CODE_BEDROCK_SONNET_MODEL', 'ANTHROPIC_DEFAULT_SONNET_MODEL'],
-  opus:   ['OMC_SUBAGENT_MODEL', 'CLAUDE_CODE_BEDROCK_OPUS_MODEL',   'ANTHROPIC_DEFAULT_OPUS_MODEL'],
-  fable:  ['OMC_SUBAGENT_MODEL', 'CLAUDE_CODE_BEDROCK_FABLE_MODEL',  'ANTHROPIC_DEFAULT_FABLE_MODEL'],
+  haiku:  ['OMC_SUBAGENT_MODEL', 'QODER_BEDROCK_HAIKU_MODEL',  'ANTHROPIC_DEFAULT_HAIKU_MODEL'],
+  sonnet: ['OMC_SUBAGENT_MODEL', 'QODER_BEDROCK_SONNET_MODEL', 'ANTHROPIC_DEFAULT_SONNET_MODEL'],
+  opus:   ['OMC_SUBAGENT_MODEL', 'QODER_BEDROCK_OPUS_MODEL',   'ANTHROPIC_DEFAULT_OPUS_MODEL'],
+  fable:  ['OMC_SUBAGENT_MODEL', 'QODER_BEDROCK_FABLE_MODEL',  'ANTHROPIC_DEFAULT_FABLE_MODEL'],
 };
 function resolveTierAliasToSafeModel(tierAlias) {
   const keys = TIER_TO_DEFAULT_ENV_KEYS[(tierAlias || '').toLowerCase()];
   if (!keys) return '';
   for (const key of keys) {
     const value = (process.env[key] || '').trim();
-    // CC-native vars (ANTHROPIC_DEFAULT_* and CLAUDE_CODE_BEDROCK_*) are read by CC's own
+    // CC-native vars (ANTHROPIC_DEFAULT_* and QODER_BEDROCK_*) are read by CC's own
     // model resolution, which handles [1m] suffixes correctly for explicit model= calls.
     // OMC-internal vars (OMC_SUBAGENT_MODEL, OMC_MODEL_*) are not read by CC, so a [1m]
     // value there is not a valid routing proof — keep the stricter isSubagentSafeModelId check.
     const isAnthropicDefaultTierVar = key.startsWith('ANTHROPIC_DEFAULT_');
-    const isNativeCcVar = isAnthropicDefaultTierVar || key.startsWith('CLAUDE_CODE_BEDROCK_');
+    const isNativeCcVar = isAnthropicDefaultTierVar || key.startsWith('QODER_BEDROCK_');
     const validator = isNativeCcVar ? isProviderSpecificModelId : isSubagentSafeModelId;
     if (value && (validator(value) || acceptsProxyAnthropicDefaultTierValue(key, value))) return value;
   }
   return '';
 }
 /** Map a bare Anthropic model ID to its CC tier alias (sonnet/opus/haiku/fable), or null if unrecognised. */
-function normalizeToCcAlias(model) {
+function normalizeToQoderAlias(model) {
   if (!model) return null;
   const lower = model.toLowerCase();
   if (lower.includes('opus'))   return 'opus';
@@ -132,15 +132,15 @@ function normalizeToCcAlias(model) {
 function readAgentDefinitionModel(subagentType) {
   // Guard: subagent_type must be a string — non-string payloads would throw on .replace()
   // and the catch block would silently return {continue:true}, bypassing enforcement.
-  const agentType = (typeof subagentType === 'string' ? subagentType : '').replace(/^oh-my-claudecode:/, '');
+  const agentType = (typeof subagentType === 'string' ? subagentType : '').replace(/^oh-my-qoder:/, '');
   if (!agentType) return null;
   // Reject path traversal: agent names are simple identifiers; no path separators allowed.
   if (!/^[a-zA-Z0-9_-]+$/.test(agentType)) return null;
   // Build a prioritised list of agents/ directories to search.
-  // CLAUDE_PLUGIN_ROOT is tried first when set; the script-relative path is always the
+  // QODER_PLUGIN_ROOT is tried first when set; the script-relative path is always the
   // final fallback. Checking per-file (not just per-directory) means a partially-populated
   // plugin install doesn't hide agents that exist in the script-relative tree.
-  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+  const pluginRoot = process.env.QODER_PLUGIN_ROOT;
   const scriptAgentsDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'agents');
   const candidateDirs = [
     ...(pluginRoot ? [join(pluginRoot, 'agents')] : []),
@@ -530,7 +530,7 @@ function resolveTranscriptPath(transcriptPath, cwd) {
     if (mainRepoRoot !== worktreeTop) {
       const sessionFile = basename(transcriptPath);
       if (sessionFile) {
-        const configDir = getClaudeConfigDir();
+        const configDir = getQoderConfigDir();
         const projectsDir = join(configDir, 'projects');
         if (existsSync(projectsDir)) {
           const encodedMain = encodeProjectPath(mainRepoRoot);
@@ -600,7 +600,7 @@ async function getTodoStatus(directory) {
   }
 
   // NOTE: We intentionally do NOT scan the global
-  // [$CLAUDE_CONFIG_DIR|~/.claude]/todos/ directory.
+  // [$QODER_CONFIG_DIR|~/.qoder]/todos/ directory.
   // That directory accumulates todo files from ALL past sessions across all
   // projects, causing phantom task counts in fresh sessions (see issue #354).
 
@@ -692,7 +692,7 @@ function readSessionModeState(stateDir, mode, sessionId) {
 function getExpectedUltragoalObjective(state, directory) {
   const candidates = [
     state?.claude_goal_objective,
-    state?.claudeGoalObjective,
+    state?.qoderGoalObjective,
     state?.codex_objective,
     state?.codexObjective,
     state?.goal_objective,
@@ -704,7 +704,7 @@ function getExpectedUltragoalObjective(state, directory) {
   }
 
   const plan = readJsonFile(join(directory, '.omc', 'ultragoal', 'goals.json'));
-  if (typeof plan?.claudeObjective === 'string' && plan.claudeObjective.trim()) return plan.claudeObjective.trim();
+  if (typeof plan?.qoderObjective === 'string' && plan.qoderObjective.trim()) return plan.qoderObjective.trim();
   if (typeof plan?.aggregateCompletion?.objective === 'string' && plan.aggregateCompletion.objective.trim()) {
     return plan.aggregateCompletion.objective.trim();
   }
@@ -713,11 +713,11 @@ function getExpectedUltragoalObjective(state, directory) {
   return '';
 }
 
-function extractClaudeGoalSnapshot(data) {
+function extractQoderGoalSnapshot(data) {
   const candidates = [
     data.goal,
     data.claude_goal,
-    data.claudeGoal,
+    data.qoderGoal,
     data.goal_state,
     data.goalState,
     data.codex_goal,
@@ -743,7 +743,7 @@ function isUltragoalBootstrapTool(toolName, toolInput) {
   if (toolName === 'Skill' && extractSkillName(toolInput) === 'ultragoal') return true;
   if (toolName !== 'Bash') return false;
   const command = typeof toolInput.command === 'string' ? toolInput.command : '';
-  return /(?:^|[;&|\s])(?:omc|oh-my-claudecode)\s+ultragoal\s+(?:create(?:-goals)?|create-goals|complete(?:-goals)?|complete-goals|next|start-next|status)\b/.test(command);
+  return /(?:^|[;&|\s])(?:omc|oh-my-qoder)\s+ultragoal\s+(?:create(?:-goals)?|create-goals|complete(?:-goals)?|complete-goals|next|start-next|status)\b/.test(command);
 }
 
 function evaluateUltragoalPreToolEnforcement(stateDir, directory, sessionId, data) {
@@ -759,7 +759,7 @@ function evaluateUltragoalPreToolEnforcement(stateDir, directory, sessionId, dat
   if (isUltragoalTerminalState(state, directory)) return null;
 
   const expected = getExpectedUltragoalObjective(state, directory);
-  const actual = extractClaudeGoalSnapshot(data);
+  const actual = extractQoderGoalSnapshot(data);
   const actualObjective = normalizeText(actual?.objective);
   const expectedObjective = normalizeText(expected);
   const status = normalizePhase(actual?.status);
@@ -769,9 +769,9 @@ function evaluateUltragoalPreToolEnforcement(stateDir, directory, sessionId, dat
   if (objectiveMatches && activeStatus) return null;
 
   const mismatch = actualObjective
-    ? `current Claude /goal appears unrelated: "${actual.objective}".`
-    : 'no active Claude /goal snapshot was visible to the hook.';
-  return `[ULTRAGOAL /GOAL REQUIRED] Active ultragoal state requires the matching Claude /goal before tools run; ${mismatch} Activate /goal with the ultragoal objective, or set ALLOW_ULTRAGOAL_WITHOUT_GOAL=1 to bypass this guard intentionally. Expected objective: ${expected || '<record one in ultragoal-state.json or .omc/ultragoal/goals.json>'}`;
+    ? `current Qoder /goal appears unrelated: "${actual.objective}".`
+    : 'no active Qoder /goal snapshot was visible to the hook.';
+  return `[ULTRAGOAL /GOAL REQUIRED] Active ultragoal state requires the matching Qoder /goal before tools run; ${mismatch} Activate /goal with the ultragoal objective, or set ALLOW_ULTRAGOAL_WITHOUT_GOAL=1 to bypass this guard intentionally. Expected objective: ${expected || '<record one in ultragoal-state.json or .omc/ultragoal/goals.json>'}`;
 }
 
 function hasActiveJsonMode(stateDir, { allowSessionTagged = false } = {}) {
@@ -929,17 +929,17 @@ function generateAgentSpawnMessage(toolInput, stateDir, todoStatus, sessionId) {
   const tracking = getAgentTrackingInfo(stateDir);
 
   // Team-routing guidance:
-  // Claude Code 2.1.178+ removed TeamCreate/TeamDelete. When OMC team state is
+  // Qoder 2.1.178+ removed TeamCreate/TeamDelete. When OMC team state is
   // active, teammates should be spawned into the session's implicit agent team by
   // giving each Agent/Task call a distinct name. team_name is ignored by native
-  // Claude Code and should only be treated as legacy metadata.
+  // Qoder and should only be treated as legacy metadata.
   const teamState = getActiveTeamState(stateDir, sessionId);
   if (teamState && !toolInput.name) {
     const teamName = teamState.team_name || teamState.teamName || 'team';
     return `[TEAM ROUTING REQUIRED] Team "${teamName}" is active but you are spawning an unnamed subagent. ` +
-      `Claude Code 2.1.178+ uses the session's implicit native agent team; TeamCreate and TeamDelete are removed. ` +
+      `Qoder 2.1.178+ uses the session's implicit native agent team; TeamCreate and TeamDelete are removed. ` +
       `Spawn teammates directly with Agent/Task name="worker-N" and subagent_type="${agentType}". ` +
-      `Do NOT rely on team_name for routing; native Claude Code accepts it only as ignored legacy metadata.`;
+      `Do NOT rely on team_name for routing; native Qoder accepts it only as ignored legacy metadata.`;
   }
 
   if (QUIET_LEVEL >= 2) return '';
@@ -1020,19 +1020,19 @@ const SKILL_PROTECTION_MAP = {
 function getSkillProtectionLevel(skillName, rawSkillName) {
   // When rawSkillName is provided, only apply protection to OMC-prefixed skills.
   // Non-prefixed skills are project custom skills or other plugins — no protection.
-  // See: https://github.com/Yeachan-Heo/oh-my-claudecode/issues/1581
+  // See: https://github.com/Yeachan-Heo/oh-my-qoder/issues/1581
   if (rawSkillName != null && typeof rawSkillName === 'string' &&
-      !rawSkillName.toLowerCase().startsWith('oh-my-claudecode:')) {
+      !rawSkillName.toLowerCase().startsWith('oh-my-qoder:')) {
     return 'none';
   }
-  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-claudecode:/, '');
+  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-qoder:/, '');
   return SKILL_PROTECTION_MAP[normalized] || 'none';
 }
 
 // Load OMC config to check forceInherit setting (issues #1135, #1201)
 function loadOmcConfig() {
   const configPaths = [
-    join(getClaudeConfigDir(), '.omc-config.json'),
+    join(getQoderConfigDir(), '.omc-config.json'),
     join(process.cwd(), '.omc', 'config.json'),
   ];
   for (const configPath of configPaths) {
@@ -1066,7 +1066,7 @@ function writeSkillActiveState(stateDir, skillName, sessionId, rawSkillName) {
 
   const config = SKILL_PROTECTION_CONFIGS[protection];
   const now = new Date().toISOString();
-  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-claudecode:/, '');
+  const normalized = (skillName || '').toLowerCase().replace(/^oh-my-qoder:/, '');
 
   const safeSessionId = sessionId && SESSION_ID_PATTERN.test(sessionId) ? sessionId : '';
   const targetDir = safeSessionId
@@ -1081,7 +1081,7 @@ function writeSkillActiveState(stateDir, skillName, sessionId, rawSkillName) {
   // If the SAME skill is re-invoked, allow the overwrite (idempotent refresh).
   //
   // NOTE: This read-check-write sequence has a TOCTOU race condition
-  // (non-atomic), but this is acceptable because Claude Code sessions are
+  // (non-atomic), but this is acceptable because Qoder sessions are
   // single-threaded — only one tool call executes at a time within a session.
   try {
     if (existsSync(targetPath)) {
@@ -1266,7 +1266,7 @@ async function main() {
         // Check both vars: if either carries [1m] the session model is unsafe for sub-agents.
         // Avoids a split-brain between the hook and runtime code that may read the vars in
         // different orders (e.g. model-contract.ts uses ANTHROPIC_MODEL first).
-        const claudeModel = process.env.CLAUDE_MODEL || '';
+        const claudeModel = process.env.QODER_MODEL || '';
         const anthropicModel = process.env.ANTHROPIC_MODEL || '';
         const sessionHasLmSuffix =
           hasExtendedContextSuffix(claudeModel) || hasExtendedContextSuffix(anthropicModel);
@@ -1280,12 +1280,12 @@ async function main() {
         if (toolModel) {
           // Allow tier aliases (sonnet/opus/haiku) when a subagent-safe model can be
           // resolved for that tier. Resolution chain: OMC_SUBAGENT_MODEL (global override)
-          // → CLAUDE_CODE_BEDROCK_*_MODEL → ANTHROPIC_DEFAULT_*_MODEL.
+          // → QODER_BEDROCK_*_MODEL → ANTHROPIC_DEFAULT_*_MODEL.
           if (isTierAlias(toolModel) && resolveTierAliasToSafeModel(toolModel)) {
             // fall through to continue — tier alias resolves to a safe provider-specific ID
           } else if (!isSubagentSafeModelId(toolModel)) {
             const tierUpper = isTierAlias(toolModel) ? toolModel.toUpperCase() : '';
-            const derivedTier = tierUpper || (normalizeToCcAlias(toolModel) || '').toUpperCase();
+            const derivedTier = tierUpper || (normalizeToQoderAlias(toolModel) || '').toUpperCase();
             const guidance = derivedTier
               ? `Set ANTHROPIC_DEFAULT_${derivedTier}_MODEL=<valid-bedrock-id> in settings.json env, or set OMC_SUBAGENT_MODEL as a global override.`
               : `Remove the \`model\` parameter, or set ANTHROPIC_DEFAULT_SONNET_MODEL=<valid-bedrock-id> in settings.json env.`;
@@ -1306,7 +1306,7 @@ async function main() {
           // Anthropic model ID (e.g. claude-sonnet-4-6) which is invalid on Bedrock.
           // Fix: pass a tier alias (sonnet/haiku/opus). The Agent tool schema only accepts
           // tier aliases for the model param — full Bedrock IDs are rejected by the schema.
-          const tierAlias = normalizeToCcAlias(sessionModel) || 'sonnet';
+          const tierAlias = normalizeToQoderAlias(sessionModel) || 'sonnet';
           const resolvedSafe = resolveTierAliasToSafeModel(tierAlias);
           const suggestion = resolvedSafe
             ? `Pass model="${tierAlias}" explicitly on this ${toolName} call — tier aliases resolve cleanly on Bedrock.`
@@ -1323,7 +1323,7 @@ async function main() {
         }
         // Agent-definition model check: runs for any no-model call with a subagent_type,
         // independent of the sessionHasLmSuffix branch above (which may have matched and
-        // fallen through safely). Claude Code reads the agent definition's `model:` field
+        // fallen through safely). Qoder reads the agent definition's `model:` field
         // AFTER this hook and injects it — if that's a bare Anthropic ID, Bedrock rejects
         // with 400. Detect it here and deny with guidance to retry with an explicit tier alias.
         if (!toolModel && toolInput.subagent_type) {
@@ -1331,13 +1331,13 @@ async function main() {
           // Only deny when a safe routing target exists for the derived tier alias.
           // Without a routing target the tier-alias escape hatch doesn't exist, so blocking
           // would strand Claude in a retry loop with no viable path forward.
-          const defTierAlias = agentDefModel ? normalizeToCcAlias(agentDefModel) : null;
+          const defTierAlias = agentDefModel ? normalizeToQoderAlias(agentDefModel) : null;
           const resolvedModel = defTierAlias ? resolveTierAliasToSafeModel(defTierAlias) : '';
           const hasSafeRouting = !!resolvedModel;
           if (agentDefModel && !isSubagentSafeModelId(agentDefModel) && !isTierAlias(agentDefModel)
               && hasSafeRouting) {
             const guidance = `Add model="${defTierAlias}" to this ${toolName} call — tier aliases resolve to configured provider models (${resolvedModel}).`;
-            const agentType = (toolInput.subagent_type).replace(/^oh-my-claudecode:/, '');
+            const agentType = (toolInput.subagent_type).replace(/^oh-my-qoder:/, '');
             console.log(JSON.stringify({
               continue: true,
               hookSpecificOutput: {
@@ -1353,13 +1353,13 @@ async function main() {
         // agents inherit the parent session's model cleanly.
       } else if (!toolModel && toolInput.subagent_type) {
         // Non-forceInherit: honor agents.<name>.model from config.jsonc for native
-        // Task/Agent calls without an explicit model param. Without this, Claude Code
+        // Task/Agent calls without an explicit model param. Without this, Qoder
         // reads the static agents/*.md frontmatter and silently ignores the user's
         // per-agent override (issue #3242). Inject the resolved tier alias via
         // updatedInput so the spawned subagent runs on the configured model.
         const configuredModel = resolveConfiguredAgentModel(toolInput.subagent_type, directory);
         if (configuredModel && configuredModel !== 'inherit') {
-          const normalizedModel = normalizeToCcAlias(configuredModel);
+          const normalizedModel = normalizeToQoderAlias(configuredModel);
           if (normalizedModel) {
             updatedToolInput = { ...toolInput, model: normalizedModel };
           }
@@ -1371,7 +1371,7 @@ async function main() {
     // Fires in PreToolUse so users get notified BEFORE the tool blocks for input (#597)
     if (toolName === 'AskUserQuestion') {
       try {
-        const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+        const pluginRoot = process.env.QODER_PLUGIN_ROOT;
         if (pluginRoot) {
           const { notify } = await import(pathToFileURL(join(pluginRoot, 'dist', 'notifications', 'index.js')).href);
 
@@ -1407,7 +1407,7 @@ async function main() {
     if (delegationBlock) {
       // Force-delegation preflight returns `{ decision: 'block', reason }` to
       // match the agent-heavy preflight contract. Translate to the
-      // Claude Code hookSpecificOutput shape (`permissionDecision: 'deny'`).
+      // Qoder hookSpecificOutput shape (`permissionDecision: 'deny'`).
       console.log(JSON.stringify({
         continue: true,
         hookSpecificOutput: {

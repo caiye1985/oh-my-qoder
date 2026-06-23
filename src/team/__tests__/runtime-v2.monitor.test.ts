@@ -68,14 +68,14 @@ describe('monitorTeamV2 pane-based stall inference', () => {
     await writeFile(join(teamRoot, 'config.json'), JSON.stringify({
       name: 'demo-team',
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 1,
       max_workers: 20,
       workers: [{
         name: 'worker-1',
         index: 1,
-        role: 'claude',
+        role: 'qoder',
         assigned_tasks: ['1'],
         pane_id: '%2',
         working_dir: cwd,
@@ -222,13 +222,13 @@ describe('monitorTeamV2 pane-based stall inference', () => {
     await writeFile(join(root, 'config.json'), JSON.stringify({
       name: 'demo-team',
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 2,
       max_workers: 20,
       workers: [
-        { name: 'worker-1', index: 1, role: 'claude', assigned_tasks: ['1'] },
-        { name: 'worker-1', index: 0, role: 'claude', assigned_tasks: [], pane_id: '%2', working_dir: cwd },
+        { name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: ['1'] },
+        { name: 'worker-1', index: 0, role: 'qoder', assigned_tasks: [], pane_id: '%2', working_dir: cwd },
       ],
       created_at: new Date().toISOString(),
       tmux_session: 'demo-session:0',

@@ -580,7 +580,7 @@ async function pollDiscord(
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                content: `${mentionPrefix}Injected into Claude Code session.`,
+                content: `${mentionPrefix}Injected into Qoder session.`,
                 message_reference: { message_id: msg.id },
                 allowed_mentions: feedbackAllowedMentions,
               }),
@@ -719,7 +719,7 @@ async function pollTelegram(
         try {
           const replyBody = JSON.stringify({
             chat_id: config.telegramChatId,
-            text: 'Injected into Claude Code session.',
+            text: 'Injected into Qoder session.',
             reply_to_message_id: msg.message_id,
           });
 

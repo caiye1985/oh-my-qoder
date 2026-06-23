@@ -2,8 +2,8 @@
 /**
  * OMC HUD - Main Entry Point
  *
- * Statusline command that visualizes oh-my-claudecode state.
- * Receives stdin JSON from Claude Code and outputs formatted statusline.
+ * Statusline command that visualizes oh-my-qoder state.
+ * Receives stdin JSON from Qoder and outputs formatted statusline.
  */
 
 import {
@@ -56,7 +56,7 @@ import { join, basename, dirname } from "path";
 import { spawn } from "child_process";
 import { fileURLToPath } from "url";
 import { getOmcRoot } from "../lib/worktree-paths.js";
-import { getClaudeConfigDir, getUpdateCheckCachePath } from "../utils/config-dir.js";
+import { getQoderConfigDir, getUpdateCheckCachePath } from "../utils/config-dir.js";
 
 /**
  * Extract session ID (UUID) from a transcript path.
@@ -217,7 +217,7 @@ async function calculateSessionHealth(
  */
 function showDiagnostic(): void {
   const version = getRuntimePackageVersion();
-  const configDir = getClaudeConfigDir();
+  const configDir = getQoderConfigDir();
   const hudScript = join(configDir, "hud", "omc-hud.mjs");
   const settingsFile = join(configDir, "settings.json");
 
@@ -243,9 +243,9 @@ function showDiagnostic(): void {
   console.log(`  statusLine:  ${statusLineOk ? "configured" : "NOT configured"}`);
 
   if (!hudExists || !statusLineOk) {
-    console.log("  Run /oh-my-claudecode:hud setup to fix.");
+    console.log("  Run /oh-my-qoder:hud setup to fix.");
   } else {
-    console.log("  HUD renders automatically inside Claude Code sessions.");
+    console.log("  HUD renders automatically inside Qoder sessions.");
   }
 }
 
@@ -255,7 +255,7 @@ function showDiagnostic(): void {
  */
 async function main(watchMode = false, skipInit = false): Promise<void> {
   try {
-    // Read stdin from Claude Code
+    // Read stdin from Qoder
     const previousStdinCache = readStdinCache();
     let stdin = await readStdin();
 
@@ -360,7 +360,7 @@ async function main(watchMode = false, skipInit = false): Promise<void> {
       writeHudState(stateToWrite, cwd, currentSessionId ?? undefined);
     }
 
-    // Merge Claude Code stdin generic buckets with API/cache-specific fields.
+    // Merge Qoder stdin generic buckets with API/cache-specific fields.
     // Stdin owns fresher five-hour/seven-day values, while getUsage() may provide
     // Sonnet/Opus weekly, monthly, extra, stale, and error metadata.
     const stdinRateLimits = getRateLimitsFromStdin(stdin);
@@ -492,8 +492,8 @@ async function main(watchMode = false, skipInit = false): Promise<void> {
       apiKeyMode: detectApiKeySource(cwd) !== null,
       subscriptionType: subscriptionInfo.subscriptionType,
       rateLimitTier: subscriptionInfo.rateLimitTier,
-      profileName: process.env.CLAUDE_CONFIG_DIR
-        ? basename(process.env.CLAUDE_CONFIG_DIR).replace(/^\./, "")
+      profileName: process.env.QODER_CONFIG_DIR
+        ? basename(process.env.QODER_CONFIG_DIR).replace(/^\./, "")
         : null,
       sessionSummary,
       lastToolName: transcriptData.lastToolName,
@@ -514,7 +514,7 @@ async function main(watchMode = false, skipInit = false): Promise<void> {
 
     // autoCompact: write trigger file when token context exceeds threshold.
     // Payload pressure is warning-only for now because statusline hooks can
-    // estimate from local transcript artifacts but do not receive Claude Code's
+    // estimate from local transcript artifacts but do not receive Qoder's
     // exact serialized API request body.
     // A companion hook can read this file to inject a /compact suggestion.
     if (

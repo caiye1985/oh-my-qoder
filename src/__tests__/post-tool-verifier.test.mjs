@@ -1,6 +1,6 @@
 /**
  * Tests for post-tool-verifier.mjs failure detection
- * Covers issue #696: false positive "permission denied" from Claude Code temp CWD errors on macOS
+ * Covers issue #696: false positive "permission denied" from Qoder temp CWD errors on macOS
  */
 
 import { describe, it, expect } from 'vitest';
@@ -109,7 +109,7 @@ function writeRalplanStateFixture(tempDir, sessionId, overrides = {}) {
 }
 
 describe('detectBashFailure', () => {
-  describe('Claude Code temp CWD false positives (issue #696)', () => {
+  describe('Qoder temp CWD false positives (issue #696)', () => {
     it('should not flag macOS temp CWD permission error as a failure', () => {
       const output = 'zsh:1: permission denied: /var/folders/xx/yyyyyyy/T/claude-abc123def-cwd';
       expect(detectBashFailure(output)).toBe(false);
@@ -353,7 +353,7 @@ describe('isClaudeCodeWriteSuccess', () => {
 });
 
 describe('detectWriteFailure', () => {
-  describe('Claude Code temp CWD false positives (issue #696)', () => {
+  describe('Qoder temp CWD false positives (issue #696)', () => {
     it('should not flag macOS temp CWD permission error as a write failure', () => {
       const output = 'zsh:1: permission denied: /var/folders/xx/yyyyyyy/T/claude-abc123def-cwd';
       expect(detectWriteFailure(output)).toBe(false);
@@ -530,7 +530,7 @@ describe('post-tool hook regression coverage (issue #2615)', () => {
     expect(out.hookSpecificOutput?.additionalContext).not.toContain('Edit operation failed');
   });
 
-  it('prefers exact Claude Code edit success output over embedded diagnostics', () => {
+  it('prefers exact Qoder edit success output over embedded diagnostics', () => {
     const out = runPostToolVerifier({
       tool_name: 'Edit',
       tool_response: [
@@ -900,7 +900,7 @@ describe('OMC_QUIET hook message suppression (issue #1646)', () => {
       writeFileSync(
         join(tempDir, '.omc', 'state', 'subagent-tracking.json'),
         JSON.stringify({
-          agents: [{ status: 'running', agent_type: 'oh-my-claudecode:executor' }],
+          agents: [{ status: 'running', agent_type: 'oh-my-qoder:executor' }],
           total_completed: 1,
           total_failed: 0,
         }),
@@ -929,7 +929,7 @@ describe('Skill active state cleanup on PostToolUse (issue #2103)', () => {
 
       const out = runPostToolVerifier({
         tool_name: 'Skill',
-        tool_input: { skill: 'oh-my-claudecode:plan' },
+        tool_input: { skill: 'oh-my-qoder:plan' },
         tool_response: { ok: true },
         session_id: sessionId,
         cwd: tempDir,
@@ -948,7 +948,7 @@ describe('Skill active state cleanup on PostToolUse (issue #2103)', () => {
 
       const out = runPostToolVerifier({
         tool_name: 'Skill',
-        tool_input: { skill: 'oh-my-claudecode:mcp-setup' },
+        tool_input: { skill: 'oh-my-qoder:mcp-setup' },
         tool_response: { ok: true },
         session_id: sessionId,
         cwd: tempDir,
@@ -967,7 +967,7 @@ describe('Skill active state cleanup on PostToolUse (issue #2103)', () => {
 
       const out = runHookScript(TEMPLATE_HOOK_PATH, {
         tool_name: 'Skill',
-        tool_input: { skill: 'oh-my-claudecode:plan' },
+        tool_input: { skill: 'oh-my-qoder:plan' },
         tool_response: { ok: true },
         session_id: sessionId,
         cwd: tempDir,
@@ -986,7 +986,7 @@ describe('Skill active state cleanup on PostToolUse (issue #2103)', () => {
 
       const out = runPostToolVerifier({
         tool_name: 'Skill',
-        tool_input: { skill: 'oh-my-claudecode:ralplan' },
+        tool_input: { skill: 'oh-my-qoder:ralplan' },
         tool_response: { ok: true },
         session_id: sessionId,
         cwd: tempDir,
@@ -1010,7 +1010,7 @@ describe('Skill active state cleanup on PostToolUse (issue #2103)', () => {
       const out = runHookScript(TEMPLATE_HOOK_PATH, {
         tool_name: 'Skill',
         tool_input: {
-          skill: 'oh-my-claudecode:plan',
+          skill: 'oh-my-qoder:plan',
           args: '--consensus issue #2368',
         },
         tool_response: { ok: true },
@@ -1035,7 +1035,7 @@ describe('Skill active state cleanup on PostToolUse (issue #2103)', () => {
 
       const out = runPostToolVerifier({
         tool_name: 'Skill',
-        tool_input: { skill: 'oh-my-claudecode:deep-interview' },
+        tool_input: { skill: 'oh-my-qoder:deep-interview' },
         tool_response: { ok: true },
         session_id: sessionId,
         cwd: tempDir,
@@ -1054,7 +1054,7 @@ describe('Skill active state cleanup on PostToolUse (issue #2103)', () => {
 
       const out = runPostToolVerifier({
         tool_name: 'Skill',
-        tool_input: { skill: 'oh-my-claudecode:self-improve' },
+        tool_input: { skill: 'oh-my-qoder:self-improve' },
         tool_response: { ok: true },
         session_id: sessionId,
         cwd: tempDir,

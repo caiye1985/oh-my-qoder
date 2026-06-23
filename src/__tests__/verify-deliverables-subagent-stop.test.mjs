@@ -4,7 +4,7 @@
  * verify-deliverables.mjs runs on the SubagentStop hook event. Previously, when
  * required deliverables were missing it returned
  * { continue: true, hookSpecificOutput: { additionalContext: "..." } }, which
- * Claude Code reinjects into the finishing subagent's context — the same loop
+ * Qoder reinjects into the finishing subagent's context — the same loop
  * that #3209 fixed for subagent-tracker. The hook must instead always suppress
  * its own output: { continue: true, suppressOutput: true } with no
  * additionalContext / hookSpecificOutput.
@@ -20,10 +20,10 @@ import process from 'node:process';
 const SCRIPT_PATH = join(process.cwd(), 'scripts', 'verify-deliverables.mjs');
 
 function runHook(input) {
-  // Strip CLAUDE_PLUGIN_ROOT / OMC_STATE_DIR so resolveOmcStateRoot uses the
+  // Strip QODER_PLUGIN_ROOT / OMC_STATE_DIR so resolveOmcStateRoot uses the
   // inline fallback (<cwd>/.omc) and reads the fixtures written below.
   const env = { ...process.env, NODE_ENV: 'test' };
-  delete env.CLAUDE_PLUGIN_ROOT;
+  delete env.QODER_PLUGIN_ROOT;
   delete env.OMC_STATE_DIR;
   const stdout = execFileSync('node', [SCRIPT_PATH], {
     input: JSON.stringify(input),

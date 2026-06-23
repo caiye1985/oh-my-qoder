@@ -1,6 +1,6 @@
 /**
- * Tests for CLAUDE.md Merge (Task T5)
- * Tests merge-based CLAUDE.md updates with markers and backups
+ * Tests for AGENTS.md Merge (Task T5)
+ * Tests merge-based AGENTS.md updates with markers and backups
  */
 
 import { describe, it, expect } from 'vitest';
@@ -242,14 +242,14 @@ ${USER_CUSTOMIZATIONS}
     });
 
     it('handles migration from old version without markers', () => {
-      const oldContent = `# Legacy CLAUDE.md
+      const oldContent = `# Legacy AGENTS.md
 Some old configuration
 User added custom stuff here`;
 
       const result = mergeClaudeMd(oldContent, omcContent);
 
       // New OMC content should be at the top with markers
-      expect(result.indexOf(START_MARKER)).toBeLessThan(result.indexOf('# Legacy CLAUDE.md'));
+      expect(result.indexOf(START_MARKER)).toBeLessThan(result.indexOf('# Legacy AGENTS.md'));
       expect(result).toContain(omcContent);
       expect(result).toContain(oldContent);
       expect(result).toContain(USER_CUSTOMIZATIONS);
@@ -258,9 +258,9 @@ User added custom stuff here`;
 
   describe('idempotency guard', () => {
     it('strips markers from omcContent that already has markers', () => {
-      // Simulate docs/CLAUDE.md shipping with markers already
+      // Simulate docs/AGENTS.md shipping with markers already
       const omcWithMarkers = `<!-- OMC:START -->
-# oh-my-claudecode
+# oh-my-qoder
 Agent instructions here
 <!-- OMC:END -->`;
 
@@ -367,7 +367,7 @@ My note after duplicate block`;
 Old OMC content
 ${END_MARKER}
 
-<!-- User customizations (migrated from previous CLAUDE.md) -->
+<!-- User customizations (migrated from previous AGENTS.md) -->
 First user note
 
 <!-- User customizations -->

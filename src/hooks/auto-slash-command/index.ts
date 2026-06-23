@@ -2,9 +2,9 @@
  * Auto Slash Command Hook
  *
  * Detects and expands slash commands in user prompts.
- * Complements Claude Code's native slash command system by adding:
- * - Skill-based commands from ~/.claude/skills/ and .claude/skills/
- * - Project-level commands from .claude/commands/
+ * Complements Qoder's native slash command system by adding:
+ * - Skill-based commands from ~/.qoder/skills/ and .qoder/skills/
+ * - Project-level commands from .qoder/commands/
  * - Template expansion with $ARGUMENTS placeholder
  *
  * Adapted from oh-my-opencode's auto-slash-command hook.

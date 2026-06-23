@@ -422,7 +422,7 @@ describe("planning/artifacts", () => {
       expect(result!.mode).toBe("team");
       expect(result!.task).toBe("implement auth");
       expect(result!.workerCount).toBe(3);
-      expect(result!.agentType).toBe("claude");
+      expect(result!.agentType).toBe("qoder");
       expect(result!.linkedRalph).toBe(false);
       expect(result!.sourcePath).toContain("prd-feature.md");
     });

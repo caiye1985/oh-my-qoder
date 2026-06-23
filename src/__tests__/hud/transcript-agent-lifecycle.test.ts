@@ -214,7 +214,7 @@ describe("HUD transcript — agent lifecycle", () => {
           },
         },
         // Task-notification arrives later as a user-role message with
-        // STRING-shaped content (real Claude Code shape).
+        // STRING-shaped content (real Qoder shape).
         {
           timestamp: "2026-04-07T00:10:00.000Z",
           message: {

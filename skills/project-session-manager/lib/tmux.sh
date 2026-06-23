@@ -33,7 +33,7 @@ psm_create_tmux_session() {
     return 0
 }
 
-# Launch Claude Code in tmux session, optionally injecting either a context-file
+# Launch Qoder in tmux session, optionally injecting either a context-file
 # trigger prompt or a literal initial prompt.
 # Usage: psm_launch_claude <session_name> [initial_context]
 # initial_context may be either:
@@ -133,7 +133,7 @@ psm_wait_for_claude_prompt() {
     return 1
 }
 
-# Wait for Claude's REPL to be ready then inject a context-file trigger prompt.
+# Wait for Qoder's REPL to be ready then inject a context-file trigger prompt.
 # Non-fatal: warns on timeout but does not fail the session creation.
 # Usage: psm_inject_prompt <session_name> <context_file_relative_path>
 psm_inject_prompt() {
@@ -141,7 +141,7 @@ psm_inject_prompt() {
     local context_file="$2"
 
     if ! psm_wait_for_claude_prompt "$session_name"; then
-        echo "warn|Timed out waiting for Claude prompt; task context not injected" >&2
+        echo "warn|Timed out waiting for Qoder prompt; task context not injected" >&2
         return 0
     fi
 

@@ -1,7 +1,7 @@
 import { spawnSync } from 'child_process';
 
 const OMC_CLI_BINARY = 'omc';
-const OMC_PLUGIN_BRIDGE_PREFIX = 'node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs';
+const OMC_PLUGIN_BRIDGE_PREFIX = 'node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs';
 
 export interface OmcCliRenderOptions {
   env?: NodeJS.ProcessEnv;
@@ -24,7 +24,7 @@ export function resolveOmcCliPrefix(options: OmcCliRenderOptions = {}): string {
     return OMC_CLI_BINARY;
   }
 
-  const pluginRoot = typeof env.CLAUDE_PLUGIN_ROOT === 'string' ? env.CLAUDE_PLUGIN_ROOT.trim() : '';
+  const pluginRoot = typeof env.QODER_PLUGIN_ROOT === 'string' ? env.QODER_PLUGIN_ROOT.trim() : '';
   if (pluginRoot) {
     return OMC_PLUGIN_BRIDGE_PREFIX;
   }

@@ -83,7 +83,7 @@ World`);
       const result = sanitizeForKeywordDetection(`Investigate why this pasted transcript branched sessions:
 
 [MAGIC KEYWORD: RALPH]
-Skill: oh-my-claudecode:ralph
+Skill: oh-my-qoder:ralph
 User request:
 ralph fix parser
 
@@ -92,7 +92,7 @@ Summarize the failure mode only.`);
       expect(result).toContain('Investigate why this pasted transcript branched sessions:');
       expect(result).toContain('Summarize the failure mode only.');
       expect(result).not.toContain('[MAGIC KEYWORD: RALPH]');
-      expect(result).not.toContain('Skill: oh-my-claudecode:ralph');
+      expect(result).not.toContain('Skill: oh-my-qoder:ralph');
       expect(result).not.toContain('ralph fix parser');
     });
 
@@ -117,14 +117,14 @@ What actually caused the regression?`);
       const result = sanitizeForKeywordDetection(`Please explain this transcript:
 <assistant>
 [MAGIC KEYWORD: AUTOPILOT]
-Skill: oh-my-claudecode:autopilot
+Skill: oh-my-qoder:autopilot
 </assistant>
 Why did this happen?`);
 
       expect(result).toContain('Please explain this transcript:');
       expect(result).toContain('Why did this happen?');
       expect(result).not.toContain('AUTOPILOT');
-      expect(result).not.toContain('Skill: oh-my-claudecode:autopilot');
+      expect(result).not.toContain('Skill: oh-my-qoder:autopilot');
     });
 
     it('should strip XML tag blocks', () => {
@@ -555,7 +555,7 @@ OMC Ultrawork = "특수부대 작전 반"
         const result = detectKeywordsWithType(`Investigate why this pasted transcript branched sessions:
 
 [MAGIC KEYWORD: RALPH]
-Skill: oh-my-claudecode:ralph
+Skill: oh-my-qoder:ralph
 User request:
 ralph fix parser`);
 
@@ -892,8 +892,8 @@ This article argues that fake popularity signals damage trust in open source.`;
         expect(ccgMatch?.keyword).toMatch(/ccg/i);
       });
 
-      it('should detect "claude-codex-gemini" keyword', () => {
-        const result = detectKeywordsWithType('use claude-codex-gemini to build this');
+      it('should detect "qoderx-gemini" keyword', () => {
+        const result = detectKeywordsWithType('use qoderx-gemini to build this');
         const ccgMatch = result.find((r) => r.type === 'ccg');
         expect(ccgMatch).toBeDefined();
       });
@@ -1254,7 +1254,7 @@ This article argues that fake popularity signals damage trust in open source.`;
     });
 
     // Team keyword detection disabled — team is now explicit-only via /team skill
-    // to prevent infinite spawning when Claude workers receive prompts containing "team".
+    // to prevent infinite spawning when Qoder workers receive prompts containing "team".
     it('should NOT detect team keyword (explicit-only mode)', () => {
       const result = getAllKeywords('team build the API');
       expect(result).not.toContain('team');
@@ -2508,8 +2508,8 @@ This article argues that fake popularity signals damage trust in open source.`;
       expect(result.find((r) => r.type === 'ralph')).toBeUndefined();
     });
 
-    it('inline backtick `/oh-my-claudecode:ralph` does NOT detect ralph', () => {
-      const result = detectKeywordsWithType('run `/oh-my-claudecode:ralph` if needed');
+    it('inline backtick `/oh-my-qoder:ralph` does NOT detect ralph', () => {
+      const result = detectKeywordsWithType('run `/oh-my-qoder:ralph` if needed');
       expect(result.find((r) => r.type === 'ralph')).toBeUndefined();
     });
 
@@ -2525,18 +2525,18 @@ This article argues that fake popularity signals damage trust in open source.`;
   });
 
   // -------------------------------------------------------------------------
-  // Unified prefix detector (spec g) — /skill, /omc:skill, /oh-my-claudecode:skill
+  // Unified prefix detector (spec g) — /skill, /omc:skill, /oh-my-qoder:skill
   // all seed the same canonical state (T3 implementation required)
   // -------------------------------------------------------------------------
 
-  describe('unified prefix detector: /omc: and /oh-my-claudecode: forms (spec g)', () => {
+  describe('unified prefix detector: /omc: and /oh-my-qoder: forms (spec g)', () => {
     it('/omc:ralph fix auth detects ralph', () => {
       const result = detectKeywordsWithType('/omc:ralph fix auth');
       expect(result.find((r) => r.type === 'ralph')).toBeDefined();
     });
 
-    it('/oh-my-claudecode:ralph fix auth detects ralph', () => {
-      const result = detectKeywordsWithType('/oh-my-claudecode:ralph fix auth');
+    it('/oh-my-qoder:ralph fix auth detects ralph', () => {
+      const result = detectKeywordsWithType('/oh-my-qoder:ralph fix auth');
       expect(result.find((r) => r.type === 'ralph')).toBeDefined();
     });
 
@@ -2607,8 +2607,8 @@ This article argues that fake popularity signals damage trust in open source.`;
       expect(result!.skill).toBe('ralph');
     });
 
-    it('parses /oh-my-claudecode:ralph and normalizes skill name', () => {
-      const result = parseExplicitWorkflowSlashInvocation('/oh-my-claudecode:ralph debug this');
+    it('parses /oh-my-qoder:ralph and normalizes skill name', () => {
+      const result = parseExplicitWorkflowSlashInvocation('/oh-my-qoder:ralph debug this');
       expect(result).not.toBeNull();
       expect(result!.skill).toBe('ralph');
     });
@@ -2661,7 +2661,7 @@ This article argues that fake popularity signals damage trust in open source.`;
     it('all three prefix forms produce the same skill name for autopilot', () => {
       const bare = parseExplicitWorkflowSlashInvocation('/autopilot go');
       const omc = parseExplicitWorkflowSlashInvocation('/omc:autopilot go');
-      const full = parseExplicitWorkflowSlashInvocation('/oh-my-claudecode:autopilot go');
+      const full = parseExplicitWorkflowSlashInvocation('/oh-my-qoder:autopilot go');
       expect(bare!.skill).toBe('autopilot');
       expect(omc!.skill).toBe('autopilot');
       expect(full!.skill).toBe('autopilot');

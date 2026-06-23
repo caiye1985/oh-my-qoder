@@ -11,14 +11,14 @@ import { spawn } from 'child_process';
 import { join, dirname, basename, resolve, relative, isAbsolute } from 'path';
 import { homedir } from 'os';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { getClaudeConfigDir, getUpdateCheckCachePath } from './lib/config-dir.mjs';
+import { getQoderConfigDir, getUpdateCheckCachePath } from './lib/config-dir.mjs';
 import { resolveOmcStateRoot } from './lib/state-root.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/** Claude config directory (respects CLAUDE_CONFIG_DIR env var) */
-const configDir = getClaudeConfigDir();
+/** Qoder config directory (respects QODER_CONFIG_DIR env var) */
+const configDir = getQoderConfigDir();
 
 // Import timeout-protected stdin reader (prevents hangs on Linux/Windows, see issue #240, #524)
 let readStdin;
@@ -128,7 +128,7 @@ function removeSessionStartedMarker(omcRoot, sessionId) {
 /**
  * Return true only when SessionStart has durable abandonment evidence.
  *
- * Claude Code SessionStart input currently provides session metadata such as
+ * Qoder SessionStart input currently provides session metadata such as
  * session_id, transcript_path, cwd, source, model, and agent_type, but no
  * stable owner process for the interactive session. In installed OMC hooks the
  * immediate hook parent belongs to scripts/run.cjs and is intentionally
@@ -143,7 +143,7 @@ function hasDurableAbandonmentEvidence(marker) {
     return true;
   }
 
-  // Same-boot hard-kill cleanup requires a durable owner signal. Claude Code
+  // Same-boot hard-kill cleanup requires a durable owner signal. Qoder
   // does not currently provide one to hooks, so keep active state rather than
   // guessing from hook-runner process ancestry or transcript metadata.
   return false;
@@ -225,7 +225,7 @@ function reconcileAbandonedSessionStarts(omcRoot, currentSessionId) {
 }
 
 function getRuntimeBaseDir() {
-  return process.env.CLAUDE_PLUGIN_ROOT || join(__dirname, '..');
+  return process.env.QODER_PLUGIN_ROOT || join(__dirname, '..');
 }
 
 async function loadProjectMemoryModules() {
@@ -414,11 +414,11 @@ function isTruthyProviderFlag(value) {
 }
 
 function getSessionModelId() {
-  return process.env.CLAUDE_MODEL || process.env.ANTHROPIC_MODEL || '';
+  return process.env.QODER_MODEL || process.env.ANTHROPIC_MODEL || '';
 }
 
 function isBedrockSession() {
-  if (isTruthyProviderFlag(process.env.CLAUDE_CODE_USE_BEDROCK)) return true;
+  if (isTruthyProviderFlag(process.env.QODER_USE_BEDROCK)) return true;
   const modelId = getSessionModelId();
   return Boolean(
     modelId && (
@@ -426,14 +426,14 @@ function isBedrockSession() {
       (
         /^arn:aws(-[^:]+)?:bedrock:/i.test(modelId) &&
         /:(inference-profile|application-inference-profile)\//i.test(modelId) &&
-        modelId.toLowerCase().includes('claude')
+        modelId.toLowerCase().includes('qoder')
       )
     )
   );
 }
 
 function isVertexSession() {
-  if (isTruthyProviderFlag(process.env.CLAUDE_CODE_USE_VERTEX)) return true;
+  if (isTruthyProviderFlag(process.env.QODER_USE_VERTEX)) return true;
   const modelId = getSessionModelId();
   return Boolean(modelId && modelId.toLowerCase().startsWith('vertex_ai/'));
 }
@@ -460,7 +460,7 @@ function shouldEmitModelRoutingOverride(directory) {
   if (isBedrockSession() || isVertexSession()) return true;
 
   const modelId = getSessionModelId();
-  if (modelId && !modelId.toLowerCase().includes('claude')) return true;
+  if (modelId && !modelId.toLowerCase().includes('qoder')) return true;
 
   const baseUrl = process.env.ANTHROPIC_BASE_URL || '';
   if (baseUrl && !baseUrl.includes('anthropic.com')) return true;
@@ -481,8 +481,8 @@ function formatUpdateNoticeForUser(updateInfo, options = {}) {
   const currentVersion = updateInfo?.currentVersion || 'unknown';
   const action = options.autoUpgradePrompt === false
     ? 'To update later, run: omc update'
-    : 'Run /update to upgrade now, or use /plugin install oh-my-claudecode';
-  return `[OMC UPDATE AVAILABLE] oh-my-claudecode v${latestVersion} is available (current: v${currentVersion}). ${action}`;
+    : 'Run /update to upgrade now, or use /plugin install oh-my-qoder';
+  return `[OMC UPDATE AVAILABLE] oh-my-qoder v${latestVersion} is available (current: v${currentVersion}). ${action}`;
 }
 
 function buildSessionStartAdditionalContext(messages) {
@@ -530,14 +530,14 @@ function buildSessionStartAdditionalContext(messages) {
   return selected.join('\n');
 }
 
-// Extract OMC version from CLAUDE.md content
+// Extract OMC version from AGENTS.md content
 function extractOmcVersion(content) {
   const match = content.match(/<!-- OMC:VERSION:(\d+\.\d+\.\d+[^\s]*?) -->/);
   return match ? match[1] : null;
 }
 
 function getPluginCacheBase() {
-  return join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+  return join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
 }
 
 function isPathInsideOrEqual(parent, child) {
@@ -553,7 +553,7 @@ function isManagedPluginCacheRoot(pluginRoot) {
   // A stale root can come from an older config-dir location; the canonical
   // cache path shape still proves it is an OMC managed cache version.
   const unixRoot = normalizedRoot.replace(/\\/g, '/');
-  return /\/plugins\/cache\/omc\/oh-my-claudecode\/\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(unixRoot);
+  return /\/plugins\/cache\/omc\/oh-my-qoder\/\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(unixRoot);
 }
 
 function getLatestPluginCacheVersion() {
@@ -569,10 +569,10 @@ function getLatestPluginCacheVersion() {
   } catch { return null; }
 }
 
-// Get plugin version from CLAUDE_PLUGIN_ROOT
+// Get plugin version from QODER_PLUGIN_ROOT
 function getPluginVersion() {
   try {
-    const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+    const pluginRoot = process.env.QODER_PLUGIN_ROOT;
     if (!pluginRoot) return null;
     const pkg = readJsonFile(join(pluginRoot, 'package.json'));
     const latestCacheVersion = isManagedPluginCacheRoot(pluginRoot) ? getLatestPluginCacheVersion() : null;
@@ -592,10 +592,10 @@ function getNpmVersion() {
   } catch { return null; }
 }
 
-// Get CLAUDE.md version
+// Get AGENTS.md version
 function getClaudeMdVersion() {
   try {
-    const claudeMdPath = join(configDir, 'CLAUDE.md');
+    const claudeMdPath = join(configDir, 'AGENTS.md');
     if (!existsSync(claudeMdPath)) return null;  // File doesn't exist
     const content = readFileSync(claudeMdPath, 'utf-8');
     const version = extractOmcVersion(content);
@@ -620,13 +620,13 @@ function detectVersionDrift() {
 
   if (claudeMdVersion === 'unknown') {
     drift.push({
-      component: 'CLAUDE.md instructions',
+      component: 'AGENTS.md instructions',
       current: 'unknown (needs migration)',
       expected: pluginVersion
     });
   } else if (claudeMdVersion && claudeMdVersion !== pluginVersion) {
     drift.push({
-      component: 'CLAUDE.md instructions',
+      component: 'AGENTS.md instructions',
       current: claudeMdVersion,
       expected: pluginVersion
     });
@@ -640,7 +640,7 @@ function detectVersionDrift() {
 // Check if we should notify (once per unique drift combination)
 function shouldNotifyDrift(driftInfo) {
   const stateFile = join(configDir, '.omc', 'update-state.json');
-  const driftKey = `plugin:${driftInfo.pluginVersion}-npm:${driftInfo.npmVersion}-claude:${driftInfo.claudeMdVersion}`;
+  const driftKey = `plugin:${driftInfo.pluginVersion}-npm:${driftInfo.npmVersion}-qoder:${driftInfo.claudeMdVersion}`;
 
   try {
     if (existsSync(stateFile)) {
@@ -684,7 +684,7 @@ async function checkNpmUpdate(currentVersion) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 2000);
   try {
-    const response = await fetch('https://registry.npmjs.org/oh-my-claude-sisyphus/latest', {
+    const response = await fetch('https://registry.npmjs.org/oh-my-qoder/latest', {
       signal: controller.signal
     });
     if (!response.ok) return null;
@@ -752,7 +752,7 @@ async function checkHudInstallation(retryCount = 0) {
 
       // If OMC HUD wrapper is configured, ensure at least one plugin cache version is built.
       if (statusLineCommand?.includes('omc-hud')) {
-        const pluginCacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+        const pluginCacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
         if (existsSync(pluginCacheBase)) {
           const versions = readdirSync(pluginCacheBase)
             .filter(version => !version.startsWith('.'))
@@ -808,7 +808,7 @@ async function main() {
 
     // Fire sibling-retrofit warning once per session (lifted off getOmcRoot hot path)
     try {
-      const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+      const pluginRoot = process.env.QODER_PLUGIN_ROOT;
       if (pluginRoot) {
         const { findWorkspaceRoot, warnSiblingRetrofit } = await import(
           pathToFileURL(join(pluginRoot, 'dist', 'lib', 'worktree-paths.js')).href
@@ -847,7 +847,7 @@ async function main() {
     } catch {}
 
     // Warn if silentAutoUpdate is enabled but running in plugin mode (#1773)
-    if (process.env.CLAUDE_PLUGIN_ROOT) {
+    if (process.env.QODER_PLUGIN_ROOT) {
       try {
         const omcConfigPath = join(configDir, '.omc-config.json');
         const omcConfig = readJsonFile(omcConfigPath);
@@ -861,7 +861,7 @@ async function main() {
     const hudCheck = await checkHudInstallation();
     if (!hudCheck.installed) {
       messages.push(`<system-reminder>
-[OMC] HUD not configured (${hudCheck.reason}). Run /hud setup then restart Claude Code.
+[OMC] HUD not configured (${hudCheck.reason}). Run /hud setup then restart Qoder.
 </system-reminder>`);
     }
 
@@ -935,9 +935,9 @@ Treat this as prior-session context only. Prioritize the user's newest request, 
     }
 
     // Check for incomplete todos (project-local only, not global
-    // [$CLAUDE_CONFIG_DIR|~/.claude]/todos/)
+    // [$QODER_CONFIG_DIR|~/.qoder]/todos/)
     // NOTE: We intentionally do NOT scan the global
-    // [$CLAUDE_CONFIG_DIR|~/.claude]/todos/ directory.
+    // [$QODER_CONFIG_DIR|~/.qoder]/todos/ directory.
     // That directory accumulates todo files from ALL past sessions across all
     // projects, causing phantom task counts in fresh sessions (see issue #354).
     const localTodoPaths = [
@@ -1014,9 +1014,9 @@ ${cleanContent}
     // Cleanup old plugin cache versions (keep latest 2, symlink the rest)
     // Instead of deleting old versions, replace them with symlinks to the latest.
     // This prevents "Cannot find module" errors for sessions started before a
-    // plugin update whose CLAUDE_PLUGIN_ROOT still points to the old version.
+    // plugin update whose QODER_PLUGIN_ROOT still points to the old version.
     try {
-      const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+      const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
       let versions = [];
       if (existsSync(cacheBase)) {
         versions = readdirSync(cacheBase)
@@ -1077,12 +1077,12 @@ ${cleanContent}
         }
       }
 
-      // Guard against CLAUDE_PLUGIN_ROOT pointing to a stale/deleted version.
+      // Guard against QODER_PLUGIN_ROOT pointing to a stale/deleted version.
       // When an old version directory is removed during upgrade but a running
-      // session still has the old CLAUDE_PLUGIN_ROOT in its environment, the
+      // session still has the old QODER_PLUGIN_ROOT in its environment, the
       // directory won't exist. Create a symlink so subsequent hook invocations
       // via run.cjs resolve correctly.
-      const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT?.replace(/[\/\\]+$/, ''); // strip trailing separators
+      const pluginRoot = process.env.QODER_PLUGIN_ROOT?.replace(/[\/\\]+$/, ''); // strip trailing separators
       if (pluginRoot && !existsSync(pluginRoot)) {
         const pluginRootVersion = basename(pluginRoot);
         if (/^\d+\.\d+\.\d+/.test(pluginRootVersion) && versions.length > 0) {
@@ -1119,7 +1119,7 @@ ${cleanContent}
     // Notification transports/custom integrations must never write into this
     // foreground hook's stdout JSON protocol or stderr CI checks.
     try {
-      const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+      const pluginRoot = process.env.QODER_PLUGIN_ROOT;
       if (pluginRoot) {
         dispatchSessionStartNotificationInBackground(pluginRoot, {
           sessionId,

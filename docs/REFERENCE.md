@@ -1,6 +1,6 @@
 # Reference Documentation
 
-Complete reference for oh-my-claudecode. For quick start, see the main [README.md](../README.md).
+Complete reference for oh-my-qoder. For quick start, see the main [README.md](../README.md).
 
 ---
 
@@ -16,7 +16,7 @@ Complete reference for oh-my-claudecode. For quick start, see the main [README.m
 - [Goal Workflow UX: `/goal`, Ralph, Team, UltraQA, Ultragoal](#goal-workflow-ux-goal-ralph-team-ultraqa-ultragoal)
 - [Skills (38 Total)](#skills-38-total)
 - [Slash Commands](#slash-commands)
-- [Claude Code `/goal` Adapter Design](#claude-code-goal-adapter-design)
+- [Qoder `/goal` Adapter Design](#qoder-goal-adapter-design)
 - [Hooks System](#hooks-system)
 - [Magic Keywords](#magic-keywords)
 - [Platform Support](#platform-support)
@@ -28,34 +28,34 @@ Complete reference for oh-my-claudecode. For quick start, see the main [README.m
 
 ## Installation
 
-OMC has two supported public surfaces. Use the Claude Code plugin for in-session slash commands, hooks, agents, skills, and statusline behavior. Use the npm-installed `omc` CLI for terminal commands, setup/update automation, and CI-safe checks.
+OMC has two supported public surfaces. Use the Qoder plugin for in-session slash commands, hooks, agents, skills, and statusline behavior. Use the npm-installed `omc` CLI for terminal commands, setup/update automation, and CI-safe checks.
 
-### Claude Code Plugin
+### Qoder Plugin
 
 ```bash
 # Step 1: Add the marketplace
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
 
 # Step 2: Install the plugin
-/plugin install oh-my-claudecode
+/plugin install oh-my-qoder
 ```
 
-This integrates directly with Claude Code's plugin system and uses Node.js hooks.
+This integrates directly with Qoder's plugin system and uses Node.js hooks.
 
 ### Terminal CLI
 
 ```bash
-npm i -g oh-my-claude-sisyphus@latest
+npm i -g oh-my-qoder@latest
 omc setup
 ```
 
-The npm package exposes both `oh-my-claudecode` and `omc`; examples prefer `omc` unless troubleshooting needs the long alias. The CLI does not make in-session slash skills available by itself; install the plugin for `/autopilot`, `/ralph`, `/team`, and other interactive skills.
+The npm package exposes both `oh-my-qoder` and `omc`; examples prefer `omc` unless troubleshooting needs the long alias. The CLI does not make in-session slash skills available by itself; install the plugin for `/autopilot`, `/ralph`, `/team`, and other interactive skills.
 
 ### Requirements
 
-- [Claude Code](https://docs.anthropic.com/claude-code) installed
+- [Qoder](https://docs.anthropic.com/qoder) installed
 - One of:
-  - **Claude Max/Pro subscription** (recommended for individuals)
+  - **Qoder Max/Pro subscription** (recommended for individuals)
   - **Anthropic API key** (`ANTHROPIC_API_KEY` environment variable)
 
 ---
@@ -67,26 +67,26 @@ The npm package exposes both `oh-my-claudecode` and `omc`; examples prefer `omc`
 Configure omc for the current project only:
 
 ```
-/oh-my-claudecode:omc-setup --local
+/oh-my-qoder:omc-setup --local
 ```
 
-- Creates `./.claude/CLAUDE.md` in your current project
+- Creates `./.qoder/AGENTS.md` in your current project
 - Configuration applies only to this project
 - Won't affect other projects or global settings
-- **Safe**: Preserves your global CLAUDE.md
+- **Safe**: Preserves your global AGENTS.md
 
 ### Global Configuration
 
-Configure omc for all Claude Code sessions:
+Configure omc for all Qoder sessions:
 
 ```
-/oh-my-claudecode:omc-setup
+/oh-my-qoder:omc-setup
 ```
 
-- Creates `~/.claude/CLAUDE.md` globally
+- Creates `~/.qoder/AGENTS.md` globally
 - Configuration applies to all projects
-- **Default**: explicitly overwrites existing `~/.claude/CLAUDE.md`
-- **Optional preserve mode**: keeps the base file, writes OMC to `~/.claude/CLAUDE-omc.md`, and lets `omc` force-load that companion config at launch while plain `claude` stays unchanged
+- **Default**: explicitly overwrites existing `~/.qoder/AGENTS.md`
+- **Optional preserve mode**: keeps the base file, writes OMC to `~/.qoder/CLAUDE-omc.md`, and lets `omc` force-load that companion config at launch while plain `claude` stays unchanged
 
 ### What Configuration Enables
 
@@ -103,7 +103,7 @@ Configure omc for all Claude Code sessions:
 If both configurations exist, **project-scoped takes precedence** over global:
 
 ```
-./.claude/CLAUDE.md  (project)   →  Overrides  →  ~/.claude/CLAUDE.md  (global)
+./.qoder/AGENTS.md  (project)   →  Overrides  →  ~/.qoder/AGENTS.md  (global)
 ```
 
 ### Environment Variables
@@ -129,10 +129,10 @@ By default, OMC stores state in `{worktree}/.omc/`. This is lost when worktrees 
 
 ```bash
 # In your shell profile (~/.bashrc, ~/.zshrc, etc.)
-export OMC_STATE_DIR="$HOME/.claude/omc"
+export OMC_STATE_DIR="$HOME/.qoder/omc"
 ```
 
-This resolves to `~/.claude/omc/{project-identifier}/` where the project identifier uses a hash of the git remote URL (stable across worktrees/clones) with a fallback to the directory path hash for local-only repos.
+This resolves to `~/.qoder/omc/{project-identifier}/` where the project identifier uses a hash of the git remote URL (stable across worktrees/clones) with a fallback to the directory path hash for local-only repos.
 
 If both a legacy `{worktree}/.omc/` directory and a centralized directory exist, OMC logs a notice and uses the centralized directory. You can then migrate data from the legacy directory and remove it.
 
@@ -181,7 +181,7 @@ Resolution order inside `getOmcRoot()`:
 3. `git rev-parse --show-toplevel` (monorepo / single repo).
 4. `process.cwd()` (last resort).
 
-Once a workspace is anchored, multiple Claude Code sessions in different sub-repos can run `/ultragoal`, `/ralph`, `/ultrawork`, `/autopilot` in parallel without bleeding state. For `/ultragoal` specifically, pass `--plan-id <id>` or `--auto-plan-id` on `create-goals` so each session writes to `.omc/ultragoal/plans/{planId}/` instead of the shared `goals.json` — see "ultragoal multi-plan" below. The PARALLEL SESSION WARNING in `session-start.mjs` performs a PID-aware liveness check and no longer suppresses restore when the owner session is dead.
+Once a workspace is anchored, multiple Qoder sessions in different sub-repos can run `/ultragoal`, `/ralph`, `/ultrawork`, `/autopilot` in parallel without bleeding state. For `/ultragoal` specifically, pass `--plan-id <id>` or `--auto-plan-id` on `create-goals` so each session writes to `.omc/ultragoal/plans/{planId}/` instead of the shared `goals.json` — see "ultragoal multi-plan" below. The PARALLEL SESSION WARNING in `session-start.mjs` performs a PID-aware liveness check and no longer suppresses restore when the owner session is dead.
 
 #### `.omc/handoffs/` shared contract
 
@@ -189,7 +189,7 @@ Once a workspace is anchored, multiple Claude Code sessions in different sub-rep
 
 **Only the `team` skill writes to `.omc/handoffs/`.** All other code that reads the directory does so read-only. This is enforced by the lint test `tests/lint/handoffs-writers.test.ts`, which scans `src/**` and `templates/**` and fails if any file outside `src/team/` or `src/hooks/team-pipeline/` references `handoffs/` as a write target.
 
-- Handoff files survive team cancellation and OMC state cleanup intentionally — they are post-mortem artifacts. Claude Code 2.1.178+ has no `TeamDelete`.
+- Handoff files survive team cancellation and OMC state cleanup intentionally — they are post-mortem artifacts. Qoder 2.1.178+ has no `TeamDelete`.
 - Do **not** session-scope `.omc/handoffs/` unless the `team` skill explicitly evolves to per-session inboxes (tracked as a follow-up in the ADR).
 
 #### Branded path types (`ReadPath` / `WritePath`)
@@ -266,10 +266,10 @@ Multi-plan layout, enabled by `--plan-id <id>` or `--auto-plan-id` on `omc ultra
 
 - **First time**: Run after installation (choose project or global)
 - **After updates**: Re-run to get the latest configuration
-- **Different machines**: Run on each machine where you use Claude Code
-- **New projects**: Run `/oh-my-claudecode:omc-setup --local` in each project that needs omc
+- **Different machines**: Run on each machine where you use Qoder
+- **New projects**: Run `/oh-my-qoder:omc-setup --local` in each project that needs omc
 
-> **NOTE**: After updating the plugin (via `npm update`, `git pull`, or Claude Code's plugin update), you MUST re-run `/oh-my-claudecode:omc-setup` to apply the latest CLAUDE.md changes.
+> **NOTE**: After updating the plugin (via `npm update`, `git pull`, or Qoder's plugin update), you MUST re-run `/oh-my-qoder:omc-setup` to apply the latest AGENTS.md changes.
 
 ### Remote OMC / Remote MCP Access
 
@@ -304,8 +304,8 @@ OMC also supports a narrow company-context contract on top of the existing MCP s
 
 Configure it in the standard OMC config files:
 
-- Project: `.claude/omc.jsonc`
-- User: `~/.config/claude-omc/config.jsonc`
+- Project: `.qoder/omc.jsonc`
+- User: `~/.config/qoder-omc/config.jsonc`
 
 ```jsonc
 {
@@ -324,7 +324,7 @@ This remains a prompt-level workflow contract, not runtime enforcement. For the 
 
 ### Agent Customization
 
-Edit agent files in `~/.claude/agents/` to customize behavior:
+Edit agent files in `~/.qoder/agents/` to customize behavior:
 
 ```yaml
 ---
@@ -332,17 +332,17 @@ name: architect
 description: Your custom description
 tools: Read, Grep, Glob, Bash, Edit
 model: opus # or sonnet, haiku
-# Optional: effort inherits from the parent Claude Code session unless you add an explicit override.
+# Optional: effort inherits from the parent Qoder session unless you add an explicit override.
 # effort: high
 ---
 Your custom system prompt here...
 ```
 
-Bundled OMC agent prompts currently do **not** ship an `effort:` frontmatter field. Any effort language inside `agents/*.md` is behavioral guidance for the prompt body, while runtime effort inherits from the parent Claude Code session unless the agent markdown explicitly declares an override.
+Bundled OMC agent prompts currently do **not** ship an `effort:` frontmatter field. Any effort language inside `agents/*.md` is behavioral guidance for the prompt body, while runtime effort inherits from the parent Qoder session unless the agent markdown explicitly declares an override.
 
 ### Project-Level Config
 
-Create `.claude/CLAUDE.md` in your project for project-specific instructions:
+Create `.qoder/AGENTS.md` in your project for project-specific instructions:
 
 ```markdown
 # Project Context
@@ -417,7 +417,7 @@ When an environment variable such as `OMC_STATE_DIR` centralizes storage, resolv
 
 ### `/goal` interoperability notes
 
-Claude Code's `/goal` feature owns its hidden goal state. OMC integrations should not mutate hidden Claude Code goal storage directly. When OMC needs a goal-related artifact, create or update an explicit OMC artifact such as `.omc/specs/<slug>.md`, `.omc/plans/<slug>.md`, or `.omc/state/<mode>.json` and record any `/goal` relationship as metadata or prose in that artifact.
+Qoder's `/goal` feature owns its hidden goal state. OMC integrations should not mutate hidden Qoder goal storage directly. When OMC needs a goal-related artifact, create or update an explicit OMC artifact such as `.omc/specs/<slug>.md`, `.omc/plans/<slug>.md`, or `.omc/state/<mode>.json` and record any `/goal` relationship as metadata or prose in that artifact.
 
 For cross-runtime handoffs:
 
@@ -439,22 +439,22 @@ When you launch OMC via a local development checkout instead of the marketplace 
 **Usage**: Non-consuming launcher flag that captures your local checkout path.
 
 ```bash
-omc --plugin-dir /path/to/oh-my-claudecode setup --plugin-dir-mode
+omc --plugin-dir /path/to/oh-my-qoder setup --plugin-dir-mode
 ```
 
-- **What it does**: Parses `--plugin-dir <path>` (or `--plugin-dir=<path>`), resolves it to an absolute path, sets `OMC_PLUGIN_ROOT` environment variable, then passes the flag through to Claude Code untouched.
-- **Non-consuming**: The flag stays in the argument list so Claude Code's plugin loader still sees it.
+- **What it does**: Parses `--plugin-dir <path>` (or `--plugin-dir=<path>`), resolves it to an absolute path, sets `OMC_PLUGIN_ROOT` environment variable, then passes the flag through to Qoder untouched.
+- **Non-consuming**: The flag stays in the argument list so Qoder's plugin loader still sees it.
 - **Precedence**: Explicit `--plugin-dir` flag wins over any pre-existing `OMC_PLUGIN_ROOT` env var (with a warning if they disagree).
 - **Resolution**: Relative paths are resolved to absolute via `path.resolve()`. Note: `~` is **not** expanded — use `$HOME` or an absolute path instead.
-- **Pair with setup**: `--plugin-dir` alone only affects the current Claude session. You must **also** run `omc setup --plugin-dir-mode` (or let auto-detection kick in from `OMC_PLUGIN_ROOT`) so HUD, hooks, and CLAUDE.md are installed for the linked checkout. Skipping this step leaves `~/.claude/` pointing at a stale plugin root.
+- **Pair with setup**: `--plugin-dir` alone only affects the current Qoder session. You must **also** run `omc setup --plugin-dir-mode` (or let auto-detection kick in from `OMC_PLUGIN_ROOT`) so HUD, hooks, and AGENTS.md are installed for the linked checkout. Skipping this step leaves `~/.qoder/` pointing at a stale plugin root.
 
-### `claude --plugin-dir <path>` (direct)
+### `qodercli --plugin-dir <path>` (direct)
 
-**Usage**: When you launch Claude Code directly without the `omc` shim.
+**Usage**: When you launch Qoder directly without the `omc` shim.
 
 ```bash
-export OMC_PLUGIN_ROOT=/path/to/oh-my-claudecode
-claude --plugin-dir /path/to/oh-my-claudecode
+export OMC_PLUGIN_ROOT=/path/to/oh-my-qoder
+qodercli --plugin-dir /path/to/oh-my-qoder
 ```
 
 - **Requirement**: You must manually set `OMC_PLUGIN_ROOT` environment variable so the HUD wrapper and other env-aware components can resolve the same path as the plugin loader.
@@ -469,11 +469,11 @@ claude --plugin-dir /path/to/oh-my-claudecode
 omc setup --plugin-dir-mode
 ```
 
-- **What it does**: Skips copying agents and bundled skills into `~/.claude/` because the plugin already provides them at runtime via `--plugin-dir`.
+- **What it does**: Skips copying agents and bundled skills into `~/.qoder/` because the plugin already provides them at runtime via `--plugin-dir`.
 - **Still installs**:
-  - HUD bundle (`~/.claude/hud/`)
+  - HUD bundle (`~/.qoder/hud/`)
   - Git hooks (`.git/hooks/`, if applicable)
-  - CLAUDE.md configuration files
+  - AGENTS.md configuration files
   - `.omc-config.json` state
 - **Conflicts with `--no-plugin`**: If both flags are set, `--no-plugin` takes precedence (with a warning).
 - **Auto-detection**: If `OMC_PLUGIN_ROOT` is already set in the environment, `--plugin-dir-mode` is auto-enabled (unless `--no-plugin` overrides it).
@@ -483,8 +483,8 @@ omc setup --plugin-dir-mode
 **Usage**: Run diagnostics with a specific plugin directory.
 
 ```bash
-omc doctor --plugin-dir /path/to/oh-my-claudecode
-omc doctor conflicts --plugin-dir /path/to/oh-my-claudecode
+omc doctor --plugin-dir /path/to/oh-my-qoder
+omc doctor conflicts --plugin-dir /path/to/oh-my-qoder
 ```
 
 - **What it does**: Resolves the provided path to absolute, sets `OMC_PLUGIN_ROOT` before the doctor action runs, matching `launch.ts` semantics.
@@ -494,26 +494,26 @@ omc doctor conflicts --plugin-dir /path/to/oh-my-claudecode
 
 ### `OMC_PLUGIN_ROOT` environment variable
 
-**Usage**: Authoritative source for the active plugin root when launching Claude Code.
+**Usage**: Authoritative source for the active plugin root when launching Qoder.
 
 ```bash
-export OMC_PLUGIN_ROOT=/path/to/oh-my-claudecode
-claude --plugin-dir /path/to/oh-my-claudecode
+export OMC_PLUGIN_ROOT=/path/to/oh-my-qoder
+qodercli --plugin-dir /path/to/oh-my-qoder
 ```
 
 - **Set by**: `omc --plugin-dir <path>` launcher (via `src/cli/launch.ts`).
 - **Read by**: HUD wrapper, setup auto-detect, doctor diagnostics.
-- **Required when**: Using `claude --plugin-dir` directly (without the `omc` shim), so downstream components can resolve the same path.
+- **Required when**: Using `qodercli --plugin-dir` directly (without the `omc` shim), so downstream components can resolve the same path.
 - **Precedence**: Explicit CLI flags override this env var (with warnings).
 
 ### Decision matrix: which flag/mode to use?
 
 | Your setup                            | Launch command                                               | Setup command                   | Expected behavior                                                   |
 | ------------------------------------- | ------------------------------------------------------------ | ------------------------------- | ------------------------------------------------------------------- |
-| **Marketplace plugin** (recommended)  | `omc` or `claude` (default)                                  | `omc setup`                     | Normal: agents/skills copied to `~/.claude/`                        |
+| **Marketplace plugin** (recommended)  | `omc` or `claude` (default)                                  | `omc setup`                     | Normal: agents/skills copied to `~/.qoder/`                        |
 | **Local dev checkout, want OMC shim** | `omc --plugin-dir /path`                                     | `omc setup --plugin-dir-mode`   | Dev mode: agents/skills loaded from `/path`, not copied             |
-| **Local dev checkout, no OMC shim**   | `claude --plugin-dir /path` + `export OMC_PLUGIN_ROOT=/path` | `omc setup --plugin-dir-mode`   | Dev mode + manual env: agents/skills loaded from `/path`            |
-| **Local dev, want bundled skills**    | `omc --plugin-dir /path`                                     | `omc setup --no-plugin`         | Forces local bundled skills to `~/.claude/skills/`, ignoring plugin |
+| **Local dev checkout, no OMC shim**   | `qodercli --plugin-dir /path` + `export OMC_PLUGIN_ROOT=/path` | `omc setup --plugin-dir-mode`   | Dev mode + manual env: agents/skills loaded from `/path`            |
+| **Local dev, want bundled skills**    | `omc --plugin-dir /path`                                     | `omc setup --no-plugin`         | Forces local bundled skills to `~/.qoder/skills/`, ignoring plugin |
 | **Troubleshooting a specific path**   | N/A                                                          | `omc doctor --plugin-dir /path` | Diagnostics show status for `/path`                                 |
 
 ---
@@ -535,7 +535,7 @@ omc ask claude --agent-prompt executor --prompt "create an implementation plan"
 - Artifacts: `.omc/artifacts/ask/{provider}-{slug}-{timestamp}.md`
 - Canonical env vars: `OMC_ASK_ADVISOR_SCRIPT`, `OMC_ASK_ORIGINAL_TASK`
 - Phase-1 aliases (deprecated warning): `OMX_ASK_ADVISOR_SCRIPT`, `OMX_ASK_ORIGINAL_TASK`
-- Skill entrypoint: `/oh-my-claudecode:ask <claude|codex|gemini|antigravity|grok|cursor> <prompt>` routes to this command
+- Skill entrypoint: `/oh-my-qoder:ask <claude|codex|gemini|antigravity|grok|cursor> <prompt>` routes to this command
 
 ### `omc team` (CLI runtime surface)
 
@@ -576,8 +576,8 @@ Use OMC's terminal and library surfaces in non-interactive environments:
 - Run CLI commands that have deterministic exit codes, for example `omc setup`, `omc ask ...`, `omc session search ... --json`, or repo-owned verification scripts such as `npm run sync-metadata:verify`.
 - Provide authentication through runner environment variables (`ANTHROPIC_API_KEY`) or pre-authenticated provider CLIs for `codex`, `gemini`, `antigravity`, `grok`, or `cursor` when using `omc ask` / `omc team`.
 - Keep state explicit for ephemeral runners by setting `OMC_STATE_DIR` when state must survive worktree deletion or checkout replacement.
-- Avoid interactive slash skills (`/autopilot`, `/ralph`, `/ultrawork`, `/deep-interview`, `/team`) in CI jobs; they require an active Claude Code session and user-visible conversation loop.
-- OMC does not currently provide a VS Code extension or VS Code-specific automation contract. The documented IDE path is to use Claude Code's own integrations, then install OMC through the Claude Code plugin surface.
+- Avoid interactive slash skills (`/autopilot`, `/ralph`, `/ultrawork`, `/deep-interview`, `/team`) in CI jobs; they require an active Qoder session and user-visible conversation loop.
+- OMC does not currently provide a VS Code extension or VS Code-specific automation contract. The documented IDE path is to use Qoder's own integrations, then install OMC through the Qoder plugin surface.
 - Programmatic Agent SDK usage is supported through the exported TypeScript helpers and the in-process MCP server helpers in this package; it is a Node.js library surface, not an interactive plugin installer.
 
 ---
@@ -609,7 +609,7 @@ Optional compatibility enablement (manual only):
   "mcpServers": {
     "team": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/bridge/team-mcp.cjs"]
+      "args": ["${QODER_PLUGIN_ROOT}/bridge/team-mcp.cjs"]
     }
   }
 }
@@ -653,7 +653,7 @@ Bounded handoff policy:
 
 ## Agents (29 Total)
 
-Always use `oh-my-claudecode:` prefix when calling via Task tool.
+Always use `oh-my-qoder:` prefix when calling via Task tool.
 
 ### By Domain and Tier
 
@@ -723,7 +723,7 @@ OMC exposes several ways to pursue a goal-shaped task. They are complementary, n
 
 | Surface                 | Runtime owner                                     | User-facing promise                                           | Completion evidence                                                          | Notes                                                                                                                                                           |
 | ----------------------- | ------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Claude Code `/goal`     | Claude Code native session loop                   | Keep working toward one stated completion condition           | Evidence surfaced in the conversation for the `/goal` evaluator              | Cite Claude Code/Anthropic docs or changelog only for `/goal` behavior. The evaluator must not be described as independently running commands or reading files. |
+| Qoder `/goal`     | Qoder native session loop                   | Keep working toward one stated completion condition           | Evidence surfaced in the conversation for the `/goal` evaluator              | Cite Qoder/Anthropic docs or changelog only for `/goal` behavior. The evaluator must not be described as independently running commands or reading files. |
 | Ralph                   | OMC skill + Stop-hook enforcement                 | Persistent single-owner implementation until PRD stories pass | Tests/build/lint/typecheck plus reviewer verification                        | Prefer when correctness depends on OMC's PRD, progress, and reviewer gates.                                                                                     |
 | Team                    | OMC native/team or CLI team runtime               | Coordinated multi-agent execution over assigned tasks         | Worker task results, commits, staged `team-verify`/`team-fix` evidence       | Prefer when ownership boundaries and parallel lanes matter.                                                                                                     |
 | UltraQA                 | OMC QA cycling skill                              | Repeat diagnose/fix cycles until a quality gate passes        | Command output from the requested QA goal each cycle                         | Prefer after the implementation target is known but verification still fails.                                                                                   |
@@ -731,19 +731,19 @@ OMC exposes several ways to pursue a goal-shaped task. They are complementary, n
 
 ### `/goal` source and evidence boundary
 
-Use Claude Code/Anthropic sources for `/goal` facts, including:
+Use Qoder/Anthropic sources for `/goal` facts, including:
 
-- Claude Code `/goal` documentation: <https://code.claude.com/docs/en/goal>
-- Anthropic Claude Code changelog: <https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md>
+- Qoder `/goal` documentation: <https://code.claude.com/docs/en/goal>
+- Anthropic Qoder changelog: <https://raw.githubusercontent.com/anthropics/qoder/main/CHANGELOG.md>
 
-Do not cite OpenAI/Codex documentation as authority for Claude Code `/goal`. In OMC docs, examples, and handoff prompts, keep this limitation explicit: the `/goal` evaluator judges visible conversation evidence. It should not be described as independently executing shell commands, reading files, inspecting hidden state, or replacing OMC's final review gates.
+Do not cite OpenAI/Codex documentation as authority for Qoder `/goal`. In OMC docs, examples, and handoff prompts, keep this limitation explicit: the `/goal` evaluator judges visible conversation evidence. It should not be described as independently executing shell commands, reading files, inspecting hidden state, or replacing OMC's final review gates.
 
 ### Recommended conflict handling
 
 When multiple loops could apply, use this deterministic policy:
 
 1. **refuse**: if Ralph, Team, UltraQA, autopilot, or another Stop-hook loop is already active and a new `/goal` would compete for continuation authority.
-2. **adopt_existing**: if Claude Code `/goal` is already active and the OMC workflow can attach evidence to that same condition without changing loop ownership.
+2. **adopt_existing**: if Qoder `/goal` is already active and the OMC workflow can attach evidence to that same condition without changing loop ownership.
 3. **artifact_only**: if `/goal` is unavailable because of hooks/trust/settings, or if the user only needs durable planning, checkpointing, and evidence capture.
 
 `/goal` evaluator success can be useful evidence, but OMC completion should still require the relevant durable proof: command output, changed files, reviewer verdicts, task results, or release artifacts.
@@ -754,83 +754,83 @@ For the shorter user-facing chooser, see [Mode Selection Guide](./shared/mode-se
 
 Includes bundled workflow, utility, domain, and compatibility skills. Runtime truth comes from the builtin skill loader scanning `skills/*/SKILL.md` and expanding aliases declared in frontmatter.
 
-Marketplace/plugin installs compact the native plugin `skills/*/SKILL.md` files during `omc setup`: Claude Code receives concise registry descriptions for every bundled skill, while the full on-demand instructions are preserved under `skill-bodies/*/SKILL.md` and loaded by OMC when a skill is invoked. Source checkouts and standalone installs keep the full `skills/*/SKILL.md` bodies in place.
+Marketplace/plugin installs compact the native plugin `skills/*/SKILL.md` files during `omc setup`: Qoder receives concise registry descriptions for every bundled skill, while the full on-demand instructions are preserved under `skill-bodies/*/SKILL.md` and loaded by OMC when a skill is invoked. Source checkouts and standalone installs keep the full `skills/*/SKILL.md` bodies in place.
 
 
 
 | Skill                     | Description                                                      | Manual Command                              |
 | ------------------------- | ---------------------------------------------------------------- | ------------------------------------------- |
-| `ai-slop-cleaner`         | Anti-slop cleanup workflow with optional reviewer-only `--review` pass | `/oh-my-claudecode:ai-slop-cleaner`         |
-| `ask`                     | Ask Claude, Codex, Gemini, Antigravity, or Grok via local CLI and capture a reusable artifact | `/oh-my-claudecode:ask`               |
-| `autoresearch`            | Stateful single-mission evaluator-driven improvement loop           | `/oh-my-claudecode:autoresearch`            |
-| `autopilot`               | Full autonomous execution from idea to working code              | `/oh-my-claudecode:autopilot`               |
-| `cancel`                  | Unified cancellation for active modes                            | `/oh-my-claudecode:cancel`                  |
-| `ccg`                     | Tri-model workflow via `ask codex` + `ask gemini`, then Claude synthesis | `/oh-my-claudecode:ccg`                     |
-| `configure-notifications` | Configure notification integrations (Telegram, Discord, Slack) via natural language | `/oh-my-claudecode:configure-notifications` |
-| `deep-dive`               | Two-stage trace → deep-interview pipeline with context handoff   | `/oh-my-claudecode:deep-dive`               |
+| `ai-slop-cleaner`         | Anti-slop cleanup workflow with optional reviewer-only `--review` pass | `/oh-my-qoder:ai-slop-cleaner`         |
+| `ask`                     | Ask Claude, Codex, Gemini, Antigravity, or Grok via local CLI and capture a reusable artifact | `/oh-my-qoder:ask`               |
+| `autoresearch`            | Stateful single-mission evaluator-driven improvement loop           | `/oh-my-qoder:autoresearch`            |
+| `autopilot`               | Full autonomous execution from idea to working code              | `/oh-my-qoder:autopilot`               |
+| `cancel`                  | Unified cancellation for active modes                            | `/oh-my-qoder:cancel`                  |
+| `ccg`                     | Tri-model workflow via `ask codex` + `ask gemini`, then Claude synthesis | `/oh-my-qoder:ccg`                     |
+| `configure-notifications` | Configure notification integrations (Telegram, Discord, Slack) via natural language | `/oh-my-qoder:configure-notifications` |
+| `deep-dive`               | Two-stage trace → deep-interview pipeline with context handoff   | `/oh-my-qoder:deep-dive`               |
 | `deep-interview`          | Socratic deep interview with ambiguity gating                    | `/deep-interview`                           |
-| `deepinit`                | Generate hierarchical AGENTS.md docs                             | `/oh-my-claudecode:deepinit`                |
-| `external-context`        | Parallel document-specialist research                            | `/oh-my-claudecode:external-context`        |
-| `hud`                     | Configure HUD/statusline                                         | `/oh-my-claudecode:hud`                     |
-| `skillify`                | Extract reusable skill from session                              | `/oh-my-claudecode:skillify`                |
-| `learner`                 | **Deprecated** compatibility alias for `skillify`                | `/oh-my-claudecode:learner`                 |
-| `mcp-setup`               | Configure MCP servers                                            | `/oh-my-claudecode:mcp-setup`               |
-| `omc-doctor`              | Diagnose and fix installation issues                             | `/oh-my-claudecode:omc-doctor`              |
-| `omc-plan`                | Planning workflow (`/plan` safe alias; bundled directory ID is `plan`) | `/oh-my-claudecode:plan`                    |
+| `deepinit`                | Generate hierarchical AGENTS.md docs                             | `/oh-my-qoder:deepinit`                |
+| `external-context`        | Parallel document-specialist research                            | `/oh-my-qoder:external-context`        |
+| `hud`                     | Configure HUD/statusline                                         | `/oh-my-qoder:hud`                     |
+| `skillify`                | Extract reusable skill from session                              | `/oh-my-qoder:skillify`                |
+| `learner`                 | **Deprecated** compatibility alias for `skillify`                | `/oh-my-qoder:learner`                 |
+| `mcp-setup`               | Configure MCP servers                                            | `/oh-my-qoder:mcp-setup`               |
+| `omc-doctor`              | Diagnose and fix installation issues                             | `/oh-my-qoder:omc-doctor`              |
+| `omc-plan`                | Planning workflow (`/plan` safe alias; bundled directory ID is `plan`) | `/oh-my-qoder:plan`                    |
 | `omc-reference`           | Detailed OMC agent/tools/team/commit reference skill             | Auto-loaded reference only                  |
-| `omc-setup`               | One-time setup wizard                                            | `/oh-my-claudecode:omc-setup`               |
-| `omc-teams`               | Spawn `claude`/`codex`/`gemini`/`antigravity`/`grok`/`cursor` tmux workers for parallel execution | `/oh-my-claudecode:omc-teams`             |
-| `project-session-manager` | Manage isolated dev environments (git worktrees + tmux)          | `/oh-my-claudecode:project-session-manager` |
-| `psm` | **Deprecated** compatibility alias for `project-session-manager` | `/oh-my-claudecode:psm` |
-| `ralph`                   | Persistence loop until verified completion                       | `/oh-my-claudecode:ralph`                   |
-| `ralplan`                 | Consensus planning alias for `/plan --consensus`                 | `/oh-my-claudecode:ralplan`                 |
-| `release`                 | Automated release workflow                                       | `/oh-my-claudecode:release`                 |
-| `self-improve`            | Autonomous evolutionary code improvement engine with tournament selection; artifacts are topic-scoped under `.omc/self-improve/topics/<topic-slug>/` by default, with flat `.omc/self-improve/` preserved for legacy single-track resumes | `/oh-my-claudecode:self-improve`    |
-| `setup`                   | Unified setup entrypoint for install, diagnostics, and MCP configuration | `/oh-my-claudecode:setup`              |
-| `sciomc`                  | Parallel scientist orchestration                                 | `/oh-my-claudecode:sciomc`                  |
-| `skill`                   | Manage local skills (list/add/remove/search/edit)                | `/oh-my-claudecode:skill`                   |
-| `team`                    | Coordinated multi-agent workflow                                 | `/oh-my-claudecode:team`                    |
-| `trace`                   | Evidence-driven tracing lane with parallel tracer hypotheses     | `/oh-my-claudecode:trace`                   |
-| `ultraqa`                 | QA cycle until goal is met                                       | `/oh-my-claudecode:ultraqa`                 |
-| `ultrawork`               | Maximum parallel throughput mode                                 | `/oh-my-claudecode:ultrawork`               |
-| `visual-verdict`          | Structured visual QA verdict for screenshot/reference comparisons | `/oh-my-claudecode:visual-verdict`          |
-| `wiki`                    | LLM Wiki — persistent markdown knowledge base that compounds across sessions | `/oh-my-claudecode:wiki`           |
-| `writer-memory`           | Agentic memory system for writing projects                       | `/oh-my-claudecode:writer-memory`           |
+| `omc-setup`               | One-time setup wizard                                            | `/oh-my-qoder:omc-setup`               |
+| `omc-teams`               | Spawn `claude`/`codex`/`gemini`/`antigravity`/`grok`/`cursor` tmux workers for parallel execution | `/oh-my-qoder:omc-teams`             |
+| `project-session-manager` | Manage isolated dev environments (git worktrees + tmux)          | `/oh-my-qoder:project-session-manager` |
+| `psm` | **Deprecated** compatibility alias for `project-session-manager` | `/oh-my-qoder:psm` |
+| `ralph`                   | Persistence loop until verified completion                       | `/oh-my-qoder:ralph`                   |
+| `ralplan`                 | Consensus planning alias for `/plan --consensus`                 | `/oh-my-qoder:ralplan`                 |
+| `release`                 | Automated release workflow                                       | `/oh-my-qoder:release`                 |
+| `self-improve`            | Autonomous evolutionary code improvement engine with tournament selection; artifacts are topic-scoped under `.omc/self-improve/topics/<topic-slug>/` by default, with flat `.omc/self-improve/` preserved for legacy single-track resumes | `/oh-my-qoder:self-improve`    |
+| `setup`                   | Unified setup entrypoint for install, diagnostics, and MCP configuration | `/oh-my-qoder:setup`              |
+| `sciomc`                  | Parallel scientist orchestration                                 | `/oh-my-qoder:sciomc`                  |
+| `skill`                   | Manage local skills (list/add/remove/search/edit)                | `/oh-my-qoder:skill`                   |
+| `team`                    | Coordinated multi-agent workflow                                 | `/oh-my-qoder:team`                    |
+| `trace`                   | Evidence-driven tracing lane with parallel tracer hypotheses     | `/oh-my-qoder:trace`                   |
+| `ultraqa`                 | QA cycle until goal is met                                       | `/oh-my-qoder:ultraqa`                 |
+| `ultrawork`               | Maximum parallel throughput mode                                 | `/oh-my-qoder:ultrawork`               |
+| `visual-verdict`          | Structured visual QA verdict for screenshot/reference comparisons | `/oh-my-qoder:visual-verdict`          |
+| `wiki`                    | LLM Wiki — persistent markdown knowledge base that compounds across sessions | `/oh-my-qoder:wiki`           |
+| `writer-memory`           | Agentic memory system for writing projects                       | `/oh-my-qoder:writer-memory`           |
 
 
 ---
 
 ## Slash Commands
 
-Most installed skills are exposed as `/oh-my-claudecode:<skill-name>`. Deep Interview is intentionally documented with the short `/deep-interview` path because that path receives OMC's rendered runtime threshold guidance before the interview starts. The skills table above is the full runtime-backed list; the commands below highlight common entrypoints and aliases. Compatibility keyword modes like `deep-analyze` and `tdd` are prompt-triggered behaviors, not standalone slash commands. OMC's manual compaction helper is plugin-scoped as `/oh-my-claudecode:compact`; bare `/compact` remains Claude Code's native command and is not shadowed by OMC. The helper preserves the user's note and instructs them to run bare `/compact`; OMC does not invoke native compaction itself because Claude Code's built-in `/compact` is not a prompt skill.
+Most installed skills are exposed as `/oh-my-qoder:<skill-name>`. Deep Interview is intentionally documented with the short `/deep-interview` path because that path receives OMC's rendered runtime threshold guidance before the interview starts. The skills table above is the full runtime-backed list; the commands below highlight common entrypoints and aliases. Compatibility keyword modes like `deep-analyze` and `tdd` are prompt-triggered behaviors, not standalone slash commands. OMC's manual compaction helper is plugin-scoped as `/oh-my-qoder:compact`; bare `/compact` remains Qoder's native command and is not shadowed by OMC. The helper preserves the user's note and instructs them to run bare `/compact`; OMC does not invoke native compaction itself because Qoder's built-in `/compact` is not a prompt skill.
 
 | Command                                                  | Description                                                                                   |
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `/oh-my-claudecode:ai-slop-cleaner <target>`             | Run the anti-slop cleanup workflow (`--review` for reviewer-only pass)                        |
-| `/oh-my-claudecode:ask <claude\|codex\|gemini\|antigravity\|grok\|cursor> <prompt>` | Route a prompt through the selected advisor CLI and capture an ask artifact                   |
-| `/oh-my-claudecode:autopilot <task>`                     | Full autonomous execution                                                                     |
-| `/oh-my-claudecode:configure-notifications`              | Configure notification integrations                                                           |
-| `/oh-my-claudecode:compact [note]`                        | Prepare an OMC-safe manual handoff telling the user to run bare `/compact [note]`              |
-| `/oh-my-claudecode:deep-dive <problem>`                  | Run the trace → deep-interview pipeline                                                       |
+| `/oh-my-qoder:ai-slop-cleaner <target>`             | Run the anti-slop cleanup workflow (`--review` for reviewer-only pass)                        |
+| `/oh-my-qoder:ask <claude\|codex\|gemini\|antigravity\|grok\|cursor> <prompt>` | Route a prompt through the selected advisor CLI and capture an ask artifact                   |
+| `/oh-my-qoder:autopilot <task>`                     | Full autonomous execution                                                                     |
+| `/oh-my-qoder:configure-notifications`              | Configure notification integrations                                                           |
+| `/oh-my-qoder:compact [note]`                        | Prepare an OMC-safe manual handoff telling the user to run bare `/compact [note]`              |
+| `/oh-my-qoder:deep-dive <problem>`                  | Run the trace → deep-interview pipeline                                                       |
 | `/deep-interview <idea>`                                 | Socratic interview with ambiguity scoring before execution                                    |
-| `/oh-my-claudecode:deepinit [path]`                      | Index codebase with hierarchical AGENTS.md files                                              |
-| `/oh-my-claudecode:mcp-setup`                            | Configure MCP servers                                                                         |
-| `/oh-my-claudecode:omc-doctor`                           | Diagnose and fix installation issues                                                          |
-| `/oh-my-claudecode:plan <description>`                   | Start planning session (supports consensus structured deliberation)                           |
-| `/oh-my-claudecode:omc-setup`                            | One-time setup wizard                                                                         |
-| `/oh-my-claudecode:omc-teams <N>:<agent> <task>`         | Spawn `claude`/`codex`/`gemini`/`antigravity`/`grok`/`cursor` tmux workers for legacy parallel execution                    |
-| `/oh-my-claudecode:project-session-manager <arguments>`  | Manage isolated dev environments with git worktrees + tmux                                    |
-| `/oh-my-claudecode:psm <arguments>`                      | Deprecated alias for project session manager                                                  |
-| `/oh-my-claudecode:ralph <task>`                         | Self-referential loop until task completion (`--critic=architect \| critic \| codex`)       |
-| `/oh-my-claudecode:ralplan <description>`                | Iterative planning with consensus structured deliberation (`--deliberate` for high-risk mode) |
-| `/oh-my-claudecode:release`                              | Automated release workflow                                                                    |
-| `/oh-my-claudecode:setup`                                | Unified setup entrypoint (`setup`, `setup doctor`, `setup mcp`)                               |
-| `/oh-my-claudecode:sciomc <topic>`                       | Parallel research orchestration                                                               |
-| `/oh-my-claudecode:team <N>:<agent> <task>`              | Coordinated native team workflow                                                              |
-| `/oh-my-claudecode:trace`                                | Evidence-driven tracing lane that orchestrates parallel tracer hypotheses in team mode        |
-| `/oh-my-claudecode:ultraqa <goal>`                       | Autonomous QA cycling workflow                                                                |
-| `/oh-my-claudecode:ultrawork <task>`                     | Maximum performance mode with parallel agents                                                 |
-| `/oh-my-claudecode:visual-verdict <task>`                | Structured visual QA verdict for screenshot/reference comparisons                             |
+| `/oh-my-qoder:deepinit [path]`                      | Index codebase with hierarchical AGENTS.md files                                              |
+| `/oh-my-qoder:mcp-setup`                            | Configure MCP servers                                                                         |
+| `/oh-my-qoder:omc-doctor`                           | Diagnose and fix installation issues                                                          |
+| `/oh-my-qoder:plan <description>`                   | Start planning session (supports consensus structured deliberation)                           |
+| `/oh-my-qoder:omc-setup`                            | One-time setup wizard                                                                         |
+| `/oh-my-qoder:omc-teams <N>:<agent> <task>`         | Spawn `claude`/`codex`/`gemini`/`antigravity`/`grok`/`cursor` tmux workers for legacy parallel execution                    |
+| `/oh-my-qoder:project-session-manager <arguments>`  | Manage isolated dev environments with git worktrees + tmux                                    |
+| `/oh-my-qoder:psm <arguments>`                      | Deprecated alias for project session manager                                                  |
+| `/oh-my-qoder:ralph <task>`                         | Self-referential loop until task completion (`--critic=architect \| critic \| codex`)       |
+| `/oh-my-qoder:ralplan <description>`                | Iterative planning with consensus structured deliberation (`--deliberate` for high-risk mode) |
+| `/oh-my-qoder:release`                              | Automated release workflow                                                                    |
+| `/oh-my-qoder:setup`                                | Unified setup entrypoint (`setup`, `setup doctor`, `setup mcp`)                               |
+| `/oh-my-qoder:sciomc <topic>`                       | Parallel research orchestration                                                               |
+| `/oh-my-qoder:team <N>:<agent> <task>`              | Coordinated native team workflow                                                              |
+| `/oh-my-qoder:trace`                                | Evidence-driven tracing lane that orchestrates parallel tracer hypotheses in team mode        |
+| `/oh-my-qoder:ultraqa <goal>`                       | Autonomous QA cycling workflow                                                                |
+| `/oh-my-qoder:ultrawork <task>`                     | Maximum performance mode with parallel agents                                                 |
+| `/oh-my-qoder:visual-verdict <task>`                | Structured visual QA verdict for screenshot/reference comparisons                             |
 
 
 ### Skill Pipeline Metadata (Preview)
@@ -844,24 +844,24 @@ next-skill-args: --consensus --direct
 handoff: .omc/specs/deep-interview-{slug}.md
 ```
 
-When present, OMC appends a standardized **Skill Pipeline** section to the rendered skill prompt so the current stage, handoff artifact, and explicit next `Skill("oh-my-claudecode:...")` invocation are carried forward consistently.
+When present, OMC appends a standardized **Skill Pipeline** section to the rendered skill prompt so the current stage, handoff artifact, and explicit next `Skill("oh-my-qoder:...")` invocation are carried forward consistently.
 
 ### Skills 2.0 Compatibility (MVP)
 
-OMC's canonical project-local skill directory remains `.omc/skills/`, and the runtime also reads Claude Code project skills from `.claude/skills/` plus compatibility skills from `.agents/skills/`.
+OMC's canonical project-local skill directory remains `.omc/skills/`, and the runtime also reads Qoder project skills from `.qoder/skills/` plus compatibility skills from `.agents/skills/`.
 
 For builtin and slash-loaded skills, OMC also appends a standardized **Skill Resources** section when the skill directory contains bundled assets such as helper scripts, templates, or support libraries. This helps agents reuse packaged skill resources instead of recreating them ad hoc.
 
 ---
 
-## Claude Code `/goal` Adapter Design
+## Qoder `/goal` Adapter Design
 
-OMC treats Claude Code `/goal` as a native execution loop that can be handed off to, not as the durable source of truth for OMC completion. The design contract is documented in [docs/design/CLAUDE_CODE_GOAL_ADAPTER.md](./design/CLAUDE_CODE_GOAL_ADAPTER.md).
+OMC treats Qoder `/goal` as a native execution loop that can be handed off to, not as the durable source of truth for OMC completion. The design contract is documented in [docs/design/CLAUDE_CODE_GOAL_ADAPTER.md](./design/CLAUDE_CODE_GOAL_ADAPTER.md).
 
 Key contract points:
 
-- Claude Code `/goal` facts must cite Claude Code or Anthropic sources only. OpenAI/Codex references are comparison sources, not authority for Claude Code behavior.
-- The adapter renders a measurable `/goal <condition>` handoff; it must not mutate hidden Claude Code session state directly.
+- Qoder `/goal` facts must cite Qoder or Anthropic sources only. OpenAI/Codex references are comparison sources, not authority for Qoder behavior.
+- The adapter renders a measurable `/goal <condition>` handoff; it must not mutate hidden Qoder session state directly.
 - The deterministic conflict policy is exactly one of `refuse`, `adopt_existing`, or `artifact_only`; competing Ralph/autopilot/Stop-hook/Team/UltraQA loops must not continue with only a warning.
 - `/goal` evaluator success is evidence for OMC final review, not completion by itself; OMC still requires surfaced command/test/docs evidence.
 - OMC stores durable goal ledgers and evidence under OMC-owned logical artifacts and `.omc/`-resolved paths, not hardcoded `.omx/` paths.
@@ -870,7 +870,7 @@ Key contract points:
 
 ## Hooks System
 
-OMC registers 21 hook scripts across 11 Claude Code lifecycle events. For detailed documentation, see [HOOKS.md](./HOOKS.md).
+OMC registers 21 hook scripts across 11 Qoder lifecycle events. For detailed documentation, see [HOOKS.md](./HOOKS.md).
 
 ### Hooks by Lifecycle Event
 
@@ -947,7 +947,7 @@ Use these trigger phrases in natural language prompts to activate enhanced modes
 | `autopilot`, `build me`, `I want a`, `handle it all`, `end to end`, `e2e this` | Full autonomous execution                                                                     |
 | `deslop`, `anti-slop`, cleanup/refactor + slop smells                          | Anti-slop cleanup workflow (`ai-slop-cleaner`)                                                |
 | `ralph`, `don't stop`, `must complete`, `until done`                           | Persistence until verified complete                                                           |
-| `ccg`, `claude-codex-gemini`                                                   | Claude-Codex-Gemini orchestration (use `antigravity` when using the Antigravity CLI)         |
+| `ccg`, `qoderx-gemini`                                                   | Claude-Codex-Gemini orchestration (use `antigravity` when using the Antigravity CLI)         |
 | `ralplan`                                                                      | Iterative planning consensus with structured deliberation (`--deliberate` for high-risk mode) |
 | `deep interview`, `ouroboros`                                                  | Deep Socratic interview with mathematical clarity gating                                      |
 | `deepsearch`, `search the codebase`, `find in codebase`                        | Codebase-focused search mode                                                                  |
@@ -989,7 +989,7 @@ The keyword detector recognizes localized aliases in addition to the English tri
 ### Examples
 
 ```bash
-# In Claude Code:
+# In Qoder:
 
 # Maximum parallelism
 ultrawork implement user authentication with OAuth
@@ -1028,12 +1028,12 @@ stopomc
 | Platform    | Install Method              | Hook Type      |
 | ----------- | --------------------------- | -------------- |
 | **Windows** | WSL2 recommended (see note) | Node.js (.mjs) |
-| **macOS**   | Claude Code Plugin          | Bash (.sh)     |
-| **Linux**   | Claude Code Plugin          | Bash (.sh)     |
+| **macOS**   | Qoder Plugin          | Bash (.sh)     |
+| **Linux**   | Qoder Plugin          | Bash (.sh)     |
 
 > **Note**: Bash hooks are fully portable across macOS and Linux (no GNU-specific dependencies).
 
-> **Windows**: Native Windows (win32) support is experimental. Features that launch tmux-backed worker panes require a tmux-compatible binary. OMC supports native [psmux](https://github.com/psmux/psmux) for PowerShell 7+ users who want visible Claude Code teammate panes in interactive team workflows, and recommends WSL2 as the fallback when no compatible `tmux` command is installed or native Windows behavior is insufficient. psmux does not force worktree agents, non-interactive/print-mode agents, or model-selected in-process agents into visible panes. Native Windows issues may have limited support.
+> **Windows**: Native Windows (win32) support is experimental. Features that launch tmux-backed worker panes require a tmux-compatible binary. OMC supports native [psmux](https://github.com/psmux/psmux) for PowerShell 7+ users who want visible Qoder teammate panes in interactive team workflows, and recommends WSL2 as the fallback when no compatible `tmux` command is installed or native Windows behavior is insufficient. psmux does not force worktree agents, non-interactive/print-mode agents, or model-selected in-process agents into visible panes. Native Windows issues may have limited support.
 
 > **Advanced**: Set `OMC_USE_NODE_HOOKS=1` to use Node.js hooks on macOS/Linux.
 
@@ -1084,7 +1084,7 @@ stopomc
 
 ## Performance Monitoring
 
-oh-my-claudecode includes comprehensive monitoring for agent performance, token usage, and debugging parallel workflows.
+oh-my-qoder includes comprehensive monitoring for agent performance, token usage, and debugging parallel workflows.
 
 For complete documentation, see **[Performance Monitoring Guide](./PERFORMANCE-MONITORING.md)**.
 
@@ -1130,7 +1130,7 @@ Enable a supported preset for agent and context visibility in your status line:
 ### Diagnose Installation Issues
 
 ```bash
-/oh-my-claudecode:omc-doctor
+/oh-my-qoder:omc-doctor
 ```
 
 Checks for:
@@ -1144,14 +1144,14 @@ Checks for:
 ### Configure HUD Statusline
 
 ```bash
-/oh-my-claudecode:hud setup
+/oh-my-qoder:hud setup
 ```
 
 Installs or repairs the HUD statusline for real-time status updates.
 
 ### HUD Configuration (settings.json)
 
-Configure HUD elements in `~/.claude/settings.json`:
+Configure HUD elements in `~/.qoder/settings.json`:
 
 ```json
 {
@@ -1211,11 +1211,11 @@ Available presets: `minimal`, `focused`, `full`, `dense`, `analytics`, `opencode
 
 | Issue                 | Solution                                                                         |
 | --------------------- | -------------------------------------------------------------------------------- |
-| Commands not found    | Re-run `/oh-my-claudecode:omc-setup`                                             |
-| Hooks not executing   | Check hook permissions: `chmod +x ~/.claude/hooks/**/*.sh`                       |
-| Agents not delegating | Verify CLAUDE.md is loaded: check `./.claude/CLAUDE.md` or `~/.claude/CLAUDE.md` |
+| Commands not found    | Re-run `/oh-my-qoder:omc-setup`                                             |
+| Hooks not executing   | Check hook permissions: `chmod +x ~/.qoder/hooks/**/*.sh`                       |
+| Agents not delegating | Verify AGENTS.md is loaded: check `./.qoder/AGENTS.md` or `~/.qoder/AGENTS.md` |
 | LSP tools not working | Install language servers: `npm install -g typescript-language-server`            |
-| Token limit errors    | Use `/oh-my-claudecode:` for token-efficient execution                           |
+| Token limit errors    | Use `/oh-my-qoder:` for token-efficient execution                           |
 
 ### Auto-Update
 
@@ -1227,21 +1227,21 @@ Features:
 - **Concurrent-safe**: Lock file prevents simultaneous update attempts
 - **Cross-platform**: Works on both macOS and Linux
 
-To manually update, re-run the plugin install command or use Claude Code's built-in update mechanism.
+To manually update, re-run the plugin install command or use Qoder's built-in update mechanism.
 
 ### Uninstall
 
-Use Claude Code's plugin management:
+Use Qoder's plugin management:
 
 ```
-/plugin uninstall oh-my-claudecode@oh-my-claudecode
+/plugin uninstall oh-my-qoder@oh-my-qoder
 ```
 
 Or manually remove the installed files:
 
 ```bash
-rm ~/.claude/agents/{architect,document-specialist,explore,designer,writer,vision,critic,analyst,executor,qa-tester}.md
-rm ~/.claude/commands/{analyze,autopilot,deepsearch,plan,review,ultrawork}.md
+rm ~/.qoder/agents/{architect,document-specialist,explore,designer,writer,vision,critic,analyst,executor,qa-tester}.md
+rm ~/.qoder/commands/{analyze,autopilot,deepsearch,plan,review,ultrawork}.md
 ```
 
 ---

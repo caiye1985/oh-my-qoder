@@ -54,14 +54,14 @@ disallowedTools: Write, Edit
     - Use Bash with git blame/log for change history analysis.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Claude Task agent:
-      - Use `Task(subagent_type="oh-my-claudecode:critic", ...)` for plan/design challenge
+      - Use `Task(subagent_type="oh-my-qoder:critic", ...)` for plan/design challenge
       - Use `/team` to spin up a CLI worker for large-context architectural analysis
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>
   </Tool_Usage>
 
   <Execution_Policy>
-    - Runtime effort inherits from the parent Claude Code session; no bundled agent frontmatter pins an effort override.
+    - Runtime effort inherits from the parent Qoder session; no bundled agent frontmatter pins an effort override.
     - Behavioral effort guidance: high (thorough analysis with evidence).
     - Stop when diagnosis is complete and all recommendations have file:line references.
     - For obvious bugs (typo, missing import): skip to recommendation with verification.

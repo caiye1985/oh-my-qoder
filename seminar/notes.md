@@ -1,4 +1,4 @@
-# Speaker Notes: oh-my-claudecode Seminar
+# Speaker Notes: oh-my-qoder Seminar
 
 ## Time Allocation (60 minutes total)
 | Section | Time | Slides |
@@ -29,7 +29,7 @@
 ### Talking Points
 
 **The Current State Pain**
-- "Right now, when you use Claude Code or similar tools, you're essentially getting a very smart intern. They can do anything you ask, but YOU have to manage the workflow."
+- "Right now, when you use Qoder or similar tools, you're essentially getting a very smart intern. They can do anything you ask, but YOU have to manage the workflow."
 - "You find yourself saying things like: 'First search for the authentication code. Now analyze it. Now write a test. Now run the test. Now fix the error. Now check if there are similar patterns elsewhere.'"
 - "It's like conducting an orchestra where you have to tell each musician exactly when to play each note. Exhausting."
 
@@ -43,7 +43,7 @@
 - "What if the AI could run multiple specialists in parallel, route tasks to the right model tier, and persist until verification passes?"
 
 **The Reveal**
-- "That's exactly what oh-my-claudecode does. It transforms Claude Code from a single generalist assistant into a coordinated team of 28 specialists."
+- "That's exactly what oh-my-qoder does. It transforms Qoder from a single generalist assistant into a coordinated team of 28 specialists."
 - "Today, I'm going to show you how this changes everything about AI-assisted development."
 
 ### Transition
@@ -564,7 +564,7 @@ Narrate:
 - "  Which mode is active"
 - "  How many agents are working"
 - "  What each agent is doing"
-- "Installation: `/oh-my-claudecode:hud setup` - adds to your shell prompt"
+- "Installation: `/oh-my-qoder:hud setup` - adds to your shell prompt"
 
 **Notepad Wisdom** (Slide 36)
 - "OMC learns from every session via the notepad system:"
@@ -599,7 +599,7 @@ Narrate:
 "Getting started is three commands and takes under 2 minutes."
 
 ### Key Points
-- Requires Claude Code CLI installed
+- Requires Qoder CLI installed
 - Three-step installation
 - One-time setup wizard
 - Works immediately after setup
@@ -607,17 +607,17 @@ Narrate:
 **Talking Points**
 
 **Prerequisites** (Slide 38)
-- "You need Claude Code installed: `npm install -g claude-code`"
+- "You need Qoder installed: `npm install -g claude-code`"
 - "You need a Claude subscription (Pro or Team) or an API key"
 - "That's it. No Docker, no databases, no complex dependencies."
 
 **Installation** (Slide 39)
 ```bash
 # Step 1: Install OMC
-npm install -g oh-my-claudecode
+npm install -g oh-my-qoder
 
 # Step 2: Run setup wizard
-claude-code "/oh-my-claudecode:omc-setup"
+claude-code "/oh-my-qoder:omc-setup"
 
 # Step 3: Start using it
 claude-code "autopilot: build me a todo app"
@@ -656,13 +656,13 @@ claude-code "autopilot: build me a todo app"
 **Talking Points**
 
 **The Big Picture** (Slide 41)
-- "OMC transforms Claude Code from a single assistant into a coordinated team."
+- "OMC transforms Qoder from a single assistant into a coordinated team."
 - "You go from micromanaging every step to stating goals and getting results."
 - "The five execution modes cover everything: greenfield (autopilot), parallel (ultrawork/ultrapilot), batch (swarm), sequential (pipeline), budget ()."
 - "28 agents with 3-tier model routing save you 30-50% on costs while getting work done faster."
 
 **Resources** (Slide 42)
-- "GitHub: github.com/Yeachan-Heo/oh-my-claudecode"
+- "GitHub: github.com/Yeachan-Heo/oh-my-qoder"
 - "Documentation: Full guides in the repo README"
 - "Community: Join discussions, share your experiences"
 - "Contributing: It's MIT licensed - PRs welcome"
@@ -698,16 +698,16 @@ Ecomode specifically optimizes for cost - in our benchmarks, it reduces costs by
 ### 2. "Can I use it with other AI models?"
 
 **Answer:**
-"Currently OMC is designed specifically for Claude Code and leverages Claude's three model tiers - Haiku, Sonnet, and Opus.
+"Currently OMC is designed specifically for Qoder and leverages Claude's three model tiers - Haiku, Sonnet, and Opus.
 
 The architecture relies on Claude's specific capabilities for the multi-agent orchestration. We don't support GPT-4, Gemini, or other models at this time.
 
 That said, it's open-source. If there's community interest in adapting it to other providers, we'd welcome contributions. The core orchestration logic could theoretically work with any provider that offers multiple model tiers."
 
-### 3. "How is this different from just using Claude Code?"
+### 3. "How is this different from just using Qoder?"
 
 **Answer:**
-"Great question. Without OMC, Claude Code gives you one very smart generalist assistant. You tell it every step: 'search for this, analyze that, now implement this, now test that.'
+"Great question. Without OMC, Qoder gives you one very smart generalist assistant. You tell it every step: 'search for this, analyze that, now implement this, now test that.'
 
 With OMC, you get 28 specialized agents orchestrated automatically. You state the goal - 'build authentication' - and OMC:
 - Automatically explores your codebase for patterns
@@ -718,12 +718,12 @@ With OMC, you get 28 specialized agents orchestrated automatically. You state th
 
 It's the difference between hiring one person who does everything sequentially versus coordinating a specialized team working in parallel.
 
-Real-world impact: Tasks that took 30 minutes of back-and-forth with Claude Code now take 5 minutes of autonomous execution with OMC."
+Real-world impact: Tasks that took 30 minutes of back-and-forth with Qoder now take 5 minutes of autonomous execution with OMC."
 
 ### 4. "What about security? Is my code safe?"
 
 **Answer:**
-"OMC runs entirely locally via Claude Code. Your code never leaves your machine except through the normal Claude API calls that you'd be making anyway.
+"OMC runs entirely locally via Qoder. Your code never leaves your machine except through the normal Claude API calls that you'd be making anyway.
 
 Additionally, OMC includes a security-reviewer agent that can audit code for common vulnerabilities. You can invoke it explicitly: '/pipeline security' runs a security audit pipeline.
 
@@ -736,25 +736,25 @@ For maximum security, you can review the code - it's fully open-source on GitHub
 **Answer:**
 "Absolutely. Agent customization is a first-class feature.
 
-Place custom agent definitions in `~/.claude/agents/{agent-name}.md` and they'll override the defaults.
+Place custom agent definitions in `~/.qoder/agents/{agent-name}.md` and they'll override the defaults.
 
 For example, if you want a specialized Python testing agent:
 ```markdown
-# ~/.claude/agents/pytest-specialist.md
+# ~/.qoder/agents/pytest-specialist.md
 You are an expert in pytest and Python testing best practices.
 Focus on: fixtures, parametrization, mocking with pytest-mock.
 ```
 
-Then invoke: `Task(subagent_type="oh-my-claudecode:pytest-specialist")`
+Then invoke: `Task(subagent_type="oh-my-qoder:pytest-specialist")`
 
-You can also customize execution modes, delegation categories, and model routing rules via the config file at `~/.claude/.omc-config.json`.
+You can also customize execution modes, delegation categories, and model routing rules via the config file at `~/.qoder/.omc-config.json`.
 
 Power users go deep on customization. Casual users never need to touch it."
 
 ### 6. "Does it work with any programming language?"
 
 **Answer:**
-"Yes. OMC works with any language that Claude Code supports - which is basically all mainstream languages.
+"Yes. OMC works with any language that Qoder supports - which is basically all mainstream languages.
 
 Some agents have special optimizations:
 - build-fixer has deep TypeScript integration
@@ -809,7 +809,7 @@ The Architect verification step is the final check - a separate Opus-powered age
 
 The planning interviews require human input. The execution modes assume iterative refinement. The architect verification is designed for development-time quality checks.
 
-For CI/CD, you'd use Claude Code's built-in capabilities or traditional CI tools.
+For CI/CD, you'd use Qoder's built-in capabilities or traditional CI tools.
 
 That said, some teams use OMC-generated tests in their CI pipeline. The tests themselves are standard - jest, pytest, etc. - they just happened to be generated via OMC.
 

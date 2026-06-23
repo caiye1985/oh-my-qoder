@@ -31,13 +31,13 @@ let originalClaudeConfigDir: string | undefined;
 
 beforeEach(() => {
   const base = join(tmpdir(), `omc-auto-cleanup-${Date.now()}`);
-  tmpClaudeDir = join(base, 'claude');
+  tmpClaudeDir = join(base, 'qoder');
   TEAMS_DIR = join(tmpClaudeDir, 'teams', TEST_TEAM);
   TASKS_DIR = join(tmpClaudeDir, 'tasks', TEST_TEAM);
   WORK_DIR = join(base, 'work');
 
-  originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
-  process.env.CLAUDE_CONFIG_DIR = tmpClaudeDir;
+  originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
+  process.env.QODER_CONFIG_DIR = tmpClaudeDir;
 
   mkdirSync(join(TEAMS_DIR, 'outbox'), { recursive: true });
   mkdirSync(TASKS_DIR, { recursive: true });
@@ -47,9 +47,9 @@ beforeEach(() => {
 
 afterEach(() => {
   if (originalClaudeConfigDir === undefined) {
-    delete process.env.CLAUDE_CONFIG_DIR;
+    delete process.env.QODER_CONFIG_DIR;
   } else {
-    process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+    process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
   }
   rmSync(tmpClaudeDir, { recursive: true, force: true });
   rmSync(WORK_DIR, { recursive: true, force: true });

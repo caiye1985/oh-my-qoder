@@ -1,7 +1,7 @@
 import type { OpenClawContext, OpenClawHookEvent, OpenClawSignal } from "./types.js";
 
-const CLAUDE_TEMP_CWD_PATTERN = /zsh:\d+: permission denied:.*\/T\/claude-[a-z0-9]+-cwd/gi;
-const CLAUDE_EXIT_CODE_PREFIX = /^Error: Exit code \d+\s*$/gm;
+const QODER_TEMP_CWD_PATTERN = /zsh:\d+: permission denied:.*\/T\/claude-[a-z0-9]+-cwd/gi;
+const QODER_EXIT_CODE_PREFIX = /^Error: Exit code \d+\s*$/gm;
 const PR_CREATE_PATTERN = /\bgh\s+pr\s+create\b/i;
 const PR_URL_PATTERN = /https:\/\/github\.com\/[^\s/]+\/[^\s/]+\/pull\/\d+/i;
 
@@ -15,17 +15,17 @@ const TEST_COMMAND_PATTERNS: Array<{ pattern: RegExp; runner: string }> = [
   { pattern: /\bmake\s+test\b/i, runner: "make-test" },
 ];
 
-function stripClaudeTempCwdErrors(output: string): string {
-  return output.replace(CLAUDE_TEMP_CWD_PATTERN, "");
+function stripQoderTempCwdErrors(output: string): string {
+  return output.replace(QODER_TEMP_CWD_PATTERN, "");
 }
 
 function isNonZeroExitWithOutput(output: string): boolean {
-  const cleaned = stripClaudeTempCwdErrors(output);
-  if (!CLAUDE_EXIT_CODE_PREFIX.test(cleaned)) return false;
-  CLAUDE_EXIT_CODE_PREFIX.lastIndex = 0;
+  const cleaned = stripQoderTempCwdErrors(output);
+  if (!QODER_EXIT_CODE_PREFIX.test(cleaned)) return false;
+  QODER_EXIT_CODE_PREFIX.lastIndex = 0;
 
-  const remaining = cleaned.replace(CLAUDE_EXIT_CODE_PREFIX, "").trim();
-  CLAUDE_EXIT_CODE_PREFIX.lastIndex = 0;
+  const remaining = cleaned.replace(QODER_EXIT_CODE_PREFIX, "").trim();
+  QODER_EXIT_CODE_PREFIX.lastIndex = 0;
   if (!remaining) return false;
 
   const contentErrorPatterns = [
@@ -44,7 +44,7 @@ function isNonZeroExitWithOutput(output: string): boolean {
 }
 
 function detectBashFailure(output: string): boolean {
-  const cleaned = stripClaudeTempCwdErrors(output);
+  const cleaned = stripQoderTempCwdErrors(output);
   const errorPatterns = [
     /error:/i,
     /failed/i,
@@ -63,7 +63,7 @@ function detectBashFailure(output: string): boolean {
 }
 
 function detectWriteFailure(output: string): boolean {
-  const cleaned = stripClaudeTempCwdErrors(output);
+  const cleaned = stripQoderTempCwdErrors(output);
   const errorPatterns = [
     /\berror:/i,
     /\bfailed to\b/i,

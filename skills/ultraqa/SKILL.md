@@ -17,7 +17,7 @@ You are now in **ULTRAQA** mode - an autonomous QA cycling workflow that runs un
 
 ## Relationship to `/goal`, Ralph, Team, and Ultragoal
 
-UltraQA owns repeated quality-gate cycling only. Use the deterministic conflict policies `refuse`, `adopt_existing`, and `artifact_only` rather than non-deterministic warning handling. Use it after the target behavior is known and the remaining question is whether tests, build, lint, typecheck, or another explicit QA condition passes. If Claude Code `/goal` is active, UltraQA may produce visible command evidence for that goal, but must not describe the `/goal` evaluator as independently running commands or reading files. If Ralph or Team is active, UltraQA is a verification/fix sub-loop under that authority rather than a competing session loop. If no active loop is safe, record QA expectations and evidence in artifact-only Ultragoal notes instead of claiming automatic execution.
+UltraQA owns repeated quality-gate cycling only. Use the deterministic conflict policies `refuse`, `adopt_existing`, and `artifact_only` rather than non-deterministic warning handling. Use it after the target behavior is known and the remaining question is whether tests, build, lint, typecheck, or another explicit QA condition passes. If Qoder `/goal` is active, UltraQA may produce visible command evidence for that goal, but must not describe the `/goal` evaluator as independently running commands or reading files. If Ralph or Team is active, UltraQA is a verification/fix sub-loop under that authority rather than a competing session loop. If no active loop is safe, record QA expectations and evidence in artifact-only Ultragoal notes instead of claiming automatic execution.
 
 ## Goal Parsing
 
@@ -25,11 +25,11 @@ Parse the goal from arguments. Supported formats:
 
 | Invocation                                     | Goal Type | What to Check                    |
 | ---------------------------------------------- | --------- | -------------------------------- |
-| `/oh-my-claudecode:ultraqa --tests`            | tests     | All test suites pass             |
-| `/oh-my-claudecode:ultraqa --build`            | build     | Build succeeds with exit 0       |
-| `/oh-my-claudecode:ultraqa --lint`             | lint      | No lint errors                   |
-| `/oh-my-claudecode:ultraqa --typecheck`        | typecheck | No TypeScript errors             |
-| `/oh-my-claudecode:ultraqa --custom "pattern"` | custom    | Custom success pattern in output |
+| `/oh-my-qoder:ultraqa --tests`            | tests     | All test suites pass             |
+| `/oh-my-qoder:ultraqa --build`            | build     | Build succeeds with exit 0       |
+| `/oh-my-qoder:ultraqa --lint`             | lint      | No lint errors                   |
+| `/oh-my-qoder:ultraqa --typecheck`        | typecheck | No TypeScript errors             |
+| `/oh-my-qoder:ultraqa --custom "pattern"` | custom    | Custom success pattern in output |
 
 If no structured goal provided, interpret the argument as a custom goal.
 
@@ -45,7 +45,7 @@ If no structured goal provided, interpret the argument as a custom goal.
    - `--custom`: Run appropriate command and check for pattern
    - `--interactive`: Use qa-tester for interactive CLI/service testing:
      ```
-     Task(subagent_type="oh-my-claudecode:qa-tester", model="sonnet", prompt="TEST:
+     Task(subagent_type="oh-my-qoder:qa-tester", model="sonnet", prompt="TEST:
      Goal: [describe what to verify]
      Service: [how to start]
      Test cases: [specific scenarios to verify]")
@@ -58,7 +58,7 @@ If no structured goal provided, interpret the argument as a custom goal.
 3. **ARCHITECT DIAGNOSIS**: Spawn architect to analyze failure
 
    ```
-   Task(subagent_type="oh-my-claudecode:architect", model="opus", prompt="DIAGNOSE FAILURE:
+   Task(subagent_type="oh-my-qoder:architect", model="opus", prompt="DIAGNOSE FAILURE:
    Goal: [goal type]
    Output: [test/build output]
    Provide root cause and specific fix recommendations.")
@@ -67,7 +67,7 @@ If no structured goal provided, interpret the argument as a custom goal.
 4. **FIX ISSUES**: Apply architect's recommendations
 
    ```
-   Task(subagent_type="oh-my-claudecode:executor", model="sonnet", prompt="FIX:
+   Task(subagent_type="oh-my-qoder:executor", model="sonnet", prompt="FIX:
    Issue: [architect diagnosis]
    Files: [affected files]
    Apply the fix precisely as recommended.")
@@ -117,7 +117,7 @@ Track state in `.omc/ultraqa-state.json`:
 
 ## Cancellation
 
-User can cancel with `/oh-my-claudecode:cancel` which clears the state file.
+User can cancel with `/oh-my-qoder:cancel` which clears the state file.
 
 ## Important Rules
 

@@ -17,9 +17,9 @@ level: 2
 > ```
 > See [Teleport Command](#teleport-command) below for details.
 
-Automate isolated development environments using git worktrees and tmux sessions with Claude Code. Enables parallel work across multiple tasks, projects, and repositories.
+Automate isolated development environments using git worktrees and tmux sessions with Qoder. Enables parallel work across multiple tasks, projects, and repositories.
 
-Canonical slash command: `/oh-my-claudecode:project-session-manager` (alias: `/oh-my-claudecode:psm`).
+Canonical slash command: `/oh-my-qoder:project-session-manager` (alias: `/oh-my-qoder:psm`).
 
 ## Commands
 
@@ -50,8 +50,8 @@ Supported formats:
 {
   "aliases": {
     "omc": {
-      "repo": "Yeachan-Heo/oh-my-claudecode",
-      "local": "~/Workspace/oh-my-claudecode",
+      "repo": "Yeachan-Heo/oh-my-qoder",
+      "local": "~/Workspace/oh-my-qoder",
       "default_base": "main"
     }
   },
@@ -248,7 +248,7 @@ Parse `{{ARGUMENTS}}` to determine:
    tmux new-session -d -s "psm:$project_alias:pr-$pr_number" -c "$worktree_path"
    ```
 
-8. **Launch Claude Code** (unless --no-claude):
+8. **Launch Qoder** (unless --no-claude):
    ```bash
    # --dangerously-skip-permissions prevents the "Do you trust this directory?" prompt
    # and repeated tool-approval prompts from stalling the session (issue #2508).
@@ -531,7 +531,7 @@ omc teleport remove --force feat/my-repo-my-feature
 |---------|-----|----------|
 | Git worktree | Yes | Yes |
 | Tmux session | Yes | No |
-| Claude Code launch | Yes | No |
+| Qoder launch | Yes | No |
 | Session registry | Yes | No |
 | Auto-cleanup | Yes | No |
 | Project aliases | Yes | No (uses current repo) |
@@ -564,8 +564,8 @@ if [[ ! -f ~/.psm/projects.json ]]; then
 {
   "aliases": {
     "omc": {
-      "repo": "Yeachan-Heo/oh-my-claudecode",
-      "local": "~/Workspace/oh-my-claudecode",
+      "repo": "Yeachan-Heo/oh-my-qoder",
+      "local": "~/Workspace/oh-my-qoder",
       "default_base": "main"
     }
   },

@@ -35,7 +35,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = resolve(__dirname, '..');
-const DEFAULT_REPO_SLUG = 'Yeachan-Heo/oh-my-claudecode';
+const DEFAULT_REPO_SLUG = 'Yeachan-Heo/oh-my-qoder';
 const REPO_SLUG = process.env.GITHUB_REPOSITORY || DEFAULT_REPO_SLUG;
 const REPO_URL = `https://github.com/${REPO_SLUG}`;
 const GITHUB_API_URL = process.env.GITHUB_API_URL || 'https://api.github.com';
@@ -160,7 +160,7 @@ function toReleaseNoteEntryFromCommit(commit: ParsedCommit): ReleaseNoteEntry {
 function getGitHubApiHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
-    'User-Agent': 'oh-my-claudecode-release-script',
+    'User-Agent': 'oh-my-qoder-release-script',
   };
 
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
@@ -233,7 +233,7 @@ function bumpVersionFiles(newVersion: string, dryRun: boolean): string[] {
     changes.push(`package.json: ${pkg.version} → ${newVersion}`);
   }
 
-  const pluginPath = join(ROOT, '.claude-plugin/plugin.json');
+  const pluginPath = join(ROOT, '.qoder-plugin/plugin.json');
   if (existsSync(pluginPath)) {
     const content = readFileSync(pluginPath, 'utf-8');
     const updated = content.replace(/"version":\s*"[^"]*"/, `"version": "${newVersion}"`);
@@ -243,7 +243,7 @@ function bumpVersionFiles(newVersion: string, dryRun: boolean): string[] {
     }
   }
 
-  const marketPath = join(ROOT, '.claude-plugin/marketplace.json');
+  const marketPath = join(ROOT, '.qoder-plugin/marketplace.json');
   if (existsSync(marketPath)) {
     const content = readFileSync(marketPath, 'utf-8');
     const updated = content.replace(/"version":\s*"[^"]*"/g, `"version": "${newVersion}"`);
@@ -253,13 +253,13 @@ function bumpVersionFiles(newVersion: string, dryRun: boolean): string[] {
     }
   }
 
-  const claudeMdPath = join(ROOT, 'docs/CLAUDE.md');
+  const claudeMdPath = join(ROOT, 'docs/AGENTS.md');
   if (existsSync(claudeMdPath)) {
     const content = readFileSync(claudeMdPath, 'utf-8');
     const updated = content.replace(/<!-- OMC:VERSION:[^\s]*? -->/, `<!-- OMC:VERSION:${newVersion} -->`);
     if (content !== updated) {
       if (!dryRun) writeFileSync(claudeMdPath, updated, 'utf-8');
-      changes.push(`docs/CLAUDE.md: version marker → ${newVersion}`);
+      changes.push(`docs/AGENTS.md: version marker → ${newVersion}`);
     }
   }
 
@@ -318,7 +318,7 @@ ${clr('Examples:', c.cyan)}
   npm run release -- patch --dry-run    # Preview without writing
 
 ${clr('What it does:', c.cyan)}
-  1. Bumps version in all 5 files (package.json, plugin.json, marketplace.json, docs/CLAUDE.md, lockfile)
+  1. Bumps version in all 5 files (package.json, plugin.json, marketplace.json, docs/AGENTS.md, lockfile)
   2. Generates CHANGELOG.md from the merged PR set when metadata is available
   3. Generates .github/release-body.md with contributor @mentions
   4. Runs sync-metadata to update doc badges

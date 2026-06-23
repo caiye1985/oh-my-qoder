@@ -34,11 +34,11 @@ export function getRuntimePackageVersion(): string {
   }
 
   // Fallback: extract version from the plugin cache directory path.
-  // When package.json is missing (e.g. Claude Code plugin system didn't copy it),
-  // the path itself contains the version: .../oh-my-claudecode/4.11.2/dist/lib/version.js
+  // When package.json is missing (e.g. Qoder plugin system didn't copy it),
+  // the path itself contains the version: .../oh-my-qoder/4.11.2/dist/lib/version.js
   try {
     const __filename = fileURLToPath(import.meta.url);
-    const pathMatch = __filename.match(/oh-my-claudecode\/(\d+\.\d+\.\d+[^/]*)\//);
+    const pathMatch = __filename.match(/oh-my-qoder\/(\d+\.\d+\.\d+[^/]*)\//);
     if (pathMatch?.[1]) {
       return pathMatch[1];
     }
@@ -56,10 +56,10 @@ export function getRuntimePackageVersion(): string {
  * Signals (any one triggers "local"):
  *  - A `.git/` directory exists at the package root (dev clone)
  *  - The resolved package directory is reached via a symlink/junction
- *    (e.g. `npm link`, or a manual junction in `~/.claude/plugins/marketplaces/`)
+ *    (e.g. `npm link`, or a manual junction in `~/.qoder/plugins/marketplaces/`)
  *  - A `src/` directory exists at the package root — the npm-published
  *    package ships only `dist/`. The presence of `src/` proves the
- *    payload came from a fork (e.g. Claude Code's plugin cache copied
+ *    payload came from a fork (e.g. Qoder's plugin cache copied
  *    the full repo through a marketplace junction).
  *
  * Used by the HUD to append an "L" suffix to the version tag, so users
@@ -103,7 +103,7 @@ export function isRuntimePackageLocal(): boolean {
     }
 
     // Signal 3b: check ancestors for symlink/junction (covers cases where
-    // a parent dir like ~/.claude/plugins/marketplaces/omc is the junction).
+    // a parent dir like ~/.qoder/plugins/marketplaces/omc is the junction).
     let cursor = pkgRoot;
     for (let i = 0; i < 6; i++) {
       const parent = dirname(cursor);

@@ -23,7 +23,7 @@ function writePluginRoot(root: string, version: string): void {
   mkdirSync(join(root, 'docs'), { recursive: true });
   writeFileSync(join(root, 'hooks', 'hooks.json'), '{}\n');
   writeFileSync(join(root, 'skills', 'omc-setup', 'SKILL.md'), '# setup\n');
-  writeFileSync(join(root, 'docs', 'CLAUDE.md'), `<!-- OMC:VERSION:${version} -->\n`);
+  writeFileSync(join(root, 'docs', 'AGENTS.md'), `<!-- OMC:VERSION:${version} -->\n`);
 }
 
 afterEach(() => {
@@ -39,7 +39,7 @@ describe('repair-plugin-cache.mjs', () => {
     tempRoots.push(root);
 
     const configDir = join(root, '.claude');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
     const oldRoot = join(cacheBase, '4.11.6');
     const newRoot = join(cacheBase, '4.14.1');
     mkdirSync(join(configDir, 'plugins'), { recursive: true });
@@ -48,12 +48,12 @@ describe('repair-plugin-cache.mjs', () => {
     writeFileSync(join(configDir, 'plugins', 'installed_plugins.json'), JSON.stringify({
       version: 2,
       plugins: {
-        'oh-my-claudecode@omc': [{ installPath: oldRoot, version: '4.11.6', enabled: true }],
+        'oh-my-qoder@omc': [{ installPath: oldRoot, version: '4.11.6', enabled: true }],
       },
     }, null, 2));
 
     const result = spawnSync(process.execPath, [SCRIPT_PATH], {
-      env: { ...process.env, CLAUDE_CONFIG_DIR: configDir, OMC_REPAIR_PLUGIN_CACHE_PLATFORM: 'linux' },
+      env: { ...process.env, QODER_CONFIG_DIR: configDir, OMC_REPAIR_PLUGIN_CACHE_PLATFORM: 'linux' },
       encoding: 'utf-8',
     });
 
@@ -62,7 +62,7 @@ describe('repair-plugin-cache.mjs', () => {
     expect(result.stdout).toContain('Repaired plugin cache references');
 
     const registry = JSON.parse(readFileSync(join(configDir, 'plugins', 'installed_plugins.json'), 'utf-8'));
-    expect(registry.plugins['oh-my-claudecode@omc'][0]).toMatchObject({
+    expect(registry.plugins['oh-my-qoder@omc'][0]).toMatchObject({
       installPath: newRoot,
       version: '4.14.1',
       enabled: true,
@@ -78,17 +78,17 @@ describe('repair-plugin-cache.mjs', () => {
     tempRoots.push(root);
 
     const configDir = join(root, '.claude');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
     const oldRoot = join(cacheBase, '4.11.6');
     const newRoot = join(cacheBase, '4.14.1');
     mkdirSync(join(configDir, 'plugins'), { recursive: true });
     writePluginRoot(newRoot, '4.14.1');
     writeFileSync(join(configDir, 'plugins', 'installed_plugins.json'), JSON.stringify({
-      'oh-my-claudecode@omc': [{ installPath: oldRoot, version: '4.11.6' }],
+      'oh-my-qoder@omc': [{ installPath: oldRoot, version: '4.11.6' }],
     }, null, 2));
 
     const result = spawnSync(process.execPath, [SCRIPT_PATH], {
-      env: { ...process.env, CLAUDE_CONFIG_DIR: configDir, OMC_REPAIR_PLUGIN_CACHE_PLATFORM: 'linux' },
+      env: { ...process.env, QODER_CONFIG_DIR: configDir, OMC_REPAIR_PLUGIN_CACHE_PLATFORM: 'linux' },
       encoding: 'utf-8',
     });
 
@@ -98,7 +98,7 @@ describe('repair-plugin-cache.mjs', () => {
     expect(readlinkSync(oldRoot)).toBe('4.14.1');
     expect(existsSync(join(oldRoot, 'hooks', 'hooks.json'))).toBe(true);
     const registry = JSON.parse(readFileSync(join(configDir, 'plugins', 'installed_plugins.json'), 'utf-8'));
-    expect(registry['oh-my-claudecode@omc'][0]).toMatchObject({
+    expect(registry['oh-my-qoder@omc'][0]).toMatchObject({
       installPath: newRoot,
       version: '4.14.1',
     });
@@ -109,7 +109,7 @@ describe('repair-plugin-cache.mjs', () => {
     tempRoots.push(root);
 
     const configDir = join(root, '.claude');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
     const pluginRoot = join(cacheBase, '4.14.4');
     writePluginRoot(pluginRoot, '4.14.4');
     writeFileSync(join(pluginRoot, 'hooks', 'hooks.json'), JSON.stringify({
@@ -118,14 +118,14 @@ describe('repair-plugin-cache.mjs', () => {
           matcher: '*',
           hooks: [{
             type: 'command',
-            command: 'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs',
+            command: 'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs',
           }],
         }],
       },
     }, null, 2));
 
     const result = spawnSync(process.execPath, [SCRIPT_PATH], {
-      env: { ...process.env, CLAUDE_CONFIG_DIR: configDir },
+      env: { ...process.env, QODER_CONFIG_DIR: configDir },
       encoding: 'utf-8',
     });
 
@@ -133,7 +133,7 @@ describe('repair-plugin-cache.mjs', () => {
     expect(result.stdout).toContain('hooks=platform');
     const hooksJson = JSON.parse(readFileSync(join(pluginRoot, 'hooks', 'hooks.json'), 'utf-8'));
     expect(hooksJson.hooks.SessionEnd[0].hooks[0].command).toBe(
-      'sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs',
+      'sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs',
     );
   });
 
@@ -142,7 +142,7 @@ describe('repair-plugin-cache.mjs', () => {
     tempRoots.push(root);
 
     const configDir = join(root, '.claude');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
     const pluginRoot = join(cacheBase, '4.14.4');
     writePluginRoot(pluginRoot, '4.14.4');
     writeFileSync(
@@ -151,7 +151,7 @@ describe('repair-plugin-cache.mjs', () => {
     );
 
     const result = spawnSync(process.execPath, [SCRIPT_PATH], {
-      env: { ...process.env, CLAUDE_CONFIG_DIR: configDir },
+      env: { ...process.env, QODER_CONFIG_DIR: configDir },
       encoding: 'utf-8',
     });
 
@@ -170,7 +170,7 @@ describe('repair-plugin-cache.mjs', () => {
 
     expect(commands.length).toBeGreaterThan(0);
     for (const { event, command } of commands) {
-      expect(command, event).toMatch(/^sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs /);
+      expect(command, event).toMatch(/^sh "\$QODER_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs /);
       expect(command, event).not.toContain('/bin/sh');
     }
   });
@@ -180,7 +180,7 @@ describe('repair-plugin-cache.mjs', () => {
     tempRoots.push(root);
 
     const configDir = join(root, '.claude');
-    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
     const pluginRoot = join(cacheBase, '4.14.4');
     writePluginRoot(pluginRoot, '4.14.4');
     writeFileSync(join(pluginRoot, 'hooks', 'hooks.json'), JSON.stringify({
@@ -189,21 +189,21 @@ describe('repair-plugin-cache.mjs', () => {
           matcher: '*',
           hooks: [{
             type: 'command',
-            command: 'sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs',
+            command: 'sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs',
           }],
         }],
       },
     }, null, 2));
 
     const result = spawnSync(process.execPath, [SCRIPT_PATH], {
-      env: { ...process.env, CLAUDE_CONFIG_DIR: configDir, OMC_REPAIR_PLUGIN_CACHE_PLATFORM: 'win32' },
+      env: { ...process.env, QODER_CONFIG_DIR: configDir, OMC_REPAIR_PLUGIN_CACHE_PLATFORM: 'win32' },
       encoding: 'utf-8',
     });
 
     expect(result.status).toBe(0);
     const hooksJson = JSON.parse(readFileSync(join(pluginRoot, 'hooks', 'hooks.json'), 'utf-8'));
     expect(hooksJson.hooks.SessionEnd[0].hooks[0].command).toBe(
-      'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs',
+      'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs',
     );
   });
 

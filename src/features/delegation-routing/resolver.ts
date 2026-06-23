@@ -65,7 +65,7 @@ function resolveExplicitTool(
 ): DelegationDecision {
   // Only 'Task' is supported - explicit tool invocation always uses Claude
   return {
-    provider: 'claude',
+    provider: 'qoder',
     tool: 'Task',
     agentOrModel: agentRole,
     reason: `Explicit tool invocation: ${tool}`,
@@ -93,7 +93,7 @@ function resolveFromConfig(
     const claudeAgent = route.agentType || agentRole;
     const modelEvidence = route.model ? `; ignored external model "${route.model}"` : '';
     return {
-      provider: 'claude',
+      provider: 'qoder',
       tool: 'Task',
       agentOrModel: claudeAgent,
       reason: `Configured routing for role "${agentRole}" (deprecated provider "${provider}", falling back to Claude Task${modelEvidence})`,
@@ -128,7 +128,7 @@ function resolveDefault(
 
   if (defaultAgent) {
     return {
-      provider: 'claude',
+      provider: 'qoder',
       tool: 'Task',
       agentOrModel: defaultAgent,
       reason: `Default heuristic: role "${agentRole}" → Claude subagent "${defaultAgent}"`,
@@ -136,7 +136,7 @@ function resolveDefault(
   }
 
   // Fall back to default provider or claude
-  const defaultProvider = config?.defaultProvider || 'claude';
+  const defaultProvider = config?.defaultProvider || 'qoder';
 
   if (isDeprecatedMcpProvider(defaultProvider)) {
     console.warn(DEPRECATED_MCP_PROVIDER_WARNING);
@@ -144,7 +144,7 @@ function resolveDefault(
 
   // Default to claude Task (codex/gemini default providers fall back to claude)
   return {
-    provider: 'claude',
+    provider: 'qoder',
     tool: 'Task',
     agentOrModel: agentRole,
     reason: `Fallback to Claude Task for role "${agentRole}"`,
@@ -158,7 +158,7 @@ export function isDeprecatedMcpProvider(
 }
 
 /**
- * Parse fallback chain format ["claude:explore", "codex:gpt-5"]
+ * Parse fallback chain format ["qoder:explore", "codex:gpt-5"]
  */
 export function parseFallbackChain(
   fallback: string[] | undefined

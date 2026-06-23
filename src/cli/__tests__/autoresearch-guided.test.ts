@@ -431,7 +431,7 @@ describe('spawnAutoresearchSetupTmux', () => {
           expect(typeof args[9]).toBe('string');
           expect(String(args[9])).toContain('wrapped:CODEX_HOME=');
           expect(String(args[9])).toContain(`CODEX_HOME=${repo}/.omx/tmp/omc-autoresearch-setup-kf12oi/codex-home`);
-          expect(String(args[9])).toContain('claude');
+          expect(String(args[9])).toContain('qoder');
           expect(String(args[9])).toContain('--dangerously-skip-permissions');
           return '%42\n';
         }
@@ -452,7 +452,7 @@ describe('spawnAutoresearchSetupTmux', () => {
       spawnAutoresearchSetupTmux(repo);
 
       expect(buildTmuxShellCommandWithEnvMock).toHaveBeenCalledWith(
-        'claude',
+        'qoder',
         ['--dangerously-skip-permissions'],
         { CODEX_HOME: `${repo}/.omx/tmp/omc-autoresearch-setup-kf12oi/codex-home` },
       );
@@ -462,7 +462,7 @@ describe('spawnAutoresearchSetupTmux', () => {
         ['send-keys', '-t', '%42', '-l', buildAutoresearchSetupSlashCommand()],
         expect.objectContaining({ stripTmux: true }),
       );
-      expect(logSpy).toHaveBeenCalledWith('\nAutoresearch setup launched in background Claude session.');
+      expect(logSpy).toHaveBeenCalledWith('\nAutoresearch setup launched in background Qoder session.');
       expect(tmuxExecMock).toHaveBeenCalledWith(['set-option', '-t', 'omc-autoresearch-setup-kf12oi', 'set-clipboard', 'on'], { stripTmux: true, stdio: 'ignore' });
       expect(tmuxExecMock).toHaveBeenCalledWith(['set-option', '-at', 'omc-autoresearch-setup-kf12oi', 'terminal-features', ',*:clipboard'], { stripTmux: true, stdio: 'ignore' });
       expect(logSpy).toHaveBeenCalledWith('  Attach:   tmux attach -t omc-autoresearch-setup-kf12oi');
@@ -491,7 +491,7 @@ describe('spawnAutoresearchSetupTmux', () => {
       spawnAutoresearchSetupTmux(repo);
 
       expect(buildTmuxShellCommandWithEnvMock).toHaveBeenCalledWith(
-        'claude',
+        'qoder',
         ['--dangerously-skip-permissions'],
         { CODEX_HOME: `${repo}/.omx/tmp/omc-autoresearch-setup-kf12oi/codex-home` },
       );

@@ -1,11 +1,11 @@
 import { spawnSync } from 'child_process';
 import { isAbsolute, normalize, sep, win32 as win32Path } from 'path';
 import { validateTeamName } from './team-name.js';
-import { normalizeToCcAlias } from '../features/delegation-enforcer.js';
+import { normalizeToQoderAlias } from '../features/delegation-enforcer.js';
 import { isBedrock, isVertexAI, isProviderSpecificModelId } from '../config/models.js';
 import { isExternalLLMDisabled } from '../lib/security-config.js';
 
-export type CliAgentType = 'claude' | 'codex' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
+export type CliAgentType = 'qoder' | 'codex' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
 
 export interface CliAgentContract {
   agentType: CliAgentType;
@@ -170,32 +170,32 @@ export const _testInternals = {
 };
 
 /**
- * Detect parent launch env for Claude Code API-key auth.
+ * Detect parent launch env for Qoder API-key auth.
  *
- * Claude Code's `--dangerously-skip-permissions` only bypasses permission
+ * Qoder's `--dangerously-skip-permissions` only bypasses permission
  * prompts. When an API key is present, `--bare` is needed to avoid the
  * interactive OAuth/session login path for team worker panes.
  */
-export function shouldUseClaudeBareMode(env: NodeJS.ProcessEnv = process.env): boolean {
+export function shouldUseQoderBareMode(env: NodeJS.ProcessEnv = process.env): boolean {
   return typeof env.ANTHROPIC_API_KEY === 'string' && env.ANTHROPIC_API_KEY.trim().length > 0;
 }
 
 const CONTRACTS: Record<CliAgentType, CliAgentContract> = {
-  claude: {
-    agentType: 'claude',
-    binary: 'claude',
-    installInstructions: 'Install Claude CLI: https://claude.ai/download',
+  qoder: {
+    agentType: 'qoder',
+    binary: 'qodercli',
+    installInstructions: 'Install Qoder CLI: https://qoder.ai/download',
     buildLaunchArgs(model?: string, extraFlags: string[] = []): string[] {
       const args = ['--dangerously-skip-permissions'];
-      if (shouldUseClaudeBareMode() && !extraFlags.includes('--bare')) {
+      if (shouldUseQoderBareMode() && !extraFlags.includes('--bare')) {
         args.push('--bare');
       }
       if (model) {
         // Provider-specific model IDs (Bedrock, Vertex) must be passed as-is.
-        // Normalizing them to aliases like "sonnet" causes Claude Code to expand
+        // Normalizing them to aliases like "sonnet" causes Qoder to expand
         // them to Anthropic API names (claude-sonnet-4-6) which are invalid on
         // these providers. (issue #1695)
-        const resolved = isProviderSpecificModelId(model) ? model : normalizeToCcAlias(model);
+        const resolved = isProviderSpecificModelId(model) ? model : normalizeToQoderAlias(model);
         args.push('--model', resolved);
       }
       return [...args, ...extraFlags];
@@ -311,10 +311,10 @@ export function getContract(agentType: CliAgentType): CliAgentContract {
   if (!contract) {
     throw new Error(`Unknown agent type: ${agentType}. Supported: ${Object.keys(CONTRACTS).join(', ')}`);
   }
-  if (agentType !== 'claude' && isExternalLLMDisabled()) {
+  if (agentType !== 'qoder' && isExternalLLMDisabled()) {
     throw new Error(
       `External LLM provider "${agentType}" is blocked by security policy (disableExternalLLM). ` +
-      `Only Claude workers are allowed in the current security configuration.`
+      `Only Qoder workers are allowed in the current security configuration.`
     );
   }
   return contract;
@@ -411,13 +411,13 @@ export function buildWorkerCommand(agentType: CliAgentType, config: WorkerLaunch
 
 const WORKER_MODEL_ENV_ALLOWLIST = [
   'ANTHROPIC_MODEL',
-  'CLAUDE_MODEL',
+  'QODER_MODEL',
   'ANTHROPIC_BASE_URL',
-  'CLAUDE_CODE_USE_BEDROCK',
-  'CLAUDE_CODE_USE_VERTEX',
-  'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-  'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-  'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+  'QODER_USE_BEDROCK',
+  'QODER_USE_VERTEX',
+  'QODER_BEDROCK_OPUS_MODEL',
+  'QODER_BEDROCK_SONNET_MODEL',
+  'QODER_BEDROCK_HAIKU_MODEL',
   'ANTHROPIC_DEFAULT_OPUS_MODEL',
   'ANTHROPIC_DEFAULT_SONNET_MODEL',
   'ANTHROPIC_DEFAULT_HAIKU_MODEL',
@@ -470,22 +470,22 @@ export function isPromptModeAgent(agentType: CliAgentType): boolean {
 }
 
 /**
- * Resolve the active model for Claude team workers on Bedrock/Vertex.
+ * Resolve the active model for Qoder team workers on Bedrock/Vertex.
  *
  * When running on a non-standard provider (Bedrock, Vertex), workers need
  * the provider-specific model ID passed explicitly via --model. Without it,
- * Claude Code falls back to its built-in default (claude-sonnet-4-6) which
+ * Qoder falls back to its built-in default (claude-sonnet-4-6) which
  * is invalid on these providers.
  *
  * Resolution order:
- *   1. ANTHROPIC_MODEL / CLAUDE_MODEL env vars (user's explicit setting)
- *   2. Provider tier-specific env vars (CLAUDE_CODE_BEDROCK_SONNET_MODEL, etc.)
- *   3. undefined — let Claude Code handle its own default
+ *   1. ANTHROPIC_MODEL / QODER_MODEL env vars (user's explicit setting)
+ *   2. Provider tier-specific env vars (QODER_BEDROCK_SONNET_MODEL, etc.)
+ *   3. undefined — let Qoder handle its own default
  *
  * Returns undefined when not on Bedrock/Vertex (standard Anthropic API
  * handles bare aliases fine).
  */
-export function resolveClaudeWorkerModel(
+export function resolveQoderWorkerModel(
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
   // When force-inherit routing is enabled, do not resolve/override worker model.
@@ -500,14 +500,14 @@ export function resolveClaudeWorkerModel(
   }
 
   // Direct model env vars — highest priority
-  const directModel = env.ANTHROPIC_MODEL || env.CLAUDE_MODEL || '';
+  const directModel = env.ANTHROPIC_MODEL || env.QODER_MODEL || '';
   if (directModel) {
     return directModel;
   }
 
   // Fallback: Bedrock tier-specific env vars (default to sonnet tier)
   const bedrockModel =
-    env.CLAUDE_CODE_BEDROCK_SONNET_MODEL ||
+    env.QODER_BEDROCK_SONNET_MODEL ||
     env.ANTHROPIC_DEFAULT_SONNET_MODEL ||
     '';
   if (bedrockModel) {

@@ -11,7 +11,7 @@ function readProjectFile(...segments: string[]): string {
   return readFileSync(join(PROJECT_ROOT, ...segments), "utf-8");
 }
 
-describe("Claude Code /goal adapter docs contract", () => {
+describe("Qoder /goal adapter docs contract", () => {
   const adapterDoc = readProjectFile(
     "docs",
     "design",
@@ -19,25 +19,25 @@ describe("Claude Code /goal adapter docs contract", () => {
   );
   const referenceDoc = readProjectFile("docs", "REFERENCE.md");
 
-  it("documents Claude/Anthropic as the only authority for Claude Code /goal facts", () => {
+  it("documents Claude/Anthropic as the only authority for Qoder /goal facts", () => {
     expect(adapterDoc).toContain("https://code.claude.com/docs/en/goal");
     expect(adapterDoc).toContain(
-      "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+      "https://raw.githubusercontent.com/anthropics/qoder/main/CHANGELOG.md",
     );
     expect(adapterDoc).toContain(
-      "they are not authority for Claude Code `/goal` facts",
+      "they are not authority for Qoder `/goal` facts",
     );
   });
 
   it("documents the hidden-state non-mutation boundary", () => {
     expect(adapterDoc).toContain(
-      "it does not mutate hidden Claude Code goal state",
+      "it does not mutate hidden Qoder goal state",
     );
     expect(adapterDoc).toContain(
-      "instead of writing hidden Claude Code session state directly",
+      "instead of writing hidden Qoder session state directly",
     );
     expect(referenceDoc).toContain(
-      "it must not mutate hidden Claude Code session state directly",
+      "it must not mutate hidden Qoder session state directly",
     );
   });
 
@@ -65,7 +65,7 @@ describe("Claude Code /goal adapter docs contract", () => {
 
   it("links the adapter design from REFERENCE.md", () => {
     expect(referenceDoc).toContain(
-      "[Claude Code `/goal` Adapter Design](#claude-code-goal-adapter-design)",
+      "[Qoder `/goal` Adapter Design](#qoder-goal-adapter-design)",
     );
     expect(referenceDoc).toContain("./design/CLAUDE_CODE_GOAL_ADAPTER.md");
   });

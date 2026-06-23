@@ -21,7 +21,7 @@ interface ProviderProbe {
 }
 
 const PROVIDER_BINARY: Record<TeamRoleProvider, string> = {
-  claude: 'claude',
+  qoder: 'qoder',
   codex: 'codex',
   gemini: 'gemini',
   grok: 'grok',
@@ -59,12 +59,12 @@ function collectConfiguredProviders(): Set<TeamRoleProvider> {
   const cfg = loadConfig();
   const providers = new Set<TeamRoleProvider>();
   // Always include claude so orchestrator presence is reported.
-  providers.add('claude');
+  providers.add('qoder');
 
   const roleRouting = cfg.team?.roleRouting ?? {};
   for (const spec of Object.values(roleRouting)) {
     const provider = spec?.provider as TeamRoleProvider | undefined;
-    if (provider === 'claude' || provider === 'codex' || provider === 'gemini' || provider === 'grok' || provider === 'cursor' || provider === 'antigravity') {
+    if (provider === 'qoder' || provider === 'codex' || provider === 'gemini' || provider === 'grok' || provider === 'cursor' || provider === 'antigravity') {
       providers.add(provider);
     }
   }

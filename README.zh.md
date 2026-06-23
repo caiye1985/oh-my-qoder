@@ -1,21 +1,21 @@
 [English](README.md) | [한국어](README.ko.md) | 中文 | [日本語](README.ja.md) | [Español](README.es.md) | [Tiếng Việt](README.vi.md) | [Português](README.pt.md)
 
-# oh-my-claudecode
+# oh-my-qoder
 
-[![npm version](https://img.shields.io/npm/v/oh-my-claude-sisyphus?color=cb3837)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![npm downloads](https://img.shields.io/npm/dm/oh-my-claude-sisyphus?color=blue)](https://www.npmjs.com/package/oh-my-claude-sisyphus)
-[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-claudecode?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-claudecode/stargazers)
+[![npm version](https://img.shields.io/npm/v/oh-my-qoder?color=cb3837)](https://www.npmjs.com/package/oh-my-qoder)
+[![npm downloads](https://img.shields.io/npm/dm/oh-my-qoder?color=blue)](https://www.npmjs.com/package/oh-my-qoder)
+[![GitHub stars](https://img.shields.io/github/stars/Yeachan-Heo/oh-my-qoder?style=flat&color=yellow)](https://github.com/Yeachan-Heo/oh-my-qoder/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Sponsor](https://img.shields.io/badge/Sponsor-❤️-red?style=flat&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 [![Discord](https://img.shields.io/discord/1452487457085063218?color=5865F2&logo=discord&logoColor=white&label=Discord)](https://discord.gg/sj4exxQ9v)
 
 > **Codex 用户：** 查看 [oh-my-codex](https://github.com/Yeachan-Heo/oh-my-codex) — 为 OpenAI Codex CLI 提供同样的编排体验。
 
-**Claude Code 的多智能体编排系统。零学习曲线。**
+**Qoder 的多智能体编排系统。零学习曲线。**
 
-*无需学习 Claude Code，直接使用 OMC。*
+*无需学习 Qoder，直接使用 OMC。*
 
-[快速开始](#快速开始) • [文档](https://yeachan-heo.github.io/oh-my-claudecode-website) • [CLI 参考](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#cli-reference) • [工作流](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#workflows) • [迁移指南](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
+[快速开始](#快速开始) • [文档](https://yeachan-heo.github.io/oh-my-qoder-website) • [CLI 参考](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#cli-reference) • [工作流](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#workflows) • [迁移指南](docs/MIGRATION.md) • [Discord](https://discord.gg/sj4exxQ9v)
 
 ---
 
@@ -23,8 +23,8 @@
 
 **第一步：安装**
 ```bash
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-qoder
+/plugin install oh-my-qoder
 ```
 
 **第二步：配置**
@@ -32,7 +32,7 @@
 /omc-setup
 ```
 
-如果你通过 `omc --plugin-dir <path>` 或 `claude --plugin-dir <path>` 运行 OMC，请在 `omc setup` 中添加 `--plugin-dir-mode`（或提前导出 `OMC_PLUGIN_ROOT`），以避免复制插件在运行时已经提供的技能/代理。有关完整的决策矩阵和所有可用标志，请参阅 [REFERENCE.md 中的 Plugin directory flags 部分](./docs/REFERENCE.md#plugin-directory-flags)。
+如果你通过 `omc --plugin-dir <path>` 或 `qodercli --plugin-dir <path>` 运行 OMC，请在 `omc setup` 中添加 `--plugin-dir-mode`（或提前导出 `OMC_PLUGIN_ROOT`），以避免复制插件在运行时已经提供的技能/代理。有关完整的决策矩阵和所有可用标志，请参阅 [REFERENCE.md 中的 Plugin directory flags 部分](./docs/REFERENCE.md#plugin-directory-flags)。
 
 <!-- TODO(i18n): verify translation -->
 
@@ -65,12 +65,12 @@ Team 按阶段化流水线运行：
 
 `team-plan → team-prd → team-exec → team-verify → team-fix (loop)`
 
-在 `~/.claude/settings.json` 中启用 Claude Code 原生团队：
+在 `~/.qoder/settings.json` 中启用 Qoder 原生团队：
 
 ```json
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "QODER_EXPERIMENTAL_AGENT_TEAMS": "1"
   }
 }
 ```
@@ -84,7 +84,7 @@ Team 按阶段化流水线运行：
 ```bash
 /omc-teams 2:codex   "review auth module for security issues"
 /omc-teams 2:gemini  "redesign UI components for accessibility"
-/omc-teams 1:claude  "implement the payment flow"
+/omc-teams 1:qoder  "implement the payment flow"
 ```
 
 如需在一个命令中混合使用 Codex + Gemini，请使用 **`/ccg`** 技能：
@@ -97,12 +97,12 @@ Team 按阶段化流水线运行：
 |-------|---------|----------|
 | `/omc-teams N:codex` | N 个 Codex CLI 窗格 | 代码审查、安全分析、架构 |
 | `/omc-teams N:gemini` | N 个 Gemini CLI 窗格 | UI/UX 设计、文档、大上下文任务 |
-| `/omc-teams N:claude` | N 个 Claude CLI 窗格 | 通过 tmux 中的 Claude CLI 处理通用任务 |
+| `/omc-teams N:qoder` | N 个 Qoder CLI 窗格 | 通过 tmux 中的 Qoder CLI 处理通用任务 |
 | `/ccg` | 1 个 Codex + 1 个 Gemini | 并行三模型编排 |
 
 工作者按需生成，任务完成后自动退出 — 无空闲资源浪费。需要安装 `codex` / `gemini` CLI 并有活跃的 tmux 会话。
 
-> **注意：包命名** — 项目品牌名为 **oh-my-claudecode**（仓库、插件、命令），但 npm 包以 [`oh-my-claude-sisyphus`](https://www.npmjs.com/package/oh-my-claude-sisyphus) 发布。通过 npm/bun 安装 CLI 工具时，请使用 `npm install -g oh-my-claude-sisyphus`。
+> **注意：包命名** — 项目品牌名为 **oh-my-qoder**（仓库、插件、命令），但 npm 包以 [`oh-my-qoder`](https://www.npmjs.com/package/oh-my-qoder) 发布。通过 npm/bun 安装 CLI 工具时，请使用 `npm install -g oh-my-qoder`。
 
 ### 更新
 
@@ -122,15 +122,15 @@ Team 按阶段化流水线运行：
 /omc-doctor
 ```
 
-<h1 align="center">你的 Claude 已被注入超能力。</h1>
+<h1 align="center">你的 Qoder 已被注入超能力。</h1>
 
 <p align="center">
-  <img src="assets/omc-character.jpg" alt="oh-my-claudecode" width="400" />
+  <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
 </p>
 
 ---
 
-## 为什么选择 oh-my-claudecode？
+## 为什么选择 oh-my-qoder？
 
 - **无需配置** - 开箱即用，智能默认设置
 - **Team 优先编排** - Team 是标准的多智能体界面（swarm/ultrapilot 是兼容性外观）
@@ -146,13 +146,13 @@ Team 按阶段化流水线运行：
 ## 功能特性
 
 ### 执行模式
-针对不同场景的多种策略 - 从全自动构建到 token 高效重构。[了解更多 →](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#execution-modes)
+针对不同场景的多种策略 - 从全自动构建到 token 高效重构。[了解更多 →](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#execution-modes)
 
 | 模式 | 特点 | 适用场景 |
 |------|---------|---------|
-| **Team（推荐）** | 阶段化流水线 | 在共享任务列表上协作的 Claude 智能体 |
+| **Team（推荐）** | 阶段化流水线 | 在共享任务列表上协作的 Qoder 智能体 |
 | **omc-teams** | tmux CLI 工作者 | Codex/Gemini CLI 任务；按需生成，完成后退出 |
-| **ccg** | 三模型并行 | Codex（分析）+ Gemini（设计），Claude 合成 |
+| **ccg** | 三模型并行 | Codex（分析）+ Gemini（设计），Qoder 合成 |
 | **Autopilot** | 自主执行 | 最小化繁琐配置的端到端功能开发 |
 | **Ultrawork** | 最大并行 | 不需要 Team 的并行修复/重构 |
 | **Ralph** | 持久模式 | 必须完整完成的任务 |
@@ -169,7 +169,7 @@ Team 按阶段化流水线运行：
 
 - **魔法关键词** - `ralph`、`ulw`、`plan` 提供显式控制
 - **HUD 状态栏** - 状态栏实时显示编排指标
-  - 如果你直接使用 `claude --plugin-dir <path>` 启动 Claude Code（绕过 `omc` shim），请在 shell 中导出 `OMC_PLUGIN_ROOT=<path>`，以便 HUD bundle 解析到与插件加载器相同的 checkout。详情见 [REFERENCE.md 中的 Plugin directory flags 部分](./docs/REFERENCE.md#plugin-directory-flags)。
+  - 如果你直接使用 `qodercli --plugin-dir <path>` 启动 Qoder（绕过 `omc` shim），请在 shell 中导出 `OMC_PLUGIN_ROOT=<path>`，以便 HUD bundle 解析到与插件加载器相同的 checkout。详情见 [REFERENCE.md 中的 Plugin directory flags 部分](./docs/REFERENCE.md#plugin-directory-flags)。
 
   <!-- TODO(i18n): verify translation -->
 - **技能学习** - 从会话中提取可复用模式
@@ -238,7 +238,7 @@ source: extracted
 
 ### 速率限制等待
 
-当速率限制重置时自动恢复 Claude Code 会话。
+当速率限制重置时自动恢复 Qoder 会话。
 
 ```bash
 omc wait          # 检查状态，获取指导
@@ -272,16 +272,16 @@ omc config-stop-callback discord --clear-tags
 
 ### OpenClaw 集成
 
-将 Claude Code 会话事件转发到 [OpenClaw](https://openclaw.ai/) 网关，通过您的 OpenClaw 代理实现自动化响应和工作流程。
+将 Qoder 会话事件转发到 [OpenClaw](https://openclaw.ai/) 网关，通过您的 OpenClaw 代理实现自动化响应和工作流程。
 
 **快速设置（推荐）：**
 
 ```bash
-/oh-my-claudecode:configure-notifications
+/oh-my-qoder:configure-notifications
 # → 提示时输入 "openclaw" → 选择 "OpenClaw Gateway"
 ```
 
-**手动设置：** 创建 `~/.claude/omc_config.openclaw.json`：
+**手动设置：** 创建 `~/.qoder/omc_config.openclaw.json`：
 
 ```json
 {
@@ -314,9 +314,9 @@ omc config-stop-callback discord --clear-tags
 | 事件 | 触发时机 | 主要模板变量 |
 |------|---------|-------------|
 | `session-start` | 会话开始时 | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | Claude 响应完成时 | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | Qoder 响应完成时 | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | 每次提交提示词时 | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude 请求用户输入时 | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder 请求用户输入时 | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | 工具调用前（高频） | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | 工具调用后（高频） | `{{toolName}}`, `{{sessionId}}` |
 
@@ -335,11 +335,11 @@ omc config-stop-callback discord --clear-tags
 ## 文档
 
 - **[完整参考](docs/REFERENCE.md)** - 完整功能文档
-- **[CLI 参考](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#cli-reference)** - 所有 `omc` 命令、标志和工具
-- **[通知指南](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#notifications)** - Discord、Telegram、Slack 和 webhook 设置
-- **[推荐工作流](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#workflows)** - 常见任务的经过实战检验的技能链
-- **[发布说明](https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#release-notes)** - 每个版本的新内容
-- **[网站](https://yeachan-heo.github.io/oh-my-claudecode-website)** - 交互式指南和示例
+- **[CLI 参考](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#cli-reference)** - 所有 `omc` 命令、标志和工具
+- **[通知指南](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#notifications)** - Discord、Telegram、Slack 和 webhook 设置
+- **[推荐工作流](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#workflows)** - 常见任务的经过实战检验的技能链
+- **[发布说明](https://yeachan-heo.github.io/oh-my-qoder-website/docs/#release-notes)** - 每个版本的新内容
+- **[网站](https://yeachan-heo.github.io/oh-my-qoder-website)** - 交互式指南和示例
 - **[迁移指南](docs/MIGRATION.md)** - 从 v2.x 升级
 - **[架构](docs/ARCHITECTURE.md)** - 底层工作原理
 - **[性能监控](docs/PERFORMANCE-MONITORING.md)** - 智能体追踪、调试和优化
@@ -348,8 +348,8 @@ omc config-stop-callback discord --clear-tags
 
 ## 环境要求
 
-- [Claude Code](https://docs.anthropic.com/claude-code) CLI
-- Claude Max/Pro 订阅 或 Anthropic API 密钥
+- [Qoder](https://docs.anthropic.com/claude-code) CLI
+- Qoder Max/Pro 订阅 或 Anthropic API 密钥
 
 ### 可选：多 AI 编排
 
@@ -360,7 +360,7 @@ OMC 可以选择性地调用外部 AI 提供商进行交叉验证和设计一致
 | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` | 设计审查、UI 一致性（1M token 上下文）|
 | [Codex CLI](https://github.com/openai/codex) | `npm install -g @openai/codex` | 架构验证、代码审查交叉检查 |
 
-**费用：** 3 个 Pro 计划（Claude + Gemini + ChatGPT）每月约 $60 即可覆盖所有功能。
+**费用：** 3 个 Pro 计划（Qoder + Gemini + ChatGPT）每月约 $60 即可覆盖所有功能。
 
 ---
 
@@ -380,11 +380,11 @@ MIT
 
 ## Star 历史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-claudecode&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)](https://www.star-history.com/#Yeachan-Heo/oh-my-qoder&type=date&legend=top-left)
 
 ## 💖 支持本项目
 
-如果 Oh-My-ClaudeCode 帮助了你的工作流，请考虑赞助：
+如果 Oh-My-Qoder 帮助了你的工作流，请考虑赞助：
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-❤️-red?style=for-the-badge&logo=github)](https://github.com/sponsors/Yeachan-Heo)
 

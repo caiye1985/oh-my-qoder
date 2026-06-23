@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 resolve_claude_config_dir() {
-  configured="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+  configured="${QODER_CONFIG_DIR:-$HOME/.claude}"
   configured="${configured%/}"
   case "$configured" in
     \~)

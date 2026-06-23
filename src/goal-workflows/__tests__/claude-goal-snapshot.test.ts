@@ -3,15 +3,15 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
-  ClaudeGoalSnapshotError,
-  parseClaudeGoalSnapshot,
-  readClaudeGoalSnapshotInput,
-  reconcileClaudeGoalSnapshot,
-} from '../claude-goal-snapshot.js';
+  QoderGoalSnapshotError,
+  parseQoderGoalSnapshot,
+  readQoderGoalSnapshotInput,
+  reconcileQoderGoalSnapshot,
+} from '../qoder-goal-snapshot.js';
 
-describe('claude goal snapshot reconciliation', () => {
-  it('normalizes Claude /goal JSON shape with objective synonym', () => {
-    const snapshot = parseClaudeGoalSnapshot({
+describe('qoder goal snapshot reconciliation', () => {
+  it('normalizes Qoder /goal JSON shape with objective synonym', () => {
+    const snapshot = parseQoderGoalSnapshot({
       goal: { objective: 'Ship the feature', status: 'completed', token_budget: 1000 },
       remainingTokens: 25,
     });
@@ -24,7 +24,7 @@ describe('claude goal snapshot reconciliation', () => {
   });
 
   it('accepts `condition` as a synonym for objective and `cleared` as cancelled', () => {
-    const snapshot = parseClaudeGoalSnapshot({
+    const snapshot = parseQoderGoalSnapshot({
       goal: { condition: 'Hold until tests pass', status: 'cleared' },
     });
     expect(snapshot.available).toBe(true);
@@ -33,18 +33,18 @@ describe('claude goal snapshot reconciliation', () => {
   });
 
   it('reports absent snapshots as warnings unless required', () => {
-    const optional = reconcileClaudeGoalSnapshot(null, { expectedObjective: 'Ship' });
+    const optional = reconcileQoderGoalSnapshot(null, { expectedObjective: 'Ship' });
     expect(optional.ok).toBe(true);
     expect(optional.warnings.join('\n')).toMatch(/share the current \/goal condition/);
 
-    const required = reconcileClaudeGoalSnapshot(null, { expectedObjective: 'Ship', requireSnapshot: true });
+    const required = reconcileQoderGoalSnapshot(null, { expectedObjective: 'Ship', requireSnapshot: true });
     expect(required.ok).toBe(false);
     expect(required.errors.join('\n')).toMatch(/share the current \/goal condition/);
   });
 
   it('detects objective mismatches and incomplete completion proof', () => {
-    const mismatch = reconcileClaudeGoalSnapshot(
-      parseClaudeGoalSnapshot({ goal: { objective: 'Different', status: 'active' } }),
+    const mismatch = reconcileQoderGoalSnapshot(
+      parseQoderGoalSnapshot({ goal: { objective: 'Different', status: 'active' } }),
       { expectedObjective: 'Expected', requireSnapshot: true, requireComplete: true },
     );
 
@@ -54,8 +54,8 @@ describe('claude goal snapshot reconciliation', () => {
   });
 
   it('accepts compatible complete proof', () => {
-    const result = reconcileClaudeGoalSnapshot(
-      parseClaudeGoalSnapshot({ goal: { objective: 'Expected objective', status: 'complete' } }),
+    const result = reconcileQoderGoalSnapshot(
+      parseQoderGoalSnapshot({ goal: { objective: 'Expected objective', status: 'complete' } }),
       { expectedObjective: 'Expected objective', requireSnapshot: true, requireComplete: true },
     );
 
@@ -64,17 +64,17 @@ describe('claude goal snapshot reconciliation', () => {
   });
 
   it('reads inline JSON and path input but rejects malformed sources', async () => {
-    const cwd = await mkdtemp(join(tmpdir(), 'omc-claude-goal-snapshot-'));
+    const cwd = await mkdtemp(join(tmpdir(), 'omc-qoder-goal-snapshot-'));
     try {
-      const fromJson = await readClaudeGoalSnapshotInput('{"goal":{"objective":"A","status":"active"}}', cwd);
+      const fromJson = await readQoderGoalSnapshotInput('{"goal":{"objective":"A","status":"active"}}', cwd);
       expect(fromJson?.objective).toBe('A');
 
       await writeFile(join(cwd, 'goal.json'), '{"goal":{"objective":"B","status":"complete"}}');
-      const fromPath = await readClaudeGoalSnapshotInput('goal.json', cwd);
+      const fromPath = await readQoderGoalSnapshotInput('goal.json', cwd);
       expect(fromPath?.objective).toBe('B');
 
-      await expect(readClaudeGoalSnapshotInput('{not-json}', cwd)).rejects.toBeInstanceOf(ClaudeGoalSnapshotError);
-      await expect(readClaudeGoalSnapshotInput('missing.json', cwd)).rejects.toThrow(/neither valid JSON nor a readable path/);
+      await expect(readQoderGoalSnapshotInput('{not-json}', cwd)).rejects.toBeInstanceOf(QoderGoalSnapshotError);
+      await expect(readQoderGoalSnapshotInput('missing.json', cwd)).rejects.toThrow(/neither valid JSON nor a readable path/);
     } finally {
       await rm(cwd, { recursive: true, force: true });
     }

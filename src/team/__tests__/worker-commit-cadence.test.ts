@@ -36,7 +36,7 @@ function readSettings(worktreePath: string): Record<string, unknown> {
 }
 
 // ---------------------------------------------------------------------------
-// 1. settings.json shape — must match Claude Code hook schema
+// 1. settings.json shape — must match Qoder hook schema
 // ---------------------------------------------------------------------------
 
 describe('installPostToolUseHook – settings.json shape', () => {
@@ -50,7 +50,7 @@ describe('installPostToolUseHook – settings.json shape', () => {
     rmSync(worktreePath, { recursive: true, force: true });
   });
 
-  it('creates .claude/settings.json with correct Claude Code hook schema', async () => {
+  it('creates .qoder/settings.json with correct Qoder hook schema', async () => {
     await installPostToolUseHook(worktreePath, 'writer');
 
     const settings = readSettings(worktreePath);

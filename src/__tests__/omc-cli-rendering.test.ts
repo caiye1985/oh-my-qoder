@@ -12,16 +12,16 @@ describe('omc CLI rendering', () => {
       .toBe('omc team api claim-task');
   });
 
-  it('falls back to the plugin bridge when omc is unavailable but CLAUDE_PLUGIN_ROOT is set', () => {
-    const env = { CLAUDE_PLUGIN_ROOT: '/tmp/plugin-root' } as NodeJS.ProcessEnv;
+  it('falls back to the plugin bridge when omc is unavailable but QODER_PLUGIN_ROOT is set', () => {
+    const env = { QODER_PLUGIN_ROOT: '/tmp/plugin-root' } as NodeJS.ProcessEnv;
     expect(resolveOmcCliPrefix({ omcAvailable: false, env }))
-      .toBe('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs');
+      .toBe('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs');
     expect(formatOmcCliInvocation('autoresearch --mission "m"', { omcAvailable: false, env }))
-      .toBe('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs autoresearch --mission "m"');
+      .toBe('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs autoresearch --mission "m"');
   });
 
   it('rewrites inline and list-form omc commands for plugin installs', () => {
-    const env = { CLAUDE_PLUGIN_ROOT: '/tmp/plugin-root' } as NodeJS.ProcessEnv;
+    const env = { QODER_PLUGIN_ROOT: '/tmp/plugin-root' } as NodeJS.ProcessEnv;
     const input = [
       'Run `omc autoresearch --mission "m" --eval "e"`.',
       '- omc team api claim-task --input \'{}\' --json',
@@ -30,21 +30,21 @@ describe('omc CLI rendering', () => {
 
     const output = rewriteOmcCliInvocations(input, { omcAvailable: false, env });
 
-    expect(output).toContain('`node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs autoresearch --mission "m" --eval "e"`');
-    expect(output).toContain('- node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs team api claim-task --input \'{}\' --json');
-    expect(output).toContain('> node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs ask codex --agent-prompt critic "check"');
+    expect(output).toContain('`node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs autoresearch --mission "m" --eval "e"`');
+    expect(output).toContain('- node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs team api claim-task --input \'{}\' --json');
+    expect(output).toContain('> node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs ask codex --agent-prompt critic "check"');
   });
 
-  it('routes ask invocations through the plugin bridge inside an active Claude session when CLAUDE_PLUGIN_ROOT is set', () => {
+  it('routes ask invocations through the plugin bridge inside an active Qoder session when QODER_PLUGIN_ROOT is set', () => {
     const env = {
-      CLAUDE_PLUGIN_ROOT: '/tmp/plugin-root',
-      CLAUDECODE: '1',
+      QODER_PLUGIN_ROOT: '/tmp/plugin-root',
+      QODER: '1',
       CLAUDE_SESSION_ID: 'session-123',
     } as NodeJS.ProcessEnv;
 
-    expect(resolveOmcCliPrefix({ omcAvailable: false, env })).toBe('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs');
+    expect(resolveOmcCliPrefix({ omcAvailable: false, env })).toBe('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs');
     expect(formatOmcCliInvocation('ask codex --prompt "check"', { omcAvailable: false, env }))
-      .toBe('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs ask codex --prompt "check"');
+      .toBe('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs ask codex --prompt "check"');
 
     const input = [
       'Run `omc ask codex "review"`.',
@@ -52,8 +52,8 @@ describe('omc CLI rendering', () => {
     ].join('\n');
 
     const output = rewriteOmcCliInvocations(input, { omcAvailable: false, env });
-    expect(output).toContain('`node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs ask codex "review"`');
-    expect(output).toContain('> node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs ask gemini --prompt "improve docs"');
+    expect(output).toContain('`node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs ask codex "review"`');
+    expect(output).toContain('> node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs ask gemini --prompt "improve docs"');
   });
 
   it('leaves text unchanged when omc remains the selected prefix', () => {

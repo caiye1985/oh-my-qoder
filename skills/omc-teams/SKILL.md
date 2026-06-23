@@ -14,18 +14,18 @@ Spawn N CLI worker processes in tmux panes to execute tasks in parallel. Support
 ## Usage
 
 ```bash
-/oh-my-claudecode:omc-teams N:claude "task description"
-/oh-my-claudecode:omc-teams N:codex "task description"
-/oh-my-claudecode:omc-teams N:gemini "task description"
-/oh-my-claudecode:omc-teams N:antigravity "task description"
-/oh-my-claudecode:omc-teams N:grok "task description"
-/oh-my-claudecode:omc-teams N:cursor "implementation task description"
+/oh-my-qoder:omc-teams N:qoder "task description"
+/oh-my-qoder:omc-teams N:codex "task description"
+/oh-my-qoder:omc-teams N:gemini "task description"
+/oh-my-qoder:omc-teams N:antigravity "task description"
+/oh-my-qoder:omc-teams N:grok "task description"
+/oh-my-qoder:omc-teams N:cursor "implementation task description"
 ```
 
 ### Parameters
 
 - **N** - Number of CLI workers (1-10)
-- **agent-type** - `claude` (Claude CLI), `codex` (OpenAI Codex CLI), `gemini` (Google Gemini CLI; enterprise/API-key tier), `antigravity` (Antigravity CLI `agy`; Google's successor to the Gemini CLI), `grok` (xAI Grok CLI), or `cursor` (Cursor agent CLI; executor-style tasks only)
+- **agent-type** - `claude` (Qoder CLI), `codex` (OpenAI Codex CLI), `gemini` (Google Gemini CLI; enterprise/API-key tier), `antigravity` (Antigravity CLI `agy`; Google's successor to the Gemini CLI), `grok` (xAI Grok CLI), or `cursor` (Cursor agent CLI; executor-style tasks only)
 - **task** - Task description to distribute across all workers
 
 ### Examples
@@ -43,7 +43,7 @@ Spawn N CLI worker processes in tmux panes to execute tasks in parallel. Support
 
 - **tmux binary** must be installed and discoverable (`command -v tmux`) when running from a plain terminal; classic tmux sessions reuse the current tmux surface.
 - **cmux surface optional** for in-place native splits (`CMUX_SURFACE_ID` set without `$TMUX`). Plain terminals still use the detached tmux fallback.
-- **claude** CLI: install and authenticate Claude Code using the [official setup instructions](https://code.claude.com/docs/en/setup); the legacy Anthropic npm package install path is deprecated for normal user installs.
+- **claude** CLI: install and authenticate Qoder using the [official setup instructions](https://code.claude.com/docs/en/setup); the legacy Anthropic npm package install path is deprecated for normal user installs.
 - **codex** CLI: `npm install -g @openai/codex`
 - **gemini** CLI: `npm install -g @google/gemini-cli` (enterprise/API-key tier)
 - **antigravity** CLI: Install per the [official instructions](https://antigravity.google) (provides the `agy` binary) — verify with `agy --version`; Google's successor to the Gemini CLI
@@ -83,7 +83,7 @@ Validate before decomposing or running anything:
 - Reject unsupported agent types up front. `/omc-teams` only supports **`claude`**, **`codex`**, **`gemini`**, **`antigravity`**, **`grok`**, and **`cursor`**.
 - Treat Cursor workers as executor-style only. Accept `N:cursor` and `N:cursor:executor`; reject or reframe reviewer, critic, security-reviewer, verdict, or final-approval work onto native Claude/OMC reviewer agents.
 - If the user asks for an unsupported type such as `expert`, explain that `/omc-teams` launches external CLI workers only.
-- For native Claude Code team agents/roles, direct them to **`/oh-my-claudecode:team`** instead.
+- For native Qoder team agents/roles, direct them to **`/oh-my-qoder:team`** instead.
 
 ### Phase 2: Decompose task
 
@@ -185,7 +185,7 @@ If encountered, switch to `omc team ...` CLI commands.
 | ---------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------- |
 | `not inside tmux`            | Requested in-place pane topology from a non-tmux surface | Start tmux and rerun, or let `omc team` use its detached-session fallback           |
 | `cmux surface detected`      | Running inside cmux without `$TMUX` | Use the normal `omc team ...` flow; OMC will create native cmux worker splits      |
-| `Unsupported agent type`     | Requested agent is not claude/codex/gemini/antigravity/grok/cursor | Use `claude`, `codex`, `gemini`, `antigravity`, `grok`, or `cursor`; for native Claude Code agents use `/oh-my-claudecode:team` |
+| `Unsupported agent type`     | Requested agent is not claude/codex/gemini/antigravity/grok/cursor | Use `claude`, `codex`, `gemini`, `antigravity`, `grok`, or `cursor`; for native Qoder agents use `/oh-my-qoder:team` |
 | `codex: command not found`   | Codex CLI not installed             | `npm install -g @openai/codex`                                                      |
 | `gemini: command not found`  | Gemini CLI not installed            | `npm install -g @google/gemini-cli` (enterprise/API-key tier)                       |
 | `agy: command not found`     | Antigravity CLI not installed       | Install per the [official instructions](https://antigravity.google)                |
@@ -196,7 +196,7 @@ If encountered, switch to `omc team ...` CLI commands.
 
 | Aspect       | `/team`                                                       | `/omc-teams`                                         |
 | ------------ | ------------------------------------------------------------- | ---------------------------------------------------- |
-| Worker type  | Claude Code implicit agent-team teammates                     | claude / codex / gemini / antigravity CLI processes in tmux        |
-| Invocation   | Agent/Task spawn with distinct `name` values; no TeamCreate/TeamDelete in Claude Code 2.1.178+ | `omc team [N:agent]` + `status` + `shutdown` + `api` |
+| Worker type  | Qoder implicit agent-team teammates                     | claude / codex / gemini / antigravity CLI processes in tmux        |
+| Invocation   | Agent/Task spawn with distinct `name` values; no TeamCreate/TeamDelete in Qoder 2.1.178+ | `omc team [N:agent]` + `status` + `shutdown` + `api` |
 | Coordination | Native implicit-team messaging and staged pipeline            | tmux worker runtime + CLI API state files            |
 | Use when     | You want Claude-native in-session agent orchestration         | You want external CLI worker execution               |

@@ -106,7 +106,7 @@ describe('scaleUp launch config', () => {
     teamOpsMocks.teamReadConfig.mockResolvedValue({
       name: 'demo-team',
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 0,
       max_workers: 20,

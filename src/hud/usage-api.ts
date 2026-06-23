@@ -5,15 +5,15 @@
  * Based on claude-hud implementation by jarrodwatts.
  *
  * Authentication:
- * - macOS: Reads from Keychain "Claude Code-credentials"
- * - Linux/fallback: Reads from ~/.claude/.credentials.json
+ * - macOS: Reads from Keychain "Qoder-credentials"
+ * - Linux/fallback: Reads from ~/.qoder/.credentials.json
  *
  * API: api.anthropic.com/api/oauth/usage
  * Response: { five_hour: { utilization }, seven_day: { utilization } }
  */
 
 import { existsSync, readFileSync, writeFileSync, renameSync, unlinkSync, mkdirSync } from 'fs';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { join, dirname } from 'path';
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
@@ -40,7 +40,7 @@ const USAGE_CACHE_LOCK_OPTS: FileLockOptions = { staleLockMs: API_TIMEOUT_MS + 5
 const TOKEN_REFRESH_URL_PATH = '/v1/oauth/token';
 
 /**
- * OAuth client_id for Claude Code (public client).
+ * OAuth client_id for Qoder (public client).
  * This is the production value; can be overridden via CLAUDE_CODE_OAUTH_CLIENT_ID env var.
  */
 const DEFAULT_OAUTH_CLIENT_ID = '9d1c250a-e61b-44d9-88ed-5944d1962f5e';
@@ -196,14 +196,14 @@ interface MinimaxCodingPlanResponse {
  * Get the legacy (pre-split) cache file path
  */
 function getLegacyCachePath(): string {
-  return join(getClaudeConfigDir(), 'plugins', 'oh-my-claudecode', '.usage-cache.json');
+  return join(getQoderConfigDir(), 'plugins', 'oh-my-qoder', '.usage-cache.json');
 }
 
 /**
  * Get the provider-specific cache file path
  */
 function getCachePath(source: 'anthropic' | 'zai' | 'minimax'): string {
-  return join(getClaudeConfigDir(), 'plugins', 'oh-my-claudecode', `.usage-cache-${source}.json`);
+  return join(getQoderConfigDir(), 'plugins', 'oh-my-qoder', `.usage-cache-${source}.json`);
 }
 
 /**
@@ -424,19 +424,19 @@ function createRateLimitedCacheEntry(
 
 /**
  * Get the Keychain service name for the current config directory.
- * Claude Code uses "Claude Code-credentials-{sha256(configDir)[:8]}" for
+ * Qoder uses "Qoder-credentials-{sha256(configDir)[:8]}" for
  * non-default dirs, where configDir is derived from the exact
- * CLAUDE_CONFIG_DIR value rather than the expanded filesystem path. Preserve
- * that behavior so ~-prefixed profiles keep matching Claude Code's own
+ * QODER_CONFIG_DIR value rather than the expanded filesystem path. Preserve
+ * that behavior so ~-prefixed profiles keep matching Qoder's own
  * Keychain entries.
  */
 function getKeychainServiceName(): string {
-  const configDir = process.env.CLAUDE_CONFIG_DIR;
+  const configDir = process.env.QODER_CONFIG_DIR;
   if (configDir) {
     const hash = createHash('sha256').update(configDir).digest('hex').slice(0, 8);
-    return `Claude Code-credentials-${hash}`;
+    return `Qoder-credentials-${hash}`;
   }
-  return 'Claude Code-credentials';
+  return 'Qoder-credentials';
 }
 
 function isCredentialExpired(creds: OAuthCredentials): boolean {
@@ -518,7 +518,7 @@ function readKeychainCredentials(): OAuthCredentials | null {
  */
 function readFileCredentials(): OAuthCredentials | null {
   try {
-    const credPath = join(getClaudeConfigDir(), '.credentials.json');
+    const credPath = join(getQoderConfigDir(), '.credentials.json');
     if (!existsSync(credPath)) return null;
 
     const content = readFileSync(credPath, 'utf-8');
@@ -829,7 +829,7 @@ function writeKeychainCredentials(creds: OAuthCredentials): void {
 /**
  * Persist refreshed credentials back to the credential store.
  * When the credentials originated from Keychain, writes back to Keychain.
- * When they originated from file, updates ~/.claude/.credentials.json.
+ * When they originated from file, updates ~/.qoder/.credentials.json.
  * Updates only the OAuth token fields, preserving other data.
  */
 function writeBackCredentials(creds: OAuthCredentials): void {
@@ -839,7 +839,7 @@ function writeBackCredentials(creds: OAuthCredentials): void {
   }
 
   try {
-    const credPath = join(getClaudeConfigDir(), '.credentials.json');
+    const credPath = join(getQoderConfigDir(), '.credentials.json');
     if (!existsSync(credPath)) return;
 
     const content = readFileSync(credPath, 'utf-8');
@@ -1324,7 +1324,7 @@ export async function getUsage(): Promise<UsageResult> {
         });
       }
 
-      // Anthropic OAuth path (official Claude Code support)
+      // Anthropic OAuth path (official Qoder support)
       let creds = getCredentials();
       if (creds) {
         if (!validateCredentials(creds)) {

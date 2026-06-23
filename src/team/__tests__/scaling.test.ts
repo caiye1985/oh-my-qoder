@@ -11,7 +11,7 @@ const tmuxUtilsMocks = vi.hoisted(() => ({
 const modelContractMocks = vi.hoisted(() => ({
   buildWorkerArgv: vi.fn(),
   getWorkerEnv: vi.fn(),
-  resolveClaudeWorkerModel: vi.fn(),
+  resolveQoderWorkerModel: vi.fn(),
 }));
 
 const teamOpsMocks = vi.hoisted(() => ({
@@ -52,7 +52,7 @@ vi.mock('../../cli/tmux-utils.js', () => ({
 vi.mock('../model-contract.js', () => ({
   buildWorkerArgv: modelContractMocks.buildWorkerArgv,
   getWorkerEnv: modelContractMocks.getWorkerEnv,
-  resolveClaudeWorkerModel: modelContractMocks.resolveClaudeWorkerModel,
+  resolveQoderWorkerModel: modelContractMocks.resolveQoderWorkerModel,
   assertHeadlessSupported: () => {},
   isHeadlessSupportedOnPlatform: () => true,
 }));
@@ -98,11 +98,11 @@ describe('scaleUp duplicate worker guard', () => {
     const base: TeamConfig = {
       name: 'demo-team',
       task: 'demo',
-      agent_type: 'claude',
+      agent_type: 'qoder',
       worker_launch_mode: 'interactive',
       worker_count: 1,
       max_workers: 20,
-      workers: [{ name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [], pane_id: '%1' }],
+      workers: [{ name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [], pane_id: '%1' }],
       created_at: new Date().toISOString(),
       tmux_session: 'demo-session:0',
       next_task_id: 2,
@@ -164,7 +164,7 @@ describe('scaleUp duplicate worker guard', () => {
     const result = await scaleUp(
       'demo-team',
       1,
-      'claude',
+      'qoder',
       [{ subject: 'demo', description: 'demo task' }],
       cwd,
       { OMC_TEAM_SCALING_ENABLED: '1' } as NodeJS.ProcessEnv,
@@ -182,8 +182,8 @@ describe('scaleUp duplicate worker guard', () => {
     config = makeConfig({
       worker_count: 2,
       workers: [
-        { name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [], pane_id: '%1' },
-        { name: 'worker-2', index: 2, role: 'claude', assigned_tasks: [], pane_id: '%2' },
+        { name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [], pane_id: '%1' },
+        { name: 'worker-2', index: 2, role: 'qoder', assigned_tasks: [], pane_id: '%2' },
       ],
       next_worker_index: 1,
     });
@@ -191,7 +191,7 @@ describe('scaleUp duplicate worker guard', () => {
     const result = await scaleUp(
       'demo-team',
       1,
-      'claude',
+      'qoder',
       [{ subject: 'demo', description: 'demo task' }],
       cwd,
       { OMC_TEAM_SCALING_ENABLED: '1' } as NodeJS.ProcessEnv,
@@ -226,7 +226,7 @@ describe('scaleUp duplicate worker guard', () => {
     const result = await scaleUp(
       'demo-team',
       1,
-      'claude',
+      'qoder',
       [{ subject: 'demo', description: 'demo task' }],
       cwd,
       { OMC_TEAM_SCALING_ENABLED: '1' } as NodeJS.ProcessEnv,
@@ -251,7 +251,7 @@ describe('scaleUp duplicate worker guard', () => {
     const result = await scaleUp(
       'demo-team',
       1,
-      'claude',
+      'qoder',
       [{ subject: 'demo', description: 'demo task' }],
       cwd,
       { OMC_TEAM_SCALING_ENABLED: '1' } as NodeJS.ProcessEnv,
@@ -287,7 +287,7 @@ describe('scaleUp duplicate worker guard', () => {
     const result = await scaleUp(
       'demo-team',
       1,
-      'claude',
+      'qoder',
       [{ subject: 'demo', description: 'demo task' }],
       cwd,
       { OMC_TEAM_SCALING_ENABLED: '1' } as NodeJS.ProcessEnv,
@@ -323,7 +323,7 @@ describe('scaleUp duplicate worker guard', () => {
     const result = await scaleUp(
       'demo-team',
       1,
-      'claude',
+      'qoder',
       [{ subject: 'demo', description: 'demo task' }],
       cwd,
       { OMC_TEAM_SCALING_ENABLED: '1' } as NodeJS.ProcessEnv,

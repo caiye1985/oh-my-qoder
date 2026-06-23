@@ -46,7 +46,7 @@ export interface ThinkModeInput {
 }
 
 /**
- * Thinking configuration for Claude models
+ * Thinking configuration for Qoder models
  */
 export interface ClaudeThinkingConfig {
   thinking: {

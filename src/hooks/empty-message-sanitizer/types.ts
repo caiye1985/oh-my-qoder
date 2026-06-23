@@ -8,7 +8,7 @@
  */
 
 /**
- * A message part in Claude Code's message format
+ * A message part in Qoder's message format
  */
 export interface MessagePart {
   /** Unique identifier for this part */

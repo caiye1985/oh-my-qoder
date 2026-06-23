@@ -18153,9 +18153,9 @@ function stripTrailingSep(p) {
   }
   return p === (0, import_path.parse)(p).root ? p : p.slice(0, -1);
 }
-function getClaudeConfigDir() {
+function getQoderConfigDir() {
   const home = (0, import_os.homedir)();
-  const configured = process.env.CLAUDE_CONFIG_DIR?.trim();
+  const configured = process.env.QODER_CONFIG_DIR?.trim();
   if (!configured) {
     return stripTrailingSep((0, import_path.normalize)((0, import_path.join)(home, ".claude")));
   }
@@ -18200,7 +18200,7 @@ var cachedConfig = null;
 function loadSecurityFromConfigFiles() {
   const paths = [
     (0, import_path3.join)(process.cwd(), ".claude", "omc.jsonc"),
-    (0, import_path3.join)(getConfigDir(), "claude-omc", "config.jsonc")
+    (0, import_path3.join)(getConfigDir(), "qoder-omc", "config.jsonc")
   ];
   for (const configPath of paths) {
     if (!(0, import_fs2.existsSync)(configPath)) continue;
@@ -19940,7 +19940,7 @@ var LspClientManager = class {
   /**
    * Register process exit/signal handlers to kill all spawned LSP server processes.
    * Prevents orphaned language server processes (e.g. kotlin-language-server)
-   * when the MCP bridge process exits or a claude session ends.
+   * when the MCP bridge process exits or a qoder session ends.
    */
   registerCleanupHandlers() {
     const forceKillAll = () => {
@@ -21410,7 +21410,7 @@ function validateToolPath(inputPath) {
   const rel = (0, import_path12.relative)(normalizedRoot, normalizedPath);
   if (rel.startsWith("..") || (0, import_path12.isAbsolute)(rel)) {
     throw new Error(
-      `Path restricted: '${inputPath}' is outside the project root '${projectRoot}'. Disable via security.restrictToolPaths in .claude/omc.jsonc or unset OMC_SECURITY.`
+      `Path restricted: '${inputPath}' is outside the project root '${projectRoot}'. Disable via security.restrictToolPaths in .qoder/omc.jsonc or unset OMC_SECURITY.`
     );
   }
   return resolved;
@@ -25985,7 +25985,7 @@ function getMainRepoRoot(projectRoot) {
   }
 }
 function getClaudeWorktreeParent(projectRoot) {
-  const marker = `${(0, import_path26.normalize)("/.claude/worktrees/")}`;
+  const marker = `${(0, import_path26.normalize)("/.qoder/worktrees/")}`;
   const normalizedRoot = (0, import_path26.normalize)(projectRoot);
   const idx = normalizedRoot.indexOf(marker);
   if (idx === -1) return null;
@@ -26032,7 +26032,7 @@ function uniqueSortedTargets(targets) {
   });
 }
 function buildCurrentProjectTargets(projectRoot) {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const projectRoots = /* @__PURE__ */ new Set([projectRoot]);
   const mainRepoRoot = getMainRepoRoot(projectRoot);
   if (mainRepoRoot) projectRoots.add(mainRepoRoot);
@@ -26065,7 +26065,7 @@ function buildCurrentProjectTargets(projectRoot) {
   return uniqueSortedTargets(targets);
 }
 function buildAllProjectTargets() {
-  const claudeDir = getClaudeConfigDir();
+  const claudeDir = getQoderConfigDir();
   const targets = [];
   for (const filePath of listJsonlFiles((0, import_path26.join)(claudeDir, "projects"))) {
     targets.push({ filePath, sourceType: "project-transcript" });
@@ -26367,7 +26367,7 @@ var sessionSearchTool = {
     limit: external_exports.number().int().positive().optional().describe("Maximum number of matches to return (default: 10)"),
     sessionId: external_exports.string().optional().describe("Restrict search to a specific session id"),
     since: external_exports.string().optional().describe("Only include matches since a relative duration (e.g. 7d, 24h) or absolute date"),
-    project: external_exports.string().optional().describe('Project filter. Defaults to current project. Use "all" to search across all local Claude projects.'),
+    project: external_exports.string().optional().describe('Project filter. Defaults to current project. Use "all" to search across all local Qoder projects.'),
     caseSensitive: external_exports.boolean().optional().describe("Whether to match case-sensitively (default: false)"),
     contextChars: external_exports.number().int().positive().optional().describe("Approximate snippet context on each side of a match (default: 120)"),
     workingDirectory: external_exports.string().optional().describe("Working directory used to determine the current project scope")
@@ -26750,7 +26750,7 @@ var import_path28 = require("path");
 var CONFIG_FILE_NAME = ".omc-config.json";
 function isSharedMemoryEnabled() {
   try {
-    const configPath = (0, import_path28.join)(getClaudeConfigDir(), CONFIG_FILE_NAME);
+    const configPath = (0, import_path28.join)(getQoderConfigDir(), CONFIG_FILE_NAME);
     if (!(0, import_fs21.existsSync)(configPath)) return true;
     const raw = JSON.parse((0, import_fs21.readFileSync)(configPath, "utf-8"));
     const enabled = raw?.agents?.sharedMemory?.enabled;
@@ -26961,7 +26961,7 @@ function listNamespaces(worktreeRoot) {
 }
 
 // src/tools/shared-memory-tools.ts
-var DISABLED_MSG = `Shared memory is disabled. Set agents.sharedMemory.enabled = true in ${getClaudeConfigDir()}/.omc-config.json to enable.`;
+var DISABLED_MSG = `Shared memory is disabled. Set agents.sharedMemory.enabled = true in ${getQoderConfigDir()}/.omc-config.json to enable.`;
 function disabledResponse() {
   return {
     content: [{ type: "text", text: DISABLED_MSG }],
@@ -28395,7 +28395,7 @@ var import_path31 = require("path");
 // src/hooks/learner/constants.ts
 var import_path30 = require("path");
 var import_os6 = require("os");
-var USER_SKILLS_DIR = (0, import_path30.join)(getClaudeConfigDir(), "skills", "omc-learned");
+var USER_SKILLS_DIR = (0, import_path30.join)(getQoderConfigDir(), "skills", "omc-learned");
 var GLOBAL_SKILLS_DIR = (0, import_path30.join)((0, import_os6.homedir)(), ".omc", "skills");
 var PROJECT_SKILLS_SUBDIR = OmcPaths.SKILLS;
 var PROJECT_AGENT_SKILLS_SUBDIR = (0, import_path30.join)(".agents", "skills");
@@ -28745,7 +28745,7 @@ ${formatSkillOutput(projectSkills)}`
 };
 var loadGlobalTool = {
   name: "load_omc_skills_global",
-  description: "Load and list skills from global user directories (~/.omc/skills/ and [$CLAUDE_CONFIG_DIR|~/.claude]/skills/omc-learned/). Returns skill metadata for all discovered user-scoped skills.",
+  description: "Load and list skills from global user directories (~/.omc/skills/ and [$QODER_CONFIG_DIR|~/.qoder]/skills/omc-learned/). Returns skill metadata for all discovered user-scoped skills.",
   schema: loadGlobalSchema,
   handler: async (_args) => {
     const allSkills = loadAllSkills(null);
@@ -28791,7 +28791,7 @@ No skill files were discovered in any searched directories.
 Searched:
 - Project: .omc/skills/
 - Global: ~/.omc/skills/
-- Claude config: ${getClaudeConfigDir()}/skills/omc-learned/`;
+- Qoder config: ${getQoderConfigDir()}/skills/omc-learned/`;
     }
     return {
       content: [{

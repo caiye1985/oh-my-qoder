@@ -24,9 +24,9 @@ import { getOmcRoot } from '../../lib/worktree-paths.js';
  * Liveness window for the session counter. A session dir whose
  * mtime (or any file inside) is within this window counts as active.
  *
- * 5 minutes balances responsiveness (a closed Claude Code drops off
+ * 5 minutes balances responsiveness (a closed Qoder drops off
  * quickly) with tolerance for short user idleness between tool calls.
- * Claude Code fires hooks on every tool invocation and writes hud
+ * Qoder fires hooks on every tool invocation and writes hud
  * state on every render, so any active session keeps the dir mtime
  * fresh well inside this window.
  *
@@ -37,7 +37,7 @@ import { getOmcRoot } from '../../lib/worktree-paths.js';
 const ACTIVITY_WINDOW_MS = 5 * 60 * 1000;
 
 /**
- * Claude Code session IDs are UUIDs. Anchor on this to filter out
+ * Qoder session IDs are UUIDs. Anchor on this to filter out
  * unrelated subdirectories without depending on any specific marker
  * file (different hooks may or may not have run yet for a given
  * session — e.g. session-started.json is missing if the session-start
@@ -91,13 +91,13 @@ function looksLikeRepo(entryPath: string): boolean {
  * Count session directories under `<cwd>/.omc/state/sessions/`.
  *
  * A session is "active" when both:
- *  1. The directory name matches a Claude Code session UUID — filters
+ *  1. The directory name matches a Qoder session UUID — filters
  *     out unrelated subdirectories without depending on any specific
  *     marker file.
  *  2. The dir mtime — or any file inside, as a fallback for FS that
  *     don't bubble child mtime — is within ACTIVITY_WINDOW_MS.
  *
- * This relies on Claude Code firing hooks on every tool call (and
+ * This relies on Qoder firing hooks on every tool call (and
  * writing hud state on every render), which keeps mtime fresh while
  * the user is interacting with the session.
  */

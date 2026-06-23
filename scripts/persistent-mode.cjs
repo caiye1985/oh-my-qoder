@@ -24,7 +24,7 @@ const {
 const { execFileSync } = require("child_process");
 const { homedir } = require("os");
 const { join, dirname, resolve, normalize } = require("path");
-const { getClaudeConfigDir } = require("./lib/config-dir.cjs");
+const { getQoderConfigDir } = require("./lib/config-dir.cjs");
 const { resolveOmcStateRoot } = require("./lib/state-root.cjs");
 
 async function readStdin(timeoutMs = 2000) {
@@ -244,7 +244,7 @@ async function sendStopNotification(modeName, stateData, sessionId, directory) {
   if (stateData._stopNotified) return;
 
   try {
-    const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+    const pluginRoot = process.env.QODER_PLUGIN_ROOT;
     if (!pluginRoot) return;
 
     const { pathToFileURL } = require('url');
@@ -473,7 +473,7 @@ function getAutopilotPhase(state) {
 
 function isAutopilotRoutingEchoPrompt(promptText) {
   return /^\[MAGIC KEYWORDS?(?: DETECTED)?:\s*AUTOPILOT\s*\]\s*$/i.test(promptText) ||
-    /^\/(?:oh-my-claudecode:|omc:)?autopilot(?:\s+execute)?\s*$/i.test(promptText);
+    /^\/(?:oh-my-qoder:|omc:)?autopilot(?:\s+execute)?\s*$/i.test(promptText);
 }
 
 function isOrphanedAutopilotRoutingEchoState(state) {
@@ -728,13 +728,13 @@ function getActiveSubagentCount(stateDir) {
 }
 
 /**
- * Count incomplete Tasks from Claude Code's native Task system.
+ * Count incomplete Tasks from Qoder's native Task system.
  */
 function countIncompleteTasks(sessionId) {
   if (!sessionId || typeof sessionId !== "string") return 0;
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,255}$/.test(sessionId)) return 0;
 
-  const cfgDir = getClaudeConfigDir();
+  const cfgDir = getQoderConfigDir();
   const taskDir = join(cfgDir, "tasks", sessionId);
   if (!existsSync(taskDir)) return 0;
 
@@ -768,7 +768,7 @@ async function countIncompleteTodos(sessionId, projectDir) {
     /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,255}$/.test(sessionId)
   ) {
     const sessionTodoPath = join(
-      getClaudeConfigDir(),
+      getQoderConfigDir(),
       "todos",
       `${sessionId}.json`,
     );
@@ -852,11 +852,11 @@ function getLiveUltraworkObjective(state) {
 
 /**
  * Detect if stop was triggered by context-limit related reasons.
- * When context is exhausted, Claude Code needs to stop so it can compact.
+ * When context is exhausted, Qoder needs to stop so it can compact.
  * Blocking these stops causes a deadlock: can't compact because can't stop,
  * can't continue because context is full.
  *
- * See: https://github.com/Yeachan-Heo/oh-my-claudecode/issues/213
+ * See: https://github.com/Yeachan-Heo/oh-my-qoder/issues/213
  */
 function isContextLimitStop(data) {
   const reasons = [
@@ -1014,8 +1014,8 @@ async function main() {
     const stateDir = join(omcRoot, "state");
 
     // CRITICAL: Never block context-limit stops.
-    // Blocking these causes a deadlock where Claude Code cannot compact.
-    // See: https://github.com/Yeachan-Heo/oh-my-claudecode/issues/213
+    // Blocking these causes a deadlock where Qoder cannot compact.
+    // See: https://github.com/Yeachan-Heo/oh-my-qoder/issues/213
     if (isContextLimitStop(data)) {
       console.log(JSON.stringify({ continue: true, suppressOutput: true }));
       return;
@@ -1095,7 +1095,7 @@ async function main() {
         // Fire-and-forget notification
         sendStopNotification('ralph', ralph.state, sessionId, directory).catch(() => {});
 
-        const ralphReason = `[RALPH LOOP - ITERATION ${iteration + 1}/${maxIter}] Work is NOT done. Continue working.\nWhen FULLY complete (after Architect verification), run /oh-my-claudecode:cancel to cleanly exit ralph mode and clean up all state files. If cancel fails, retry with /oh-my-claudecode:cancel --force.\n${ralph.state.prompt ? `Task: ${ralph.state.prompt}` : ""}`;
+        const ralphReason = `[RALPH LOOP - ITERATION ${iteration + 1}/${maxIter}] Work is NOT done. Continue working.\nWhen FULLY complete (after Architect verification), run /oh-my-qoder:cancel to cleanly exit ralph mode and clean up all state files. If cancel fails, retry with /oh-my-qoder:cancel --force.\n${ralph.state.prompt ? `Task: ${ralph.state.prompt}` : ""}`;
         console.log(
           JSON.stringify({
             decision: "block",
@@ -1113,7 +1113,7 @@ async function main() {
           return;
         }
         writeJsonFile(ralph.path, ralph.state);
-        const extendReason = `[RALPH LOOP - EXTENDED] Max iterations reached; extending to ${ralph.state.max_iterations} and continuing. When FULLY complete (after Architect verification), run /oh-my-claudecode:cancel (or --force).`;
+        const extendReason = `[RALPH LOOP - EXTENDED] Max iterations reached; extending to ${ralph.state.max_iterations} and continuing. When FULLY complete (after Architect verification), run /oh-my-qoder:cancel (or --force).`;
         console.log(JSON.stringify({ decision: "block", reason: extendReason }));
         return;
       }
@@ -1139,7 +1139,7 @@ async function main() {
           sendStopNotification('autopilot', autopilot.state, sessionId, directory).catch(() => {});
 
           const cancelGuidance = typeof autopilot.state.session_id === "string" && autopilot.state.session_id === sessionId
-            ? " When all phases are complete, run /oh-my-claudecode:cancel to cleanly exit and clean up this session's autopilot state files. If cancel fails, retry with /oh-my-claudecode:cancel --force."
+            ? " When all phases are complete, run /oh-my-qoder:cancel to cleanly exit and clean up this session's autopilot state files. If cancel fails, retry with /oh-my-qoder:cancel --force."
             : "";
           console.log(
             JSON.stringify({
@@ -1202,7 +1202,7 @@ async function main() {
                   writeStopBreaker(stateDir, "team-pipeline", breakerCount, sessionId);
                   sendStopNotification("team", team.state, sessionId, directory).catch(() => {});
 
-                  const teamPipelineReason = `[TEAM PIPELINE - PHASE: ${phase.toUpperCase()} | REINFORCEMENT ${breakerCount}/${TEAM_PIPELINE_STOP_BLOCKER_MAX}] The team pipeline is active in phase "${phase}". Continue working on the team workflow. Do not stop until the pipeline reaches a terminal state (complete/failed/cancelled). When done, run /oh-my-claudecode:cancel to cleanly exit.`;
+                  const teamPipelineReason = `[TEAM PIPELINE - PHASE: ${phase.toUpperCase()} | REINFORCEMENT ${breakerCount}/${TEAM_PIPELINE_STOP_BLOCKER_MAX}] The team pipeline is active in phase "${phase}". Continue working on the team workflow. Do not stop until the pipeline reaches a terminal state (complete/failed/cancelled). When done, run /oh-my-qoder:cancel to cleanly exit.`;
                   console.log(JSON.stringify({
                     decision: "block",
                     reason: teamPipelineReason,
@@ -1244,7 +1244,7 @@ async function main() {
 
           sendStopNotification("ralplan", ralplan.state, sessionId, directory).catch(() => {});
 
-          const ralplanReason = `[RALPLAN - CONSENSUS PLANNING | REINFORCEMENT ${breakerCount}/${RALPLAN_STOP_BLOCKER_MAX}] The ralplan consensus workflow is active. Continue the Planner/Architect/Critic planning loop only. Ralplan is read-only/planning mode: do not implement, invoke execution skills, edit source, commit, push, or open PRs from this continuation. When consensus is reached, stop at a pending-approval handoff and require explicit user approval before execution. When done, run /oh-my-claudecode:cancel to cleanly exit.`;
+          const ralplanReason = `[RALPLAN - CONSENSUS PLANNING | REINFORCEMENT ${breakerCount}/${RALPLAN_STOP_BLOCKER_MAX}] The ralplan consensus workflow is active. Continue the Planner/Architect/Critic planning loop only. Ralplan is read-only/planning mode: do not implement, invoke execution skills, edit source, commit, push, or open PRs from this continuation. When consensus is reached, stop at a pending-approval handoff and require explicit user approval before execution. When done, run /oh-my-qoder:cancel to cleanly exit.`;
           console.log(JSON.stringify({
             decision: "block",
             reason: ralplanReason,
@@ -1273,7 +1273,7 @@ async function main() {
           console.log(
             JSON.stringify({
               decision: "block",
-              reason: `[ULTRAPILOT] ${incomplete} workers still running. Continue working. When all workers complete, run /oh-my-claudecode:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-claudecode:cancel --force.`,
+              reason: `[ULTRAPILOT] ${incomplete} workers still running. Continue working. When all workers complete, run /oh-my-qoder:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-qoder:cancel --force.`,
             }),
           );
           return;
@@ -1298,7 +1298,7 @@ async function main() {
           console.log(
             JSON.stringify({
               decision: "block",
-              reason: `[SWARM ACTIVE] ${pending} tasks remain. Continue working. When all tasks are done, run /oh-my-claudecode:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-claudecode:cancel --force.`,
+              reason: `[SWARM ACTIVE] ${pending} tasks remain. Continue working. When all tasks are done, run /oh-my-qoder:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-qoder:cancel --force.`,
             }),
           );
           return;
@@ -1323,7 +1323,7 @@ async function main() {
           console.log(
             JSON.stringify({
               decision: "block",
-              reason: `[PIPELINE - Stage ${currentStage + 1}/${totalStages}] Pipeline not complete. Continue working. When all stages complete, run /oh-my-claudecode:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-claudecode:cancel --force.`,
+              reason: `[PIPELINE - Stage ${currentStage + 1}/${totalStages}] Pipeline not complete. Continue working. When all stages complete, run /oh-my-qoder:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-qoder:cancel --force.`,
             }),
           );
           return;
@@ -1331,7 +1331,7 @@ async function main() {
       }
     }
 
-    // Priority 6: Team (native Claude Code teams) — fallback for cases not handled by Priority 2.5
+    // Priority 6: Team (native Qoder teams) — fallback for cases not handled by Priority 2.5
     if (!teamPipelineHandled && team.state?.active && !isStaleState(team.state) && isSessionMatch(team.state, sessionId)) {
       const phase = normalizeTeamPhase(team.state);
       if (phase) {
@@ -1347,7 +1347,7 @@ async function main() {
           console.log(
             JSON.stringify({
               decision: "block",
-              reason: `[TEAM - Phase: ${phase}] Team mode active. Continue working. When all team tasks complete, run /oh-my-claudecode:cancel to cleanly exit. If cancel fails, retry with /oh-my-claudecode:cancel --force.`,
+              reason: `[TEAM - Phase: ${phase}] Team mode active. Continue working. When all team tasks complete, run /oh-my-qoder:cancel to cleanly exit. If cancel fails, retry with /oh-my-qoder:cancel --force.`,
             }),
           );
           return;
@@ -1371,7 +1371,7 @@ async function main() {
           console.log(
             JSON.stringify({
               decision: "block",
-              reason: `[OMC TEAMS - Phase: ${phase}] OMC Teams workers active. Continue working. When all workers complete, run /oh-my-claudecode:cancel to cleanly exit. If cancel fails, retry with /oh-my-claudecode:cancel --force.`,
+              reason: `[OMC TEAMS - Phase: ${phase}] OMC Teams workers active. Continue working. When all workers complete, run /oh-my-qoder:cancel to cleanly exit. If cancel fails, retry with /oh-my-qoder:cancel --force.`,
             }),
           );
           return;
@@ -1394,7 +1394,7 @@ async function main() {
         console.log(
           JSON.stringify({
             decision: "block",
-            reason: `[ULTRAQA - Cycle ${cycle + 1}/${maxCycles}] Tests not all passing. Continue fixing. When all tests pass, run /oh-my-claudecode:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-claudecode:cancel --force.`,
+            reason: `[ULTRAQA - Cycle ${cycle + 1}/${maxCycles}] Tests not all passing. Continue fixing. When all tests pass, run /oh-my-qoder:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-qoder:cancel --force.`,
           }),
         );
         return;
@@ -1451,16 +1451,16 @@ async function main() {
 
       if (totalIncomplete > 0) {
         const itemType = taskCount > 0 ? "Tasks" : "todos";
-        reason += ` ${totalIncomplete} incomplete ${itemType} remain. Continue working. When all work is complete, run /oh-my-claudecode:cancel to cleanly exit ultrawork mode and clean up state files.`;
+        reason += ` ${totalIncomplete} incomplete ${itemType} remain. Continue working. When all work is complete, run /oh-my-qoder:cancel to cleanly exit ultrawork mode and clean up state files.`;
       } else if (newCount >= 5) {
         // Strong directive: LLM must call cancel NOW
-        reason += ` No incomplete tasks detected. You MUST invoke /oh-my-claudecode:cancel immediately to exit ultrawork mode and clean up state files. Call state_clear(mode="ultrawork") if the cancel skill is unavailable.`;
+        reason += ` No incomplete tasks detected. You MUST invoke /oh-my-qoder:cancel immediately to exit ultrawork mode and clean up state files. Call state_clear(mode="ultrawork") if the cancel skill is unavailable.`;
       } else if (newCount >= 3) {
         // Reinforce clean-exit guidance once no tracked work remains.
-        reason += ` If all work is complete, run /oh-my-claudecode:cancel to cleanly exit ultrawork mode and clean up state files. If cancel fails, retry with /oh-my-claudecode:cancel --force. Otherwise, continue working.`;
+        reason += ` If all work is complete, run /oh-my-qoder:cancel to cleanly exit ultrawork mode and clean up state files. If cancel fails, retry with /oh-my-qoder:cancel --force. Otherwise, continue working.`;
       } else {
         // Early iterations with no tasks yet still need an immediately visible exit path.
-        reason += ` No incomplete tasks detected. If all work is complete, run /oh-my-claudecode:cancel to cleanly exit ultrawork mode and clean up state files. Otherwise, continue working - create Tasks to track your progress.`;
+        reason += ` No incomplete tasks detected. If all work is complete, run /oh-my-qoder:cancel to cleanly exit ultrawork mode and clean up state files. Otherwise, continue working - create Tasks to track your progress.`;
       }
 
       const currentObjective = getLiveUltraworkObjective(ultrawork.state);
@@ -1522,7 +1522,7 @@ async function main() {
     const idleRepoState = getIdleNotificationRepoState(directory);
     if (sessionId && shouldSendIdleNotification(stateDir, idleRepoState)) {
       try {
-        const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+        const pluginRoot = process.env.QODER_PLUGIN_ROOT;
         if (pluginRoot) {
           const { pathToFileURL } = require('url');
           import(pathToFileURL(join(pluginRoot, 'dist', 'notifications', 'index.js')).href)

@@ -23,7 +23,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync, statSync, openSync,
 import { join, dirname, resolve, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { getClaudeConfigDir } from './lib/config-dir.mjs';
+import { getQoderConfigDir } from './lib/config-dir.mjs';
 import { encodeProjectPath } from './lib/encode-project-path.mjs';
 import { readStdin } from './lib/stdin.mjs';
 
@@ -89,7 +89,7 @@ function runGitRevParse(args, cwd) {
 
 /**
  * Resolve a transcript path that may be mismatched in worktree sessions (issue #1094).
- * When Claude Code runs inside .claude/worktrees/X, the encoded project directory
+ * When Qoder runs inside .qoder/worktrees/X, the encoded project directory
  * contains `--claude-worktrees-X` which doesn't exist. Strip it to find the real path.
  */
 function resolveTranscriptPath(transcriptPath, cwd) {
@@ -125,7 +125,7 @@ function resolveTranscriptPath(transcriptPath, cwd) {
     if (mainRepoRoot !== worktreeTop) {
       const sessionFile = basename(transcriptPath);
       if (sessionFile) {
-        const configDir = getClaudeConfigDir();
+        const configDir = getQoderConfigDir();
         const projectsDir = join(configDir, 'projects');
         if (existsSync(projectsDir)) {
           const encodedMain = encodeProjectPath(mainRepoRoot);
@@ -184,7 +184,7 @@ function estimateContextPercent(transcriptPath) {
  * Prevents infinite block loops by capping at MAX_BLOCKS.
  */
 function getGuardFilePath(sessionId) {
-  const configDir = getClaudeConfigDir();
+  const configDir = getQoderConfigDir();
   const guardDir = join(configDir, 'projects', '.omc-guards');
   try {
     mkdirSync(guardDir, { recursive: true, mode: 0o700 });

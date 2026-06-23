@@ -1,15 +1,15 @@
 {
-  "name": "oh-my-claudecode",
+  "name": "oh-my-qoder",
   "version": "4.15.0",
-  "description": "Multi-agent orchestration system for Claude Code",
+  "description": "Multi-agent orchestration system for Qoder",
   "author": {
-    "name": "oh-my-claudecode contributors"
+    "name": "oh-my-qoder contributors"
   },
-  "repository": "https://github.com/Yeachan-Heo/oh-my-claudecode",
-  "homepage": "https://github.com/Yeachan-Heo/oh-my-claudecode",
+  "repository": "https://github.com/Yeachan-Heo/oh-my-qoder",
+  "homepage": "https://github.com/Yeachan-Heo/oh-my-qoder",
   "license": "MIT",
   "keywords": [
-    "claude-code",
+    "qoder",
     "plugin",
     "multi-agent",
     "orchestration",

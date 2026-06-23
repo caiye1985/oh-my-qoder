@@ -1,7 +1,7 @@
 /**
  * OMC HUD - Transcript Parser
  *
- * Parse JSONL transcript from Claude Code to extract agents and todos.
+ * Parse JSONL transcript from Qoder to extract agents and todos.
  * Based on claude-hud reference implementation.
  *
  * Performance optimizations:
@@ -38,7 +38,7 @@ const MAX_AGENT_MAP_SIZE = 100; // Cap agent tracking
 const _MIN_RUNNING_AGENTS_THRESHOLD = 10; // Early termination threshold
 
 /**
- * Tools known to require permission approval in Claude Code.
+ * Tools known to require permission approval in Qoder.
  * Only these tools will trigger the "APPROVE?" indicator.
  */
 const PERMISSION_TOOLS = [
@@ -83,7 +83,7 @@ const transcriptCache = new Map<string, CachedTranscriptParse>();
 const TRANSCRIPT_CACHE_MAX_SIZE = 20;
 
 /**
- * Parse a Claude Code transcript JSONL file.
+ * Parse a Qoder transcript JSONL file.
  * Extracts running agents and latest todo list.
  *
  * For large files (>500KB), only parses the tail portion for performance.
@@ -362,7 +362,7 @@ function extractBackgroundAgentId(
 /**
  * Parse TaskOutput result for completion status.
  *
- * Claude Code emits completion as a `<task-notification>` block with
+ * Qoder emits completion as a `<task-notification>` block with
  * hyphen-cased tags (`<task-id>`, `<tool-use-id>`, `<status>`). Accept
  * both hyphen and underscore variants for defence in depth.
  */
@@ -374,7 +374,7 @@ function parseTaskOutputResult(
       ? content
       : content.find((c) => c.type === "text")?.text || "";
 
-  // Hyphen variant (real Claude Code format) first, underscore fallback second.
+  // Hyphen variant (real Qoder format) first, underscore fallback second.
   const taskIdMatch =
     text.match(/<task-id>([^<]+)<\/task-id>/) ||
     text.match(/<task_id>([^<]+)<\/task_id>/);
@@ -460,7 +460,7 @@ function processEntry(
 
   const content = entry.message?.content;
 
-  // Claude Code emits background-agent completion as a user-role message with
+  // Qoder emits background-agent completion as a user-role message with
   // string-shaped content: `<task-notification>...<tool-use-id>...</tool-use-id>
   // ...<status>completed</status>...</task-notification>`. The block-based
   // parser below only handles array-shaped content, so we handle the string
@@ -680,7 +680,7 @@ interface TranscriptEntry {
   sessionId?: string;
   timestamp?: string;
   message?: {
-    // Claude Code writes assistant/user messages with either a content-block
+    // Qoder writes assistant/user messages with either a content-block
     // array (normal messages) OR a plain string (e.g. background-agent
     // `<task-notification>` blocks land as user-role messages with
     // `content: "<task-notification>...</task-notification>"`).

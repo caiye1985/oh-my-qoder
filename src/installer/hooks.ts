@@ -1,8 +1,8 @@
 /**
- * Hook Scripts for Claude Code
- * Hook system inspired by oh-my-opencode, adapted for Claude Code's native hooks
+ * Hook Scripts for Qoder
+ * Hook system inspired by oh-my-opencode, adapted for Qoder's native hooks
  *
- * Claude Code hooks are configured in settings.json and run as shell commands.
+ * Qoder hooks are configured in settings.json and run as shell commands.
  * These scripts receive JSON input via stdin and output JSON to modify behavior.
  *
  * This module provides Node.js scripts (.mjs) for cross-platform support (Windows, macOS, Linux).
@@ -13,7 +13,7 @@ import { join, dirname } from "path";
 import { readFileSync, existsSync } from "fs";
 import { fileURLToPath } from "url";
 import { homedir } from "os";
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { getDefaultUltraworkMessage } from '../hooks/keyword-detector/ultrawork/index.js';
 
 // =============================================================================
@@ -73,7 +73,7 @@ export function isWindows(): boolean {
 
 /** Get the hooks directory path */
 export function getHooksDir(): string {
-  return join(getClaudeConfigDir(), "hooks");
+  return join(getQoderConfigDir(), "hooks");
 }
 
 /**
@@ -89,7 +89,7 @@ function normalizePath(value: string): string {
 }
 
 function isDefaultClaudeConfigDir(): boolean {
-  return normalizePath(getClaudeConfigDir()) === normalizePath(join(homedir(), '.claude'));
+  return normalizePath(getQoderConfigDir()) === normalizePath(join(homedir(), '.claude'));
 }
 
 function quoteCommandPath(path: string): string {
@@ -98,14 +98,14 @@ function quoteCommandPath(path: string): string {
 
 function buildHookCommand(filename: string): string {
   if (isWindows()) {
-    return `node ${quoteCommandPath(join(getClaudeConfigDir(), 'hooks', filename).replace(/\\/g, '/'))}`;
+    return `node ${quoteCommandPath(join(getQoderConfigDir(), 'hooks', filename).replace(/\\/g, '/'))}`;
   }
 
   if (isDefaultClaudeConfigDir()) {
-    return `node "\${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hooks/${filename}"`;
+    return `node "\${QODER_CONFIG_DIR:-$HOME/.claude}/hooks/${filename}"`;
   }
 
-  return `node ${quoteCommandPath(join(getClaudeConfigDir(), 'hooks', filename).replace(/\\/g, '/'))}`;
+  return `node ${quoteCommandPath(join(getQoderConfigDir(), 'hooks', filename).replace(/\\/g, '/'))}`;
 }
 
 /**
@@ -256,7 +256,7 @@ Ralph mode auto-activates Ultrawork for maximum parallel execution. Follow these
 ### Completion Requirements
 - Verify ALL requirements from the original task are met
 - Architect verification is MANDATORY before claiming completion
-- When FULLY complete, run \`/oh-my-claudecode:cancel\` to cleanly exit and clean up state files
+- When FULLY complete, run \`/oh-my-qoder:cancel\` to cleanly exit and clean up state files
 
 Continue working until the task is truly done.
 `;

@@ -100,7 +100,7 @@ cmd_complete() {
   # Clear skill-active-state left over from nested skill invocations (e.g. mcp-setup
   # invoked inside omc-setup). Without this, the stop hook blocks with "skill still
   # executing" even though setup has finished.
-  local sid="${CLAUDE_SESSION_ID:-${CLAUDECODE_SESSION_ID:-}}"
+  local sid="${CLAUDE_SESSION_ID:-${QODER_SESSION_ID:-}}"
   if [ -n "$sid" ]; then
     # Validate session ID: alphanumeric, hyphens, underscores only (matches TS SESSION_ID_REGEX)
     if [[ "$sid" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]{0,255}$ ]]; then
@@ -129,7 +129,7 @@ cmd_complete() {
   trap - RETURN
 
   echo "Setup completed successfully!"
-  echo "Note: Future updates will only refresh CLAUDE.md, not the full setup wizard."
+  echo "Note: Future updates will only refresh AGENTS.md, not the full setup wizard."
 }
 
 # Main dispatch

@@ -24,7 +24,7 @@ import {
 import { buildTmuxShellCommand, buildTmuxShellCommandWithEnv, isTmuxAvailable, quoteShellArg, tmuxExec, wrapWithLoginShell } from './tmux-utils.js';
 import { configureTmuxClipboardForSession } from './tmux-clipboard.js';
 
-const CLAUDE_BYPASS_FLAG = '--dangerously-skip-permissions';
+const QODER_BYPASS_FLAG = '--dangerously-skip-permissions';
 const AUTORESEARCH_SETUP_SLASH_COMMAND = '/deep-interview --autoresearch';
 
 export interface InitAutoresearchOptions {
@@ -409,7 +409,7 @@ export function spawnAutoresearchSetupTmux(repoRoot: string): void {
 
   const sessionName = `omc-autoresearch-setup-${Date.now().toString(36)}`;
   const codexHome = prepareAutoresearchSetupCodexHome(repoRoot, sessionName);
-  const claudeCommand = buildTmuxShellCommandWithEnv('claude', [CLAUDE_BYPASS_FLAG], { CODEX_HOME: codexHome });
+  const claudeCommand = buildTmuxShellCommandWithEnv('qoder', [QODER_BYPASS_FLAG], { CODEX_HOME: codexHome });
   const wrappedClaudeCommand = wrapWithLoginShell(claudeCommand);
   const paneId = tmuxExec(
     ['new-session', '-d', '-P', '-F', '#{pane_id}', '-s', sessionName, '-c', repoRoot, wrappedClaudeCommand],
@@ -426,7 +426,7 @@ export function spawnAutoresearchSetupTmux(repoRoot: string): void {
     tmuxExec(['send-keys', '-t', paneId, 'Enter'], { stripTmux: true, stdio: 'ignore' });
   }
 
-  console.log('\nAutoresearch setup launched in background Claude session.');
+  console.log('\nAutoresearch setup launched in background Qoder session.');
   console.log(`  Session:  ${sessionName}`);
   console.log(`  Starter:  ${buildAutoresearchSetupSlashCommand()}`);
   console.log(`  CODEX_HOME: ${quoteShellArg(codexHome)}`);

@@ -3,8 +3,8 @@
  *
  * Verifies that the Windows hook-patching logic correctly rewrites
  * sh+find-node.sh commands to the run.cjs wrapper with shell-expanded
- * CLAUDE_PLUGIN_ROOT segments so that
- * Claude Code UI bug #17088 (false "hook error" labels on MSYS2/Git Bash)
+ * QODER_PLUGIN_ROOT segments so that
+ * Qoder UI bug #17088 (false "hook error" labels on MSYS2/Git Bash)
  * is avoided.
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -49,7 +49,7 @@ describe('patchHooksJsonForWindows', () => {
 
   it('replaces sh+find-node.sh with the run.cjs wrapper for a simple script', () => {
     const original = makeHooksJson([
-      'sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" "${CLAUDE_PLUGIN_ROOT}/scripts/keyword-detector.mjs"',
+      'sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" "${QODER_PLUGIN_ROOT}/scripts/keyword-detector.mjs"',
     ]);
     writeFileSync(hooksJsonPath, JSON.stringify(original, null, 2));
 
@@ -57,12 +57,12 @@ describe('patchHooksJsonForWindows', () => {
 
     const patched = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
     const cmd = patched.hooks.UserPromptSubmit[0].hooks[0].command;
-    expect(cmd).toBe('node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs');
+    expect(cmd).toBe('node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs');
   });
 
   it('replaces current portable sh+find-node+run.cjs commands with the run.cjs wrapper', () => {
     const original = makeHooksJson([
-      'sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs',
+      'sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs',
     ]);
     writeFileSync(hooksJsonPath, JSON.stringify(original, null, 2));
 
@@ -70,12 +70,12 @@ describe('patchHooksJsonForWindows', () => {
 
     const patched = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
     const cmd = patched.hooks.UserPromptSubmit[0].hooks[0].command;
-    expect(cmd).toBe('node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs');
+    expect(cmd).toBe('node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs');
   });
 
   it('replaces current quoted /bin/sh+find-node+run.cjs commands with the run.cjs wrapper', () => {
     const original = makeHooksJson([
-      '"/bin/sh" "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs',
+      '"/bin/sh" "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs',
     ]);
     writeFileSync(hooksJsonPath, JSON.stringify(original, null, 2));
 
@@ -83,12 +83,12 @@ describe('patchHooksJsonForWindows', () => {
 
     const patched = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
     const cmd = patched.hooks.UserPromptSubmit[0].hooks[0].command;
-    expect(cmd).toBe('node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs');
+    expect(cmd).toBe('node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs');
   });
 
   it('preserves trailing arguments for current quoted /bin/sh+find-node+run.cjs commands', () => {
     const original = makeHooksJson([
-      '"/bin/sh" "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/subagent-tracker.mjs start',
+      '"/bin/sh" "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/subagent-tracker.mjs start',
     ]);
     writeFileSync(hooksJsonPath, JSON.stringify(original, null, 2));
 
@@ -96,12 +96,12 @@ describe('patchHooksJsonForWindows', () => {
 
     const patched = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
     const cmd = patched.hooks.UserPromptSubmit[0].hooks[0].command;
-    expect(cmd).toBe('node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/subagent-tracker.mjs start');
+    expect(cmd).toBe('node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/subagent-tracker.mjs start');
   });
 
   it('preserves trailing arguments (e.g. subagent-tracker start)', () => {
     const original = makeHooksJson([
-      'sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" "${CLAUDE_PLUGIN_ROOT}/scripts/subagent-tracker.mjs" start',
+      'sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" "${QODER_PLUGIN_ROOT}/scripts/subagent-tracker.mjs" start',
     ]);
     writeFileSync(hooksJsonPath, JSON.stringify(original, null, 2));
 
@@ -109,12 +109,12 @@ describe('patchHooksJsonForWindows', () => {
 
     const patched = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
     const cmd = patched.hooks.UserPromptSubmit[0].hooks[0].command;
-    expect(cmd).toBe('node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/subagent-tracker.mjs start');
+    expect(cmd).toBe('node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/subagent-tracker.mjs start');
   });
 
   it('is idempotent — already-patched commands are not double-modified', () => {
     const already = makeHooksJson([
-      'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs',
+      'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs',
     ]);
     const json = JSON.stringify(already, null, 2);
     writeFileSync(hooksJsonPath, json);
@@ -135,7 +135,7 @@ describe('patchHooksJsonForWindows', () => {
               {
                 type: 'command',
                 command:
-                  'sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" "${CLAUDE_PLUGIN_ROOT}/scripts/keyword-detector.mjs"',
+                  'sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" "${QODER_PLUGIN_ROOT}/scripts/keyword-detector.mjs"',
               },
             ],
           },
@@ -147,7 +147,7 @@ describe('patchHooksJsonForWindows', () => {
               {
                 type: 'command',
                 command:
-                  'sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" "${CLAUDE_PLUGIN_ROOT}/scripts/session-start.mjs"',
+                  'sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" "${QODER_PLUGIN_ROOT}/scripts/session-start.mjs"',
               },
             ],
           },
@@ -160,10 +160,10 @@ describe('patchHooksJsonForWindows', () => {
 
     const patched = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
     expect(patched.hooks.UserPromptSubmit[0].hooks[0].command).toBe(
-      'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs'
+      'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs'
     );
     expect(patched.hooks.SessionStart[0].hooks[0].command).toBe(
-      'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-start.mjs'
+      'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-start.mjs'
     );
   });
 
@@ -186,7 +186,7 @@ describe('patchHooksJsonForWindows', () => {
 
     expect(commands.length).toBeGreaterThan(0);
     for (const { event, command } of commands) {
-      expect(command, event).toMatch(/^node "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs /);
+      expect(command, event).toMatch(/^node "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs /);
       expect(command, event).not.toContain('find-node.sh');
       expect(command, event).not.toContain('/bin/sh');
       expect(command, event).not.toMatch(/^sh /);

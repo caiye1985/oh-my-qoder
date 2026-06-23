@@ -18697,7 +18697,7 @@ function configFromManifest(manifest) {
   return {
     name: manifest.name,
     task: manifest.task,
-    agent_type: "claude",
+    agent_type: "qoder",
     policy: manifest.policy,
     governance: manifest.governance,
     worker_launch_mode: manifest.policy.worker_launch_mode,
@@ -19613,7 +19613,7 @@ function buildCliReplacement(toolName, args) {
         flags.push("--agent", quoteCliValue(agentTypes.join(",")));
       }
     } else {
-      flags.push("--agent", '"claude"');
+      flags.push("--agent", '"qoder"');
     }
     if (tasks.length > 0) {
       for (const task of tasks) {
@@ -19727,7 +19727,7 @@ function makeJobResponse(jobId, job, extra = {}) {
 }
 var startSchema = external_exports.object({
   teamName: external_exports.string().describe('Slug name for the team (e.g. "auth-review")'),
-  agentTypes: external_exports.array(external_exports.string()).describe('Agent type per worker: "claude", "codex", "gemini", or "antigravity"'),
+  agentTypes: external_exports.array(external_exports.string()).describe('Agent type per worker: "qoder", "codex", "gemini", or "antigravity"'),
   tasks: external_exports.array(external_exports.object({
     subject: external_exports.string().describe("Brief task title"),
     description: external_exports.string().describe("Full task description")
@@ -19987,7 +19987,7 @@ var TOOLS = [
       type: "object",
       properties: {
         teamName: { type: "string", description: "Slug name for the team" },
-        agentTypes: { type: "array", items: { type: "string" }, description: '"claude", "codex", "gemini", or "antigravity" per worker' },
+        agentTypes: { type: "array", items: { type: "string" }, description: '"qoder", "codex", "gemini", or "antigravity" per worker' },
         tasks: {
           type: "array",
           items: {

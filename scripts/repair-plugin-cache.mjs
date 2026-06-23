@@ -2,7 +2,7 @@
 /**
  * Repair OMC plugin cache references after marketplace updates.
  *
- * Claude Code can keep a running session pointed at the previous plugin cache
+ * Qoder can keep a running session pointed at the previous plugin cache
  * path while /plugin marketplace update installs a newer cache directory.  The
  * setup wizard must not delete that old path before the plugin registry and
  * long-running-session fallback are repaired, or every hook/skill invocation
@@ -25,8 +25,8 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeHooksDataForPlatform } from './lib/hook-command-normalizer.mjs';
 
-function getClaudeConfigDir() {
-  const configured = (process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude')).replace(/[\\/]+$/, '');
+function getQoderConfigDir() {
+  const configured = (process.env.QODER_CONFIG_DIR || join(homedir(), '.claude')).replace(/[\\/]+$/, '');
   if (configured === '~') return homedir();
   if (configured.startsWith('~/') || configured.startsWith('~\\')) return join(homedir(), configured.slice(2));
   return configured;
@@ -53,7 +53,7 @@ function compareVersionsDesc(a, b) {
 function isValidOmcPluginRoot(root) {
   return existsSync(join(root, 'hooks', 'hooks.json'))
     || existsSync(join(root, 'skills', 'omc-setup', 'SKILL.md'))
-    || existsSync(join(root, 'docs', 'CLAUDE.md'));
+    || existsSync(join(root, 'docs', 'AGENTS.md'));
 }
 
 function latestValidCacheRoot(cacheBase) {
@@ -125,7 +125,7 @@ function rewriteOmcRegistryEntries(installedPluginsPath, latestRoot) {
   const stalePaths = [];
 
   for (const [pluginId, value] of Object.entries(plugins)) {
-    if (!pluginId.toLowerCase().includes('oh-my-claudecode') || !Array.isArray(value)) continue;
+    if (!pluginId.toLowerCase().includes('oh-my-qoder') || !Array.isArray(value)) continue;
 
     for (const entry of value) {
       if (!entry || typeof entry !== 'object') continue;
@@ -175,8 +175,8 @@ function replaceWithSymlink(versionPath, latestRoot) {
 }
 
 export function repairPluginCacheReferences() {
-  const configDir = getClaudeConfigDir();
-  const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+  const configDir = getQoderConfigDir();
+  const cacheBase = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder');
   const latestRoot = latestValidCacheRoot(cacheBase);
   const result = { latestRoot, registryUpdated: false, hooksPatched: false, symlinked: 0, errors: [] };
 

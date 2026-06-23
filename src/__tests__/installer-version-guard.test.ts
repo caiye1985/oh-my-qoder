@@ -13,7 +13,7 @@ vi.mock('fs', async () => {
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
-import { install, CLAUDE_CONFIG_DIR, VERSION_FILE } from '../installer/index.js';
+import { install, QODER_CONFIG_DIR, VERSION_FILE } from '../installer/index.js';
 
 const mockedExistsSync = vi.mocked(existsSync);
 const mockedReadFileSync = vi.mocked(readFileSync);
@@ -24,8 +24,8 @@ function withUnixPaths(pathLike: Parameters<typeof existsSync>[0] | Parameters<t
 }
 
 describe('install downgrade protection (issue #1382)', () => {
-  const claudeMdPath = join(CLAUDE_CONFIG_DIR, 'CLAUDE.md');
-  const homeClaudeMdPath = join(homedir(), 'CLAUDE.md');
+  const claudeMdPath = join(QODER_CONFIG_DIR, 'AGENTS.md');
+  const homeClaudeMdPath = join(homedir(), 'AGENTS.md');
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -60,7 +60,7 @@ describe('install downgrade protection (issue #1382)', () => {
     expect(mockedWriteFileSync).not.toHaveBeenCalled();
   });
 
-  it('falls back to the existing CLAUDE.md version marker when metadata is missing', () => {
+  it('falls back to the existing AGENTS.md version marker when metadata is missing', () => {
     mockedExistsSync.mockImplementation((pathLike) => {
       const path = withUnixPaths(pathLike);
       return path === withUnixPaths(homeClaudeMdPath);

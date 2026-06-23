@@ -19,7 +19,7 @@ function stageWrapper() {
   return { dir, hudDir, cacheDir, wrapperPath, hudPath };
 }
 
-const stdinPayload = JSON.stringify({ session_id: 'session-123', cwd: '/tmp', transcript_path: '/tmp/session.jsonl', model: { id: 'claude' } });
+const stdinPayload = JSON.stringify({ session_id: 'session-123', cwd: '/tmp', transcript_path: '/tmp/session.jsonl', model: { id: 'qoder' } });
 
 describe('HUD cached statusLine launcher', () => {
   it('cached hot path returns the previous render without invoking Node when refresh is locked', () => {
@@ -40,7 +40,7 @@ describe('HUD cached statusLine launcher', () => {
         env: {
           ...process.env,
           PATH: `${fakeBin}:/usr/bin:/bin`,
-          CLAUDE_CONFIG_DIR: staged.dir,
+          QODER_CONFIG_DIR: staged.dir,
           OMC_HUD_CACHE_DIR: staged.cacheDir,
         },
         timeout: 1000,
@@ -55,7 +55,7 @@ describe('HUD cached statusLine launcher', () => {
   });
 
   it('first render renders synchronously so the user never sees the placeholder when stdin is available', () => {
-    // Claude Code v2.1.x does not re-poll the statusLine until the user
+    // Qoder v2.1.x does not re-poll the statusLine until the user
     // interacts with the pane, so an async first-frame fallback to
     // "[OMC] Starting..." would stay visible until the next keystroke.
     // The wrapper therefore blocks on a synchronous Node render the first
@@ -77,7 +77,7 @@ describe('HUD cached statusLine launcher', () => {
         env: {
           ...process.env,
           PATH: `${fakeBin}:/usr/bin:/bin`,
-          CLAUDE_CONFIG_DIR: staged.dir,
+          QODER_CONFIG_DIR: staged.dir,
           OMC_HUD_CACHE_DIR: staged.cacheDir,
           OMC_HUD_SYNC_REFRESH: '1',
         },
@@ -111,7 +111,7 @@ describe('HUD cached statusLine launcher', () => {
         env: {
           ...process.env,
           PATH: `${fakeBin}:/usr/bin:/bin`,
-          CLAUDE_CONFIG_DIR: staged.dir,
+          QODER_CONFIG_DIR: staged.dir,
           OMC_HUD_CACHE_DIR: staged.cacheDir,
           OMC_HUD_SYNC_REFRESH: '1',
         },
@@ -144,7 +144,7 @@ describe('HUD cached statusLine launcher', () => {
         env: {
           ...process.env,
           PATH: `${fakeBin}:/usr/bin:/bin`,
-          CLAUDE_CONFIG_DIR: staged.dir,
+          QODER_CONFIG_DIR: staged.dir,
           OMC_HUD_CACHE_DIR: staged.cacheDir,
         },
         timeout: 1000,
@@ -170,12 +170,12 @@ describe('HUD cached statusLine launcher', () => {
       chmodSync(join(fakeBin, 'node'), 0o755);
 
       const result = spawnSync('sh', [staged.wrapperPath, staged.hudPath], {
-        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'claude' } }),
+        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'qoder' } }),
         encoding: 'utf8',
         env: {
           ...process.env,
           PATH: `${fakeBin}:/usr/bin:/bin`,
-          CLAUDE_CONFIG_DIR: staged.dir,
+          QODER_CONFIG_DIR: staged.dir,
           CLAUDE_SESSION_ID: 'env-session-123',
           OMC_HUD_CACHE_DIR: staged.cacheDir,
         },
@@ -203,12 +203,12 @@ describe('HUD cached statusLine launcher', () => {
       chmodSync(join(fakeBin, 'node'), 0o755);
 
       const runForEnvSession = (sessionId: string) => spawnSync('sh', [staged.wrapperPath, staged.hudPath], {
-        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'claude' } }),
+        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'qoder' } }),
         encoding: 'utf8',
         env: {
           ...process.env,
           PATH: `${fakeBin}:/usr/bin:/bin`,
-          CLAUDE_CONFIG_DIR: staged.dir,
+          QODER_CONFIG_DIR: staged.dir,
           CLAUDE_SESSION_ID: sessionId,
           OMC_HUD_CACHE_DIR: staged.cacheDir,
         },
@@ -223,7 +223,7 @@ describe('HUD cached statusLine launcher', () => {
   });
 
 
-  it('uses legacy CLAUDECODE_SESSION_ID when newer env and stdin session_id are absent', () => {
+  it('uses legacy QODER_SESSION_ID when newer env and stdin session_id are absent', () => {
     const staged = stageWrapper();
     try {
       writeFileSync(join(staged.cacheDir, 'statusline.legacy-env-session-123.txt'), 'LEGACY ENV SESSION HUD\n');
@@ -237,14 +237,14 @@ describe('HUD cached statusLine launcher', () => {
       const env: NodeJS.ProcessEnv = {
         ...process.env,
         PATH: `${fakeBin}:/usr/bin:/bin`,
-        CLAUDE_CONFIG_DIR: staged.dir,
-        CLAUDECODE_SESSION_ID: 'legacy-env-session-123',
+        QODER_CONFIG_DIR: staged.dir,
+        QODER_SESSION_ID: 'legacy-env-session-123',
         OMC_HUD_CACHE_DIR: staged.cacheDir,
       };
       delete env.CLAUDE_SESSION_ID;
 
       const result = spawnSync('sh', [staged.wrapperPath, staged.hudPath], {
-        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'claude' } }),
+        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'qoder' } }),
         encoding: 'utf8',
         env,
         timeout: 1000,
@@ -257,7 +257,7 @@ describe('HUD cached statusLine launcher', () => {
     }
   });
 
-  it('prefers CLAUDE_SESSION_ID over legacy CLAUDECODE_SESSION_ID', () => {
+  it('prefers CLAUDE_SESSION_ID over legacy QODER_SESSION_ID', () => {
     const staged = stageWrapper();
     try {
       writeFileSync(join(staged.cacheDir, 'statusline.new-env-session.txt'), 'NEW ENV SESSION HUD\n');
@@ -271,14 +271,14 @@ describe('HUD cached statusLine launcher', () => {
       chmodSync(join(fakeBin, 'node'), 0o755);
 
       const result = spawnSync('sh', [staged.wrapperPath, staged.hudPath], {
-        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'claude' } }),
+        input: JSON.stringify({ cwd: '/tmp/same-worktree', model: { id: 'qoder' } }),
         encoding: 'utf8',
         env: {
           ...process.env,
           PATH: `${fakeBin}:/usr/bin:/bin`,
-          CLAUDE_CONFIG_DIR: staged.dir,
+          QODER_CONFIG_DIR: staged.dir,
           CLAUDE_SESSION_ID: 'new-env-session',
-          CLAUDECODE_SESSION_ID: 'legacy-env-session',
+          QODER_SESSION_ID: 'legacy-env-session',
           OMC_HUD_CACHE_DIR: staged.cacheDir,
         },
         timeout: 1000,

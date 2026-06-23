@@ -21,12 +21,12 @@ function writePayloadTree(root: string, version = '9.9.9-test'): void {
   writeFile(join(root, 'agents', 'executor.md'), '# executor\n');
   writeFile(join(root, 'commands', 'omc-setup.md'), 'Read skills/omc-setup/SKILL.md and pass $ARGUMENTS.\n');
   writeFile(join(root, 'templates', 'deliverables.json'), '{}\n');
-  writeFile(join(root, 'docs', 'CLAUDE.md'), '# docs\n');
-  writeFile(join(root, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'oh-my-claudecode', commands: './commands/', skills: ['./skills/plan/'] }, null, 2));
+  writeFile(join(root, 'docs', 'AGENTS.md'), '# docs\n');
+  writeFile(join(root, '.qoder-plugin', 'plugin.json'), JSON.stringify({ name: 'oh-my-qoder', commands: './commands/', skills: ['./skills/plan/'] }, null, 2));
   writeFile(join(root, '.mcp.json'), '{}\n');
   writeFile(join(root, 'README.md'), '# readme\n');
   writeFile(join(root, 'LICENSE'), 'MIT\n');
-  writeFile(join(root, 'package.json'), JSON.stringify({ name: 'oh-my-claude-sisyphus', version }, null, 2));
+  writeFile(join(root, 'package.json'), JSON.stringify({ name: 'oh-my-qoder', version }, null, 2));
 }
 
 async function freshInstaller() {
@@ -39,8 +39,8 @@ describe('syncInstalledPluginPayload', () => {
 
   beforeEach(() => {
     tempRoot = mkdtempSync(join(tmpdir(), 'omc-plugin-cache-sync-'));
-    process.env.CLAUDE_CONFIG_DIR = join(tempRoot, '.claude');
-    delete process.env.CLAUDE_PLUGIN_ROOT;
+    process.env.QODER_CONFIG_DIR = join(tempRoot, '.claude');
+    delete process.env.QODER_PLUGIN_ROOT;
     delete process.env.OMC_PLUGIN_ROOT;
   });
 
@@ -54,8 +54,8 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('repairs incomplete cache installs from the known marketplace source instead of reusing the installed root', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.12.0');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.12.0');
     const sourceRoot = join(tempRoot, 'marketplace-source');
 
     writePayloadTree(sourceRoot);
@@ -67,7 +67,7 @@ describe('syncInstalledPluginPayload', () => {
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: cacheRoot, version: '4.12.0' }],
+          'oh-my-qoder@omc': [{ installPath: cacheRoot, version: '4.12.0' }],
         },
       }, null, 2),
     );
@@ -97,8 +97,8 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('repairs incomplete cache installs during setup before plugin-provided file detection runs', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.12.0');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.12.0');
     const sourceRoot = join(tempRoot, 'marketplace-source-install');
 
     writePayloadTree(sourceRoot, '4.12.0');
@@ -110,7 +110,7 @@ describe('syncInstalledPluginPayload', () => {
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: cacheRoot, version: '4.12.0' }],
+          'oh-my-qoder@omc': [{ installPath: cacheRoot, version: '4.12.0' }],
         },
       }, null, 2),
     );
@@ -125,7 +125,7 @@ describe('syncInstalledPluginPayload', () => {
     );
     writeFileSync(
       join(configDir, 'settings.json'),
-      JSON.stringify({ enabledPlugins: ['oh-my-claudecode@omc'] }, null, 2),
+      JSON.stringify({ enabledPlugins: ['oh-my-qoder@omc'] }, null, 2),
     );
 
     const installer = await freshInstaller();
@@ -148,8 +148,8 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('does not accept a cache root as plugin-provided when required commands are missing', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
 
     writePayloadTree(cacheRoot, '4.14.4');
     rmSync(join(cacheRoot, 'commands'), { recursive: true, force: true });
@@ -159,7 +159,7 @@ describe('syncInstalledPluginPayload', () => {
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
+          'oh-my-qoder@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
         },
       }, null, 2),
     );
@@ -174,18 +174,18 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('rejects malformed plugin manifests instead of treating sentinel files as complete', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
 
     writePayloadTree(cacheRoot, '4.14.4');
-    writeFileSync(join(cacheRoot, '.claude-plugin', 'plugin.json'), '{not valid json');
+    writeFileSync(join(cacheRoot, '.qoder-plugin', 'plugin.json'), '{not valid json');
     mkdirSync(join(configDir, 'plugins'), { recursive: true });
     writeFileSync(
       join(configDir, 'plugins', 'installed_plugins.json'),
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
+          'oh-my-qoder@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
         },
       }, null, 2),
     );
@@ -195,14 +195,14 @@ describe('syncInstalledPluginPayload', () => {
 
     expect(validation.valid).toBe(false);
     expect(validation.errors).toEqual(expect.arrayContaining([
-      expect.stringContaining('Invalid plugin manifest: .claude-plugin/plugin.json'),
+      expect.stringContaining('Invalid plugin manifest: .qoder-plugin/plugin.json'),
     ]));
     expect(installer.hasPluginProvidedAgentFiles()).toBe(false);
   });
 
   it('rejects partial command and manifest-declared skill surfaces', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
 
     writePayloadTree(cacheRoot, '4.14.4');
     rmSync(join(cacheRoot, 'commands', 'omc-setup.md'), { force: true });
@@ -214,7 +214,7 @@ describe('syncInstalledPluginPayload', () => {
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
+          'oh-my-qoder@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
         },
       }, null, 2),
     );
@@ -232,12 +232,12 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('rejects schema-malformed plugin manifests even when payload files exist', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
 
     writePayloadTree(cacheRoot, '4.14.4');
-    writeFileSync(join(cacheRoot, '.claude-plugin', 'plugin.json'), JSON.stringify({
-      name: 'oh-my-claudecode',
+    writeFileSync(join(cacheRoot, '.qoder-plugin', 'plugin.json'), JSON.stringify({
+      name: 'oh-my-qoder',
       commands: 17,
       skills: './skills/plan/',
     }));
@@ -247,18 +247,18 @@ describe('syncInstalledPluginPayload', () => {
 
     expect(validation.valid).toBe(false);
     expect(validation.errors).toEqual(expect.arrayContaining([
-      'Invalid plugin manifest: .claude-plugin/plugin.json commands must be a non-empty relative path',
-      'Invalid plugin manifest: .claude-plugin/plugin.json skills must be a non-empty array',
+      'Invalid plugin manifest: .qoder-plugin/plugin.json commands must be a non-empty relative path',
+      'Invalid plugin manifest: .qoder-plugin/plugin.json skills must be a non-empty array',
     ]));
   });
 
   it('rejects manifest-declared skill paths that escape the plugin root', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
 
     writePayloadTree(cacheRoot, '4.14.4');
-    writeFileSync(join(cacheRoot, '.claude-plugin', 'plugin.json'), JSON.stringify({
-      name: 'oh-my-claudecode',
+    writeFileSync(join(cacheRoot, '.qoder-plugin', 'plugin.json'), JSON.stringify({
+      name: 'oh-my-qoder',
       commands: './commands/',
       skills: ['../outside/'],
     }));
@@ -271,8 +271,8 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('rejects required plugin file paths that exist only as directories', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
 
     writePayloadTree(cacheRoot, '4.14.4');
     rmSync(join(cacheRoot, 'dist', 'hooks', 'skill-bridge.cjs'), { force: true });
@@ -294,8 +294,8 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('repairs cache roots missing commands, runtime dist hook, and bridge from a complete source', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
     const sourceRoot = join(tempRoot, 'complete-marketplace-source');
 
     writePayloadTree(sourceRoot, '4.14.4');
@@ -309,7 +309,7 @@ describe('syncInstalledPluginPayload', () => {
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
+          'oh-my-qoder@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
         },
       }, null, 2),
     );
@@ -335,8 +335,8 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('rejects package sources missing runtime-critical dist hook or bridge files', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
-    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.14.4');
+    const configDir = process.env.QODER_CONFIG_DIR as string;
+    const cacheRoot = join(configDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.14.4');
     const incompleteSourceRoot = join(tempRoot, 'incomplete-marketplace-source');
 
     writePayloadTree(incompleteSourceRoot, '4.14.4');
@@ -349,7 +349,7 @@ describe('syncInstalledPluginPayload', () => {
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
+          'oh-my-qoder@omc': [{ installPath: cacheRoot, version: '4.14.4' }],
         },
       }, null, 2),
     );
@@ -376,7 +376,7 @@ describe('syncInstalledPluginPayload', () => {
   });
 
   it('rejects cache install roots that escape the cache directory via .. segments', async () => {
-    const configDir = process.env.CLAUDE_CONFIG_DIR as string;
+    const configDir = process.env.QODER_CONFIG_DIR as string;
     const cacheBase = join(configDir, 'plugins', 'cache');
     const escapedInstallPath = `${cacheBase}/../../../escaped-target`;
     const escapedResolvedRoot = join(tempRoot, 'escaped-target');
@@ -391,7 +391,7 @@ describe('syncInstalledPluginPayload', () => {
       JSON.stringify({
         version: 2,
         plugins: {
-          'oh-my-claudecode@omc': [{ installPath: escapedInstallPath, version: '4.12.0' }],
+          'oh-my-qoder@omc': [{ installPath: escapedInstallPath, version: '4.12.0' }],
         },
       }, null, 2),
     );
