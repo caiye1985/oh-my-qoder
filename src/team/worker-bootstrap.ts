@@ -119,7 +119,7 @@ function agentTypeGuidance(agentType: CliAgentType): string {
     case 'qoder':
     default:
       return [
-        '### Agent-Type Guidance (claude)',
+        '### Agent-Type Guidance (qoder)',
         '- Keep reasoning focused on assigned task IDs and send concise progress acks to leader-fixed.',
         '- Before any risky command, send a blocker/proposal message to leader-fixed and wait for updated inbox instructions.',
       ].join('\n');
@@ -186,6 +186,13 @@ You MUST complete ALL of these steps. Do NOT skip any step. Do NOT exit without 
    - On success: \`${completeTaskCommand}\`
    - On failure: \`${failTaskCommand}\`
 5. **Keep going after replies**: ACK/progress messages are not a stop signal. Keep executing your assigned or next feasible work until the task is actually complete or failed, then transition and exit.
+
+## TodoWrite Usage (Internal Sub-Steps)
+- You may use TodoWrite to track your own internal sub-steps for the assigned task.
+- **CRITICAL CONSTRAINT**: Only ONE item may have status \`in_progress\` at any time. All other items MUST be \`pending\`, \`completed\`, \`cancelled\`, or \`blocked\`.
+- When creating a TodoWrite list: set ALL items to \`pending\` first, then update ONE to \`in_progress\` when you start working on it.
+- Mark each item \`completed\` immediately after finishing it, before starting the next.
+- Task lifecycle (claim/transition) is managed via \`team api\` commands above, NOT TodoWrite.
 
 ## Identity
 - **Team**: ${teamName}
