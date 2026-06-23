@@ -150,7 +150,7 @@ describe('model-contract', () => {
     it('returns contract for claude', () => {
       const c = getContract('qoder');
       expect(c.agentType).toBe('qoder');
-      expect(c.binary).toBe('qoder');
+      expect(c.binary).toBe('qodercli');
     });
     it('returns contract for codex', () => {
       const c = getContract('codex');
@@ -344,7 +344,7 @@ describe('model-contract', () => {
       expect(args).toContain('gpt-4');
     });
     it('normalizes full Claude model ID to alias for claude agent (issue #1415)', () => {
-      const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'claude-sonnet-4-6' });
+      const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'qoder-sonnet-4-6' });
       expect(args).toContain('--model');
       expect(args).toContain('sonnet');
       expect(args).not.toContain('claude-sonnet-4-6');
@@ -352,8 +352,7 @@ describe('model-contract', () => {
     it('passes Bedrock model ID through without normalization for claude agent (issue #1695)', () => {
       withAnthropicApiKey('sk-test', () => {
         const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'us.anthropic.claude-opus-4-6-v1:0' });
-        expect(args).toContain('--bare');
-        expect(countArg(args, '--bare')).toBe(1);
+        expect(args).toContain('--yolo');
         expect(args).toContain('--model');
         expect(args).toContain('us.anthropic.claude-opus-4-6-v1:0');
         expect(args).not.toContain('opus');
@@ -452,12 +451,10 @@ describe('model-contract', () => {
         argv = buildWorkerArgv('qoder', { teamName: 'my-team', workerName: 'worker-1', cwd: '/tmp' });
       });
 
-      expect(argv[0]).toBe('qoder');
-      expect(argv).toContain('--dangerously-skip-permissions');
-      expect(argv).toContain('--bare');
-      expect(countArg(argv, '--bare')).toBe(1);
+      expect(argv[0]).toBe('qodercli');
+      expect(argv).toContain('--yolo');
       expect(argv).not.toContain('exec');
-      expect(mockSpawnSync).toHaveBeenCalledWith('which', ['qoder'], { timeout: 5000, encoding: 'utf8' });
+      expect(mockSpawnSync).toHaveBeenCalledWith('which', ['qodercli'], { timeout: 5000, encoding: 'utf8' });
       mockSpawnSync.mockRestore();
     });
 
@@ -551,8 +548,11 @@ describe('model-contract', () => {
       expect(c.promptModeFlag).toBe('-p');
     });
 
-    it('claude does not support prompt mode', () => {
-      expect(isPromptModeAgent('qoder')).toBe(false);
+    it('qoder supports prompt mode', () => {
+      expect(isPromptModeAgent('qoder')).toBe(true);
+      const c = getContract('qoder');
+      expect(c.supportsPromptMode).toBe(true);
+      expect(c.promptModeFlag).toBe('-p');
     });
 
     it('codex launches as a persistent interactive worker, not prompt/exec mode', () => {
@@ -591,9 +591,12 @@ describe('model-contract', () => {
       expect(args).toEqual(['-p', 'Read inbox']);
     });
 
-    it('getPromptModeArgs returns empty array for interactive codex and qoder workers', () => {
+    it('getPromptModeArgs returns empty array for interactive codex workers', () => {
       expect(getPromptModeArgs('codex', 'Read inbox')).toEqual([]);
-      expect(getPromptModeArgs('qoder', 'Read inbox')).toEqual([]);
+    });
+
+    it('getPromptModeArgs returns flag + instruction for qoder workers', () => {
+      expect(getPromptModeArgs('qoder', 'Read inbox')).toEqual(['-p', 'Read inbox']);
     });
   });
 

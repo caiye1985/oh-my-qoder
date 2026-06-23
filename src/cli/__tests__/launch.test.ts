@@ -158,7 +158,7 @@ describe('runQoder — exit code propagation', () => {
       // isPrintMode short-circuits before resolveLaunchPolicy is called
       expect(resolveLaunchPolicy).not.toHaveBeenCalled();
       expect(vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'tmux')).toBeUndefined();
-      expect(vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qoder')?.[1]).toEqual(['--print']);
+      expect(vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qodercli')?.[1]).toEqual(['--print']);
     });
 
     it('propagates Claude non-zero exit code', () => {
@@ -203,7 +203,7 @@ describe('runQoder — exit code propagation', () => {
 
       runQoder('/tmp', ['--resume'], 'sid');
 
-      expect(vi.mocked(execFileSync)).toHaveBeenCalledWith('qoder', ['--resume'], {
+      expect(vi.mocked(execFileSync)).toHaveBeenCalledWith('qodercli', ['--resume'], {
         cwd: '/tmp',
         stdio: 'inherit',
         shell: true,
@@ -248,7 +248,7 @@ describe('runQoder — exit code propagation', () => {
 
       runQoder('/tmp', ['--continue'], 'sid');
 
-      expect(vi.mocked(execFileSync)).toHaveBeenCalledWith('qoder', ['--continue'], {
+      expect(vi.mocked(execFileSync)).toHaveBeenCalledWith('qodercli', ['--continue'], {
         cwd: '/tmp',
         stdio: 'inherit',
         shell: true,
@@ -401,22 +401,28 @@ describe('runQoder outside-tmux — mouse scrolling (issue #890)', () => {
       'has-session',
     ]);
     expect(tmuxCalls.some((args) => args[0] === 'kill-session')).toBe(false);
-    expect(vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qoder')).toBeUndefined();
+    expect(vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qodercli')).toBeUndefined();
     expect(processExitSpy).not.toHaveBeenCalled();
   });
 
   it('falls back to direct launch when detached session creation fails', () => {
-    vi.mocked(tmuxExec).mockImplementation((args: string[]) => {
-      if (args[0] === 'new-session') {
-        throw new Error('tmux launch failed');
-      }
-      return '';
-    });
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+    try {
+      vi.mocked(tmuxExec).mockImplementation((args: string[]) => {
+        if (args[0] === 'new-session') {
+          throw new Error('tmux launch failed');
+        }
+        return '';
+      });
 
-    runQoder('/tmp', ['--yolo'], 'sid');
+      runQoder('/tmp', ['--yolo'], 'sid');
 
-    expect(vi.mocked(tmuxExec).mock.calls).toHaveLength(1);
-    expect(vi.mocked(execFileSync).mock.calls.find(([cmd, args]) => cmd === 'qoder' && (args as string[])[0] === '--yolo')).toBeDefined();
+      expect(vi.mocked(tmuxExec).mock.calls).toHaveLength(1);
+      expect(vi.mocked(execFileSync).mock.calls.find(([cmd, args]) => cmd === 'qodercli' && (args as string[])[0] === '--yolo')).toBeDefined();
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+    }
   });
 });
 
@@ -447,7 +453,7 @@ describe('runQoder inside-tmux — mouse configuration (issue #890)', () => {
 
     // execFileSync should have been called for claude
     const claudeCalls = vi.mocked(execFileSync).mock.calls;
-    expect(claudeCalls.find(([cmd]) => cmd === 'qoder')).toBeDefined();
+    expect(claudeCalls.find(([cmd]) => cmd === 'qodercli')).toBeDefined();
   });
 
   it('still launches claude even if tmux mouse config fails', () => {
@@ -460,7 +466,7 @@ describe('runQoder inside-tmux — mouse configuration (issue #890)', () => {
 
     // tmux calls fail but claude should still be called
     const calls = vi.mocked(execFileSync).mock.calls;
-    const claudeCall = calls.find(([cmd]) => cmd === 'qoder');
+    const claudeCall = calls.find(([cmd]) => cmd === 'qodercli');
     expect(claudeCall).toBeDefined();
   });
 });
@@ -890,7 +896,7 @@ describe('launchCommand — env var propagation', () => {
     await launchCommand(['--telegram', '--discord', '--slack', '--webhook', '--openclaw', '--print']);
 
     const calls = vi.mocked(execFileSync).mock.calls;
-    const claudeCall = calls.find(([cmd]) => cmd === 'qoder');
+    const claudeCall = calls.find(([cmd]) => cmd === 'qodercli');
     expect(claudeCall).toBeDefined();
     const claudeArgs = claudeCall![1] as string[];
     expect(claudeArgs).not.toContain('--telegram');
@@ -1265,7 +1271,7 @@ describe('runQoder — print mode bypasses tmux (issue #1665)', () => {
     const calls = vi.mocked(execFileSync).mock.calls;
     // Should call claude directly, NOT tmux
     expect(calls).toHaveLength(1);
-    expect(calls[0][0]).toBe('qoder');
+    expect(calls[0][0]).toBe('qodercli');
     expect(calls[0][1]).toEqual(['--print', 'say hello']);
     expect(calls[0][2]).toEqual(expect.objectContaining({ stdio: 'inherit' }));
   });
@@ -1277,7 +1283,7 @@ describe('runQoder — print mode bypasses tmux (issue #1665)', () => {
 
     const calls = vi.mocked(execFileSync).mock.calls;
     expect(calls).toHaveLength(1);
-    expect(calls[0][0]).toBe('qoder');
+    expect(calls[0][0]).toBe('qodercli');
   });
 
   it('runs claude directly when --print is present (inside-tmux policy)', () => {
@@ -1288,7 +1294,7 @@ describe('runQoder — print mode bypasses tmux (issue #1665)', () => {
     const calls = vi.mocked(execFileSync).mock.calls;
     // Should NOT call tmux set-option (mouse config), just claude directly
     expect(calls).toHaveLength(1);
-    expect(calls[0][0]).toBe('qoder');
+    expect(calls[0][0]).toBe('qodercli');
   });
 
   it('does not bypass tmux when --print is absent', () => {
@@ -1468,7 +1474,7 @@ describe('runQoder outside-tmux — env forwarding', () => {
     );
     const rawCommand = vi.mocked(wrapWithLoginShell).mock.calls[0][0];
     expect(rawCommand).toContain('QODER_CONFIG_DIR=C:\\Users\\bellman\\config dir');
-    expect(rawCommand).toContain('qodercli --print-system-prompt hello world');
+    expect(rawCommand).toContain('qoder --print-system-prompt hello world');
     expect(rawCommand).not.toContain('sleep 0.3');
     expect(rawCommand).not.toContain('tcflush');
 
@@ -1509,7 +1515,7 @@ describe('hasMadmaxFlag', () => {
   });
 
   it('returns false when neither flag is present', () => {
-    expect(hasMadmaxFlag(['--print', '--yolo'])).toBe(false);
+    expect(hasMadmaxFlag(['--print', '--verbose'])).toBe(false);
   });
 
   it('returns false for empty args', () => {
@@ -1648,7 +1654,7 @@ describe('runQoder — --madmax on macOS forces tmux', () => {
 
     expect(processExitSpy).not.toHaveBeenCalledWith(1);
     expect(resolveLaunchPolicy).not.toHaveBeenCalled();
-    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qoder');
+    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qodercli');
     expect(claudeCall).toBeDefined();
   });
 
@@ -1668,7 +1674,7 @@ describe('runQoder — --madmax on macOS forces tmux', () => {
     expect(processExitSpy).toHaveBeenCalledWith(1);
     const messages = stderrSpy.mock.calls.map((call: unknown[]) => String(call[0])).join('\n');
     expect(messages).toContain('launching tmux failed');
-    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qoder');
+    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qodercli');
     expect(claudeCall).toBeUndefined();
   });
 
@@ -1688,7 +1694,7 @@ describe('runQoder — --madmax on macOS forces tmux', () => {
     expect(processExitSpy).toHaveBeenCalledWith(1);
     const messages = stderrSpy.mock.calls.map((call: unknown[]) => String(call[0])).join('\n');
     expect(messages).toContain('launching tmux failed');
-    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qoder');
+    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qodercli');
     expect(claudeCall).toBeUndefined();
   });
 
@@ -1711,7 +1717,7 @@ describe('runQoder — --madmax on macOS forces tmux', () => {
     const tmuxCalls = vi.mocked(tmuxExec).mock.calls.map(([tmuxArgs]) => tmuxArgs[0]);
     expect(tmuxCalls).toContain('attach-session');
     expect(tmuxCalls).not.toContain('has-session');
-    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qoder');
+    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qodercli');
     expect(claudeCall).toBeUndefined();
   });
 
@@ -1730,7 +1736,7 @@ describe('runQoder — --madmax on macOS forces tmux', () => {
 
     // No --madmax: existing behavior preserved (direct path runs, no exit-1).
     expect(processExitSpy).not.toHaveBeenCalledWith(1);
-    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qoder');
+    const claudeCall = vi.mocked(execFileSync).mock.calls.find(([cmd]) => cmd === 'qodercli');
     expect(claudeCall).toBeDefined();
   });
 });
