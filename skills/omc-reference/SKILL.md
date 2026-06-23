@@ -12,38 +12,38 @@ Use this built-in reference when you need detailed OMC catalog information that 
 
 Prefix: `oh-my-qoder:`. See `agents/*.md` for full prompts.
 
-- `explore` (haiku) — fast codebase search and mapping
-- `analyst` (opus) — requirements clarity and hidden constraints
-- `planner` (opus) — sequencing and execution plans
-- `architect` (opus) — system design, boundaries, and long-horizon tradeoffs
-- `debugger` (sonnet) — root-cause analysis and failure diagnosis
-- `executor` (sonnet) — implementation and refactoring
-- `verifier` (sonnet) — completion evidence and validation
-- `tracer` (sonnet) — trace gathering and evidence capture
-- `security-reviewer` (sonnet) — trust boundaries and vulnerabilities
-- `code-reviewer` (opus) — comprehensive code review
-- `test-engineer` (sonnet) — testing strategy and regression coverage
-- `designer` (sonnet) — UX and interaction design
-- `writer` (haiku) — documentation and concise content work
-- `qa-tester` (sonnet) — runtime/manual validation
-- `scientist` (sonnet) — data analysis and statistical reasoning
-- `document-specialist` (sonnet) — SDK/API/framework documentation lookup
-- `git-master` (sonnet) — commit strategy and history hygiene
-- `code-simplifier` (opus) — behavior-preserving simplification
-- `critic` (opus) — plan/design challenge and review
+- `explore` (efficient) — fast codebase search and mapping
+- `analyst` (performance) — requirements clarity and hidden constraints
+- `planner` (performance) — sequencing and execution plans
+- `architect` (performance) — system design, boundaries, and long-horizon tradeoffs
+- `debugger` (auto) — root-cause analysis and failure diagnosis
+- `executor` (auto) — implementation and refactoring
+- `verifier` (auto) — completion evidence and validation
+- `tracer` (auto) — trace gathering and evidence capture
+- `security-reviewer` (auto) — trust boundaries and vulnerabilities
+- `code-reviewer` (performance) — comprehensive code review
+- `test-engineer` (auto) — testing strategy and regression coverage
+- `designer` (auto) — UX and interaction design
+- `writer` (efficient) — documentation and concise content work
+- `qa-tester` (auto) — runtime/manual validation
+- `scientist` (auto) — data analysis and statistical reasoning
+- `document-specialist` (auto) — SDK/API/framework documentation lookup
+- `git-master` (auto) — commit strategy and history hygiene
+- `code-simplifier` (performance) — behavior-preserving simplification
+- `critic` (performance) — plan/design challenge and review
 
 ## Model Routing
 
-- `haiku` — quick lookups, lightweight inspection, narrow docs work
-- `sonnet` — standard implementation, debugging, and review
-- `opus` — architecture, deep analysis, consensus planning, and high-risk review
+- `efficient` — quick lookups, lightweight inspection, narrow docs work
+- `auto` — standard implementation, debugging, and review
+- `performance` — architecture, deep analysis, consensus planning, and high-risk review
 
 ## Tools Reference
 
 ### External AI / orchestration
 - `/team N:executor "task"`
-- `omc team N:codex|gemini|antigravity "..."`
-- `omc ask <claude|codex|gemini|antigravity>`
+- `omq team N:codex|gemini|antigravity "..."`
+- `omq ask <qoder|codex|gemini|antigravity>`
 - `/ccg`
 
 ### OMC state
@@ -52,7 +52,7 @@ Prefix: `oh-my-qoder:`. See `agents/*.md` for full prompts.
 ### Team orchestration
 - Qoder 2.1.178+ uses one implicit agent team per session. Spawn teammates directly with Agent/Task using distinct `name` values; do not call removed `TeamCreate`/`TeamDelete` tools or rely on `team_name` for native routing.
 - Use TodoWrite or the available task-list surface for tracking only. Task-list tools do not create native teams.
-- Legacy OMC tmux/CLI teams are separate: use `/team` or `omc team` plus OMC state/API commands for external worker runs.
+- Legacy OMC tmux/CLI teams are separate: use `/team` or `omq team` plus OMC state/API commands for external worker runs.
 
 ### Notepad
 - `notepad_read`, `notepad_write_priority`, `notepad_write_working`, `notepad_write_manual`
@@ -75,7 +75,7 @@ Invoke built-in workflows via `/oh-my-qoder:<name>`.
 - `ultrawork` — high-throughput parallel execution
 - `visual-verdict` — structured visual QA verdicts
 - `team` — coordinated team orchestration
-- `ccg` — Codex + Gemini + Claude synthesis lane
+- `ccg` — Codex + Gemini + Qoder synthesis lane
 - `ultraqa` — QA cycle: test, verify, fix, repeat
 - `omc-plan` — planning workflow and `/plan`-safe alias
 - `ralplan` — consensus planning workflow
@@ -132,12 +132,12 @@ Use git trailers to preserve decision context in every commit message.
 ```text
 feat(docs): reduce always-loaded OMC instruction footprint
 
-Move reference-only orchestration content into a native Claude skill so
+Move reference-only orchestration content into a native Qoder skill so
 session-start guidance stays small while detailed OMC reference remains available.
 
 Constraint: Preserve AGENTS.md marker-based installation flow
 Rejected: Sync all built-in skills in legacy install | broader behavior change than issue requires
 Confidence: high
 Scope-risk: narrow
-Not-tested: End-to-end plugin marketplace install in a fresh Claude profile
+Not-tested: End-to-end plugin marketplace install in a fresh Qoder profile
 ```

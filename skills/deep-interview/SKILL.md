@@ -58,7 +58,7 @@ When arguments include `--autoresearch`, Deep Interview becomes the zero-learnin
 - If no usable mission brief is present yet, start by asking: **"What should autoresearch improve or prove for this repo?"**
 - After the mission is clear, collect an evaluator command. If the user leaves it blank, infer one only when repo evidence is strong; otherwise keep interviewing until an evaluator is explicit enough to launch safely.
 - Keep the usual one-question-per-round rule, but treat **mission clarity** and **evaluator clarity** as hard readiness gates in addition to the normal ambiguity threshold.
-- Once ready, do **not** bridge into `omc-plan`, `autopilot`, `ralph`, `team`, or the hard-deprecated `omc autoresearch` CLI. Instead write the mission/evaluator setup artifacts and invoke:
+- Once ready, do **not** bridge into `omc-plan`, `autopilot`, `ralph`, `team`, or the hard-deprecated `omq autoresearch` CLI. Instead write the mission/evaluator setup artifacts and invoke:
   - `Skill("oh-my-qoder:autoresearch")`
 - This handoff enters the real stateful autoresearch skill. After a successful handoff, announce the mission slug, evaluator command/script, max-runtime ceiling, and artifact location.
 </Autoresearch_Mode>
@@ -490,7 +490,7 @@ Spec structure:
 
 ## Phase 5: Execution Bridge
 
-**Autoresearch override:** if `--autoresearch` is active, skip the standard execution options below. The only valid bridge is the `Skill("oh-my-qoder:autoresearch")` handoff described above. The `omc autoresearch` CLI is a hard-deprecated shim and must not be used for execution.
+**Autoresearch override:** if `--autoresearch` is active, skip the standard execution options below. The only valid bridge is the `Skill("oh-my-qoder:autoresearch")` handoff described above. The `omq autoresearch` CLI is a hard-deprecated shim and must not be used for execution.
 
 After the spec is written, mark it `pending approval` and present execution options via `AskUserQuestion`. Until the user selects an execution option, the deep-interview module MUST NOT run mutation-oriented shell commands, edit source files, commit, push, open PRs, invoke execution skills, or delegate implementation tasks:
 

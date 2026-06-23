@@ -236,7 +236,7 @@ Writer Memory integrates with `.omc/notepad.md`:
 For complex character analysis:
 ```
 Task(subagent_type="oh-my-qoder:architect",
-     model="opus",
+     model="performance",
      prompt="Analyze 새랑's arc across all scenes...")
 ```
 

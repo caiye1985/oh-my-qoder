@@ -48,7 +48,7 @@ This is an interactive, natural-language configuration skill. Walk the user thro
 ### Step 1: Detect Existing Configuration
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 
 if [ -f "$CONFIG_FILE" ]; then
   HAS_TELEGRAM=$(jq -r '.notifications.telegram.enabled // false' "$CONFIG_FILE" 2>/dev/null)
@@ -140,7 +140,7 @@ Use AskUserQuestion with multiSelect:
 
 **Options (multiSelect: true):**
 1. **Session end (Recommended)** - When a Qoder session finishes
-2. **Input needed** - When Claude is waiting for your response (great for long-running tasks)
+2. **Input needed** - When Qoder is waiting for your response (great for long-running tasks)
 3. **Session start** - When a new session begins
 4. **Session continuing** - When a persistent mode keeps the session alive
 
@@ -151,7 +151,7 @@ Default selection: session-end + ask-user-question.
 Read the existing config, merge the new Telegram settings, and write back:
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 mkdir -p "$(dirname "$CONFIG_FILE")"
 
 if [ -f "$CONFIG_FILE" ]; then
@@ -274,7 +274,7 @@ This is an interactive, natural-language configuration skill. Walk the user thro
 ### Step 1: Detect Existing Configuration
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 
 if [ -f "$CONFIG_FILE" ]; then
   # Check for existing discord config
@@ -363,7 +363,7 @@ Use AskUserQuestion with multiSelect:
 
 **Options (multiSelect: true):**
 1. **Session end (Recommended)** - When a Qoder session finishes
-2. **Input needed** - When Claude is waiting for your response (great for long-running tasks)
+2. **Input needed** - When Qoder is waiting for your response (great for long-running tasks)
 3. **Session start** - When a new session begins
 4. **Session continuing** - When a persistent mode keeps the session alive
 
@@ -385,7 +385,7 @@ Use AskUserQuestion:
 Read the existing config, merge the new Discord settings, and write back:
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 mkdir -p "$(dirname "$CONFIG_FILE")"
 
 if [ -f "$CONFIG_FILE" ]; then
@@ -524,7 +524,7 @@ This is an interactive, natural-language configuration skill. Walk the user thro
 ### Step 1: Detect Existing Configuration
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 
 if [ -f "$CONFIG_FILE" ]; then
   HAS_SLACK=$(jq -r '.notifications.slack.enabled // false' "$CONFIG_FILE" 2>/dev/null)
@@ -611,7 +611,7 @@ Use AskUserQuestion with multiSelect:
 
 **Options (multiSelect: true):**
 1. **Session end (Recommended)** - When a Qoder session finishes
-2. **Input needed** - When Claude is waiting for your response (great for long-running tasks)
+2. **Input needed** - When Qoder is waiting for your response (great for long-running tasks)
 3. **Session start** - When a new session begins
 4. **Session continuing** - When a persistent mode keeps the session alive
 
@@ -645,7 +645,7 @@ Use AskUserQuestion:
 Read the existing config, merge the new Slack settings, and write back:
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 mkdir -p "$(dirname "$CONFIG_FILE")"
 
 if [ -f "$CONFIG_FILE" ]; then
@@ -766,19 +766,19 @@ Env vars are auto-detected by the notification system without needing `.omc-conf
 
 All notification platforms require activation via CLI flags per session:
 
-- `omc --telegram` — Activates Telegram notifications (sets `OMC_TELEGRAM=1`)
-- `omc --discord` — Activates Discord notifications (sets `OMC_DISCORD=1`)
-- `omc --slack` — Activates Slack notifications (sets `OMC_SLACK=1`)
-- `omc --webhook` — Activates webhook notifications (sets `OMC_WEBHOOK=1`)
-- `omc --openclaw` — Activates OpenClaw gateway integration (sets `OMC_OPENCLAW=1`)
+- `omq --telegram` — Activates Telegram notifications (sets `OMC_TELEGRAM=1`)
+- `omq --discord` — Activates Discord notifications (sets `OMC_DISCORD=1`)
+- `omq --slack` — Activates Slack notifications (sets `OMC_SLACK=1`)
+- `omq --webhook` — Activates webhook notifications (sets `OMC_WEBHOOK=1`)
+- `omq --openclaw` — Activates OpenClaw gateway integration (sets `OMC_OPENCLAW=1`)
 
 Without these flags, configured platforms remain dormant. This prevents unwanted notifications during development while keeping configuration persistent.
 
 **Examples:**
-- `omc --telegram --discord` — Telegram + Discord active
-- `omc --telegram --slack --webhook` — Telegram + Slack + Webhook active
-- `omc --telegram --openclaw` — Telegram + OpenClaw active
-- `omc` — No notifications sent (all platforms require explicit activation)
+- `omq --telegram --discord` — Telegram + Discord active
+- `omq --telegram --slack --webhook` — Telegram + Slack + Webhook active
+- `omq --telegram --openclaw` — Telegram + OpenClaw active
+- `omq` — No notifications sent (all platforms require explicit activation)
 
 ---
 
@@ -810,8 +810,8 @@ Use AskUserQuestion:
 
 **Options:**
 1. **session-end** - When a Qoder session finishes (most common)
-2. **ask-user-question** - When Claude is waiting for input
-3. **session-idle** - When Claude finishes and waits for input
+2. **ask-user-question** - When Qoder is waiting for input
+3. **session-idle** - When Qoder finishes and waits for input
 4. **session-start** - When a new session begins
 
 ### Step 3: Show Available Variables
@@ -953,7 +953,7 @@ If `~/.qoder/omc_config.openclaw.json` exists, detect and offer migration:
 
 **Step 1: Detect Legacy Config**
 ```bash
-LEGACY_CONFIG="${QODER_CONFIG_DIR:-$HOME/.claude}/omc_config.openclaw.json"
+LEGACY_CONFIG="${QODER_CONFIG_DIR:-$HOME/.qoder}/omc_config.openclaw.json"
 if [ -f "$LEGACY_CONFIG" ]; then
   echo "LEGACY_FOUND=true"
   # Check if already migrated

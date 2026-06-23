@@ -1,12 +1,12 @@
 ---
 name: ccg
-description: Claude-Codex-Gemini tri-model orchestration via /ask codex + /ask antigravity (or gemini), then Claude synthesizes results
+description: Qoder-Codex-Gemini tri-model orchestration via /ask codex + /ask antigravity (or gemini), then Qoder synthesizes results
 level: 5
 ---
 
-# CCG - Claude-Codex-Gemini Tri-Model Orchestration
+# CCG - Qoder-Codex-Gemini Tri-Model Orchestration
 
-CCG routes through the canonical `/ask` skill (`/ask codex` + `/ask antigravity`), then Claude synthesizes both outputs into one answer.
+CCG routes through the canonical `/ask` skill (`/ask codex` + `/ask antigravity`), then Qoder synthesizes both outputs into one answer.
 
 Use this when you want parallel external perspectives without launching tmux team workers.
 
@@ -24,29 +24,29 @@ Use this when you want parallel external perspectives without launching tmux tea
   per the [official Antigravity instructions](https://antigravity.google) (inspect any
   installer before running it). Verify: `agy --version`
 - **Gemini CLI** remains supported for enterprise/API-key use cases: `npm install -g @google/gemini-cli`
-- `omc ask` command available
+- `omq ask` command available
 - If either CLI is unavailable, continue with whichever provider is available and note the limitation
 
 ## How It Works
 
 ```text
-1. Claude decomposes the request into two advisor prompts:
+1. Qoder decomposes the request into two advisor prompts:
    - Codex prompt (analysis/architecture/backend)
    - Antigravity prompt (UX/design/docs/alternatives) — use gemini for enterprise
 
-2. Claude runs via CLI (skill nesting not supported):
-   - `omc ask codex "<codex prompt>"`
-   - `omc ask antigravity "<antigravity prompt>"`
-     (or `omc ask gemini "<gemini prompt>"` for enterprise)
+2. Qoder runs via CLI (skill nesting not supported):
+   - `omq ask codex "<codex prompt>"`
+   - `omq ask antigravity "<antigravity prompt>"`
+     (or `omq ask gemini "<gemini prompt>"` for enterprise)
 
 3. Artifacts are written under `.omc/artifacts/ask/`
 
-4. Claude synthesizes both outputs into one final response
+4. Qoder synthesizes both outputs into one final response
 ```
 
 ## Execution Protocol
 
-When invoked, Claude MUST follow this workflow:
+When invoked, Qoder MUST follow this workflow:
 
 ### 1. Decompose Request
 Split the user request into:
@@ -62,14 +62,14 @@ Split the user request into:
 Run both advisors (use antigravity or gemini depending on your setup):
 
 ```bash
-omc ask codex "<codex prompt>"
-omc ask antigravity "<antigravity prompt>"
+omq ask codex "<codex prompt>"
+omq ask antigravity "<antigravity prompt>"
 ```
 
 Enterprise fallback:
 
 ```bash
-omc ask gemini "<gemini prompt>"
+omq ask gemini "<gemini prompt>"
 ```
 
 ### 3. Collect artifacts
@@ -95,12 +95,12 @@ Return one unified answer with:
 
 If one provider is unavailable:
 
-- Continue with available provider + Claude synthesis
+- Continue with available provider + Qoder synthesis
 - Clearly note missing perspective and risk
 
 If both unavailable:
 
-- Fall back to Claude-only answer and state CCG external advisors were unavailable
+- Fall back to Qoder-only answer and state CCG external advisors were unavailable
 
 ## Invocation
 

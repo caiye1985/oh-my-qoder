@@ -1,16 +1,16 @@
 ---
 name: ask
-description: Process-first advisor routing for Qoder, Codex, Gemini, Antigravity, Grok, or Cursor via `omc ask`, with artifact capture and no raw CLI assembly
+description: Process-first advisor routing for Qoder, Codex, Gemini, Antigravity, Grok, or Cursor via `omq ask`, with artifact capture and no raw CLI assembly
 ---
 
 # Ask
 
-Use OMC's canonical advisor skill to route a prompt through the local Claude, Codex, Gemini, Antigravity, Grok, or Cursor CLI and persist the result as an ask artifact.
+Use OMC's canonical advisor skill to route a prompt through the local Qoder, Codex, Gemini, Antigravity, Grok, or Cursor CLI and persist the result as an ask artifact.
 
 ## Usage
 
 ```bash
-/oh-my-qoder:ask <claude|codex|gemini|antigravity|grok|cursor> <question or task>
+/oh-my-qoder:ask <qoder|codex|gemini|antigravity|grok|cursor> <question or task>
 ```
 
 Examples:
@@ -19,7 +19,7 @@ Examples:
 /oh-my-qoder:ask codex "review this patch from a security perspective"
 /oh-my-qoder:ask gemini "suggest UX improvements for this flow"
 /oh-my-qoder:ask antigravity "suggest UX improvements for this flow"
-/oh-my-qoder:ask claude "draft an implementation plan for issue #123"
+/oh-my-qoder:ask qoder "draft an implementation plan for issue #123"
 /oh-my-qoder:ask cursor "apply this implementation plan"
 ```
 
@@ -28,10 +28,10 @@ Examples:
 **Required execution path — always use this command:**
 
 ```bash
-omc ask {{ARGUMENTS}}
+omq ask {{ARGUMENTS}}
 ```
 
-**Do NOT manually construct raw provider CLI commands.** Never run `codex`, `claude`, `gemini`, `agy`, `grok`, or `cursor-agent` directly to fulfill this skill. The `omc ask` wrapper handles correct flag selection, artifact persistence, and provider-version compatibility automatically. Manually assembling provider CLI flags will produce incorrect or outdated invocations.
+**Do NOT manually construct raw provider CLI commands.** Never run `codex`, `qoder`, `gemini`, `agy`, `grok`, or `cursor-agent` directly to fulfill this skill. The `omq ask` wrapper handles correct flag selection, artifact persistence, and provider-version compatibility automatically. Manually assembling provider CLI flags will produce incorrect or outdated invocations.
 
 ## Requirements
 
@@ -50,12 +50,12 @@ cursor-agent --version
 - **Antigravity CLI install** (Google's successor to the Gemini CLI): install the `agy`
   binary per the [official Antigravity instructions](https://antigravity.google) (inspect
   any installer before running it). Verify: `agy --version`
-  > **Platform note:** `omc ask antigravity` is supported on macOS/Linux. On Windows it is guarded with a clear error, because `agy --print` takes the prompt as an argv value (it cannot read stdin) and has known upstream Windows `-p` limitations; use `omc ask gemini` on Windows.
+  > **Platform note:** `omq ask antigravity` is supported on macOS/Linux. On Windows it is guarded with a clear error, because `agy --print` takes the prompt as an argv value (it cannot read stdin) and has known upstream Windows `-p` limitations; use `omq ask gemini` on Windows.
 - **Gemini CLI** remains supported for enterprise/API-key use cases.
 
 ## Artifacts
 
-`omc ask` writes artifacts to:
+`omq ask` writes artifacts to:
 
 ```text
 .omc/artifacts/ask/<provider>-<slug>-<timestamp>.md

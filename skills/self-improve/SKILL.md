@@ -68,14 +68,14 @@ All augmentations delivered via Task description context at spawn time. No modif
 
 | Step | Role | OMC Agent | Model |
 |------|------|-----------|-------|
-| Research | Codebase analysis + hypothesis generation | general-purpose Agent | opus |
-| Planning | Hypothesis → structured plan | oh-my-qoder:planner | opus |
-| Architecture Review | 6-point plan review | oh-my-qoder:architect | opus |
-| Critic Review | Harness rule enforcement | oh-my-qoder:critic | opus |
-| Execution | Implement plan + run benchmark | oh-my-qoder:executor | opus |
-| Git Operations | Atomic merge/tag/PR | oh-my-qoder:git-master | sonnet |
+| Research | Codebase analysis + hypothesis generation | general-purpose Agent | performance |
+| Planning | Hypothesis → structured plan | oh-my-qoder:planner | performance |
+| Architecture Review | 6-point plan review | oh-my-qoder:architect | performance |
+| Critic Review | Harness rule enforcement | oh-my-qoder:critic | performance |
+| Execution | Implement plan + run benchmark | oh-my-qoder:executor | performance |
+| Git Operations | Atomic merge/tag/PR | oh-my-qoder:git-master | auto |
 | Goal Setup | Interactive interview | (directly in this skill) | N/A |
-| Benchmark Setup | Create + validate benchmark | custom agent | opus |
+| Benchmark Setup | Create + validate benchmark | custom agent | performance |
 
 **Research prompt**: Read `si-researcher.md` from this skill directory and pass its content as the agent prompt.
 
@@ -113,7 +113,7 @@ Read these files at startup and at the beginning of each iteration:
    d. Record consent: set `trust_confirmed: true` in agent-settings.json.
 5. Persist `topic_slug` into `config/settings.json` when the resolved root is topic-scoped so future resumes stay on the same track.
 6. If goal not set → read `si-goal-clarifier.md` from this skill directory and run the 4-dimension Socratic interview directly in this context (Objective, Metric, Target, Scope). Write result to `<self-improve-root>/config/goal.md`.
-6. If benchmark not set → read `si-benchmark-builder.md` from this skill directory, spawn a custom Agent(model=opus) with its content as prompt. The agent surveys the repo, creates or wraps a benchmark, validates 3x, and records baseline.
+6. If benchmark not set → read `si-benchmark-builder.md` from this skill directory, spawn a custom Agent(model=performance) with its content as prompt. The agent surveys the repo, creates or wraps a benchmark, validates 3x, and records baseline.
    After benchmark is set, confirm the benchmark command with user:
       `"Benchmark command: {benchmark_command}. This will be run repeatedly during the loop. Confirm? [yes/no]"`
    If user declines: abort setup and exit.
@@ -187,7 +187,7 @@ Read `<self-improve-root>/config/idea.md`. If non-empty, snapshot contents for p
 
 ### Step 4 — Research
 
-Spawn 1 general-purpose Agent(model=opus) with the content of `si-researcher.md` as prompt.
+Spawn 1 general-purpose Agent(model=performance) with the content of `si-researcher.md` as prompt.
 
 Pass in the prompt:
 - Current iteration number
@@ -203,7 +203,7 @@ If researcher fails, proceed with history only.
 
 ### Step 5 — Plan
 
-Spawn N `oh-my-qoder:planner`(model=opus) agents in parallel (N = `number_of_agents` from settings).
+Spawn N `oh-my-qoder:planner`(model=performance) agents in parallel (N = `number_of_agents` from settings).
 
 Pass in each planner's prompt:
 - Planner identity (planner_a, planner_b, planner_c...)
@@ -243,7 +243,7 @@ If ALL plans rejected, log and skip to Step 9.
 
 ### Step 7 — Execute
 
-For each approved plan, spawn `oh-my-qoder:executor`(model=opus) in parallel.
+For each approved plan, spawn `oh-my-qoder:executor`(model=performance) in parallel.
 
 **Before spawning**, create worktree:
 ```

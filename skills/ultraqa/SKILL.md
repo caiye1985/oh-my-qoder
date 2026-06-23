@@ -45,7 +45,7 @@ If no structured goal provided, interpret the argument as a custom goal.
    - `--custom`: Run appropriate command and check for pattern
    - `--interactive`: Use qa-tester for interactive CLI/service testing:
      ```
-     Task(subagent_type="oh-my-qoder:qa-tester", model="sonnet", prompt="TEST:
+     Task(subagent_type="oh-my-qoder:qa-tester", model="auto", prompt="TEST:
      Goal: [describe what to verify]
      Service: [how to start]
      Test cases: [specific scenarios to verify]")
@@ -58,7 +58,7 @@ If no structured goal provided, interpret the argument as a custom goal.
 3. **ARCHITECT DIAGNOSIS**: Spawn architect to analyze failure
 
    ```
-   Task(subagent_type="oh-my-qoder:architect", model="opus", prompt="DIAGNOSE FAILURE:
+   Task(subagent_type="oh-my-qoder:architect", model="performance", prompt="DIAGNOSE FAILURE:
    Goal: [goal type]
    Output: [test/build output]
    Provide root cause and specific fix recommendations.")
@@ -67,7 +67,7 @@ If no structured goal provided, interpret the argument as a custom goal.
 4. **FIX ISSUES**: Apply architect's recommendations
 
    ```
-   Task(subagent_type="oh-my-qoder:executor", model="sonnet", prompt="FIX:
+   Task(subagent_type="oh-my-qoder:executor", model="auto", prompt="FIX:
    Issue: [architect diagnosis]
    Files: [affected files]
    Apply the fix precisely as recommended.")

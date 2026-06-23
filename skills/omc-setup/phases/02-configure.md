@@ -54,7 +54,7 @@ Notify user if a newer version is available:
 # Detect installed version (cross-platform)
 node -e "
 const p=require('path'),f=require('fs'),h=require('os').homedir();
-const d=process.env.QODER_CONFIG_DIR||p.join(h,'.claude');
+const d=process.env.QODER_CONFIG_DIR||p.join(h,'.qoder');
 let v='';
 // Try cache directory first
 const b=p.join(d,'plugins','cache','omc','oh-my-qoder');
@@ -76,7 +76,7 @@ if [ -n "$INSTALLED_VERSION" ] && [ -n "$LATEST_VERSION" ]; then
     echo "  Installed: v$INSTALLED_VERSION"
     echo "  Latest:    v$LATEST_VERSION"
     echo ""
-    echo "To update, run: claude /install-plugin oh-my-qoder"
+    echo "To update, run: qodercli /install-plugin oh-my-qoder"
   else
     echo "You're on the latest version: v$INSTALLED_VERSION"
   fi
@@ -97,7 +97,7 @@ Use the AskUserQuestion tool to prompt the user:
 Store the preference in `~/.qoder/.omc-config.json`:
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 mkdir -p "$(dirname "$CONFIG_FILE")"
 
 if ! command -v jq >/dev/null 2>&1; then
@@ -129,13 +129,13 @@ echo "Default execution mode set to: USER_CHOICE"
 
 ## Step 2.5: Install OMC CLI Tool
 
-The OMC CLI (`omc` command) provides standalone helper commands such as `omc hud`, `omc teleport`, and `omc team ...`.
+The OMC CLI (`omq` command) provides standalone helper commands such as `omq hud`, `omq teleport`, and `omq team ...`.
 
 First, check if the CLI is already installed:
 
 ```bash
-if command -v omc &>/dev/null; then
-  OMC_CLI_VERSION=$(omc --version 2>/dev/null | head -1 || echo "installed")
+if command -v omq &>/dev/null; then
+  OMC_CLI_VERSION=$(omq --version 2>/dev/null | head -1 || echo "installed")
   echo "OMC CLI already installed: $OMC_CLI_VERSION"
   OMC_CLI_INSTALLED="true"
 else
@@ -147,7 +147,7 @@ If `OMC_CLI_INSTALLED` is `"true"`, skip the rest of this step.
 
 If `OMC_CLI_INSTALLED` is `"false"`, use AskUserQuestion:
 
-**Question:** "Would you like to install the OMC CLI globally for standalone helper commands? (`omc`, `omc hud`, `omc teleport`)"
+**Question:** "Would you like to install the OMC CLI globally for standalone helper commands? (`omq`, `omq hud`, `omq teleport`)"
 
 **Options:**
 1. **Yes (Recommended)** - Install `oh-my-qoder` via `npm install -g`
@@ -162,11 +162,11 @@ if ! command -v npm &>/dev/null; then
 else
   if npm install -g oh-my-qoder 2>&1; then
     echo "OMC CLI installed successfully."
-    if command -v omc &>/dev/null; then
-      OMC_CLI_VERSION=$(omc --version 2>/dev/null | head -1 || echo "installed")
-      echo "Verified: omc $OMC_CLI_VERSION"
+    if command -v omq &>/dev/null; then
+      OMC_CLI_VERSION=$(omq --version 2>/dev/null | head -1 || echo "installed")
+      echo "Verified: omq $OMC_CLI_VERSION"
     else
-      echo "Installed but 'omc' not on PATH. You may need to restart your shell."
+      echo "Installed but 'omq' not on PATH. You may need to restart your shell."
     fi
   else
     echo "WARNING: Failed to install OMC CLI (permission issue or network error)."
@@ -220,7 +220,7 @@ If beads or beads-rust is detected, use AskUserQuestion:
 Store the preference:
 
 ```bash
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 mkdir -p "$(dirname "$CONFIG_FILE")"
 
 if ! command -v jq >/dev/null 2>&1; then

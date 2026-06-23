@@ -8,7 +8,7 @@ level: 4
 
 # Team Skill
 
-Spawn N coordinated agents working on a shared task list using Qoder's implicit agent team. Qoder 2.1.178+ removed native `TeamCreate`/`TeamDelete`; with `QODER_EXPERIMENTAL_AGENT_TEAMS=1`, each session has one implicit team and teammates are spawned directly with the Agent/Task tool using distinct `name` values. This skill still preserves OMC's legacy tmux/CLI worker orchestration where documented (`omc team` / `/omc-teams`).
+Spawn N coordinated agents working on a shared task list using Qoder's implicit agent team. Qoder 2.1.178+ removed native `TeamCreate`/`TeamDelete`; with `QODER_EXPERIMENTAL_AGENT_TEAMS=1`, each session has one implicit team and teammates are spawned directly with the Agent/Task tool using distinct `name` values. This skill still preserves OMC's legacy tmux/CLI worker orchestration where documented (`omq team` / `/omc-teams`).
 
 The `swarm` compatibility alias was removed in #1131.
 
@@ -104,18 +104,18 @@ Each pipeline stage uses **specialized agents** -- not just executors. The lead 
 
 | Stage           | Required Agents                     | Optional Agents                                                                                         | Selection Criteria                                                                                                                                                                                |
 | --------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **team-plan**   | `explore` (haiku), `planner` (opus) | `analyst` (opus), `architect` (opus)                                                                    | Use `analyst` for unclear requirements. Use `architect` for systems with complex boundaries.                                                                                                      |
-| **team-prd**    | `analyst` (opus)                    | `critic` (opus)                                                                                         | Use `critic` to challenge scope.                                                                                                                                                                  |
-| **team-exec**   | `executor` (sonnet)                 | `executor` (opus), `debugger` (sonnet), `designer` (sonnet), `writer` (haiku), `test-engineer` (sonnet) | Match agent to subtask type. Use `executor` (model=opus) for complex autonomous work, `designer` for UI, `debugger` for compilation issues, `writer` for docs, `test-engineer` for test creation. |
-| **team-verify** | `verifier` (sonnet)                 | `test-engineer` (sonnet), `security-reviewer` (sonnet), `code-reviewer` (opus)                          | Always run `verifier`. Add `security-reviewer` for auth/crypto changes. Add `code-reviewer` for >20 files or architectural changes. `code-reviewer` also covers style/formatting checks.          |
-| **team-fix**    | `executor` (sonnet)                 | `debugger` (sonnet), `executor` (opus)                                                                  | Use `debugger` for type/build errors and regression isolation. Use `executor` (model=opus) for complex multi-file fixes.                                                                          |
+| **team-plan**   | `explore` (efficient), `planner` (performance) | `analyst` (performance), `architect` (performance)                                                                    | Use `analyst` for unclear requirements. Use `architect` for systems with complex boundaries.                                                                                                      |
+| **team-prd**    | `analyst` (performance)                    | `critic` (performance)                                                                                         | Use `critic` to challenge scope.                                                                                                                                                                  |
+| **team-exec**   | `executor` (auto)                 | `executor` (performance), `debugger` (auto), `designer` (auto), `writer` (efficient), `test-engineer` (auto) | Match agent to subtask type. Use `executor` (model=performance) for complex autonomous work, `designer` for UI, `debugger` for compilation issues, `writer` for docs, `test-engineer` for test creation. |
+| **team-verify** | `verifier` (auto)                 | `test-engineer` (auto), `security-reviewer` (auto), `code-reviewer` (performance)                          | Always run `verifier`. Add `security-reviewer` for auth/crypto changes. Add `code-reviewer` for >20 files or architectural changes. `code-reviewer` also covers style/formatting checks.          |
+| **team-fix**    | `executor` (auto)                 | `debugger` (auto), `executor` (performance)                                                                  | Use `debugger` for type/build errors and regression isolation. Use `executor` (model=performance) for complex multi-file fixes.                                                                          |
 
 **Routing rules:**
 
 1. **The lead picks agents per stage, not the user.** The user's `N:agent-type` parameter only overrides the `team-exec` stage worker type. All other stages use stage-appropriate specialists.
-2. **Specialist agents complement executor agents.** Route analysis/review to architect/critic Claude agents and UI work to designer agents. Tmux CLI workers are one-shot and don't participate in team communication.
-3. **Cost mode affects model tier.** In downgrade: `opus` agents to `sonnet`, `sonnet` to `haiku` where quality permits. `team-verify` always uses at least `sonnet`.
-4. **Risk level escalates review.** Security-sensitive or >20 file changes must include `security-reviewer` + `code-reviewer` (opus) in `team-verify`.
+2. **Specialist agents complement executor agents.** Route analysis/review to architect/critic Qoder agents and UI work to designer agents. Tmux CLI workers are one-shot and don't participate in team communication.
+3. **Cost mode affects model tier.** In downgrade: `performance` agents to `auto`, `auto` to `efficient` where quality permits. `team-verify` always uses at least `auto`.
+4. **Risk level escalates review.** Security-sensitive or >20 file changes must include `security-reviewer` + `code-reviewer` (performance) in `team-verify`.
 
 ### Stage Entry/Exit Criteria
 
@@ -469,7 +469,7 @@ Do NOT mark the task as completed. Leave it in_progress so the lead can reassign
 == RULES ==
 - NEVER spawn sub-agents or use the Task tool
 - NEVER run tmux pane/session orchestration commands (for example `tmux split-window`, `tmux new-session`)
-- NEVER run team spawning/orchestration skills or commands (for example `$team`, `$ultrawork`, `$autopilot`, `$ralph`, `omc team ...`, `omx team ...`)
+- NEVER run team spawning/orchestration skills or commands (for example `$team`, `$ultrawork`, `$autopilot`, `$ralph`, `omq team ...`, `omx team ...`)
 - ALWAYS use absolute file paths
 - ALWAYS report progress to "team-lead" through the active team/conversation surface
 - Use direct team/conversation messages with type "message" only -- never "broadcast"
@@ -480,7 +480,7 @@ Do NOT mark the task as completed. Leave it in_progress so the lead can reassign
 When composing teammate prompts, append a short addendum based on worker type:
 
 - `qoder_worker`: Emphasize strict TodoWrite/task-list updates, active team/conversation messages, and no orchestration commands.
-- `codex_worker`: Emphasize CLI API lifecycle (`omc team api ... --json`) and explicit failure ACKs with stderr.
+- `codex_worker`: Emphasize CLI API lifecycle (`omq team api ... --json`) and explicit failure ACKs with stderr.
 - `gemini_worker`: Emphasize bounded file ownership and milestone ACKs after each completed sub-step.
 - `antigravity_worker`: Same expectations as `gemini_worker`; emphasize bounded file ownership and milestone ACKs after each completed sub-step.
 
@@ -566,7 +566,7 @@ Qoder 2.1.178+ has no `TeamDelete`. Clear OMC team state and local task bookkeep
 
 **Step 5: Orphan scan for OMC tmux/CLI workers only**
 
-For legacy OMC tmux/CLI worker runs (`omc team` / `/omc-teams`), check for worker processes that survived cleanup:
+For legacy OMC tmux/CLI worker runs (`omq team` / `/omc-teams`), check for worker processes that survived cleanup:
 
 ```bash
 node "${QODER_PLUGIN_ROOT}/scripts/cleanup-orphans.mjs" --team-name fix-ts-errors
@@ -583,7 +583,7 @@ This scans for OMC worker processes matching the team name and terminates stale 
 
 ## CLI Workers (Codex and Gemini)
 
-The team skill supports **hybrid execution** combining Claude agent teammates with external CLI workers (Codex CLI and Gemini CLI). Both types can make code changes -- they differ in capabilities and cost. These are standalone CLI tools, not MCP servers.
+The team skill supports **hybrid execution** combining Qoder agent teammates with external CLI workers (Codex CLI and Gemini CLI). Both types can make code changes -- they differ in capabilities and cost. These are standalone CLI tools, not MCP servers.
 
 ### Execution Modes
 
@@ -591,7 +591,7 @@ Tasks are tagged with an execution mode during decomposition:
 
 | Execution Mode  | Provider               | Capabilities                                                                                                                                                                               |
 | --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `qoder_worker` | Claude agent           | Full Qoder tool access (Read/Write/Edit/Bash/Task). Best for tasks needing Claude's reasoning + iterative tool use.                                                                  |
+| `qoder_worker` | Qoder agent           | Full Qoder tool access (Read/Write/Edit/Bash/Task). Best for tasks needing Qoder's reasoning + iterative tool use.                                                                  |
 | `codex_worker`  | Codex CLI (tmux pane)  | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for code review, security analysis, refactoring, architecture. Requires `npm install -g @openai/codex`. |
 | `gemini_worker`      | Gemini CLI (tmux pane)      | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for UI/design work, documentation, large-context tasks. Requires `npm install -g @google/gemini-cli` (enterprise/API-key tier). |
 | `antigravity_worker` | Antigravity CLI (tmux pane) | Full filesystem access in working_directory. Runs autonomously via tmux pane. Same strengths as gemini_worker; Google's successor to the Gemini CLI. Install per the [official instructions](https://antigravity.google) (`agy` binary). |
@@ -606,7 +606,7 @@ Tmux CLI workers run in dedicated tmux panes with filesystem access. They are **
 4. Results/summary are written to an output file
 5. Lead reads the output, marks the task complete, and feeds results to dependent tasks
 
-**Key difference from Claude teammates:**
+**Key difference from Qoder teammates:**
 
 - CLI workers operate via tmux, not Qoder's tool system
 - They cannot use Qoder's native task-list or team messaging surfaces
@@ -617,14 +617,14 @@ Tmux CLI workers run in dedicated tmux panes with filesystem access. They are **
 
 | Task Type                        | Best Route                     | Why                                                 |
 | -------------------------------- | ------------------------------ | --------------------------------------------------- |
-| Iterative multi-step work        | Claude teammate                | Needs tool-mediated iteration + team communication  |
+| Iterative multi-step work        | Qoder teammate                | Needs tool-mediated iteration + team communication  |
 | Code review / security audit     | CLI worker or specialist agent | Autonomous execution, good at structured analysis   |
-| Architecture analysis / planning | architect Claude agent         | Strong analytical reasoning with codebase access    |
+| Architecture analysis / planning | architect Qoder agent         | Strong analytical reasoning with codebase access    |
 | Refactoring (well-scoped)        | CLI worker or executor agent   | Autonomous execution, good at structured transforms |
-| UI/frontend implementation       | designer Claude agent          | Design expertise, framework idioms                  |
-| Large-scale documentation        | writer Claude agent            | Writing expertise + large context for consistency   |
-| Build/test iteration loops       | Claude teammate                | Needs Bash tool + iterative fix cycles              |
-| Tasks needing team coordination  | Claude teammate                | Needs team/conversation status updates              |
+| UI/frontend implementation       | designer Qoder agent          | Design expertise, framework idioms                  |
+| Large-scale documentation        | writer Qoder agent            | Writing expertise + large context for consistency   |
+| Build/test iteration loops       | Qoder teammate                | Needs Bash tool + iterative fix cycles              |
+| Tasks needing team coordination  | Qoder teammate                | Needs team/conversation status updates              |
 
 ### Example: Hybrid Team with CLI Workers
 
@@ -639,7 +639,7 @@ Task decomposition:
 #5 [gemini_worker] Final code review of all changes
 ```
 
-The lead runs #1 (Codex security analysis), then #2 and #3 in parallel (Codex refactors backend, designer agent redesigns frontend), then #4 (Claude teammate handles test iteration), then #5 (Gemini final review).
+The lead runs #1 (Codex security analysis), then #2 and #3 in parallel (Codex refactors backend, designer agent redesigns frontend), then #4 (Qoder teammate handles test iteration), then #5 (Gemini final review).
 
 ### Pre-flight Analysis (Optional)
 
@@ -883,7 +883,7 @@ Optional settings live in `.qoder/omc.jsonc` (project) or `~/.config/qoder-omc/c
 ```
 
 - **ops.maxAgents** - Maximum teammates (default: 20)
-- **ops.defaultAgentType** - CLI provider when a `/team` invocation does not specify one (`claude` | `codex` | `gemini` | `antigravity` | `grok` | `cursor`, default: `claude`)
+- **ops.defaultAgentType** - CLI provider when a `/team` invocation does not specify one (`qoder` | `codex` | `gemini` | `antigravity` | `grok` | `cursor`, default: `claude`)
 - **ops.monitorIntervalMs** - How often to review TodoWrite or the active task-list surface (default: 30s)
 - **ops.shutdownTimeoutMs** - How long to wait for shutdown responses (default: 15s)
 
@@ -893,7 +893,7 @@ Optional settings live in `.qoder/omc.jsonc` (project) or `~/.config/qoder-omc/c
 
 > **Scope:** Applies to `/team` only. Task-based delegation uses `delegationRouting` (see separate docs). The two systems coexist by design.
 
-Declare which provider (`claude`, `codex`, `gemini`, `antigravity`, `grok`, `cursor`) and which model tier should back each canonical role. Routing is resolved **once** at team creation and persisted in `TeamConfig.resolved_routing` — spawn, scale-up, and restart all read from the snapshot, so a role's worker CLI and model are stable for the lifetime of the team.
+Declare which provider (`qoder`, `codex`, `gemini`, `antigravity`, `grok`, `cursor`) and which model tier should back each canonical role. Routing is resolved **once** at team creation and persisted in `TeamConfig.resolved_routing` — spawn, scale-up, and restart all read from the snapshot, so a role's worker CLI and model are stable for the lifetime of the team.
 
 ### Example — user target mapping
 
@@ -917,10 +917,10 @@ Declare which provider (`claude`, `codex`, `gemini`, `antigravity`, `grok`, `cur
 
 | Role            | Provider        | Model                     |
 | --------------- | --------------- | ------------------------- |
-| `orchestrator`  | claude (pinned) | inherits invoking session |
-| `planner`       | claude          | `HIGH` (opus)             |
-| `analyst`       | claude          | `HIGH` (opus)             |
-| `executor`      | claude          | `MEDIUM` (sonnet)         |
+| `orchestrator`  | qoder (pinned) | inherits invoking session |
+| `planner`       | qoder          | `HIGH` (performance)             |
+| `analyst`       | qoder          | `HIGH` (performance)             |
+| `executor`      | qoder          | `MEDIUM` (auto)         |
 | `debugger`      | cursor          | cursor-agent default      |
 | `critic`        | codex           | codex default             |
 | `code-reviewer` | gemini          | gemini default            |
@@ -934,11 +934,11 @@ User-friendly aliases normalize via `normalizeDelegationRole()` — e.g. `review
 
 ### Spec fields (`TeamRoleAssignmentSpec`)
 
-- **provider** — `"qoder" | "codex" | "gemini" | "antigravity" | "grok" | "cursor"`. Omitted → defaults to `claude`.
+- **provider** — `"qoder" | "codex" | "gemini" | "antigravity" | "grok" | "cursor"`. Omitted → defaults to `qoder`.
 - **model** — tier name (`"HIGH" | "MEDIUM" | "LOW"`) or an explicit model ID. Tiers resolve through `routing.tierModels`.
-- **agent** — optional Claude agent name (e.g. `"critic"`, `"executor"`). Only honored when the resolved provider is `claude`.
+- **agent** — optional Qoder agent name (e.g. `"critic"`, `"executor"`). Only honored when the resolved provider is `qoder`.
 
-`orchestrator` is pinned to `claude`; only `model` is user-configurable. Any other key on `orchestrator` is rejected by the validator.
+`orchestrator` is pinned to `qoder`; only `model` is user-configurable. Any other key on `orchestrator` is rejected by the validator.
 
 `cursor` launches `cursor-agent` as an interactive executor/refactor worker. Do not route reviewer/verdict roles (`critic`, `code-reviewer`, `security-reviewer`, `test-engineer`) to Cursor unless its CLI gains a compatible verdict-output mode; the runtime intentionally skips the structured verdict contract for Cursor panes.
 
@@ -952,7 +952,7 @@ Precedence: `OMC_TEAM_ROLE_OVERRIDES` > `.qoder/omc.jsonc` (project) > `~/.confi
 
 ### Fallback when a CLI is missing
 
-If the CLI for a configured provider is absent from `PATH` at spawn time, `buildLaunchArgs()` throws, the team lead emits a visible team/conversation warning, and the runtime falls back to a deterministic Claude assignment pre-computed by `buildResolvedRoutingSnapshot` (same tier + same agent, `provider: "qoder"`). Fallback is loud by design — silent fallback is a test failure. Probe provider availability with `omc doctor --team-routing`.
+If the CLI for a configured provider is absent from `PATH` at spawn time, `buildLaunchArgs()` throws, the team lead emits a visible team/conversation warning, and the runtime falls back to a deterministic Qoder assignment pre-computed by `buildResolvedRoutingSnapshot` (same tier + same agent, `provider: "qoder"`). Fallback is loud by design — silent fallback is a test failure. Probe provider availability with `omq doctor --team-routing`.
 
 ### Stickiness — resolved once, reused everywhere
 
@@ -960,7 +960,7 @@ Resolved routing is immutable per team. Editing config mid-team-lifetime does no
 
 ### Zero-config behavior
 
-An empty `team.roleRouting` preserves pre-patch behavior: every worker is Claude, model tiers follow `routing.tierModels`, and `/team 3:executor ...` still spawns three Claude Sonnet executors.
+An empty `team.roleRouting` preserves pre-patch behavior: every worker is Qoder, model tiers follow `routing.tierModels`, and `/team 3:executor ...` still spawns three Qoder Auto executors.
 
 ## State Cleanup
 
@@ -974,7 +974,7 @@ On successful completion:
    ```
    state_clear(mode="ralph")
    ```
-2. For legacy OMC tmux/CLI workers, run the documented `omc team shutdown` / cleanup path.
+2. For legacy OMC tmux/CLI workers, run the documented `omq team shutdown` / cleanup path.
 3. Or run `/oh-my-qoder:cancel` which handles OMC state cleanup automatically.
 
 **IMPORTANT:** Clear OMC team state only AFTER all teammates have been shut down or timed out.
@@ -1034,7 +1034,7 @@ MCP workers can operate in isolated git worktrees to prevent file conflicts betw
 
 10. **Broadcast is expensive** -- Each broadcast sends a separate message to every teammate. Use `message` (DM) by default. Only broadcast for truly team-wide critical alerts.
 
-11. **CLI workers are one-shot, not persistent** -- Tmux CLI workers have full filesystem access and CAN make code changes. However, they run as autonomous one-shot jobs -- they cannot use Qoder's native task-list or team messaging surfaces. The lead must manage their lifecycle: write prompt_file, spawn CLI worker, read output_file, mark task complete. They don't participate in team communication like Claude teammates do.
+11. **CLI workers are one-shot, not persistent** -- Tmux CLI workers have full filesystem access and CAN make code changes. However, they run as autonomous one-shot jobs -- they cannot use Qoder's native task-list or team messaging surfaces. The lead must manage their lifecycle: write prompt_file, spawn CLI worker, read output_file, mark task complete. They don't participate in team communication like Qoder teammates do.
 
 ## Parallel session caveats
 

@@ -370,7 +370,7 @@ First, check if skill directories exist and create them if needed:
 
 ```bash
 # Check and create user-level skills directory
-USER_SKILLS_DIR="${QODER_CONFIG_DIR:-$HOME/.claude}/skills/omc-learned"
+USER_SKILLS_DIR="${QODER_CONFIG_DIR:-$HOME/.qoder}/skills/omc-learned"
 if [ -d "$USER_SKILLS_DIR" ]; then
   echo "User skills directory exists: $USER_SKILLS_DIR"
 else
@@ -395,14 +395,14 @@ Scan both directories and show a comprehensive inventory:
 ```bash
 # Scan user-level skills
 echo "=== USER-LEVEL SKILLS (~/.qoder/skills/omc-learned/) ==="
-if [ -d "${QODER_CONFIG_DIR:-$HOME/.claude}/skills/omc-learned" ]; then
-  USER_COUNT=$(find "${QODER_CONFIG_DIR:-$HOME/.claude}/skills/omc-learned" -name "*.md" 2>/dev/null | wc -l)
+if [ -d "${QODER_CONFIG_DIR:-$HOME/.qoder}/skills/omc-learned" ]; then
+  USER_COUNT=$(find "${QODER_CONFIG_DIR:-$HOME/.qoder}/skills/omc-learned" -name "*.md" 2>/dev/null | wc -l)
   echo "Total skills: $USER_COUNT"
 
   if [ $USER_COUNT -gt 0 ]; then
     echo ""
     echo "Skills found:"
-    find "${QODER_CONFIG_DIR:-$HOME/.claude}/skills/omc-learned" -name "*.md" -type f -exec sh -c '
+    find "${QODER_CONFIG_DIR:-$HOME/.qoder}/skills/omc-learned" -name "*.md" -type f -exec sh -c '
       FILE="$1"
       NAME=$(grep -m1 "^name:" "$FILE" 2>/dev/null | sed "s/name: //")
       DESC=$(grep -m1 "^description:" "$FILE" 2>/dev/null | sed "s/description: //")
@@ -723,13 +723,13 @@ When invoked without arguments, run the full guided wizard.
 
 ## Benefits of Local Skills
 
-**Automatic Application**: Claude detects triggers and applies skills automatically - no need to remember or search for solutions.
+**Automatic Application**: Qoder detects triggers and applies skills automatically - no need to remember or search for solutions.
 
 **Version Control**: Project-level skills (`.omc/skills/`) are intended to be committed with your code so the whole team benefits. In linked worktrees, uncommitted skills remain local to that worktree and disappear if it is removed.
 
 **Evolving Knowledge**: Skills improve over time as you discover better approaches and refine triggers.
 
-**Reduced Token Usage**: Instead of re-solving the same problems, Claude applies known patterns efficiently.
+**Reduced Token Usage**: Instead of re-solving the same problems, Qoder applies known patterns efficiently.
 
 **Codebase Memory**: Preserves institutional knowledge that would otherwise be lost in conversation history.
 

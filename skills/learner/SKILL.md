@@ -23,7 +23,7 @@ Only the Expertise section should be updated during improvement cycles.
 
 ### Core Principle
 
-Reusable skills are not code snippets to copy-paste, but **principles and decision-making heuristics** that teach Claude HOW TO THINK about a class of problems.
+Reusable skills are not code snippets to copy-paste, but **principles and decision-making heuristics** that teach Qoder HOW TO THINK about a class of problems.
 
 **The difference:**
 - BAD (mimicking): "When you see ConnectionResetError, add this try/except block"
@@ -154,13 +154,13 @@ What goes wrong if you don't know this? What symptom led you here?
 How do you know when this skill applies? What are the signs?
 
 ## The Approach
-The decision-making heuristic, not just code. How should Claude THINK about this?
+The decision-making heuristic, not just code. How should Qoder THINK about this?
 
 ## Example (Optional)
 If code helps, show it - but as illustration of the principle, not copy-paste material.
 ```
 
-**Key**: A skill is REUSABLE if Claude can apply it to NEW situations, not just identical ones.
+**Key**: A skill is REUSABLE if Qoder can apply it to NEW situations, not just identical ones.
 
 ## Related Commands
 

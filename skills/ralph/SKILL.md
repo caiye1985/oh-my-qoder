@@ -76,9 +76,9 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
 
 3. **Implement the current story**:
    - Delegate to specialist agents at appropriate tiers:
-     - Simple lookups: LOW tier (Haiku) -- "What does this function return?"
-     - Standard work: MEDIUM tier (Sonnet) -- "Add error handling to this module"
-     - Complex analysis: HIGH tier (Opus) -- "Debug this race condition"
+     - Simple lookups: LOW tier (Efficient) -- "What does this function return?"
+     - Standard work: MEDIUM tier (Auto) -- "Add error handling to this module"
+     - Complex analysis: HIGH tier (Performance) -- "Debug this race condition"
    - If during implementation you discover sub-tasks, add them as new stories to the active PRD file
    - Run long operations in background: Builds, installs, test suites use `run_in_background: true`
 
@@ -98,11 +98,11 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
    c. If ALL complete, proceed to Step 7 (architect verification)
 
 7. **Reviewer verification** (tiered, against acceptance criteria):
-   - <5 files, <100 lines with full tests: STANDARD tier minimum (architect-medium / Sonnet)
-   - Standard changes: STANDARD tier (architect-medium / Sonnet)
-   - > 20 files or security/architectural changes: THOROUGH tier (architect / Opus)
-   - If `--critic=critic`, use the Claude `critic` agent for the approval pass
-   - If `--critic=codex`, run `omc ask codex --agent-prompt critic "..."` for the approval pass. The Codex critic prompt MUST include:
+   - <5 files, <100 lines with full tests: STANDARD tier minimum (architect-medium / Auto)
+   - Standard changes: STANDARD tier (architect-medium / Auto)
+   - > 20 files or security/architectural changes: THOROUGH tier (architect / Performance)
+   - If `--critic=critic`, use the Qoder `critic` agent for the approval pass
+   - If `--critic=codex`, run `omq ask codex --agent-prompt critic "..."` for the approval pass. The Codex critic prompt MUST include:
      1. The full list of acceptance criteria from prd.json for verification
      2. A directive to evaluate whether the implementation is **OPTIMAL** — not just correct, but whether there exists a meaningfully better approach (simpler, faster, more maintainable) that the implementation missed
      3. A directive to review **all code related to the changes** (callers, callees, shared types, adjacent modules), not only the files directly modified
@@ -134,7 +134,7 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
 
 - Use `Task(subagent_type="oh-my-qoder:architect", ...)` for architect verification cross-checks when changes are security-sensitive, architectural, or involve complex multi-system integration
 - Use `Task(subagent_type="oh-my-qoder:critic", ...)` when `--critic=critic`
-- Use `omc ask codex --agent-prompt critic "..."` when `--critic=codex`. Construct the prompt to include: (a) prd.json acceptance criteria, (b) files changed + related files, (c) explicit optimality question: "Is there a meaningfully simpler, faster, or more maintainable approach that achieves the same acceptance criteria?"
+- Use `omq ask codex --agent-prompt critic "..."` when `--critic=codex`. Construct the prompt to include: (a) prd.json acceptance criteria, (b) files changed + related files, (c) explicit optimality question: "Is there a meaningfully simpler, faster, or more maintainable approach that achieves the same acceptance criteria?"
 - Skip architect consultation for simple feature additions, well-tested changes, or time-critical verification
 - Proceed with architect agent verification alone -- never block on unavailable tools
 - Use `state_write` / `state_read` for ralph mode state persistence between iterations
@@ -163,9 +163,9 @@ Why good: Generic criteria replaced with specific, testable criteria.
 Correct parallel delegation:
 ```
 
-Task(subagent_type="oh-my-qoder:executor", model="haiku", prompt="Add type export for UserConfig")
-Task(subagent_type="oh-my-qoder:executor", model="sonnet", prompt="Implement the caching layer for API responses")
-Task(subagent_type="oh-my-qoder:executor", model="opus", prompt="Refactor auth module to support OAuth2 flow")
+Task(subagent_type="oh-my-qoder:executor", model="efficient", prompt="Add type export for UserConfig")
+Task(subagent_type="oh-my-qoder:executor", model="auto", prompt="Implement the caching layer for API responses")
+Task(subagent_type="oh-my-qoder:executor", model="performance", prompt="Refactor auth module to support OAuth2 flow")
 
 ```
 Why good: Three independent tasks fired simultaneously at appropriate tiers.

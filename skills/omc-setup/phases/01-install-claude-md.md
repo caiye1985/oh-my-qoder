@@ -20,8 +20,8 @@ If `CONFIG_TARGET=global` and `~/.qoder/AGENTS.md` already exists without OMC ma
 **Question:** "Global setup will change your base Qoder config. Which behavior do you want?"
 
 **Options (default first):**
-1. **Overwrite base AGENTS.md (Recommended)** - plain `claude` and `omc` both use OMC globally.
-2. **Keep base AGENTS.md; use OMC only through `omc`** - preserve the user's base file, install OMC into `CLAUDE-omc.md`, and let `omc` force-load that companion config at launch.
+1. **Overwrite base AGENTS.md (Recommended)** - plain `qodercli` and `omq` both use OMC globally.
+2. **Keep base AGENTS.md; use OMC only through `omq`** - preserve the user's base file, install OMC into `AGENTS-omq.md`, and let `omq` force-load that companion config at launch.
 
 Set `GLOBAL_INSTALL_STYLE=overwrite` or `preserve` based on the user's choice. If you did not ask this question, default `GLOBAL_INSTALL_STYLE=overwrite`.
 
@@ -50,7 +50,7 @@ https://raw.githubusercontent.com/Yeachan-Heo/oh-my-qoder/main/docs/AGENTS.md
 
 **Note**: The downloaded AGENTS.md includes Context Persistence instructions with `<remember>` tags for surviving conversation compaction.
 
-**Note**: Preserve mode installs OMC into a companion `CLAUDE-omc.md` with a small managed import block, and `omc` launch force-loads that companion config without changing plain `claude`.
+**Note**: Preserve mode installs OMC into a companion `AGENTS-omq.md` with a small managed import block, and `omq` launch force-loads that companion config without changing plain `qodercli`.
 
 ## Report Success
 
@@ -72,7 +72,7 @@ If `CONFIG_TARGET` is `global`:
 ```
 OMC Global Configuration Complete
 - AGENTS.md: Updated at ~/.qoder/AGENTS.md, or preserved with explicit preserve mode
-- Companion: May install ~/.qoder/CLAUDE-omc.md when preserve mode is chosen
+- Companion: May install ~/.qoder/AGENTS-omq.md when preserve mode is chosen
 - Backup: Previous AGENTS.md backed up (if existed)
 - Scope: GLOBAL - applies to all Qoder sessions
 - Hooks: Provided by plugin (no manual installation needed)

@@ -42,19 +42,19 @@ Most non-trivial software tasks require coordinated phases: understanding requir
    - **If ralplan consensus plan exists** (`.omc/plans/ralplan-*.md` or `.omc/plans/consensus-*.md` from the 3-stage pipeline): Skip BOTH Phase 0 and Phase 1 — jump directly to Phase 2 (Execution). The plan has already been Planner/Architect/Critic validated.
    - **If deep-interview spec exists** (`.omc/specs/deep-interview-*.md`): Skip analyst+architect expansion, use the pre-validated spec directly as Phase 0 output. Continue to Phase 1 (Planning).
    - **If input is vague** (no file paths, function names, or concrete anchors): Offer redirect to `/deep-interview` for Socratic clarification before expanding
-   - **Otherwise**: Analyst (Opus) extracts requirements, Architect (Opus) creates technical specification
+   - **Otherwise**: Analyst (Performance) extracts requirements, Architect (Performance) creates technical specification
    - Output: `.omc/autopilot/spec.md`
 
 2. **Phase 1 - Planning**: Create an implementation plan from the spec
    - **If ralplan consensus plan exists**: Skip — already done in the 3-stage pipeline
-   - Architect (Opus): Create plan (direct mode, no interview)
-   - Critic (Opus): Validate plan
+   - Architect (Performance): Create plan (direct mode, no interview)
+   - Critic (Performance): Validate plan
    - Output: `.omc/plans/autopilot-impl.md`
 
 3. **Phase 2 - Execution**: Implement the plan using Ralph + Ultrawork
-   - Executor (Haiku): Simple tasks
-   - Executor (Sonnet): Standard tasks
-   - Executor (Opus): Complex tasks
+   - Executor (Efficient): Simple tasks
+   - Executor (Auto): Standard tasks
+   - Executor (Performance): Complex tasks
    - Run independent tasks in parallel
 
 4. **Phase 3 - QA**: Cycle until all tests pass (UltraQA mode)
@@ -77,7 +77,7 @@ Most non-trivial software tasks require coordinated phases: understanding requir
 - Use `Task(subagent_type="oh-my-qoder:architect", ...)` for Phase 4 architecture validation
 - Use `Task(subagent_type="oh-my-qoder:security-reviewer", ...)` for Phase 4 security review
 - Use `Task(subagent_type="oh-my-qoder:code-reviewer", ...)` for Phase 4 quality review
-- Agents form their own analysis first, then spawn Claude Task agents for cross-validation
+- Agents form their own analysis first, then spawn Qoder Task agents for cross-validation
 - Never block on external tools; proceed with available agents if delegation fails
 </Tool_Usage>
 
@@ -160,7 +160,7 @@ To run autopilot implementation through the tmux CLI team runtime and prefer Cur
 With that config, the execution stage must launch executor-style work through:
 
 ```sh
-omc team 1:cursor "<implementation task>"
+omq team 1:cursor "<implementation task>"
 ```
 
 or the Qoder slash compatibility surface:
@@ -171,8 +171,8 @@ or the Qoder slash compatibility surface:
 
 Limitations:
 - Cursor workers are executor-style only: implementation, file edits, build/test fixes, and other plan execution tasks.
-- Keep reviewer, critic, security-review, validation verdict, and final approval roles on native Claude/OMC reviewer agents unless explicit safe support is added later.
-- Cursor requires the `cursor-agent` CLI to be installed and authenticated. If `cursor-agent` is unavailable, report that setup requirement instead of silently falling back to Claude-only execution.
+- Keep reviewer, critic, security-review, validation verdict, and final approval roles on native Qoder/OMC reviewer agents unless explicit safe support is added later.
+- Cursor requires the `cursor-agent` CLI to be installed and authenticated. If `cursor-agent` is unavailable, report that setup requirement instead of silently falling back to Qoder-only execution.
 
 ## Resume
 

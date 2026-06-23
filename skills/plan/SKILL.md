@@ -63,7 +63,7 @@ Jumping into code without understanding requirements leads to rework, scope cree
 2. **Ask one focused question** using `AskUserQuestion` for preferences, scope, and constraints
 3. **Gather codebase facts first**: Before asking "what patterns does your code use?", spawn an `explore` agent to find out, then ask informed follow-up questions
 4. **Build on answers**: Each question builds on the previous answer
-5. **Consult Analyst** (Opus) for hidden requirements, edge cases, and risks
+5. **Consult Analyst** (Performance) for hidden requirements, edge cases, and risks
 6. **Create plan** when the user signals readiness: "create the plan", "I'm ready", "make it a work plan"
 
 ### Direct Mode (detailed requests)
@@ -78,9 +78,9 @@ Jumping into code without understanding requirements leads to rework, scope cree
 
 **Provider overrides (supported when the provider CLI is installed):**
 
-- `--architect codex` — replace the Claude Architect pass with `omc ask codex --agent-prompt architect "..."` for implementation-heavy architecture review
-- `--critic codex` — replace the Claude Critic pass with `omc ask codex --agent-prompt critic "..."` for an external review pass before execution
-- If the requested provider is unavailable, briefly note that and continue with the default Claude Architect/Critic step for that stage
+- `--architect codex` — replace the Qoder Architect pass with `omq ask codex --agent-prompt architect "..."` for implementation-heavy architecture review
+- `--critic codex` — replace the Qoder Critic pass with `omq ask codex --agent-prompt critic "..."` for an external review pass before execution
+- If the requested provider is unavailable, briefly note that and continue with the default Qoder Architect/Critic step for that stage
 
 **State lifecycle**: The persistent-mode stop hook uses `ralplan-state.json` to enforce continuation during the consensus loop. The skill **MUST** manage this state:
 
@@ -155,7 +155,7 @@ Plans are saved to `.omc/plans/`. Drafts go to `.omc/drafts/`.
 
 - Use `AskUserQuestion` for preference questions (scope, priority, timeline, risk tolerance) -- provides clickable UI
 - Use plain text for questions needing specific values (port numbers, names, follow-up clarifications)
-- Use `explore` agent (Haiku, 30s timeout) to gather codebase facts before asking the user
+- Use `explore` agent (Efficient, 30s timeout) to gather codebase facts before asking the user
 - Use `Task(subagent_type="oh-my-qoder:planner", ...)` for planning validation on large-scope plans
 - Use `Task(subagent_type="oh-my-qoder:analyst", ...)` for requirements analysis
 - Use `Task(subagent_type="oh-my-qoder:critic", ...)` for plan review in consensus and review modes

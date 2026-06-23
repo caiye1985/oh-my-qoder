@@ -62,8 +62,8 @@ MODES:
   Global Configuration (--global)
     - Downloads fresh AGENTS.md to ~/.qoder/
     - Backs up existing AGENTS.md to ~/.qoder/AGENTS.md.backup.YYYY-MM-DD
-    - Default: explicitly overwrites ~/.qoder/AGENTS.md so plain `claude` also uses OMC
-    - Optional preserve mode keeps the user's base `AGENTS.md` and installs OMC into `CLAUDE-omc.md` for `omc` launches
+    - Default: explicitly overwrites ~/.qoder/AGENTS.md so plain `qodercli` also uses OMC
+    - Optional preserve mode keeps the user's base `AGENTS.md` and installs OMC into `AGENTS-omq.md` for `omq` launches
     - Applies to all Qoder sessions
     - Cleans up legacy hooks
     - Use this to update global config after OMC upgrades
@@ -88,7 +88,7 @@ For more info: https://github.com/Yeachan-Heo/oh-my-qoder
 Before running setup shell commands or reading phase files, resolve the current OMC plugin root. This prevents an already-running Qoder session from continuing to use a stale `QODER_PLUGIN_ROOT` after `/plugin marketplace update omc` installs a newer cache version.
 
 ```bash
-OMC_SETUP_PLUGIN_ROOT=$(node -e "const f=require('fs'),p=require('path'),h=require('os').homedir(),d=(process.env.QODER_CONFIG_DIR||p.join(h,'.claude')).replace(/[\\/]+$/,''),b=p.join(d,'plugins','cache','omc','oh-my-qoder'),valid=r=>f.existsSync(p.join(r,'skills','omc-setup','SKILL.md'))||f.existsSync(p.join(r,'hooks','hooks.json'))||f.existsSync(p.join(r,'docs','AGENTS.md'));try{const vs=f.readdirSync(b,{withFileTypes:true}).filter(e=>(e.isDirectory()||e.isSymbolicLink())&&/^\d+\.\d+\.\d+/.test(e.name)).map(e=>e.name).sort((a,c)=>c.localeCompare(a,void 0,{numeric:true}));const hit=vs.map(v=>p.join(b,v)).find(valid);if(hit)console.log(hit);else if(process.env.QODER_PLUGIN_ROOT)console.log(process.env.QODER_PLUGIN_ROOT)}catch{if(process.env.QODER_PLUGIN_ROOT)console.log(process.env.QODER_PLUGIN_ROOT)}")
+OMC_SETUP_PLUGIN_ROOT=$(node -e "const f=require('fs'),p=require('path'),h=require('os').homedir(),d=(process.env.QODER_CONFIG_DIR||p.join(h,'.qoder')).replace(/[\\/]+$/,''),b=p.join(d,'plugins','cache','omc','oh-my-qoder'),valid=r=>f.existsSync(p.join(r,'skills','omc-setup','SKILL.md'))||f.existsSync(p.join(r,'hooks','hooks.json'))||f.existsSync(p.join(r,'docs','AGENTS.md'));try{const vs=f.readdirSync(b,{withFileTypes:true}).filter(e=>(e.isDirectory()||e.isSymbolicLink())&&/^\d+\.\d+\.\d+/.test(e.name)).map(e=>e.name).sort((a,c)=>c.localeCompare(a,void 0,{numeric:true}));const hit=vs.map(v=>p.join(b,v)).find(valid);if(hit)console.log(hit);else if(process.env.QODER_PLUGIN_ROOT)console.log(process.env.QODER_PLUGIN_ROOT)}catch{if(process.env.QODER_PLUGIN_ROOT)console.log(process.env.QODER_PLUGIN_ROOT)}")
 export OMC_SETUP_PLUGIN_ROOT
 ```
 
@@ -104,7 +104,7 @@ node "${OMC_SETUP_PLUGIN_ROOT:-${QODER_PLUGIN_ROOT}}/scripts/repair-plugin-cache
 
 ```bash
 # Check if setup was already completed
-CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.claude}/.omc-config.json"
+CONFIG_FILE="${QODER_CONFIG_DIR:-$HOME/.qoder}/.omc-config.json"
 
 if [ -f "$CONFIG_FILE" ]; then
   SETUP_COMPLETED=$(jq -r '.setupCompleted // empty' "$CONFIG_FILE" 2>/dev/null)

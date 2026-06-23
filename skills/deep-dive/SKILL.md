@@ -128,7 +128,7 @@ Run the trace autonomously using the `oh-my-qoder:trace` skill's behavioral cont
 
 ### Team Mode Orchestration
 
-Use **Claude built-in team mode** to run 3 parallel tracer lanes:
+Use **Qoder built-in team mode** to run 3 parallel tracer lanes:
 
 1. **Restate the observed result** or "why" question precisely
 2. **Spawn 3 tracer lanes** — one per confirmed hypothesis
@@ -363,7 +363,7 @@ Output: spec.md            Output: consensus-plan.md        Output: working code
 <Tool_Usage>
 - Use `AskUserQuestion` for lane confirmation (Phase 2) and each interview question (Phase 4)
 - Use `Agent(subagent_type="oh-my-qoder:explore", model="haiku")` for brownfield codebase exploration (Phase 1)
-- Use Claude built-in team mode for 3 parallel tracer lanes (Phase 3)
+- Use Qoder built-in team mode for 3 parallel tracer lanes (Phase 3)
 - Use `state_write(mode="deep-interview")` with `state.source = "deep-dive"` for all state persistence
 - Use `state_read(mode="deep-interview")` for resume — check `state.source === "deep-dive"` to distinguish
 - Use `Write` tool to save trace result to `.omc/specs/deep-dive-trace-{slug}.md` and final spec to `.omc/specs/deep-dive-{slug}.md`; use `.omc/state/` or `state_write` for ephemeral artifacts

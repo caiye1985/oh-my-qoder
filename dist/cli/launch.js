@@ -467,7 +467,7 @@ function runQoderInsideTmux(cwd, args) {
     catch (error) {
         const err = error;
         if (err.code === 'ENOENT') {
-            console.error('[omc] Error: claude CLI not found in PATH.');
+            console.error('[omc] Error: qodercli not found in PATH.');
             process.exit(1);
         }
         // Propagate Claude's exit code so omc does not swallow failures
@@ -585,7 +585,7 @@ function runQoderDirect(cwd, args) {
     catch (error) {
         const err = error;
         if (err.code === 'ENOENT') {
-            console.error('[omc] Error: claude CLI not found in PATH.');
+            console.error('[omc] Error: qodercli not found in PATH.');
             process.exit(1);
         }
         // Propagate Claude's exit code so omc does not swallow failures
@@ -692,8 +692,8 @@ export async function launchCommand(args) {
     }
     // Pre-flight: check claude CLI availability
     if (!isQoderAvailable()) {
-        console.error('[omc] Error: claude CLI not found. Install Qoder first:');
-        console.error('  https://code.claude.com/docs/en/setup');
+        console.error('[omc] Error: qodercli not found. Install Qoder CLI first:');
+        console.error('  https://docs.qoder.com');
         process.exit(1);
     }
     const launchConfigDir = prepareOmcLaunchConfigDir();

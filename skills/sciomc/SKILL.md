@@ -64,13 +64,13 @@ Fire independent stages in parallel via Task tool:
 
 ```
 // Stage 1 - Simple data gathering
-Task(subagent_type="oh-my-qoder:scientist", model="haiku", prompt="[RESEARCH_STAGE:1] Investigate...")
+Task(subagent_type="oh-my-qoder:scientist", model="efficient", prompt="[RESEARCH_STAGE:1] Investigate...")
 
 // Stage 2 - Standard analysis
-Task(subagent_type="oh-my-qoder:scientist", model="sonnet", prompt="[RESEARCH_STAGE:2] Analyze...")
+Task(subagent_type="oh-my-qoder:scientist", model="auto", prompt="[RESEARCH_STAGE:2] Analyze...")
 
 // Stage 3 - Complex reasoning
-Task(subagent_type="oh-my-qoder:scientist", model="opus", prompt="[RESEARCH_STAGE:3] Deep analysis of...")
+Task(subagent_type="oh-my-qoder:scientist", model="performance", prompt="[RESEARCH_STAGE:3] Deep analysis of...")
 ```
 
 ### Smart Model Routing
@@ -79,9 +79,9 @@ Task(subagent_type="oh-my-qoder:scientist", model="opus", prompt="[RESEARCH_STAG
 
 | Task Complexity | Agent | Model | Use For |
 |-----------------|-------|-------|---------|
-| Data gathering | `scientist` (model=haiku) | haiku | File enumeration, pattern counting, simple lookups |
-| Standard analysis | `scientist` | sonnet | Code analysis, pattern detection, documentation review |
-| Complex reasoning | `scientist` | opus | Architecture analysis, cross-cutting concerns, hypothesis validation |
+| Data gathering | `scientist` (model=efficient) | efficient | File enumeration, pattern counting, simple lookups |
+| Standard analysis | `scientist` | auto | Code analysis, pattern detection, documentation review |
+| Complex reasoning | `scientist` | performance | Architecture analysis, cross-cutting concerns, hypothesis validation |
 
 ### Routing Decision Guide
 
@@ -100,7 +100,7 @@ After parallel execution completes, verify findings:
 
 ```
 // Cross-validation stage
-Task(subagent_type="oh-my-qoder:scientist", model="sonnet", prompt="
+Task(subagent_type="oh-my-qoder:scientist", model="auto", prompt="
 [RESEARCH_VERIFICATION]
 Cross-validate these findings for consistency:
 
@@ -181,9 +181,9 @@ When stages analyze different data sources:
 
 ```
 // All fire simultaneously
-Task(subagent_type="oh-my-qoder:scientist", model="haiku", prompt="[STAGE:1] Analyze src/api/...")
-Task(subagent_type="oh-my-qoder:scientist", model="haiku", prompt="[STAGE:2] Analyze src/utils/...")
-Task(subagent_type="oh-my-qoder:scientist", model="haiku", prompt="[STAGE:3] Analyze src/components/...")
+Task(subagent_type="oh-my-qoder:scientist", model="efficient", prompt="[STAGE:1] Analyze src/api/...")
+Task(subagent_type="oh-my-qoder:scientist", model="efficient", prompt="[STAGE:2] Analyze src/utils/...")
+Task(subagent_type="oh-my-qoder:scientist", model="efficient", prompt="[STAGE:3] Analyze src/components/...")
 ```
 
 ### Hypothesis Battery (Parallel)
@@ -192,9 +192,9 @@ When testing multiple hypotheses:
 
 ```
 // Test hypotheses simultaneously
-Task(subagent_type="oh-my-qoder:scientist", model="sonnet", prompt="[HYPOTHESIS:A] Test if caching improves...")
-Task(subagent_type="oh-my-qoder:scientist", model="sonnet", prompt="[HYPOTHESIS:B] Test if batching reduces...")
-Task(subagent_type="oh-my-qoder:scientist", model="sonnet", prompt="[HYPOTHESIS:C] Test if lazy loading helps...")
+Task(subagent_type="oh-my-qoder:scientist", model="auto", prompt="[HYPOTHESIS:A] Test if caching improves...")
+Task(subagent_type="oh-my-qoder:scientist", model="auto", prompt="[HYPOTHESIS:B] Test if batching reduces...")
+Task(subagent_type="oh-my-qoder:scientist", model="auto", prompt="[HYPOTHESIS:C] Test if lazy loading helps...")
 ```
 
 ### Cross-Validation (Sequential)
@@ -206,7 +206,7 @@ When verification depends on all findings:
 [stages complete]
 
 // Then sequential verification
-Task(subagent_type="oh-my-qoder:scientist", model="opus", prompt="
+Task(subagent_type="oh-my-qoder:scientist", model="performance", prompt="
 [CROSS_VALIDATION]
 Validate consistency across all findings:
 - Finding 1: ...

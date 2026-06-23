@@ -9,11 +9,11 @@ level: 2
 
 `psm` is the compatibility alias for this canonical skill entrypoint.
 
-> **Quick Start (worktree-first):** Start with `omc teleport` when you want an isolated issue/PR/feature worktree before adding any tmux/session orchestration:
+> **Quick Start (worktree-first):** Start with `omq teleport` when you want an isolated issue/PR/feature worktree before adding any tmux/session orchestration:
 > ```bash
-> omc teleport #123          # Create worktree for issue/PR
-> omc teleport my-feature    # Create worktree for feature
-> omc teleport list          # List worktrees
+> omq teleport #123          # Create worktree for issue/PR
+> omq teleport my-feature    # Create worktree for feature
+> omq teleport list          # List worktrees
 > ```
 > See [Teleport Command](#teleport-command) below for details.
 
@@ -171,7 +171,7 @@ When the user invokes a PSM command, follow this protocol:
 Parse `{{ARGUMENTS}}` to determine:
 1. **Subcommand**: review, fix, feature, list, attach, kill, cleanup, status
 2. **Reference**: project#number, URL, or session ID
-3. **Options**: --branch, --base, --no-claude, --no-tmux, etc.
+3. **Options**: --branch, --base, --no-qodercli, --no-tmux, etc.
 
 ### Subcommand: `review <ref>`
 
@@ -248,15 +248,15 @@ Parse `{{ARGUMENTS}}` to determine:
    tmux new-session -d -s "psm:$project_alias:pr-$pr_number" -c "$worktree_path"
    ```
 
-8. **Launch Qoder** (unless --no-claude):
+8. **Launch Qoder** (unless --no-qodercli):
    ```bash
    # --dangerously-skip-permissions prevents the "Do you trust this directory?" prompt
    # and repeated tool-approval prompts from stalling the session (issue #2508).
-   tmux send-keys -t "psm:$project_alias:pr-$pr_number" "claude --dangerously-skip-permissions" Enter
+   tmux send-keys -t "psm:$project_alias:pr-$pr_number" "qodercli --yolo" Enter
 
-   # After claude boots (PSM_CLAUDE_STARTUP_DELAY, default 5s), deliver the task.
+   # After qodercli boots (PSM_QODERCLI_STARTUP_DELAY, default 5s), deliver the task.
    # Use -l (literal) so special characters are not misinterpreted by tmux.
-   sleep "${PSM_CLAUDE_STARTUP_DELAY:-5}"
+   sleep "${PSM_QODERCLI_STARTUP_DELAY:-5}"
    tmux send-keys -t "psm:$project_alias:pr-$pr_number" -l \
      "Review PR #$pr_number: \"$pr_title\" by @$pr_author ($head_branch → $base_branch). URL: $pr_url." Enter
    ```
@@ -301,11 +301,11 @@ Parse `{{ARGUMENTS}}` to determine:
 
 5. **Create session metadata** (similar to review, type="fix")
 
-6. **Update registry, create tmux, launch claude**:
+6. **Update registry, create tmux, launch qodercli**:
    Same as review, but pass issue context as the initial task prompt:
    ```bash
-   tmux send-keys -t "psm:$project_alias:issue-$issue_number" "claude --dangerously-skip-permissions" Enter
-   # After claude boots, deliver the task (see PSM_CLAUDE_STARTUP_DELAY):
+   tmux send-keys -t "psm:$project_alias:issue-$issue_number" "qodercli --yolo" Enter
+   # After qodercli boots, deliver the task (see PSM_QODERCLI_STARTUP_DELAY):
    tmux send-keys -t "psm:$project_alias:issue-$issue_number" -l \
      "Fix issue #$issue_number: \"$issue_title\". URL: $issue_url. Branch: $branch_name." Enter
    ```
@@ -332,9 +332,9 @@ Parse `{{ARGUMENTS}}` to determine:
    git worktree add "$worktree_path" "$branch_name"
    ```
 
-4. **Create session, tmux, launch claude** with feature context as initial prompt:
+4. **Create session, tmux, launch qodercli** with feature context as initial prompt:
    ```bash
-   tmux send-keys -t "psm:$project_alias:feat-$feature_name" "claude --dangerously-skip-permissions" Enter
+   tmux send-keys -t "psm:$project_alias:feat-$feature_name" "qodercli --yolo" Enter
    tmux send-keys -t "psm:$project_alias:feat-$feature_name" -l \
      "Implement feature \"$feature_name\" for project $project. Branch: $branch_name." Enter
    ```
@@ -483,25 +483,25 @@ Parse `{{ARGUMENTS}}` to determine:
 
 ## Teleport Command
 
-The `omc teleport` command provides a lightweight alternative to full PSM sessions. It creates git worktrees without tmux session management — ideal for quick, isolated development.
+The `omq teleport` command provides a lightweight alternative to full PSM sessions. It creates git worktrees without tmux session management — ideal for quick, isolated development.
 
 ### Usage
 
 ```bash
 # Create worktree for an issue or PR
-omc teleport #123
-omc teleport owner/repo#123
-omc teleport https://github.com/owner/repo/issues/42
+omq teleport #123
+omq teleport owner/repo#123
+omq teleport https://github.com/owner/repo/issues/42
 
 # Create worktree for a feature
-omc teleport my-feature
+omq teleport my-feature
 
 # List existing worktrees
-omc teleport list
+omq teleport list
 
 # Remove a worktree
-omc teleport remove issue/my-repo-123
-omc teleport remove --force feat/my-repo-my-feature
+omq teleport remove issue/my-repo-123
+omq teleport remove --force feat/my-repo-my-feature
 ```
 
 ### Options

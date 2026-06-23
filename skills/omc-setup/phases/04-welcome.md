@@ -5,7 +5,7 @@
 Check if user has existing 2.x configuration:
 
 ```bash
-ls "${QODER_CONFIG_DIR:-$HOME/.claude}"/commands/ralph-loop.md 2>/dev/null || ls "${QODER_CONFIG_DIR:-$HOME/.claude}"/commands/ultrawork.md 2>/dev/null
+ls "${QODER_CONFIG_DIR:-$HOME/.qoder}"/commands/ralph-loop.md 2>/dev/null || ls "${QODER_CONFIG_DIR:-$HOME/.qoder}"/commands/ultrawork.md 2>/dev/null
 ```
 
 If found, this is an upgrade from 2.x. Set `IS_UPGRADE=true`.
@@ -51,9 +51,9 @@ HUD STATUSLINE:
 The status bar now shows OMC state. Restart Qoder to see it.
 
 OMC CLI HELPERS (if installed):
-- omc hud         - Render the current HUD statusline
-- omc teleport    - Create an isolated git worktree
-- omc team status - Inspect a running team job
+- omq hud         - Render the current HUD statusline
+- omq teleport    - Create an isolated git worktree
+- omq team status - Inspect a running team job
 - Session summaries are written to `.omc/sessions/*.json`
 
 That's it! Just use Qoder normally.
@@ -92,9 +92,9 @@ HUD STATUSLINE:
 The status bar now shows OMC state. Restart Qoder to see it.
 
 OMC CLI HELPERS (if installed):
-- omc hud         - Render the current HUD statusline
-- omc teleport    - Create an isolated git worktree
-- omc team status - Inspect a running team job
+- omq hud         - Render the current HUD statusline
+- omq teleport    - Create an isolated git worktree
+- omq team status - Inspect a running team job
 - Session summaries are written to `.omc/sessions/*.json`
 
 Your workflow won't break - it just got easier!
@@ -178,11 +178,11 @@ Get the current OMC version and mark setup complete:
 OMC_VERSION=""
 if [ -f ".qoder/AGENTS.md" ]; then
   OMC_VERSION=$(grep -m1 'OMC:VERSION:' .qoder/AGENTS.md 2>/dev/null | sed -E 's/.*OMC:VERSION:([^ ]+).*/\1/' || true)
-elif [ -f "${QODER_CONFIG_DIR:-$HOME/.claude}/AGENTS.md" ]; then
-  OMC_VERSION=$(grep -m1 'OMC:VERSION:' "${QODER_CONFIG_DIR:-$HOME/.claude}/AGENTS.md" 2>/dev/null | sed -E 's/.*OMC:VERSION:([^ ]+).*/\1/' || true)
+elif [ -f "${QODER_CONFIG_DIR:-$HOME/.qoder}/AGENTS.md" ]; then
+  OMC_VERSION=$(grep -m1 'OMC:VERSION:' "${QODER_CONFIG_DIR:-$HOME/.qoder}/AGENTS.md" 2>/dev/null | sed -E 's/.*OMC:VERSION:([^ ]+).*/\1/' || true)
 fi
 if [ -z "$OMC_VERSION" ]; then
-  OMC_VERSION=$(omc --version 2>/dev/null | head -1 || true)
+  OMC_VERSION=$(omq --version 2>/dev/null | head -1 || true)
 fi
 if [ -z "$OMC_VERSION" ]; then
   OMC_VERSION="unknown"
