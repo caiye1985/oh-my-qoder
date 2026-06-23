@@ -155,7 +155,7 @@ ${conversationContext}
 Label:`;
 
   try {
-    const result = execFileSync('qodercli', ['-p', prompt], {
+    const result = execFileSync('qodercli', ['-p', prompt, '--output-format', 'text'], {
       encoding: 'utf-8',
       timeout: 30_000,
       stdio: ['pipe', 'pipe', 'pipe'],

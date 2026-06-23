@@ -8,6 +8,7 @@
 
 import { join } from 'node:path';
 import { homedir } from 'node:os';
+import { AGENTS_LOCAL_FILENAME } from '../../utils/config-dir.js';
 
 /** Storage directory for directory-readme-injector state */
 export const OMC_STORAGE_DIR = join(homedir(), '.omc');
@@ -22,8 +23,11 @@ export const README_FILENAME = 'README.md';
 /** AGENTS.md filename to search for (deepinit output) */
 export const AGENTS_FILENAME = 'AGENTS.md';
 
+/** AGENTS.local.md filename (machine-local, not committed to git) */
+export const AGENTS_LOCAL_FILE = AGENTS_LOCAL_FILENAME;
+
 /** All context filenames to search for during directory walks */
-export const CONTEXT_FILENAMES = [README_FILENAME, AGENTS_FILENAME];
+export const CONTEXT_FILENAMES = [README_FILENAME, AGENTS_FILENAME, AGENTS_LOCAL_FILE];
 
 /** Tools that trigger context file injection */
 export const TRACKED_TOOLS = ['read', 'write', 'edit', 'multiedit'];

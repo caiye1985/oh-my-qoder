@@ -26,6 +26,7 @@ import {
   BUILTIN_EXTERNAL_MODEL_DEFAULTS,
   getDefaultTierModels,
 } from '../config/models.js';
+import { isSubagentAvailable } from './subagent-runtime.js';
 
 /** Map canonical team role → KnownAgentName key (matches PluginConfig.agents.*). */
 const ROLE_TO_AGENT: Record<CanonicalTeamRole, KnownAgentName> = {
@@ -239,4 +240,30 @@ export function buildResolvedRoutingSnapshot(
     out[role] = { primary, fallback };
   }
   return out;
+}
+
+/**
+ * Resolve the preferred worker backend for a given role assignment.
+ *
+ * When the provider is `'qoder'` and the subagent runtime is available
+ * (opt-in via `OMC_USE_SUBAGENT=1`), returns `'qoder-subagent'`.
+ * Otherwise falls back to the tmux-based Qoder worker (`'tmux-claude'`).
+ *
+ * For external providers, returns the corresponding tmux backend.
+ */
+export function resolveWorkerBackend(
+  assignment: RoleAssignment,
+): import('./types.js').WorkerBackend {
+  if (assignment.provider === 'qoder') {
+    return isSubagentAvailable() ? 'qoder-subagent' : 'tmux-claude';
+  }
+  // Map external providers to their tmux backends
+  const tmuxMap: Record<string, import('./types.js').WorkerBackend> = {
+    codex: 'tmux-codex',
+    gemini: 'tmux-gemini',
+    cursor: 'tmux-cursor',
+    grok: 'tmux-grok',
+    antigravity: 'tmux-antigravity',
+  };
+  return tmuxMap[assignment.provider] ?? 'tmux-claude';
 }

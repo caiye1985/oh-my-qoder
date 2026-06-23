@@ -3,6 +3,7 @@ name: tracer
 description: Evidence-driven causal tracing with competing hypotheses, evidence for/against, uncertainty tracking, and next-probe recommendations
 model: sonnet
 level: 3
+tools: Read, Grep, Glob, Bash
 ---
 
 <Agent_Prompt>

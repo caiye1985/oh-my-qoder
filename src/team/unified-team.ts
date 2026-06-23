@@ -43,7 +43,7 @@ export function getTeamMembers(
       if (Array.isArray(config.members)) {
         for (const member of config.members) {
           // Skip MCP workers registered via tmux backend (they'll be handled below)
-          if (member.backendType === 'tmux' || String(member.agentType).startsWith('tmux-')) continue;
+          if (member.backendType === 'tmux' || member.backendType === 'qoder-subagent' || String(member.agentType).startsWith('tmux-') || String(member.agentType) === 'qoder-subagent') continue;
 
           members.push({
             name: member.name || 'unknown',
@@ -79,7 +79,8 @@ export function getTeamMembers(
 
       // Determine backend and default capabilities
       let backend: WorkerBackend;
-      if (worker.agentType === 'mcp-gemini') backend = 'mcp-gemini';
+      if (worker.agentType === 'qoder-subagent') backend = 'qoder-subagent';
+      else if (worker.agentType === 'mcp-gemini') backend = 'mcp-gemini';
       else if (worker.agentType === 'tmux-claude') backend = 'tmux-claude';
       else if (worker.agentType === 'tmux-codex') backend = 'tmux-codex';
       else if (worker.agentType === 'tmux-gemini') backend = 'tmux-gemini';

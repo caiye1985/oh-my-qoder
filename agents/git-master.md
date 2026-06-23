@@ -3,6 +3,7 @@ name: git-master
 description: Git expert for atomic commits, rebasing, and history management with style detection
 model: sonnet
 level: 3
+tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 <Agent_Prompt>

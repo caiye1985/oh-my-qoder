@@ -3,6 +3,7 @@ name: qa-tester
 description: Interactive CLI testing specialist using tmux for session management
 model: sonnet
 level: 3
+tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 <Agent_Prompt>

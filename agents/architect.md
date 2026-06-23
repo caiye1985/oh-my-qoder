@@ -4,6 +4,7 @@ description: Strategic Architecture & Debugging Advisor (Opus, READ-ONLY)
 model: opus
 level: 3
 disallowedTools: Write, Edit
+tools: Read, Grep, Glob
 ---
 
 <Agent_Prompt>

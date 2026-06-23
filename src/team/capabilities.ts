@@ -12,6 +12,7 @@ import type { UnifiedTeamMember } from './unified-team.js';
 
 /** Default capabilities by worker backend */
 const DEFAULT_CAPABILITIES: Record<WorkerBackend, WorkerCapability[]> = {
+  'qoder-subagent': ['code-edit', 'code-review', 'testing', 'architecture', 'general'],
   'claude-native': ['code-edit', 'testing', 'general'],
   'mcp-codex': ['code-review', 'security-review', 'architecture', 'refactoring'],
   'mcp-gemini': ['ui-design', 'documentation', 'research', 'code-edit'],

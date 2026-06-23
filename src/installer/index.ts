@@ -1860,6 +1860,45 @@ export function mergeClaudeMd(existingContent: string | null, omcContent: string
   return `${START_MARKER}\n${versionMarker}${cleanOmcContent}\n${END_MARKER}\n\n${USER_CUSTOMIZATIONS}\n${preservedUserContent}`;
 }
 
+
+/**
+ * Ensure AGENTS.local.md is listed in the project's .gitignore.
+ *
+ * AGENTS.local.md is machine-specific and should never be committed to git.
+ * This function creates or appends to .gitignore in the given project root.
+ *
+ * @param projectRoot - The project root directory containing .git/
+ * @param log - Logging function
+ */
+export function ensureAgentsLocalGitignore(projectRoot: string, log: (msg: string) => void): void {
+  const gitignorePath = join(projectRoot, '.gitignore');
+  const entry = 'AGENTS.local.md';
+
+  if (existsSync(gitignorePath)) {
+    try {
+      const content = readFileSync(gitignorePath, 'utf-8');
+      // Check if entry already exists (as a whole line)
+      const lines = content.split('\n').map(l => l.trim());
+      if (lines.includes(entry)) {
+        return;
+      }
+      // Append entry, ensuring newline before it
+      const trimmed = content.trimEnd();
+      writeFileSync(gitignorePath, trimmed + '\n' + entry + '\n');
+      log('  Added AGENTS.local.md to .gitignore');
+    } catch {
+      log('  Warning: Could not update .gitignore (non-fatal)');
+    }
+  } else {
+    try {
+      writeFileSync(gitignorePath, entry + '\n');
+      log('  Created .gitignore with AGENTS.local.md entry');
+    } catch {
+      log('  Warning: Could not create .gitignore (non-fatal)');
+    }
+  }
+}
+
 /**
  * Install OMC agents, commands, skills, and hooks
  */
@@ -2145,6 +2184,20 @@ export function install(options: InstallOptions = {}): InstallResult {
       } else {
         log('Created AGENTS.md');
       }
+    }
+
+    // Ensure AGENTS.local.md is in the project's .gitignore.
+    // This runs when the current working directory looks like a project root
+    // (contains .git/) so that machine-local overrides are never committed.
+    try {
+      const cwd = process.cwd();
+      const projectGitDir = join(cwd, '.git');
+      if (existsSync(projectGitDir)) {
+        log('Ensuring AGENTS.local.md is in project .gitignore...');
+        ensureAgentsLocalGitignore(cwd, log);
+      }
+    } catch {
+      log('  Warning: Could not check project .gitignore (non-fatal)');
     }
 
     // Install HUD statusline (skip for project-scoped plugins, skipHud option, or hudEnabled config)

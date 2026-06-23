@@ -159,7 +159,7 @@ export const listSkillsTool = {
     }
 
     if (skills.length === 0) {
-      output = `## No Skills Found\n\nNo skill files were discovered in any searched directories.\n\nSearched:\n- Project: .omc/skills/\n- Global: ~/.omc/skills/\n- Qoder config: ${getQoderConfigDir()}/skills/omc-learned/`;
+      output = `## No Skills Found\n\nNo skill files were discovered in any searched directories.\n\nSearched:\n- Project: .omc/skills/\n- Project: .agents/skills/\n- Project: .qoder/skills/\n- Global: ~/.omc/skills/\n- Qoder config: ${getQoderConfigDir()}/skills/omc-learned/\n- Qoder config: ${getQoderConfigDir()}/skills/`;
     }
 
     return {

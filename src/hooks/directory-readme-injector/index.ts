@@ -4,6 +4,11 @@
  * Automatically injects relevant README content from directories when files are accessed.
  * Walks up the directory tree from accessed files to find and inject README.md files.
  *
+ * Supports the three-layer AGENTS.md memory system:
+ *   1. `~/.qoder/AGENTS.md` (user-level global, lowest priority)
+ *   2. `${project}/AGENTS.md` (project-level)
+ *   3. `${project}/AGENTS.local.md` (machine-local, highest priority)
+ *
  * Ported from oh-my-opencode's directory-readme-injector hook.
  * Adapted for Qoder's shell hook system.
  */
@@ -16,6 +21,7 @@ import {
   clearInjectedPaths,
 } from './storage.js';
 import { CONTEXT_FILENAMES, TRACKED_TOOLS } from './constants.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 
 // Re-export submodules
 export * from './types.js';
@@ -81,8 +87,11 @@ export function createDirectoryReadmeInjectorHook(workingDirectory: string) {
   }
 
   /**
-   * Find context files (README.md, AGENTS.md) by walking up the directory tree.
-   * Returns paths in order from root to leaf.
+   * Find context files (README.md, AGENTS.md, AGENTS.local.md) by walking up
+   * the directory tree. Returns paths in order from root to leaf.
+   *
+   * Also includes the user-level `~/.qoder/AGENTS.md` when it exists and has
+   * not yet been injected in this session.
    */
   function findContextFilesUp(startDir: string): string[] {
     const found: string[] = [];
@@ -113,16 +122,34 @@ export function createDirectoryReadmeInjectorHook(workingDirectory: string) {
   }
 
   /**
+   * Get the user-level AGENTS.md path (`~/.qoder/AGENTS.md`).
+   */
+  function getUserLevelAgentsMdPath(): string | null {
+    const userAgentsPath = join(getQoderConfigDir(), 'AGENTS.md');
+    if (existsSync(userAgentsPath)) {
+      return userAgentsPath;
+    }
+    return null;
+  }
+
+  /**
    * Get a human-readable label for a context file.
    */
   function getContextLabel(filePath: string): string {
-    if (filePath.endsWith('AGENTS.md')) return 'Project AGENTS';
+    if (filePath.endsWith('AGENTS.local.md')) return 'Local AGENTS (machine-specific)';
+    if (filePath.endsWith('AGENTS.md')) {
+      // Distinguish user-level from project-level
+      const userAgentsPath = join(getQoderConfigDir(), 'AGENTS.md');
+      if (filePath === userAgentsPath) return 'User AGENTS (global)';
+      return 'Project AGENTS';
+    }
     return 'Project README';
   }
 
   /**
    * Process a file path and return context file content to inject.
-   * Finds both README.md and AGENTS.md files walking up the directory tree.
+   * Finds README.md, AGENTS.md, and AGENTS.local.md files walking up the
+   * directory tree, plus the user-level ~/.qoder/AGENTS.md.
    */
   function processFilePathForContextFiles(
     filePath: string,
@@ -134,6 +161,12 @@ export function createDirectoryReadmeInjectorHook(workingDirectory: string) {
     const dir = dirname(resolved);
     const cache = getSessionCache(sessionID);
     const contextPaths = findContextFilesUp(dir);
+
+    // Prepend user-level AGENTS.md (lowest priority, injected first)
+    const userAgentsPath = getUserLevelAgentsMdPath();
+    if (userAgentsPath && !cache.has(userAgentsPath)) {
+      contextPaths.unshift(userAgentsPath);
+    }
 
     let output = '';
 
@@ -182,14 +215,23 @@ export function createDirectoryReadmeInjectorHook(workingDirectory: string) {
     },
 
     /**
-     * Get context files (README.md, AGENTS.md) for a specific file without marking as injected.
+     * Get context files (README.md, AGENTS.md, AGENTS.local.md) for a specific
+     * file without marking as injected. Includes user-level AGENTS.md.
      */
     getContextFilesForFile: (filePath: string): string[] => {
       const resolved = resolveFilePath(filePath);
       if (!resolved) return [];
 
       const dir = dirname(resolved);
-      return findContextFilesUp(dir);
+      const contextPaths = findContextFilesUp(dir);
+
+      // Prepend user-level AGENTS.md
+      const userAgentsPath = getUserLevelAgentsMdPath();
+      if (userAgentsPath) {
+        contextPaths.unshift(userAgentsPath);
+      }
+
+      return contextPaths;
     },
 
     /**

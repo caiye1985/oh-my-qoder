@@ -3,6 +3,7 @@ name: planner
 description: Strategic planning consultant with interview workflow (Opus)
 model: opus
 level: 4
+tools: Read, Grep, Glob
 ---
 
 <Agent_Prompt>

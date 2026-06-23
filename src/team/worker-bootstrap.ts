@@ -341,3 +341,49 @@ export async function writeWorkerOverlay(
   await writeFile(overlayPath, overlay, 'utf-8');
   return overlayPath;
 }
+
+// ---------------------------------------------------------------------------
+// Subagent overlay generation
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate a subagent-format overlay (YAML frontmatter + system prompt).
+ *
+ * Unlike the tmux inbox-based overlay (`generateWorkerOverlay`), this
+ * produces the `.qoder/agents/<role>.md` format consumed by Qoder CLI's
+ * native subagent dispatch. The overlay is a self-contained system prompt
+ * — no inbox/heartbeat/mailbox protocol is needed because Qoder manages
+ * the subagent lifecycle directly.
+ */
+export function generateSubagentOverlay(
+  role: string,
+  task: string,
+  systemPrompt: string,
+): string {
+  const toolsYaml = ['Read', 'Write', 'Edit', 'Grep', 'Glob', 'Bash']
+    .map(t => `  - ${t}`)
+    .join('\n');
+
+  const sanitizedTask = sanitizePromptContent(task);
+
+  return [
+    '---',
+    `name: ${role}`,
+    `description: OMC team worker — ${role}`,
+    'tools:',
+    toolsYaml,
+    '---',
+    '',
+    `# ${role} Worker`,
+    '',
+    'You are a team worker managed by OMC. Follow the assigned task precisely.',
+    'Report results concisely. Do not spawn sub-agents or orchestration commands.',
+    '',
+    '## System Prompt',
+    systemPrompt,
+    '',
+    '## Task',
+    sanitizedTask,
+    '',
+  ].join('\n');
+}

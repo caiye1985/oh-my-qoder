@@ -185,6 +185,21 @@ export type {
   SentinelWaitResult,
 } from './sentinel-gate.js';
 
+// subagent-runtime (Qoder CLI native subagent backend)
+export type {
+  SubagentWorkerConfig,
+  SubagentTeamConfig,
+} from './subagent-runtime.js';
+export {
+  generateSubagentConfig,
+  buildSubagentCommand,
+  isSubagentAvailable,
+  writeSubagentAgentFile,
+  createSubagentTeam,
+  getActiveSubagentPids,
+  stopSubagentTeam,
+} from './subagent-runtime.js';
+
 // New tmux-based multi-CLI team modules
 // model-contract: getWorkerEnv is exported via worker-bootstrap (single source of truth)
 export type { CliAgentType, CliAgentContract, WorkerLaunchConfig } from './model-contract.js';
@@ -216,6 +231,7 @@ export {
   getWorkerEnv,
   ensureWorkerStateDir,
   writeWorkerOverlay,
+  generateSubagentOverlay,
 } from './worker-bootstrap.js';
 
 // tmux-comm
@@ -334,3 +350,6 @@ export {
   normalizeTeamManifest,
   getConfigGovernance,
 } from './governance.js';
+
+// stage-router (role → backend resolution)
+export { resolveWorkerBackend } from './stage-router.js';

@@ -16,7 +16,6 @@ import {
   clearResolvedPathCache,
   validateCliBinaryPath,
   resolveQoderWorkerModel,
-  shouldUseQoderBareMode,
   _testInternals,
 } from '../model-contract.js';
 
@@ -297,40 +296,9 @@ describe('model-contract', () => {
   });
 
   describe('buildLaunchArgs', () => {
-    it('claude includes --dangerously-skip-permissions', () => {
+    it('qoder includes --yolo', () => {
       const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp' });
-      expect(args).toContain('--dangerously-skip-permissions');
-    });
-    it('detects Claude bare mode only for non-empty ANTHROPIC_API_KEY', () => {
-      expect(shouldUseQoderBareMode({ ANTHROPIC_API_KEY: 'sk-test' })).toBe(true);
-      expect(shouldUseQoderBareMode({ ANTHROPIC_API_KEY: '' })).toBe(false);
-      expect(shouldUseQoderBareMode({ ANTHROPIC_API_KEY: '   ' })).toBe(false);
-      expect(shouldUseQoderBareMode({})).toBe(false);
-    });
-    it('claude omits --bare when ANTHROPIC_API_KEY is absent, empty, or whitespace', () => {
-      for (const value of [undefined, '', '   ']) {
-        withAnthropicApiKey(value, () => {
-          const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp' });
-          expect(args).toContain('--dangerously-skip-permissions');
-          expect(args).not.toContain('--bare');
-        });
-      }
-    });
-    it('claude includes --bare with API-key auth and dedupes exact extra flag', () => {
-      withAnthropicApiKey('sk-test', () => {
-        const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp' });
-        expect(args).toContain('--dangerously-skip-permissions');
-        expect(args).toContain('--bare');
-        expect(countArg(args, '--bare')).toBe(1);
-
-        const deduped = buildLaunchArgs('qoder', {
-          teamName: 't',
-          workerName: 'w',
-          cwd: '/tmp',
-          extraFlags: ['--bare'],
-        });
-        expect(countArg(deduped, '--bare')).toBe(1);
-      });
+      expect(args).toContain('--yolo');
     });
     it('codex includes --dangerously-bypass-approvals-and-sandbox', () => {
       const args = buildLaunchArgs('codex', { teamName: 't', workerName: 'w', cwd: '/tmp' });

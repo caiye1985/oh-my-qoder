@@ -4,6 +4,7 @@ description: Work plan and code review expert — thorough, structured, multi-pe
 model: opus
 level: 3
 disallowedTools: Write, Edit
+tools: Read, Grep, Glob
 ---
 
 <Agent_Prompt>

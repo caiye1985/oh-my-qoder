@@ -4,6 +4,7 @@ description: Expert code review specialist with severity-rated feedback, logic d
 model: opus
 level: 3
 disallowedTools: Write, Edit
+tools: Read, Grep, Glob
 ---
 
 <Agent_Prompt>

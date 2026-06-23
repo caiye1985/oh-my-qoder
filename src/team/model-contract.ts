@@ -169,27 +169,15 @@ export const _testInternals = {
   isTrustedPrefix,
 };
 
-/**
- * Detect parent launch env for Qoder API-key auth.
- *
- * Qoder's `--dangerously-skip-permissions` only bypasses permission
- * prompts. When an API key is present, `--bare` is needed to avoid the
- * interactive OAuth/session login path for team worker panes.
- */
-export function shouldUseQoderBareMode(env: NodeJS.ProcessEnv = process.env): boolean {
-  return typeof env.ANTHROPIC_API_KEY === 'string' && env.ANTHROPIC_API_KEY.trim().length > 0;
-}
-
 const CONTRACTS: Record<CliAgentType, CliAgentContract> = {
   qoder: {
     agentType: 'qoder',
     binary: 'qodercli',
     installInstructions: 'Install Qoder CLI: https://qoder.ai/download',
+    supportsPromptMode: true,
+    promptModeFlag: '-p',
     buildLaunchArgs(model?: string, extraFlags: string[] = []): string[] {
-      const args = ['--dangerously-skip-permissions'];
-      if (shouldUseQoderBareMode() && !extraFlags.includes('--bare')) {
-        args.push('--bare');
-      }
+      const args = ['--yolo'];
       if (model) {
         // Provider-specific model IDs (Bedrock, Vertex) must be passed as-is.
         // Normalizing them to aliases like "sonnet" causes Qoder to expand

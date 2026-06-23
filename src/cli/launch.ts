@@ -39,7 +39,7 @@ import { OMC_CONFIG_FILE_REL } from '../lib/paths.js';
 // Flag mapping
 const MADMAX_FLAG = '--madmax';
 const YOLO_FLAG = '--yolo';
-const QODER_BYPASS_FLAG = '--dangerously-skip-permissions';
+const QODER_BYPASS_FLAG = '--yolo';
 const NOTIFY_FLAG = '--notify';
 const OPENCLAW_FLAG = '--openclaw';
 const TELEGRAM_FLAG = '--telegram';
@@ -365,7 +365,7 @@ export function extractWebhookFlag(args: string[]): { webhookEnabled: boolean | 
 
 /**
  * Normalize Claude launch arguments
- * Maps --madmax/--yolo to --dangerously-skip-permissions
+ * Maps --madmax to --yolo (Qoder CLI bypass flag)
  * All other flags pass through unchanged
  */
 export function normalizeQoderLaunchArgs(args: string[]): string[] {
@@ -374,15 +374,10 @@ export function normalizeQoderLaunchArgs(args: string[]): string[] {
   let hasBypass = false;
 
   for (const arg of args) {
-    if (arg === MADMAX_FLAG || arg === YOLO_FLAG) {
-      wantsBypass = true;
-      continue;
-    }
-
-    if (arg === QODER_BYPASS_FLAG) {
+    if (arg === MADMAX_FLAG || arg === YOLO_FLAG || arg === QODER_BYPASS_FLAG) {
       wantsBypass = true;
       if (!hasBypass) {
-        normalized.push(arg);
+        normalized.push(QODER_BYPASS_FLAG);
         hasBypass = true;
       }
       continue;

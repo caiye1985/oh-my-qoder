@@ -4,6 +4,7 @@ description: Verification strategy, evidence-based completion checks, test adequ
 model: sonnet
 level: 3
 disallowedTools: Write, Edit
+tools: Read, Grep, Glob, Bash
 ---
 
 <Agent_Prompt>

@@ -142,7 +142,7 @@ export function buildAutoresearchSetupPrompt(input: AutoresearchSetupSessionInpu
 
 export function runAutoresearchSetupSession(input: AutoresearchSetupSessionInput): AutoresearchSetupHandoff {
   const prompt = buildAutoresearchSetupPrompt(input);
-  const result = spawnSync('qodercli', ['-p', prompt], {
+  const result = spawnSync('qodercli', ['-p', prompt, '--output-format', 'text'], {
     cwd: input.repoRoot,
     encoding: 'utf-8',
     shell: process.platform === 'win32',

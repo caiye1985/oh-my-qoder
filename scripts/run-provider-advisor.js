@@ -6,7 +6,7 @@ import process from 'process';
 import { resolveOmcStateRoot } from './lib/state-root.mjs';
 
 const PROVIDER_BINARIES = {
-  qoder: 'qoder',
+  qoder: 'qodercli',
   codex: 'codex',
   gemini: 'gemini',
   antigravity: 'agy',
@@ -41,7 +41,7 @@ const ANTIGRAVITY_TIMEOUT_MS = (() => {
 
 /**
  * Build CLI args for a given provider.
- * - qoder: `claude -p <prompt>` (or `claude -p` reading the prompt from stdin)
+ * - qoder: `qodercli -p <prompt> --output-format text` (or `qodercli -p --output-format text` reading prompt from stdin)
  * - codex: `codex exec --dangerously-bypass-approvals-and-sandbox <prompt>`
  * - gemini: `gemini -p <prompt> --yolo`
  * - antigravity: `agy --dangerously-skip-permissions -p <prompt>` (Antigravity CLI;
@@ -77,7 +77,8 @@ function buildProviderArgs(provider, prompt, { pipePromptViaStdin = false } = {}
     return ['--print', '--force', '--trust', '--sandbox', 'disabled', prompt];
   }
   // qoder: `claude -p` reads the prompt from stdin when no prompt arg is given.
-  return pipePromptViaStdin ? ['-p'] : ['-p', prompt];
+  // --output-format text ensures plain text output in headless/non-interactive mode.
+  return pipePromptViaStdin ? ['-p', '--output-format', 'text'] : ['-p', '--output-format', 'text', prompt];
 }
 
 function shouldPipePromptViaStdin(provider, prompt) {
