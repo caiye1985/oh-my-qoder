@@ -15,12 +15,16 @@ import { getDefaultTierModels } from '../../config/models.js';
  */
 export const TIER_MODELS = getDefaultTierModels();
 /**
- * Model tier to simple model type mapping
+ * Model tier to Qoder model type mapping.
+ *
+ * LOW complexity tasks route to 'efficient' (lightweight, fast).
+ * MEDIUM complexity tasks route to 'auto' (balanced reasoning).
+ * HIGH complexity tasks route to 'performance' (deep reasoning).
  */
 export const TIER_TO_MODEL_TYPE = {
-    LOW: 'haiku',
-    MEDIUM: 'sonnet',
-    HIGH: 'opus',
+    LOW: 'efficient',
+    MEDIUM: 'auto',
+    HIGH: 'performance',
 };
 /**
  * Default routing configuration

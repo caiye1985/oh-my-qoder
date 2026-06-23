@@ -100,10 +100,23 @@ function createDecision(tier, tierModels, reasons, escalated, originalTier) {
     };
 }
 /**
- * Convert ModelType to ComplexityTier
+ * Convert ModelType to ComplexityTier.
+ *
+ * Recognizes both Qoder tier names (efficient, auto, performance, ultimate)
+ * and legacy Claude names (haiku, sonnet, opus) for backward compatibility.
  */
 function modelTypeToTier(modelType) {
     switch (modelType) {
+        // Qoder tier names
+        case 'performance':
+        case 'ultimate':
+            return 'HIGH';
+        case 'efficient':
+        case 'lite':
+            return 'LOW';
+        case 'auto':
+            return 'MEDIUM';
+        // Legacy Claude names (backward compat)
         case 'opus':
             return 'HIGH';
         case 'haiku':

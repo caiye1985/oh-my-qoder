@@ -25,7 +25,7 @@ export { generateTeamReport, saveTeamReport } from './summary-report.js';
 export { isPathAllowed, isCommandAllowed, formatPermissionInstructions, getDefaultPermissions, } from './permissions.js';
 export { TeamPaths, absPath, teamStateRoot } from './state-paths.js';
 export { checkSentinelReadiness, waitForSentinelReadiness, } from './sentinel-gate.js';
-export { generateSubagentConfig, buildSubagentCommand, isSubagentAvailable, writeSubagentAgentFile, createSubagentTeam, getActiveSubagentPids, stopSubagentTeam, } from './subagent-runtime.js';
+export { generateSubagentConfig, buildSubagentCommand, buildPipelineCommand, buildPipelinePrompt, buildParallelCommand, spawnParallelTeam, resolveOrchestrationMode, isSubagentAvailable, writeSubagentAgentFile, installTeamAgentFiles, readAgentFile, createSubagentTeam, getActiveSubagentPids, stopSubagentTeam, clearActiveProcesses, } from './subagent-runtime.js';
 export { getContract, isCliAvailable as isCliAvailableForAgent, validateCliAvailable as validateCliAvailableForAgent, buildLaunchArgs, buildWorkerCommand, parseCliOutput, 
 // Deprecated backward-compat exports kept for downstream consumers.
 shouldLoadShellRc, validateCliBinaryPath, resolveCliBinaryPath, clearResolvedPathCache, } from './model-contract.js';

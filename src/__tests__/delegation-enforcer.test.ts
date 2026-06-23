@@ -43,7 +43,7 @@ describe('delegation-enforcer', () => {
   });
 
   describe('enforceModel', () => {
-    it('preserves explicitly specified model (already an alias)', () => {
+    it('preserves explicitly specified model normalized to Qoder tier name', () => {
       const input: AgentInput = {
         description: 'Test task',
         prompt: 'Do something',
@@ -54,10 +54,10 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(false);
-      expect(result.modifiedInput.model).toBe('haiku');
+      expect(result.modifiedInput.model).toBe('efficient');
     });
 
-    it('normalizes explicit full model ID to CC alias (issue #1415)', () => {
+    it('normalizes explicit full model ID to Qoder tier name (issue #1415)', () => {
       const input: AgentInput = {
         description: 'Test task',
         prompt: 'Do something',
@@ -68,10 +68,10 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(false);
-      expect(result.modifiedInput.model).toBe('sonnet');
+      expect(result.modifiedInput.model).toBe('auto');
     });
 
-    it('normalizes claude-fable-5 to the fable tier alias (issue #3246)', () => {
+    it('normalizes claude-fable-5 to the ultimate tier name (issue #3246)', () => {
       const input: AgentInput = {
         description: 'Test task',
         prompt: 'Do something',
@@ -82,7 +82,7 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(false);
-      expect(result.modifiedInput.model).toBe('fable');
+      expect(result.modifiedInput.model).toBe('ultimate');
     });
 
     it('preserves explicit provider-specific Bedrock model ID', () => {
@@ -109,7 +109,8 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(true);
-      expect(result.modifiedInput.model).toBe('sonnet'); // executor defaults to claude-sonnet-4-6
+      // MEDIUM tier built-in default is 'Qwen3.7-Max-DogFooding' (frontier model, passes through)
+      expect(result.modifiedInput.model).toBe('Qwen3.7-Max-DogFooding');
       expect(result.originalInput.model).toBeUndefined();
     });
 
@@ -123,7 +124,8 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(true);
-      expect(result.modifiedInput.model).toBe('sonnet'); // debugger defaults to claude-sonnet-4-6
+      // MEDIUM tier built-in default is 'Qwen3.7-Max-DogFooding' (frontier model, passes through)
+      expect(result.modifiedInput.model).toBe('Qwen3.7-Max-DogFooding');
     });
 
     it('rewrites deprecated aliases to canonical agent names before injecting model', () => {
@@ -137,7 +139,8 @@ describe('delegation-enforcer', () => {
 
       expect(result.injected).toBe(true);
       expect(result.modifiedInput.subagent_type).toBe('oh-my-qoder:debugger');
-      expect(result.modifiedInput.model).toBe('sonnet');
+      // MEDIUM tier built-in default is 'Qwen3.7-Max-DogFooding' (frontier model, passes through)
+      expect(result.modifiedInput.model).toBe('Qwen3.7-Max-DogFooding');
     });
 
     it('throws error for unknown agent type', () => {
@@ -167,7 +170,7 @@ describe('delegation-enforcer', () => {
       const resultWithDebug = enforceModel(input);
       expect(resultWithDebug.warning).toBeDefined();
       expect(resultWithDebug.warning).toContain('Auto-injecting model');
-      expect(resultWithDebug.warning).toContain('claude-sonnet-4-6');
+      expect(resultWithDebug.warning).toContain('Qwen3.7-Max-DogFooding');
       expect(resultWithDebug.warning).toContain('executor');
     });
 
@@ -185,14 +188,14 @@ describe('delegation-enforcer', () => {
 
     it('works with all agents', () => {
       const testCases = [
-        { agent: 'architect', expectedModel: 'opus' },
-        { agent: 'executor', expectedModel: 'sonnet' },
-        { agent: 'explore', expectedModel: 'haiku' },
-        { agent: 'designer', expectedModel: 'sonnet' },
-        { agent: 'debugger', expectedModel: 'sonnet' },
-        { agent: 'verifier', expectedModel: 'sonnet' },
-        { agent: 'code-reviewer', expectedModel: 'opus' },
-        { agent: 'test-engineer', expectedModel: 'sonnet' }
+        { agent: 'architect', expectedModel: 'ultimate' },       // HIGH tier default
+        { agent: 'executor', expectedModel: 'Qwen3.7-Max-DogFooding' },  // MEDIUM tier default
+        { agent: 'explore', expectedModel: 'lite' },             // LOW tier default
+        { agent: 'designer', expectedModel: 'Qwen3.7-Max-DogFooding' },  // MEDIUM tier default
+        { agent: 'debugger', expectedModel: 'Qwen3.7-Max-DogFooding' },  // MEDIUM tier default
+        { agent: 'verifier', expectedModel: 'Qwen3.7-Max-DogFooding' },  // MEDIUM tier default
+        { agent: 'code-reviewer', expectedModel: 'ultimate' },   // HIGH tier default
+        { agent: 'test-engineer', expectedModel: 'Qwen3.7-Max-DogFooding' } // MEDIUM tier default
       ];
 
       for (const testCase of testCases) {
@@ -272,6 +275,7 @@ describe('delegation-enforcer', () => {
       expect(result.modifiedInput).toEqual({
         ...toolInput,
         subagent_type: 'code-reviewer',
+        model: 'performance', // 'opus' normalizes to 'performance'
       });
     });
 
@@ -285,7 +289,8 @@ describe('delegation-enforcer', () => {
 
       const result = processPreToolUse('Agent', toolInput);
 
-      expect(result.modifiedInput).toHaveProperty('model', 'sonnet');
+      // MEDIUM tier built-in default is 'Qwen3.7-Max-DogFooding' (frontier model, passes through)
+      expect(result.modifiedInput).toHaveProperty('model', 'Qwen3.7-Max-DogFooding');
     });
 
     it('does not modify input when model already specified', () => {
@@ -298,7 +303,10 @@ describe('delegation-enforcer', () => {
 
       const result = processPreToolUse('Agent', toolInput);
 
-      expect(result.modifiedInput).toEqual(toolInput);
+      expect(result.modifiedInput).toEqual({
+        ...toolInput,
+        model: 'efficient', // 'haiku' normalizes to 'efficient'
+      });
       expect(result.warning).toBeUndefined();
     });
 
@@ -323,16 +331,18 @@ describe('delegation-enforcer', () => {
 
   describe('getModelForAgent', () => {
     it('returns correct model for agent with prefix', () => {
-      expect(getModelForAgent('oh-my-qoder:executor')).toBe('sonnet');
-      expect(getModelForAgent('oh-my-qoder:debugger')).toBe('sonnet');
-      expect(getModelForAgent('oh-my-qoder:architect')).toBe('opus');
+      // MEDIUM tier default: 'Qwen3.7-Max-DogFooding' (frontier, passes through)
+      expect(getModelForAgent('oh-my-qoder:executor')).toBe('Qwen3.7-Max-DogFooding');
+      expect(getModelForAgent('oh-my-qoder:debugger')).toBe('Qwen3.7-Max-DogFooding');
+      // HIGH tier default: 'ultimate'
+      expect(getModelForAgent('oh-my-qoder:architect')).toBe('ultimate');
     });
 
     it('returns correct model for agent without prefix', () => {
-      expect(getModelForAgent('executor')).toBe('sonnet');
-      expect(getModelForAgent('debugger')).toBe('sonnet');
-      expect(getModelForAgent('architect')).toBe('opus');
-      expect(getModelForAgent('build-fixer')).toBe('sonnet');
+      expect(getModelForAgent('executor')).toBe('Qwen3.7-Max-DogFooding');
+      expect(getModelForAgent('debugger')).toBe('Qwen3.7-Max-DogFooding');
+      expect(getModelForAgent('architect')).toBe('ultimate');
+      expect(getModelForAgent('build-fixer')).toBe('Qwen3.7-Max-DogFooding');
     });
 
     it('throws error for unknown agent', () => {
@@ -448,7 +458,7 @@ describe('delegation-enforcer', () => {
       expect(result.modifiedInput.model).toBeUndefined();
     });
 
-    it('remaps haiku agents to sonnet via env var', () => {
+    it('remaps haiku agents to auto tier via env var', () => {
       process.env.OMC_MODEL_ALIAS_HAIKU = 'sonnet';
       const input: AgentInput = {
         description: 'Test task',
@@ -456,21 +466,22 @@ describe('delegation-enforcer', () => {
         subagent_type: 'explore' // explore defaults to haiku
       };
       const result = enforceModel(input);
-      expect(result.model).toBe('sonnet');
-      expect(result.modifiedInput.model).toBe('sonnet');
+      expect(result.model).toBe('auto');
+      expect(result.modifiedInput.model).toBe('auto');
     });
 
     it('does not remap when no alias configured for the tier', () => {
       process.env.OMC_MODEL_ALIAS_HAIKU = 'sonnet';
-      // executor defaults to sonnet — no alias for sonnet
+      // executor defaults to MEDIUM tier — no alias configured for it
       const input: AgentInput = {
         description: 'Test task',
         prompt: 'Do something',
         subagent_type: 'executor'
       };
       const result = enforceModel(input);
-      expect(result.model).toBe('sonnet');
-      expect(result.modifiedInput.model).toBe('sonnet');
+      // MEDIUM tier built-in default is 'Qwen3.7-Max-DogFooding' (frontier, passes through)
+      expect(result.model).toBe('Qwen3.7-Max-DogFooding');
+      expect(result.modifiedInput.model).toBe('Qwen3.7-Max-DogFooding');
     });
 
     it('explicit model param takes priority over alias', () => {
@@ -482,8 +493,8 @@ describe('delegation-enforcer', () => {
         model: 'opus' // explicit param wins
       };
       const result = enforceModel(input);
-      expect(result.model).toBe('opus');
-      expect(result.modifiedInput.model).toBe('opus');
+      expect(result.model).toBe('performance');
+      expect(result.modifiedInput.model).toBe('performance');
     });
 
     it('forceInherit takes priority over alias', () => {
@@ -511,7 +522,7 @@ describe('delegation-enforcer', () => {
       expect(result.modifiedInput.model).toBeUndefined();
     });
 
-    it('includes alias note in debug warning', () => {
+    it('includes normalized note in debug warning', () => {
       process.env.OMC_MODEL_ALIAS_HAIKU = 'sonnet';
       process.env.OMC_DEBUG = 'true';
       const input: AgentInput = {
@@ -520,7 +531,7 @@ describe('delegation-enforcer', () => {
         subagent_type: 'explore'
       };
       const result = enforceModel(input);
-      expect(result.warning).toContain('aliased from haiku');
+      expect(result.warning).toContain('normalized from sonnet');
     });
   });
 
@@ -593,8 +604,8 @@ describe('delegation-enforcer', () => {
         model: 'haiku'
       };
       const result = enforceModel(input);
-      expect(result.model).toBe('haiku');
-      expect(result.modifiedInput.model).toBe('haiku');
+      expect(result.model).toBe('efficient');
+      expect(result.modifiedInput.model).toBe('efficient');
     });
   });
 });

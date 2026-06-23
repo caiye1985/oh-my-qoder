@@ -3571,20 +3571,6 @@ function getDirectModelEnvValue() {
   }
   return void 0;
 }
-function getProviderDetectionModelEnvValues() {
-  const directModel = getDirectModelEnvValue();
-  if (directModel) {
-    return [directModel];
-  }
-  const values = /* @__PURE__ */ new Set();
-  for (const tier of INHERIT_TIER_PRIORITY) {
-    const value = resolveTierModelFromEnv(tier);
-    if (value) {
-      values.add(value);
-    }
-  }
-  return [...values];
-}
 function getDirectProviderDetectionModelEnvValues() {
   const directModel = getDirectModelEnvValue();
   return directModel ? [directModel] : [];
@@ -3620,11 +3606,15 @@ function getDefaultTierModels() {
 }
 function resolveQoderFamily(modelId) {
   const lower = modelId.toLowerCase();
-  if (!lower.includes("qoder")) return null;
-  if (lower.includes("sonnet")) return "SONNET";
-  if (lower.includes("opus")) return "OPUS";
-  if (lower.includes("haiku")) return "HAIKU";
-  if (lower.includes("fable")) return "FABLE";
+  if (lower === "lite") return "LITE";
+  if (lower === "efficient") return "EFFICIENT";
+  if (lower === "auto") return "AUTO";
+  if (lower === "performance") return "PERFORMANCE";
+  if (lower === "ultimate") return "ULTIMATE";
+  if (lower.includes("sonnet")) return "AUTO";
+  if (lower.includes("opus")) return "PERFORMANCE";
+  if (lower.includes("haiku")) return "EFFICIENT";
+  if (lower.includes("fable")) return "ULTIMATE";
   return null;
 }
 function hasBedrockModelId(modelIds) {
@@ -3632,17 +3622,11 @@ function hasBedrockModelId(modelIds) {
     if (/^((us|eu|ap|global)\.anthropic\.|anthropic\.claude)/i.test(modelId)) {
       return true;
     }
-    if (/^arn:aws(-[^:]+)?:bedrock:/i.test(modelId) && /:(inference-profile|application-inference-profile)\//i.test(modelId) && modelId.toLowerCase().includes("qoder")) {
+    if (/^arn:aws(-[^:]+)?:bedrock:/i.test(modelId) && /:(inference-profile|application-inference-profile)\//i.test(modelId)) {
       return true;
     }
   }
   return false;
-}
-function isBedrock() {
-  if (process.env.QODER_USE_BEDROCK === "1") {
-    return true;
-  }
-  return hasBedrockModelId(getProviderDetectionModelEnvValues());
 }
 function isProviderSpecificModelId(modelId) {
   if (/^((us|eu|ap|global)\.anthropic\.|anthropic\.claude)/i.test(modelId)) {
@@ -3656,19 +3640,13 @@ function isProviderSpecificModelId(modelId) {
   }
   return false;
 }
-function isVertexAI() {
-  if (process.env.QODER_USE_VERTEX === "1") {
-    return true;
-  }
-  return hasVertexModelId(getProviderDetectionModelEnvValues());
-}
 function hasVertexModelId(modelIds) {
   return modelIds.some((modelId) => modelId.toLowerCase().startsWith("vertex_ai/"));
 }
 function hasNonClaudeModelId(modelIds) {
   for (const modelId of modelIds) {
     const lower = modelId.toLowerCase();
-    if (!lower.includes("qoder") && !CLAUDE_TIER_ALIASES.has(lower)) {
+    if (!QODER_TIER_NAMES.has(lower) && !CLAUDE_TIER_ALIASES.has(lower)) {
       return true;
     }
   }
@@ -3701,13 +3679,14 @@ function shouldAutoForceInherit() {
   }
   return false;
 }
-var DIRECT_MODEL_ENV_KEYS, INHERIT_TIER_PRIORITY, CLAUDE_TIER_ALIASES, TIER_ENV_KEYS, QODER_FAMILY_DEFAULTS, BUILTIN_TIER_MODEL_DEFAULTS, QODER_FAMILY_HIGH_VARIANTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS;
+var DIRECT_MODEL_ENV_KEYS, INHERIT_TIER_PRIORITY, QODER_TIER_NAMES, CLAUDE_TIER_ALIASES, TIER_ENV_KEYS, QODER_FAMILY_DEFAULTS, BUILTIN_TIER_MODEL_DEFAULTS, QODER_FAMILY_HIGH_VARIANTS, BUILTIN_EXTERNAL_MODEL_DEFAULTS;
 var init_models = __esm({
   "src/config/models.ts"() {
     "use strict";
     init_ssrf_guard();
     DIRECT_MODEL_ENV_KEYS = ["QODER_MODEL", "ANTHROPIC_MODEL"];
     INHERIT_TIER_PRIORITY = ["MEDIUM", "HIGH", "LOW"];
+    QODER_TIER_NAMES = /* @__PURE__ */ new Set(["lite", "efficient", "auto", "performance", "ultimate"]);
     CLAUDE_TIER_ALIASES = /* @__PURE__ */ new Set(["sonnet", "opus", "haiku", "fable"]);
     TIER_ENV_KEYS = {
       LOW: [
@@ -3727,21 +3706,29 @@ var init_models = __esm({
       ]
     };
     QODER_FAMILY_DEFAULTS = {
-      HAIKU: "claude-haiku-4-5",
-      SONNET: "claude-sonnet-4-6",
-      OPUS: "claude-opus-4-8",
-      FABLE: "claude-fable-5"
+      // Qoder tier keys (primary)
+      LITE: "lite",
+      EFFICIENT: "efficient",
+      AUTO: "auto",
+      PERFORMANCE: "performance",
+      ULTIMATE: "ultimate",
+      // Legacy Claude keys (backward compat — mapped to Qoder equivalents)
+      HAIKU: "efficient",
+      SONNET: "auto",
+      OPUS: "performance",
+      FABLE: "ultimate"
     };
     BUILTIN_TIER_MODEL_DEFAULTS = {
-      LOW: QODER_FAMILY_DEFAULTS.HAIKU,
-      MEDIUM: QODER_FAMILY_DEFAULTS.SONNET,
-      HIGH: QODER_FAMILY_DEFAULTS.OPUS
+      LOW: "lite",
+      MEDIUM: "Qwen3.7-Max-DogFooding",
+      HIGH: "ultimate"
     };
     QODER_FAMILY_HIGH_VARIANTS = {
-      HAIKU: `${QODER_FAMILY_DEFAULTS.HAIKU}-high`,
-      SONNET: `${QODER_FAMILY_DEFAULTS.SONNET}-high`,
-      OPUS: `${QODER_FAMILY_DEFAULTS.OPUS}-high`,
-      FABLE: `${QODER_FAMILY_DEFAULTS.FABLE}-high`
+      LITE: "efficient",
+      EFFICIENT: "auto",
+      AUTO: "performance",
+      PERFORMANCE: "ultimate",
+      ULTIMATE: "ultimate"
     };
     BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
       codexModel: "gpt-5.3-codex",
@@ -30094,10 +30081,17 @@ function normalizeToQoderAlias(model) {
   if (isProviderSpecificModelId(model)) {
     return model;
   }
+  const lower = model.toLowerCase();
+  if (QODER_PASSTHROUGH_NAMES.has(lower)) {
+    return lower;
+  }
+  if (QODER_FRONTIER_PREFIXES.some((prefix) => lower.startsWith(prefix))) {
+    return model;
+  }
   const family = resolveQoderFamily(model);
-  return family ? FAMILY_TO_ALIAS[family] ?? model : model;
+  return family ? QODER_TIER_TO_ALIAS[family] ?? model : model;
 }
-var FAMILY_TO_ALIAS;
+var QODER_TIER_TO_ALIAS, QODER_PASSTHROUGH_NAMES, QODER_FRONTIER_PREFIXES;
 var init_delegation_enforcer = __esm({
   "src/features/delegation-enforcer.ts"() {
     "use strict";
@@ -30105,12 +30099,32 @@ var init_delegation_enforcer = __esm({
     init_types2();
     init_loader();
     init_models();
-    FAMILY_TO_ALIAS = {
-      SONNET: "sonnet",
-      OPUS: "opus",
-      HAIKU: "haiku",
-      FABLE: "fable"
+    QODER_TIER_TO_ALIAS = {
+      LITE: "lite",
+      EFFICIENT: "efficient",
+      AUTO: "auto",
+      PERFORMANCE: "performance",
+      ULTIMATE: "ultimate",
+      // Backward compat: legacy Claude family keys map to Qoder equivalents
+      HAIKU: "efficient",
+      SONNET: "auto",
+      OPUS: "performance",
+      FABLE: "ultimate"
     };
+    QODER_PASSTHROUGH_NAMES = /* @__PURE__ */ new Set([
+      "lite",
+      "efficient",
+      "auto",
+      "performance",
+      "ultimate"
+    ]);
+    QODER_FRONTIER_PREFIXES = [
+      "qwen",
+      "glm",
+      "kimi",
+      "deepseek",
+      "minimax"
+    ];
   }
 });
 
@@ -30266,22 +30280,15 @@ function resolveQoderWorkerModel(env2 = process.env) {
   if (env2.OMC_ROUTING_FORCE_INHERIT === "true") {
     return void 0;
   }
-  if (!isBedrock() && !isVertexAI()) {
-    return void 0;
-  }
   const directModel = env2.ANTHROPIC_MODEL || env2.QODER_MODEL || "";
   if (directModel) {
     return directModel;
-  }
-  const bedrockModel = env2.QODER_BEDROCK_SONNET_MODEL || env2.ANTHROPIC_DEFAULT_SONNET_MODEL || "";
-  if (bedrockModel) {
-    return bedrockModel;
   }
   const omcModel = env2.OMC_MODEL_MEDIUM || "";
   if (omcModel) {
     return omcModel;
   }
-  return void 0;
+  return "Qwen3.7-Max-DogFooding";
 }
 function isHeadlessSupportedOnPlatform(agentType, platform = process.platform) {
   if (agentType === "antigravity" && platform === "win32") {
@@ -87175,10 +87182,10 @@ var THINK_PATTERNS = [...ENGLISH_PATTERNS, ...MULTILINGUAL_PATTERNS];
 // src/hooks/think-mode/switcher.ts
 init_models();
 var HIGH_VARIANT_MAP = {
-  // Claude canonical families
-  [QODER_FAMILY_DEFAULTS.SONNET]: QODER_FAMILY_HIGH_VARIANTS.SONNET,
-  [QODER_FAMILY_DEFAULTS.OPUS]: QODER_FAMILY_HIGH_VARIANTS.OPUS,
-  [QODER_FAMILY_DEFAULTS.HAIKU]: QODER_FAMILY_HIGH_VARIANTS.HAIKU,
+  // Qoder tier families (auto -> performance, performance -> ultimate, efficient -> auto)
+  [QODER_FAMILY_DEFAULTS.AUTO]: QODER_FAMILY_HIGH_VARIANTS.AUTO,
+  [QODER_FAMILY_DEFAULTS.PERFORMANCE]: QODER_FAMILY_HIGH_VARIANTS.PERFORMANCE,
+  [QODER_FAMILY_DEFAULTS.EFFICIENT]: QODER_FAMILY_HIGH_VARIANTS.EFFICIENT,
   // GPT-4
   "gpt-4": "gpt-4-high",
   "gpt-4-turbo": "gpt-4-turbo-high",

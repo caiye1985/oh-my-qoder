@@ -12,7 +12,16 @@
  * parameters so agents inherit the user's configured model instead of receiving
  * Claude-specific tier names (sonnet/opus/haiku) that the provider won't recognize.
  */
-/** Normalize a model ID to a CC-supported alias (sonnet/opus/haiku/fable) if possible */
+/**
+ * Normalize a model ID to a Qoder-supported tier name or frontier model name.
+ *
+ * Resolution order:
+ * 1. Provider-specific IDs (Bedrock, Vertex) — pass through unchanged
+ * 2. Qoder tier names (lite, efficient, auto, performance, ultimate) — pass through
+ * 3. Frontier model names (Qwen3.7-Max-DogFooding, GLM-5.2, etc.) — pass through
+ * 4. Legacy Claude names (haiku → efficient, sonnet → auto, opus → performance)
+ * 5. Anything else — resolve via resolveQoderFamily, fall through to original
+ */
 export declare function normalizeToQoderAlias(model: string): string;
 /**
  * Agent input structure from Qoder Agent SDK

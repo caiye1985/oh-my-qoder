@@ -1468,13 +1468,13 @@ describe('runQoder outside-tmux — env forwarding', () => {
     runQoder('/tmp', ['--print-system-prompt', 'hello world'], 'sid');
 
     expect(vi.mocked(buildTmuxShellCommandWithEnv)).toHaveBeenCalledWith(
-      'qoder',
+      'qodercli',
       ['--print-system-prompt', 'hello world'],
       { QODER_CONFIG_DIR: 'C:\\Users\\bellman\\config dir' },
     );
     const rawCommand = vi.mocked(wrapWithLoginShell).mock.calls[0][0];
     expect(rawCommand).toContain('QODER_CONFIG_DIR=C:\\Users\\bellman\\config dir');
-    expect(rawCommand).toContain('qoder --print-system-prompt hello world');
+    expect(rawCommand).toContain('qodercli --print-system-prompt hello world');
     expect(rawCommand).not.toContain('sleep 0.3');
     expect(rawCommand).not.toContain('tcflush');
 

@@ -1,6 +1,8 @@
 import { validateAnthropicBaseUrl } from '../utils/ssrf-guard.js';
 const DIRECT_MODEL_ENV_KEYS = ['QODER_MODEL', 'ANTHROPIC_MODEL'];
 const INHERIT_TIER_PRIORITY = ['MEDIUM', 'HIGH', 'LOW'];
+const QODER_TIER_NAMES = new Set(['lite', 'efficient', 'auto', 'performance', 'ultimate']);
+/** @deprecated Claude tier aliases retained for backward compatibility in normalizeToQoderAlias. */
 const CLAUDE_TIER_ALIASES = new Set(['sonnet', 'opus', 'haiku', 'fable']);
 const TIER_ENV_KEYS = {
     LOW: [
@@ -20,27 +22,55 @@ const TIER_ENV_KEYS = {
     ],
 };
 /**
- * Canonical Claude family defaults.
- * Keep these date-less so version bumps are a one-line edit per family.
+ * Canonical Qoder family defaults.
+ *
+ * Maps QoderModelTier keys to the Qoder CLI tier name or frontier model name
+ * that should be used when no environment override is present.
+ *
+ * Also includes legacy Claude family keys (HAIKU, SONNET, OPUS, FABLE)
+ * mapped to their Qoder equivalents for backward compatibility with
+ * existing code that references these keys.
  */
 export const QODER_FAMILY_DEFAULTS = {
-    HAIKU: 'claude-haiku-4-5',
-    SONNET: 'claude-sonnet-4-6',
-    OPUS: 'claude-opus-4-8',
-    FABLE: 'claude-fable-5',
+    // Qoder tier keys (primary)
+    LITE: 'lite',
+    EFFICIENT: 'efficient',
+    AUTO: 'auto',
+    PERFORMANCE: 'performance',
+    ULTIMATE: 'ultimate',
+    // Legacy Claude keys (backward compat — mapped to Qoder equivalents)
+    HAIKU: 'efficient',
+    SONNET: 'auto',
+    OPUS: 'performance',
+    FABLE: 'ultimate',
 };
-/** Canonical tier->model mapping used as built-in defaults */
+/**
+ * Canonical tier->model mapping used as built-in defaults.
+ *
+ * Qwen3.7-Max-DogFooding is the preferred base model — it is a powerful
+ * internal free model. Higher tiers try their Qoder tier name first,
+ * falling back to Qwen3.7-Max-DogFooding if the tier is unavailable.
+ */
 export const BUILTIN_TIER_MODEL_DEFAULTS = {
-    LOW: QODER_FAMILY_DEFAULTS.HAIKU,
-    MEDIUM: QODER_FAMILY_DEFAULTS.SONNET,
-    HIGH: QODER_FAMILY_DEFAULTS.OPUS,
+    LOW: 'lite',
+    MEDIUM: 'Qwen3.7-Max-DogFooding',
+    HIGH: 'ultimate',
 };
-/** Canonical Claude high-reasoning variants by family */
+/** Fallback model when a tier is unavailable or fails. */
+export const QODER_DEFAULT_FALLBACK_MODEL = 'Qwen3.7-Max-DogFooding';
+/**
+ * High-reasoning variant hints per Qoder tier.
+ *
+ * Qoder uses `--reasoning-effort high` rather than model-name suffixes,
+ * so these values are advisory only. They map each tier to the tier
+ * that should be used when deep reasoning is desired at that level.
+ */
 export const QODER_FAMILY_HIGH_VARIANTS = {
-    HAIKU: `${QODER_FAMILY_DEFAULTS.HAIKU}-high`,
-    SONNET: `${QODER_FAMILY_DEFAULTS.SONNET}-high`,
-    OPUS: `${QODER_FAMILY_DEFAULTS.OPUS}-high`,
-    FABLE: `${QODER_FAMILY_DEFAULTS.FABLE}-high`,
+    LITE: 'efficient',
+    EFFICIENT: 'auto',
+    AUTO: 'performance',
+    PERFORMANCE: 'ultimate',
+    ULTIMATE: 'ultimate',
 };
 /** Built-in defaults for external provider models */
 export const BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
@@ -55,9 +85,9 @@ export const BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
  * via environment variables without editing source code.
  *
  * Environment variables (highest precedence):
- *   OMC_MODEL_HIGH    - Model ID for HIGH tier (opus-class)
- *   OMC_MODEL_MEDIUM  - Model ID for MEDIUM tier (sonnet-class)
- *   OMC_MODEL_LOW     - Model ID for LOW tier (haiku-class)
+ *   OMC_MODEL_HIGH    - Model ID for HIGH tier (performance-class)
+ *   OMC_MODEL_MEDIUM  - Model ID for MEDIUM tier (auto-class)
+ *   OMC_MODEL_LOW     - Model ID for LOW tier (efficient-class)
  *
  * User config (~/.config/qoder-omc/config.jsonc) can also override
  * via `routing.tierModels` or per-agent `agents.<name>.model`.
@@ -153,26 +183,42 @@ export function getDefaultTierModels() {
     };
 }
 /**
- * Resolve a Claude family from an arbitrary model ID.
- * Supports Anthropic IDs and provider-prefixed forms (e.g. vertex_ai/...).
+ * Resolve a Qoder model tier from an arbitrary model ID.
+ *
+ * Recognizes:
+ * - Qoder tier names: 'lite', 'efficient', 'auto', 'performance', 'ultimate'
+ * - Frontier model names: 'Qwen3.7-Max-DogFooding', 'GLM-5.2', etc. (returns null — pass through)
+ * - Legacy Claude names for backward compat: 'haiku' -> EFFICIENT, 'sonnet' -> AUTO, 'opus' -> PERFORMANCE
+ *
+ * Returns null when the model ID is not recognized (treated as a pass-through frontier model).
  */
 export function resolveQoderFamily(modelId) {
     const lower = modelId.toLowerCase();
-    if (!lower.includes('qoder'))
-        return null;
+    // Qoder tier names (exact match, case-insensitive)
+    if (lower === 'lite')
+        return 'LITE';
+    if (lower === 'efficient')
+        return 'EFFICIENT';
+    if (lower === 'auto')
+        return 'AUTO';
+    if (lower === 'performance')
+        return 'PERFORMANCE';
+    if (lower === 'ultimate')
+        return 'ULTIMATE';
+    // Backward compat: legacy Claude tier names
     if (lower.includes('sonnet'))
-        return 'SONNET';
+        return 'AUTO';
     if (lower.includes('opus'))
-        return 'OPUS';
+        return 'PERFORMANCE';
     if (lower.includes('haiku'))
-        return 'HAIKU';
+        return 'EFFICIENT';
     if (lower.includes('fable'))
-        return 'FABLE';
+        return 'ULTIMATE';
     return null;
 }
 /**
- * Resolve a canonical Claude high variant from a Claude model ID.
- * Returns null for non-Claude model IDs.
+ * Resolve a high-reasoning variant hint from a model ID.
+ * Returns the next tier up for advisory escalation, or null for unrecognized IDs.
  */
 export function getClaudeHighVariantFromModel(modelId) {
     const family = resolveQoderFamily(modelId);
@@ -192,8 +238,7 @@ function hasBedrockModelId(modelIds) {
             return true;
         }
         if (/^arn:aws(-[^:]+)?:bedrock:/i.test(modelId)
-            && /:(inference-profile|application-inference-profile)\//i.test(modelId)
-            && modelId.toLowerCase().includes('qoder')) {
+            && /:(inference-profile|application-inference-profile)\//i.test(modelId)) {
             return true;
         }
     }
@@ -207,10 +252,6 @@ function hasBedrockModelId(modelIds) {
  *   - us.anthropic.claude-sonnet-4-6-v1:0
  *   - global.anthropic.claude-sonnet-4-6-v1:0
  *   - anthropic.claude-3-haiku-20240307-v1:0
- *
- * On Bedrock, passing bare tier names (sonnet/opus/haiku) to spawned
- * agents causes 400 errors because the provider expects full Bedrock
- * model IDs with region/inference-profile prefixes.
  */
 export function isBedrock() {
     // Primary signal: Qoder's own env var
@@ -218,23 +259,16 @@ export function isBedrock() {
         return true;
     }
     // Fallback: detect Bedrock model ID patterns in the active model env value.
-    // Direct session model env vars win over lower-precedence tier defaults, so a
-    // stale tier/default env must not mark a standard Qoder session as Bedrock.
-    // Covers region prefixes (us, eu, ap), cross-region (global), and bare (anthropic.)
     return hasBedrockModelId(getProviderDetectionModelEnvValues());
 }
 /**
  * Check whether a model ID is a provider-specific identifier that should NOT
- * be normalized to a bare alias (sonnet/opus/haiku).
+ * be normalized to a bare alias.
  *
  * Provider-specific IDs include:
  *   - Bedrock prefixed: us.anthropic.claude-*, global.anthropic.claude-*, anthropic.claude-*
  *   - Bedrock ARN: arn:aws:bedrock:...
  *   - Vertex AI: vertex_ai/...
- *
- * These IDs must be passed through to the CLI as-is because normalizing them
- * to aliases like "sonnet" causes Qoder to expand them to Anthropic API
- * model names (e.g. claude-sonnet-4-6) which are invalid on Bedrock/Vertex.
  */
 export function isProviderSpecificModelId(modelId) {
     // Bedrock prefixed formats (region.anthropic.claude-*, anthropic.claude-*)
@@ -254,11 +288,6 @@ export function isProviderSpecificModelId(modelId) {
 /**
  * Detect whether a model ID has a Qoder extended-context window suffix
  * (e.g., `[1m]`, `[200k]`) that is NOT a valid Bedrock API identifier.
- *
- * The `[1m]` suffix is a Qoder internal annotation for the 1M context
- * window variant. It is valid for the parent session's API path but is
- * rejected by the sub-agent spawning runtime, which strips it to a bare
- * Anthropic model ID (e.g., `claude-sonnet-4-6`) that is invalid on Bedrock.
  */
 export function hasExtendedContextSuffix(modelId) {
     return /\[\d+[mk]\]$/i.test(modelId);
@@ -266,10 +295,6 @@ export function hasExtendedContextSuffix(modelId) {
 /**
  * Check whether a model ID is safe to pass as the `model` parameter when
  * spawning sub-agents on non-standard providers (Bedrock, Vertex AI).
- *
- * A model ID is sub-agent safe if it is provider-specific (full Bedrock or
- * Vertex AI format) AND does not carry a Qoder context-window suffix
- * like `[1m]` that the sub-agent runtime cannot handle.
  */
 export function isSubagentSafeModelId(modelId) {
     return isProviderSpecificModelId(modelId) && !hasExtendedContextSuffix(modelId);
@@ -279,9 +304,6 @@ export function isSubagentSafeModelId(modelId) {
  *
  * Qoder sets QODER_USE_VERTEX=1 when configured for Vertex AI.
  * Vertex model IDs typically use a "vertex_ai/" prefix.
- *
- * On Vertex, passing bare tier names causes errors because the provider
- * expects full Vertex model paths.
  */
 export function isVertexAI() {
     if (process.env.QODER_USE_VERTEX === '1') {
@@ -296,21 +318,23 @@ function hasVertexModelId(modelIds) {
 function hasNonClaudeModelId(modelIds) {
     for (const modelId of modelIds) {
         const lower = modelId.toLowerCase();
-        if (!lower.includes('qoder') && !CLAUDE_TIER_ALIASES.has(lower)) {
+        // A model ID is "non-Claude" if it is not a known Qoder tier name and
+        // not a legacy Claude tier alias.
+        if (!QODER_TIER_NAMES.has(lower) && !CLAUDE_TIER_ALIASES.has(lower)) {
             return true;
         }
     }
     return false;
 }
 /**
- * Detect whether OMC should avoid passing Claude-specific model tier
- * names (sonnet/opus/haiku) to the Agent tool.
+ * Detect whether OMC should avoid passing tier-specific model names
+ * to the Agent tool and instead force inheritance.
  *
  * Returns true when:
  * - User explicitly set OMC_ROUTING_FORCE_INHERIT=true
  * - Running on AWS Bedrock — needs full Bedrock model IDs, not bare tier names
  * - Running on Google Vertex AI — needs full Vertex model paths
- * - A non-Claude model ID is detected (CC Switch, LiteLLM, etc.)
+ * - A non-Qoder model ID is detected (CC Switch, LiteLLM, etc.)
  * - A custom ANTHROPIC_BASE_URL points to a non-Anthropic endpoint
  */
 export function isNonClaudeProvider() {
@@ -326,11 +350,9 @@ export function isNonClaudeProvider() {
     if (isVertexAI()) {
         return true;
     }
-    // Check the active model env value for non-Claude model IDs.
+    // Check the active model env value for non-Qoder model IDs.
     // Direct QODER_MODEL/ANTHROPIC_MODEL env vars intentionally short-circuit
     // lower-precedence tier defaults so stale tier envs do not force inheritance.
-    // Note: this check comes AFTER Bedrock/Vertex because their model IDs
-    // contain "qoder" and would incorrectly return false here.
     if (hasNonClaudeModelId(getProviderDetectionModelEnvValues())) {
         return true;
     }

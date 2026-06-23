@@ -64,20 +64,20 @@ export declare function parseCliOutput(agentType: CliAgentType, rawOutput: strin
  */
 export declare function isPromptModeAgent(agentType: CliAgentType): boolean;
 /**
- * Resolve the active model for Qoder team workers on Bedrock/Vertex.
+ * Resolve the active model for Qoder team workers.
  *
- * When running on a non-standard provider (Bedrock, Vertex), workers need
- * the provider-specific model ID passed explicitly via --model. Without it,
- * Qoder falls back to its built-in default (claude-sonnet-4-6) which
- * is invalid on these providers.
+ * Workers receive the Qoder tier name (e.g. 'auto', 'performance') or
+ * frontier model name via --model. For non-standard providers (Bedrock,
+ * Vertex), the provider-specific model ID must be passed explicitly.
  *
  * Resolution order:
  *   1. ANTHROPIC_MODEL / QODER_MODEL env vars (user's explicit setting)
- *   2. Provider tier-specific env vars (QODER_BEDROCK_SONNET_MODEL, etc.)
- *   3. undefined — let Qoder handle its own default
+ *   2. OMC_MODEL_MEDIUM (Qoder MEDIUM tier default)
+ *   3. Provider tier-specific env vars (QODER_BEDROCK_SONNET_MODEL, etc.)
+ *   4. undefined — let Qoder handle its own default (uses 'auto' tier)
  *
- * Returns undefined when not on Bedrock/Vertex (standard Anthropic API
- * handles bare aliases fine).
+ * Returns undefined when no override is configured and the environment is
+ * a standard Qoder session (the CLI default is 'auto').
  */
 export declare function resolveQoderWorkerModel(env?: NodeJS.ProcessEnv): string | undefined;
 /**

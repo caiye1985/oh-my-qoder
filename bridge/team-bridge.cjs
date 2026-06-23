@@ -1270,23 +1270,6 @@ function findPermissionViolations(changedPaths, permissions, cwd) {
 }
 
 // src/config/models.ts
-var QODER_FAMILY_DEFAULTS = {
-  HAIKU: "claude-haiku-4-5",
-  SONNET: "claude-sonnet-4-6",
-  OPUS: "claude-opus-4-8",
-  FABLE: "claude-fable-5"
-};
-var BUILTIN_TIER_MODEL_DEFAULTS = {
-  LOW: QODER_FAMILY_DEFAULTS.HAIKU,
-  MEDIUM: QODER_FAMILY_DEFAULTS.SONNET,
-  HIGH: QODER_FAMILY_DEFAULTS.OPUS
-};
-var QODER_FAMILY_HIGH_VARIANTS = {
-  HAIKU: `${QODER_FAMILY_DEFAULTS.HAIKU}-high`,
-  SONNET: `${QODER_FAMILY_DEFAULTS.SONNET}-high`,
-  OPUS: `${QODER_FAMILY_DEFAULTS.OPUS}-high`,
-  FABLE: `${QODER_FAMILY_DEFAULTS.FABLE}-high`
-};
 var BUILTIN_EXTERNAL_MODEL_DEFAULTS = {
   codexModel: "gpt-5.3-codex",
   geminiModel: "gemini-3.1-pro-preview",

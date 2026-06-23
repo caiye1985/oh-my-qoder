@@ -346,8 +346,8 @@ describe('model-contract', () => {
     it('normalizes full Claude model ID to alias for claude agent (issue #1415)', () => {
       const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'qoder-sonnet-4-6' });
       expect(args).toContain('--model');
-      expect(args).toContain('sonnet');
-      expect(args).not.toContain('claude-sonnet-4-6');
+      expect(args).toContain('auto');
+      expect(args).not.toContain('qoder-sonnet-4-6');
     });
     it('passes Bedrock model ID through without normalization for claude agent (issue #1695)', () => {
       withAnthropicApiKey('sk-test', () => {
@@ -621,12 +621,12 @@ describe('model-contract', () => {
       vi.unstubAllEnvs();
     });
 
-    it('returns undefined when not on Bedrock or Vertex', () => {
+    it('returns default model when not on Bedrock or Vertex', () => {
       vi.stubEnv('QODER_USE_BEDROCK', '');
       vi.stubEnv('QODER_USE_VERTEX', '');
       vi.stubEnv('ANTHROPIC_MODEL', '');
       vi.stubEnv('QODER_MODEL', '');
-      expect(resolveQoderWorkerModel()).toBeUndefined();
+      expect(resolveQoderWorkerModel()).toBe('Qwen3.7-Max-DogFooding');
       vi.unstubAllEnvs();
     });
 
@@ -646,12 +646,12 @@ describe('model-contract', () => {
       vi.unstubAllEnvs();
     });
 
-    it('falls back to QODER_BEDROCK_SONNET_MODEL tier env var', () => {
+    it('respects OMC_MODEL_MEDIUM tier env var', () => {
       vi.stubEnv('QODER_USE_BEDROCK', '1');
       vi.stubEnv('ANTHROPIC_MODEL', '');
       vi.stubEnv('QODER_MODEL', '');
-      vi.stubEnv('QODER_BEDROCK_SONNET_MODEL', 'us.anthropic.claude-sonnet-4-6-v1:0');
-      expect(resolveQoderWorkerModel()).toBe('us.anthropic.claude-sonnet-4-6-v1:0');
+      vi.stubEnv('OMC_MODEL_MEDIUM', 'custom-model-via-omc');
+      expect(resolveQoderWorkerModel()).toBe('custom-model-via-omc');
       vi.unstubAllEnvs();
     });
 
@@ -674,14 +674,14 @@ describe('model-contract', () => {
       vi.unstubAllEnvs();
     });
 
-    it('returns undefined on Bedrock when no model env vars are set', () => {
+    it('returns default model on Bedrock when no model env vars are set', () => {
       vi.stubEnv('QODER_USE_BEDROCK', '1');
       vi.stubEnv('ANTHROPIC_MODEL', '');
       vi.stubEnv('QODER_MODEL', '');
       vi.stubEnv('QODER_BEDROCK_SONNET_MODEL', '');
       vi.stubEnv('ANTHROPIC_DEFAULT_SONNET_MODEL', '');
       vi.stubEnv('OMC_MODEL_MEDIUM', '');
-      expect(resolveQoderWorkerModel()).toBeUndefined();
+      expect(resolveQoderWorkerModel()).toBe('Qwen3.7-Max-DogFooding');
       vi.unstubAllEnvs();
     });
 
