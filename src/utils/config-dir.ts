@@ -39,6 +39,8 @@ export function getQoderConfigDir(): string {
   const configured = process.env.QODER_CONFIG_DIR?.trim();
 
   if (!configured) {
+    // Backward compatibility: fall back to ~/.claude so existing Claude Code
+    // installations that store data there continue to work out of the box.
     return stripTrailingSep(normalize(join(home, '.claude')));
   }
 

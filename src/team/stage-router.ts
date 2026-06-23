@@ -28,6 +28,27 @@ import {
 } from '../config/models.js';
 import { isSubagentAvailable } from './subagent-runtime.js';
 
+// ---------------------------------------------------------------------------
+// Cached subagent availability (avoids repeated `which qodercli` shells)
+// ---------------------------------------------------------------------------
+
+const SUBAGENT_AVAILABILITY_TTL_MS = 60_000; // 60 seconds
+let _subagentAvailabilityCache: { value: boolean; expiresAt: number } | null = null;
+
+/**
+ * Return the cached result of `isSubagentAvailable()` when it was computed
+ * within the last 60 seconds; otherwise re-check and refresh the cache.
+ */
+function isSubagentAvailableCached(): boolean {
+  const now = Date.now();
+  if (_subagentAvailabilityCache && now < _subagentAvailabilityCache.expiresAt) {
+    return _subagentAvailabilityCache.value;
+  }
+  const value = isSubagentAvailable();
+  _subagentAvailabilityCache = { value, expiresAt: now + SUBAGENT_AVAILABILITY_TTL_MS };
+  return value;
+}
+
 /** Map canonical team role → KnownAgentName key (matches PluginConfig.agents.*). */
 const ROLE_TO_AGENT: Record<CanonicalTeamRole, KnownAgentName> = {
   orchestrator: 'omc',
@@ -246,7 +267,7 @@ export function buildResolvedRoutingSnapshot(
  * Resolve the preferred worker backend for a given role assignment.
  *
  * When the provider is `'qoder'` and the subagent runtime is available
- * (opt-in via `OMC_USE_SUBAGENT=1`), returns `'qoder-subagent'`.
+ * (subagent is the default for qoder provider), returns `'qoder-subagent'`.
  * Otherwise falls back to the tmux-based Qoder worker (`'tmux-claude'`).
  *
  * For external providers, returns the corresponding tmux backend.
@@ -255,7 +276,7 @@ export function resolveWorkerBackend(
   assignment: RoleAssignment,
 ): import('./types.js').WorkerBackend {
   if (assignment.provider === 'qoder') {
-    return isSubagentAvailable() ? 'qoder-subagent' : 'tmux-claude';
+    return isSubagentAvailableCached() ? 'qoder-subagent' : 'tmux-claude';
   }
   // Map external providers to their tmux backends
   const tmuxMap: Record<string, import('./types.js').WorkerBackend> = {

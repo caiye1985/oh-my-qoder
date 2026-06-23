@@ -4,7 +4,7 @@
  * Qoder Subagent Runtime — lightweight team backend using Qoder CLI's
  * native subagent system (.qoder/agents/<name>.md).
  *
- * When the subagent backend is active (opt-in via OMC_USE_SUBAGENT=1),
+ * When the subagent backend is active (subagent is the default backend for qoder provider),
  * workers are spawned as `qodercli -p "..." --max-turns 50` invocations
  * that leverage Qoder's built-in subagent dispatch instead of tmux panes.
  *
@@ -119,20 +119,10 @@ export function buildSubagentCommand(worker: SubagentWorkerConfig): string[] {
 /**
  * Check whether Qoder CLI's subagent system is available.
  *
- * Returns `true` when:
- *   1. The `OMC_USE_SUBAGENT` env var is truthy (`1`, `true`, `yes`).
- *   2. The `qodercli` binary can be resolved in PATH.
- *
- * The env-var gate makes the subagent backend opt-in; when disabled the
- * caller falls back to the tmux-based worker pipeline.
+ * Returns `true` when the `qodercli` binary can be resolved in PATH.
+ * Qoder CLI's subagent system is always available — no opt-in required.
  */
 export function isSubagentAvailable(): boolean {
-  // Opt-in gate
-  const envFlag = process.env.OMC_USE_SUBAGENT;
-  if (!envFlag || !['1', 'true', 'yes'].includes(envFlag.toLowerCase())) {
-    return false;
-  }
-
   // Binary availability
   try {
     resolveCliBinaryPath('qodercli');
@@ -194,7 +184,7 @@ export async function createSubagentTeam(config: SubagentTeamConfig): Promise<vo
     binary = resolveCliBinaryPath('qodercli');
   } catch {
     throw new Error(
-      'qodercli binary not found in PATH. Install Qoder CLI or set OMC_USE_SUBAGENT=0 to fall back to tmux.',
+      'qodercli binary not found in PATH. Install Qoder CLI to use the subagent backend.',
     );
   }
 
@@ -267,3 +257,16 @@ export function stopSubagentTeam(teamName: string): void {
     }
   }
 }
+
+/**
+ * Clear all entries from the active-process map. Intended for test cleanup
+ * so module-level state does not leak between test cases.
+ */
+export function clearActiveProcesses(): void {
+  activeProcesses.clear();
+}
+
+/** @internal Exposed for testing — do not use in production code. */
+export const _testInternals = {
+  activeProcesses,
+};
