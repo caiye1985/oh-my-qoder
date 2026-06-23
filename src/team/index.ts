@@ -193,12 +193,21 @@ export type {
 export {
   generateSubagentConfig,
   buildSubagentCommand,
+  buildPipelineCommand,
+  buildPipelinePrompt,
+  buildParallelCommand,
+  spawnParallelTeam,
+  resolveOrchestrationMode,
   isSubagentAvailable,
   writeSubagentAgentFile,
+  installTeamAgentFiles,
+  readAgentFile,
   createSubagentTeam,
   getActiveSubagentPids,
   stopSubagentTeam,
+  clearActiveProcesses,
 } from './subagent-runtime.js';
+export type { OrchestrationMode } from './subagent-runtime.js';
 
 // New tmux-based multi-CLI team modules
 // model-contract: getWorkerEnv is exported via worker-bootstrap (single source of truth)
