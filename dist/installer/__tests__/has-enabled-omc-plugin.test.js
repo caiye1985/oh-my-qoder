@@ -2,11 +2,11 @@
  * Regression tests for `hasEnabledOmcPlugin()` settings format detection.
  *
  * Background: prior to this fix, the function read `settings.plugins`, but
- * Claude Code 1.x writes the canonical field as `settings.enabledPlugins`.
+ * Qoder 1.x writes the canonical field as `settings.enabledPlugins`.
  * As a result, `omc update`/`omc setup` invoked from a regular shell (where
- * `CLAUDE_PLUGIN_ROOT` is unset) saw "no plugin enabled" and bypassed the
+ * `QODER_PLUGIN_ROOT` is unset) saw "no plugin enabled" and bypassed the
  * `prunePluginDuplicateSkills` branch entirely, leaving every user with a
- * Claude Code 1.x settings.json permanently stuck in the duplicate-skill
+ * Qoder 1.x settings.json permanently stuck in the duplicate-skill
  * state from #2252.
  *
  * These tests pin both the modern (`enabledPlugins`) and the legacy
@@ -29,8 +29,8 @@ function writeSettings(content) {
 }
 beforeEach(() => {
     testDir = mkdtempSync(join(tmpdir(), 'omc-has-enabled-'));
-    process.env.CLAUDE_CONFIG_DIR = testDir;
-    delete process.env.CLAUDE_PLUGIN_ROOT;
+    process.env.QODER_CONFIG_DIR = testDir;
+    delete process.env.QODER_PLUGIN_ROOT;
     delete process.env.OMC_PLUGIN_ROOT;
 });
 afterEach(() => {
@@ -45,43 +45,43 @@ afterEach(() => {
     catch { /* ignore */ }
 });
 describe('hasEnabledOmcPlugin', () => {
-    describe('CLAUDE_PLUGIN_ROOT short-circuit (highest priority)', () => {
-        it('returns true when CLAUDE_PLUGIN_ROOT is set, even with no settings.json', async () => {
-            process.env.CLAUDE_PLUGIN_ROOT = '/some/plugin/root';
+    describe('QODER_PLUGIN_ROOT short-circuit (highest priority)', () => {
+        it('returns true when QODER_PLUGIN_ROOT is set, even with no settings.json', async () => {
+            process.env.QODER_PLUGIN_ROOT = '/some/plugin/root';
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(true);
         });
     });
-    describe('Modern Claude Code 1.x format (`enabledPlugins`)', () => {
-        it('returns true when enabledPlugins.oh-my-claudecode@omc is true', async () => {
+    describe('Modern Qoder 1.x format (`enabledPlugins`)', () => {
+        it('returns true when enabledPlugins.oh-my-qoder@omc is true', async () => {
             writeSettings({
                 enabledPlugins: {
-                    'oh-my-claudecode@omc': true,
+                    'oh-my-qoder@omc': true,
                     'unrelated-plugin@foo': true,
                 },
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(true);
         });
-        it('returns true for any pluginId substring matching oh-my-claudecode', async () => {
+        it('returns true for any pluginId substring matching oh-my-qoder', async () => {
             writeSettings({
                 enabledPlugins: {
-                    'oh-my-claudecode-fork@somerepo': true,
+                    'oh-my-qoder-fork@somerepo': true,
                 },
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(true);
         });
-        it('returns false when enabledPlugins.oh-my-claudecode@omc is explicitly false', async () => {
+        it('returns false when enabledPlugins.oh-my-qoder@omc is explicitly false', async () => {
             writeSettings({
                 enabledPlugins: {
-                    'oh-my-claudecode@omc': false,
+                    'oh-my-qoder@omc': false,
                 },
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(false);
         });
-        it('returns false when enabledPlugins has no oh-my-claudecode entry', async () => {
+        it('returns false when enabledPlugins has no oh-my-qoder entry', async () => {
             writeSettings({
                 enabledPlugins: {
                     'unrelated-plugin@foo': true,
@@ -92,25 +92,25 @@ describe('hasEnabledOmcPlugin', () => {
         });
         it('handles enabledPlugins as an array of plugin id strings', async () => {
             writeSettings({
-                enabledPlugins: ['oh-my-claudecode@omc', 'other'],
+                enabledPlugins: ['oh-my-qoder@omc', 'other'],
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(true);
         });
     });
     describe('Legacy `plugins` field (backward compatibility)', () => {
-        it('returns true when plugins.oh-my-claudecode@omc is true', async () => {
+        it('returns true when plugins.oh-my-qoder@omc is true', async () => {
             writeSettings({
                 plugins: {
-                    'oh-my-claudecode@omc': true,
+                    'oh-my-qoder@omc': true,
                 },
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(true);
         });
-        it('returns true when plugins is an array with oh-my-claudecode entry', async () => {
+        it('returns true when plugins is an array with oh-my-qoder entry', async () => {
             writeSettings({
-                plugins: ['oh-my-claudecode'],
+                plugins: ['oh-my-qoder'],
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(true);
@@ -118,7 +118,7 @@ describe('hasEnabledOmcPlugin', () => {
         it('returns false when legacy plugins entry is explicitly false', async () => {
             writeSettings({
                 plugins: {
-                    'oh-my-claudecode@omc': false,
+                    'oh-my-qoder@omc': false,
                 },
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
@@ -126,18 +126,18 @@ describe('hasEnabledOmcPlugin', () => {
         });
     });
     describe('Mixed format support', () => {
-        it('matches oh-my-claudecode in EITHER enabledPlugins or plugins', async () => {
+        it('matches oh-my-qoder in EITHER enabledPlugins or plugins', async () => {
             // settings has both fields; enabledPlugins is empty, plugins has the entry
             writeSettings({
                 enabledPlugins: { 'unrelated@foo': true },
-                plugins: { 'oh-my-claudecode@omc': true },
+                plugins: { 'oh-my-qoder@omc': true },
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();
             expect(hasEnabledOmcPlugin()).toBe(true);
         });
         it('returns true when modern enabledPlugins has the entry but legacy plugins does not', async () => {
             writeSettings({
-                enabledPlugins: { 'oh-my-claudecode@omc': true },
+                enabledPlugins: { 'oh-my-qoder@omc': true },
                 plugins: { 'unrelated@foo': true },
             });
             const { hasEnabledOmcPlugin } = await freshInstaller();

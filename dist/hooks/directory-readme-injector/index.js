@@ -4,13 +4,19 @@
  * Automatically injects relevant README content from directories when files are accessed.
  * Walks up the directory tree from accessed files to find and inject README.md files.
  *
+ * Supports the three-layer AGENTS.md memory system:
+ *   1. `~/.qoder/AGENTS.md` (user-level global, lowest priority)
+ *   2. `${project}/AGENTS.md` (project-level)
+ *   3. `${project}/AGENTS.local.md` (machine-local, highest priority)
+ *
  * Ported from oh-my-opencode's directory-readme-injector hook.
- * Adapted for Claude Code's shell hook system.
+ * Adapted for Qoder's shell hook system.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { loadInjectedPaths, saveInjectedPaths, clearInjectedPaths, } from './storage.js';
 import { CONTEXT_FILENAMES, TRACKED_TOOLS } from './constants.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 // Re-export submodules
 export * from './types.js';
 export * from './constants.js';
@@ -36,7 +42,7 @@ function truncateContent(content, maxTokens = DEFAULT_MAX_README_TOKENS) {
     };
 }
 /**
- * Create directory README injector hook for Claude Code.
+ * Create directory README injector hook for Qoder.
  *
  * @param workingDirectory - The working directory for resolving paths
  * @returns Hook handlers for tool execution
@@ -57,8 +63,11 @@ export function createDirectoryReadmeInjectorHook(workingDirectory) {
         return resolve(workingDirectory, filePath);
     }
     /**
-     * Find context files (README.md, AGENTS.md) by walking up the directory tree.
-     * Returns paths in order from root to leaf.
+     * Find context files (README.md, AGENTS.md, AGENTS.local.md) by walking up
+     * the directory tree. Returns paths in order from root to leaf.
+     *
+     * Also includes the user-level `~/.qoder/AGENTS.md` when it exists and has
+     * not yet been injected in this session.
      */
     function findContextFilesUp(startDir) {
         const found = [];
@@ -86,16 +95,34 @@ export function createDirectoryReadmeInjectorHook(workingDirectory) {
         return found.reverse();
     }
     /**
+     * Get the user-level AGENTS.md path (`~/.qoder/AGENTS.md`).
+     */
+    function getUserLevelAgentsMdPath() {
+        const userAgentsPath = join(getQoderConfigDir(), 'AGENTS.md');
+        if (existsSync(userAgentsPath)) {
+            return userAgentsPath;
+        }
+        return null;
+    }
+    /**
      * Get a human-readable label for a context file.
      */
     function getContextLabel(filePath) {
-        if (filePath.endsWith('AGENTS.md'))
+        if (filePath.endsWith('AGENTS.local.md'))
+            return 'Local AGENTS (machine-specific)';
+        if (filePath.endsWith('AGENTS.md')) {
+            // Distinguish user-level from project-level
+            const userAgentsPath = join(getQoderConfigDir(), 'AGENTS.md');
+            if (filePath === userAgentsPath)
+                return 'User AGENTS (global)';
             return 'Project AGENTS';
+        }
         return 'Project README';
     }
     /**
      * Process a file path and return context file content to inject.
-     * Finds both README.md and AGENTS.md files walking up the directory tree.
+     * Finds README.md, AGENTS.md, and AGENTS.local.md files walking up the
+     * directory tree, plus the user-level ~/.qoder/AGENTS.md.
      */
     function processFilePathForContextFiles(filePath, sessionID) {
         const resolved = resolveFilePath(filePath);
@@ -104,6 +131,11 @@ export function createDirectoryReadmeInjectorHook(workingDirectory) {
         const dir = dirname(resolved);
         const cache = getSessionCache(sessionID);
         const contextPaths = findContextFilesUp(dir);
+        // Prepend user-level AGENTS.md (lowest priority, injected first)
+        const userAgentsPath = getUserLevelAgentsMdPath();
+        if (userAgentsPath && !cache.has(userAgentsPath)) {
+            contextPaths.unshift(userAgentsPath);
+        }
         let output = '';
         for (const contextPath of contextPaths) {
             // Track by full file path to allow both README.md and AGENTS.md
@@ -140,14 +172,21 @@ export function createDirectoryReadmeInjectorHook(workingDirectory) {
             return processFilePathForContextFiles(filePath, sessionID);
         },
         /**
-         * Get context files (README.md, AGENTS.md) for a specific file without marking as injected.
+         * Get context files (README.md, AGENTS.md, AGENTS.local.md) for a specific
+         * file without marking as injected. Includes user-level AGENTS.md.
          */
         getContextFilesForFile: (filePath) => {
             const resolved = resolveFilePath(filePath);
             if (!resolved)
                 return [];
             const dir = dirname(resolved);
-            return findContextFilesUp(dir);
+            const contextPaths = findContextFilesUp(dir);
+            // Prepend user-level AGENTS.md
+            const userAgentsPath = getUserLevelAgentsMdPath();
+            if (userAgentsPath) {
+                contextPaths.unshift(userAgentsPath);
+            }
+            return contextPaths;
         },
         /**
          * @deprecated Use getContextFilesForFile instead

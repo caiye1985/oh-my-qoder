@@ -13,10 +13,10 @@ describe('team api working-directory resolution', () => {
         await writeFile(join(base, 'config.json'), JSON.stringify({
             name: teamName,
             task: 'resolution test',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_count: 1,
             max_workers: 20,
-            workers: [{ name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [] }],
+            workers: [{ name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [] }],
             created_at: '2026-03-06T00:00:00.000Z',
             next_task_id: 2,
             team_state_root: base,
@@ -101,7 +101,7 @@ describe('team api working-directory resolution', () => {
         await writeFile(join(teamStateRoot, 'config.json'), JSON.stringify({
             name: teamName,
             task: 'resolution test',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_count: 2,
             max_workers: 20,
             workers: [],

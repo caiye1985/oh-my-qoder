@@ -69,7 +69,7 @@ export const TEMPLATE_VARIABLES = {
     },
     tmuxSession: {
         description: 'tmux session name',
-        example: 'claude:my-project',
+        example: 'qoder:my-project',
         availableIn: ['*']
     },
     tmuxPaneId: {

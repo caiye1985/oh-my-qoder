@@ -1,13 +1,13 @@
 /**
  * Rate Limit Wait Feature
  *
- * Auto-resume Claude Code sessions when rate limits reset.
+ * Auto-resume Qoder sessions when rate limits reset.
  *
  * Usage:
  *   omc wait status         - Show current rate limit status
  *   omc wait daemon start   - Start the background daemon
  *   omc wait daemon stop    - Stop the daemon
- *   omc wait detect         - Scan for blocked Claude Code sessions
+ *   omc wait detect         - Scan for blocked Qoder sessions
  */
 // Rate limit monitor exports
 export { checkRateLimitStatus, formatTimeUntilReset, formatRateLimitStatus, isRateLimitStatusDegraded, shouldMonitorBlockedPanes, } from './rate-limit-monitor.js';

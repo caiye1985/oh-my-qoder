@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { encodeProjectPath } from '../encode-project-path.js';
 describe('encodeProjectPath', () => {
-    it('encodes a Windows drive path the way Claude Code names its project dir', () => {
+    it('encodes a Windows drive path the way Qoder names its project dir', () => {
         // Regression: the drive colon must be replaced with "-" so the encoded
-        // directory matches Claude Code's actual project dir
-        // (e.g. ~/.claude/projects/C--Users-me-proj). Before the colon was added to
+        // directory matches Qoder's actual project dir
+        // (e.g. ~/.qoder/projects/C--Users-me-proj). Before the colon was added to
         // the character class this returned "C:-Users-me-proj", which never matched
         // on Windows. Asserts on a literal string, so it runs and guards on any OS.
         expect(encodeProjectPath('C:\\Users\\me\\proj')).toBe('C--Users-me-proj');

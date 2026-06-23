@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { getOmcRoot, getWorktreeRoot } from '../../lib/worktree-paths.js';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 const SAFE_PATTERNS = [
     /^git (status|diff|log|branch|show|fetch)/,
     /^npm run (lint|build|check|typecheck)/,
@@ -67,7 +67,7 @@ function readPermissionStringEntries(filePath, key) {
 }
 export function getClaudePermissionAllowEntries(directory) {
     const projectSettingsPath = path.join(directory, '.claude', 'settings.local.json');
-    const globalConfigDir = getClaudeConfigDir();
+    const globalConfigDir = getQoderConfigDir();
     const candidatePaths = [
         projectSettingsPath,
         path.join(globalConfigDir, 'settings.local.json'),
@@ -100,7 +100,7 @@ export function hasClaudePermissionApproval(directory, toolName, command) {
 }
 export function getClaudePermissionAskEntries(directory) {
     const projectSettingsPath = path.join(directory, '.claude', 'settings.local.json');
-    const globalConfigDir = getClaudeConfigDir();
+    const globalConfigDir = getQoderConfigDir();
     const candidatePaths = [
         projectSettingsPath,
         path.join(globalConfigDir, 'settings.local.json'),
@@ -426,7 +426,7 @@ export function isSafeCommand(command) {
  */
 export function isHeredocWithSafeBase(command) {
     const trimmed = command.trim();
-    // Heredoc commands from Claude Code are always multi-line
+    // Heredoc commands from Qoder are always multi-line
     if (!trimmed.includes('\n')) {
         return false;
     }

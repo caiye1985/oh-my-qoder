@@ -4,7 +4,7 @@
  * Wrapper tool to resume a previous background agent session.
  * Returns context for the orchestrator to include in the next Task delegation.
  *
- * Since Claude Code's native Task tool cannot be extended, this tool provides
+ * Since Qoder's native Task tool cannot be extended, this tool provides
  * a convenient way to retrieve session context and build continuation prompts.
  */
 import { getBackgroundManager } from '../features/background-agent/manager.js';
@@ -24,7 +24,7 @@ import { getBackgroundManager } from '../features/background-agent/manager.js';
  * if (result.success && result.context) {
  *   // Use result.context.continuationPrompt in your next Task delegation
  *   Task({
- *     subagent_type: "oh-my-claudecode:executor",
+ *     subagent_type: "oh-my-qoder:executor",
  *     model: "sonnet",
  *     prompt: result.context.continuationPrompt
  *   });

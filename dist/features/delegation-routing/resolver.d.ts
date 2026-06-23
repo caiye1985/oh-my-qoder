@@ -17,7 +17,7 @@ export declare const DEPRECATED_MCP_PROVIDER_WARNING = "[OMC] Codex/Gemini MCP d
 export declare function resolveDelegation(options: ResolveDelegationOptions): DelegationDecision;
 export declare function isDeprecatedMcpProvider(provider: DelegationRoute['provider'] | DelegationRoutingConfig['defaultProvider']): provider is 'codex' | 'gemini';
 /**
- * Parse fallback chain format ["claude:explore", "codex:gpt-5"]
+ * Parse fallback chain format ["qoder:explore", "codex:gpt-5"]
  */
 export declare function parseFallbackChain(fallback: string[] | undefined): Array<{
     provider: string;

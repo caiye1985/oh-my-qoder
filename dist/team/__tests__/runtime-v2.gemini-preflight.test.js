@@ -12,17 +12,17 @@ const mocks = vi.hoisted(() => ({
     queueInboxInstruction: vi.fn(),
 }));
 const modelContractMocks = vi.hoisted(() => ({
-    buildWorkerArgv: vi.fn((agentType, config) => [config?.resolvedBinaryPath ?? agentType ?? 'claude']),
+    buildWorkerArgv: vi.fn((agentType, config) => [config?.resolvedBinaryPath ?? agentType ?? 'qoder']),
     resolveValidatedBinaryPath: vi.fn((agentType) => {
         if (agentType === 'gemini')
             throw new Error('Resolved CLI binary \'gemini\' to untrusted location: /tmp/gemini');
-        return `/usr/bin/${agentType ?? 'claude'}`;
+        return `/usr/bin/${agentType ?? 'qoder'}`;
     }),
-    getContract: vi.fn((agentType) => ({ binary: agentType ?? 'claude' })),
+    getContract: vi.fn((agentType) => ({ binary: agentType ?? 'qoder' })),
     getWorkerEnv: vi.fn(() => ({ OMC_TEAM_WORKER: 'issue2675-team/worker-1' })),
     isPromptModeAgent: vi.fn(() => false),
     getPromptModeArgs: vi.fn(() => []),
-    resolveClaudeWorkerModel: vi.fn(() => undefined),
+    resolveQoderWorkerModel: vi.fn(() => undefined),
 }));
 vi.mock('../../cli/tmux-utils.js', () => ({
     tmuxExecAsync: mocks.tmuxExecAsync,
@@ -44,7 +44,7 @@ vi.mock('../model-contract.js', () => ({
     getWorkerEnv: modelContractMocks.getWorkerEnv,
     isPromptModeAgent: modelContractMocks.isPromptModeAgent,
     getPromptModeArgs: modelContractMocks.getPromptModeArgs,
-    resolveClaudeWorkerModel: modelContractMocks.resolveClaudeWorkerModel,
+    resolveQoderWorkerModel: modelContractMocks.resolveQoderWorkerModel,
     // gemini is supported on all platforms, so the preflight headless guard is a no-op here.
     assertHeadlessSupported: () => { },
     isHeadlessSupportedOnPlatform: () => true,

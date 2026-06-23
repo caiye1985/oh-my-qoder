@@ -89,7 +89,7 @@ export const DEFAULT_HUD_CONFIG = {
         gitBranch: false, // Disabled by default for backward compatibility
         gitStatus: false, // Disabled by default for backward compatibility
         gitInfoPosition: 'above', // Git info above main HUD line (backward compatible)
-        model: true, // Show only when Claude Code statusline stdin provides a model
+        model: true, // Show only when Qoder statusline stdin provides a model
         modelFormat: 'versioned', // Preserve model version by default
         omcLabel: true,
         updateNotification: true, // Preserve existing update prompt behavior by default
@@ -110,7 +110,7 @@ export const DEFAULT_HUD_CONFIG = {
         thinkingFormat: 'text', // Text format for backward compatibility
         apiKeySource: false, // Disabled by default
         hostname: false,
-        profile: true, // Show profile name when CLAUDE_CONFIG_DIR is set
+        profile: true, // Show profile name when QODER_CONFIG_DIR is set
         missionBoard: false, // Opt-in mission board for whole-run progress tracking
         promptTime: true, // Show last prompt time by default
         sessionHealth: true,

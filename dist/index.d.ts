@@ -1,14 +1,14 @@
 /**
- * Oh-My-ClaudeCode
+ * Oh-My-Qoder
  *
- * A multi-agent orchestration library and Claude Code plugin runtime with Agent SDK helpers.
- * Inspired by oh-my-opencode, reimagined for Claude Code.
+ * A multi-agent orchestration library and Qoder plugin runtime with Agent SDK helpers.
+ * Inspired by oh-my-opencode, reimagined for Qoder.
  *
  * Main features:
  * - OMC: Primary orchestrator that delegates to specialized subagents
  * - Parallel execution: Background agents run concurrently
  * - LSP/AST tools: IDE-like capabilities for agents
- * - Context management: Auto-injection from AGENTS.md/CLAUDE.md
+ * - Context management: Auto-injection from AGENTS.md/AGENTS.md
  * - Continuation enforcement: Ensures tasks complete before stopping
  * - Magic keywords: Special triggers for enhanced behaviors
  */
@@ -22,7 +22,7 @@ export { lspTools, astTools, allCustomTools } from './tools/index.js';
 export { omcToolsServer, omcToolNames, getOmcToolNames } from './mcp/omc-tools-server.js';
 export { createMagicKeywordProcessor, detectMagicKeywords } from './features/magic-keywords.js';
 export { createBackgroundTaskManager, shouldRunInBackground, getBackgroundTaskGuidance, DEFAULT_MAX_BACKGROUND_TASKS, LONG_RUNNING_PATTERNS, BLOCKING_PATTERNS, type BackgroundTaskManager, type TaskExecutionDecision } from './features/background-tasks.js';
-export { type VersionMetadata, type ReleaseInfo, type UpdateCheckResult, type UpdateResult, REPO_OWNER, REPO_NAME, GITHUB_API_URL, CLAUDE_CONFIG_DIR, VERSION_FILE, getInstalledVersion, saveVersionMetadata, checkForUpdates, performUpdate, formatUpdateNotification, shouldCheckForUpdates, backgroundUpdateCheck, compareVersions } from './features/auto-update.js';
+export { type VersionMetadata, type ReleaseInfo, type UpdateCheckResult, type UpdateResult, REPO_OWNER, REPO_NAME, GITHUB_API_URL, QODER_CONFIG_DIR, VERSION_FILE, getInstalledVersion, saveVersionMetadata, checkForUpdates, performUpdate, formatUpdateNotification, shouldCheckForUpdates, backgroundUpdateCheck, compareVersions } from './features/auto-update.js';
 export * from './shared/index.js';
 export * from './hooks/index.js';
 export { type BoulderState, type PlanProgress, type PlanSummary, BOULDER_DIR, BOULDER_FILE, BOULDER_STATE_PATH, NOTEPAD_DIR, NOTEPAD_BASE_PATH, PLANNER_PLANS_DIR, PLAN_EXTENSION, getBoulderFilePath, readBoulderState, writeBoulderState, appendSessionId, clearBoulderState, findPlannerPlans, getPlanProgress, getPlanName, createBoulderState, getPlanSummaries, hasBoulder, getActivePlanPath, ContextCollector, contextCollector, injectPendingContext, injectContextIntoText, createContextInjectorHook, type ContextSourceType, type ContextPriority, type ContextEntry, type RegisterContextOptions, type PendingContext, type MessageContext, type OutputPart, type InjectionStrategy, type InjectionResult } from './features/index.js';
@@ -31,7 +31,7 @@ export { type ModelType, type AgentCost, type AgentCategory, type DelegationTrig
 /** @deprecated Use documentSpecialistAgent instead */
 export { documentSpecialistAgent as researcherAgent } from './agents/document-specialist.js';
 export { expandCommand, expandCommandPrompt, getCommand, getAllCommands, listCommands, commandExists, expandCommands, getCommandsDir, type CommandInfo, type ExpandedCommand } from './commands/index.js';
-export { install, isInstalled, getInstallInfo, isClaudeInstalled, CLAUDE_CONFIG_DIR as INSTALLER_CLAUDE_CONFIG_DIR, AGENTS_DIR, COMMANDS_DIR, VERSION as INSTALLER_VERSION, type InstallResult, type InstallOptions } from './installer/index.js';
+export { install, isInstalled, getInstallInfo, isClaudeInstalled, QODER_CONFIG_DIR as INSTALLER_QODER_CONFIG_DIR, AGENTS_DIR, COMMANDS_DIR, VERSION as INSTALLER_VERSION, type InstallResult, type InstallOptions } from './installer/index.js';
 /**
  * Options for creating a OMC session
  */
@@ -53,7 +53,7 @@ export interface OmcOptions {
  * Result of creating a OMC session
  */
 export interface OmcSession {
-    /** The query options to pass to Claude Agent SDK */
+    /** The query options to pass to Qoder Agent SDK */
     queryOptions: {
         options: {
             systemPrompt: string;
@@ -88,17 +88,17 @@ export interface OmcSession {
  * Create a OMC orchestration session
  *
  * Prepare configuration and options needed to run a local Node.js query
- * with the Claude Agent SDK. This helper does not install or drive the
- * interactive Claude Code plugin UI.
+ * with the Qoder Agent SDK. This helper does not install or drive the
+ * interactive Qoder plugin UI.
  *
  * @example
  * ```typescript
- * import { createOmcSession } from 'oh-my-claudecode';
+ * import { createOmcSession } from 'oh-my-qoder';
  * import { query } from '@anthropic-ai/claude-agent-sdk';
  *
  * const session = createOmcSession();
  *
- * // Use with Claude Agent SDK
+ * // Use with Qoder Agent SDK
  * for await (const message of query({
  *   prompt: session.processPrompt("ultrawork refactor the authentication module"),
  *   ...session.queryOptions

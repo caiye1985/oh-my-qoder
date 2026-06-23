@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { spawnSync } from 'child_process';
-import { getContract, buildLaunchArgs, buildWorkerArgv, getWorkerEnv, parseCliOutput, isPromptModeAgent, getPromptModeArgs, isHeadlessSupportedOnPlatform, validateCliAvailable, isCliAvailable, shouldLoadShellRc, resolveCliBinaryPath, clearResolvedPathCache, validateCliBinaryPath, resolveClaudeWorkerModel, shouldUseClaudeBareMode, _testInternals, } from '../model-contract.js';
+import { getContract, buildLaunchArgs, buildWorkerArgv, getWorkerEnv, parseCliOutput, isPromptModeAgent, getPromptModeArgs, isHeadlessSupportedOnPlatform, validateCliAvailable, isCliAvailable, shouldLoadShellRc, resolveCliBinaryPath, clearResolvedPathCache, validateCliBinaryPath, resolveQoderWorkerModel, _testInternals, } from '../model-contract.js';
 vi.mock('child_process', async (importOriginal) => {
     const actual = await importOriginal();
     return {
@@ -47,8 +47,8 @@ describe('model-contract', () => {
             const mockSpawnSync = vi.mocked(spawnSync);
             mockSpawnSync.mockReturnValue({ status: 0, stdout: '/usr/local/bin/claude\n', stderr: '', pid: 0, output: [], signal: null });
             clearResolvedPathCache();
-            expect(resolveCliBinaryPath('claude')).toBe('/usr/local/bin/claude');
-            expect(resolveCliBinaryPath('claude')).toBe('/usr/local/bin/claude');
+            expect(resolveCliBinaryPath('qoder')).toBe('/usr/local/bin/claude');
+            expect(resolveCliBinaryPath('qoder')).toBe('/usr/local/bin/claude');
             expect(mockSpawnSync).toHaveBeenCalledTimes(1);
             clearResolvedPathCache();
         });
@@ -57,7 +57,7 @@ describe('model-contract', () => {
             expect(() => resolveCliBinaryPath('../evil')).toThrow('Invalid CLI binary name');
             mockSpawnSync.mockReturnValue({ status: 0, stdout: '/tmp/evil/claude\n', stderr: '', pid: 0, output: [], signal: null });
             clearResolvedPathCache();
-            expect(() => resolveCliBinaryPath('claude')).toThrow('untrusted location');
+            expect(() => resolveCliBinaryPath('qoder')).toThrow('untrusted location');
             clearResolvedPathCache();
             mockSpawnSync.mockRestore();
         });
@@ -65,9 +65,9 @@ describe('model-contract', () => {
             const mockSpawnSync = vi.mocked(spawnSync);
             mockSpawnSync.mockReturnValue({ status: 0, stdout: '/usr/local/bin/claude\n', stderr: '', pid: 0, output: [], signal: null });
             clearResolvedPathCache();
-            expect(validateCliBinaryPath('claude')).toEqual({
+            expect(validateCliBinaryPath('qoder')).toEqual({
                 valid: true,
-                binary: 'claude',
+                binary: 'qoder',
                 resolvedPath: '/usr/local/bin/claude',
             });
             mockSpawnSync.mockReturnValue({ status: 1, stdout: '', stderr: 'not found', pid: 0, output: [], signal: null });
@@ -126,9 +126,9 @@ describe('model-contract', () => {
     });
     describe('getContract', () => {
         it('returns contract for claude', () => {
-            const c = getContract('claude');
-            expect(c.agentType).toBe('claude');
-            expect(c.binary).toBe('claude');
+            const c = getContract('qoder');
+            expect(c.agentType).toBe('qoder');
+            expect(c.binary).toBe('qodercli');
         });
         it('returns contract for codex', () => {
             const c = getContract('codex');
@@ -261,7 +261,7 @@ describe('model-contract', () => {
             try {
                 const { clearSecurityConfigCache } = await import('../../lib/security-config.js');
                 clearSecurityConfigCache();
-                expect(() => getContract('claude')).not.toThrow();
+                expect(() => getContract('qoder')).not.toThrow();
             }
             finally {
                 if (origSecurity === undefined) {
@@ -276,39 +276,9 @@ describe('model-contract', () => {
         });
     });
     describe('buildLaunchArgs', () => {
-        it('claude includes --dangerously-skip-permissions', () => {
-            const args = buildLaunchArgs('claude', { teamName: 't', workerName: 'w', cwd: '/tmp' });
-            expect(args).toContain('--dangerously-skip-permissions');
-        });
-        it('detects Claude bare mode only for non-empty ANTHROPIC_API_KEY', () => {
-            expect(shouldUseClaudeBareMode({ ANTHROPIC_API_KEY: 'sk-test' })).toBe(true);
-            expect(shouldUseClaudeBareMode({ ANTHROPIC_API_KEY: '' })).toBe(false);
-            expect(shouldUseClaudeBareMode({ ANTHROPIC_API_KEY: '   ' })).toBe(false);
-            expect(shouldUseClaudeBareMode({})).toBe(false);
-        });
-        it('claude omits --bare when ANTHROPIC_API_KEY is absent, empty, or whitespace', () => {
-            for (const value of [undefined, '', '   ']) {
-                withAnthropicApiKey(value, () => {
-                    const args = buildLaunchArgs('claude', { teamName: 't', workerName: 'w', cwd: '/tmp' });
-                    expect(args).toContain('--dangerously-skip-permissions');
-                    expect(args).not.toContain('--bare');
-                });
-            }
-        });
-        it('claude includes --bare with API-key auth and dedupes exact extra flag', () => {
-            withAnthropicApiKey('sk-test', () => {
-                const args = buildLaunchArgs('claude', { teamName: 't', workerName: 'w', cwd: '/tmp' });
-                expect(args).toContain('--dangerously-skip-permissions');
-                expect(args).toContain('--bare');
-                expect(countArg(args, '--bare')).toBe(1);
-                const deduped = buildLaunchArgs('claude', {
-                    teamName: 't',
-                    workerName: 'w',
-                    cwd: '/tmp',
-                    extraFlags: ['--bare'],
-                });
-                expect(countArg(deduped, '--bare')).toBe(1);
-            });
+        it('qoder includes --yolo', () => {
+            const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp' });
+            expect(args).toContain('--yolo');
         });
         it('codex includes --dangerously-bypass-approvals-and-sandbox', () => {
             const args = buildLaunchArgs('codex', { teamName: 't', workerName: 'w', cwd: '/tmp' });
@@ -352,16 +322,15 @@ describe('model-contract', () => {
             expect(args).toContain('gpt-4');
         });
         it('normalizes full Claude model ID to alias for claude agent (issue #1415)', () => {
-            const args = buildLaunchArgs('claude', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'claude-sonnet-4-6' });
+            const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'qoder-sonnet-4-6' });
             expect(args).toContain('--model');
             expect(args).toContain('sonnet');
             expect(args).not.toContain('claude-sonnet-4-6');
         });
         it('passes Bedrock model ID through without normalization for claude agent (issue #1695)', () => {
             withAnthropicApiKey('sk-test', () => {
-                const args = buildLaunchArgs('claude', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'us.anthropic.claude-opus-4-6-v1:0' });
-                expect(args).toContain('--bare');
-                expect(countArg(args, '--bare')).toBe(1);
+                const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'us.anthropic.claude-opus-4-6-v1:0' });
+                expect(args).toContain('--yolo');
                 expect(args).toContain('--model');
                 expect(args).toContain('us.anthropic.claude-opus-4-6-v1:0');
                 expect(args).not.toContain('opus');
@@ -369,12 +338,12 @@ describe('model-contract', () => {
         });
         it('passes Bedrock ARN model ID through without normalization (issue #1695)', () => {
             const arn = 'arn:aws:bedrock:us-east-2:123456789012:inference-profile/global.anthropic.claude-sonnet-4-6-v1:0';
-            const args = buildLaunchArgs('claude', { teamName: 't', workerName: 'w', cwd: '/tmp', model: arn });
+            const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: arn });
             expect(args).toContain('--model');
             expect(args).toContain(arn);
         });
         it('passes Vertex AI model ID through without normalization (issue #1695)', () => {
-            const args = buildLaunchArgs('claude', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'vertex_ai/claude-sonnet-4-6@20250514' });
+            const args = buildLaunchArgs('qoder', { teamName: 't', workerName: 'w', cwd: '/tmp', model: 'vertex_ai/claude-sonnet-4-6@20250514' });
             expect(args).toContain('--model');
             expect(args).toContain('vertex_ai/claude-sonnet-4-6@20250514');
             expect(args).not.toContain('sonnet');
@@ -392,14 +361,14 @@ describe('model-contract', () => {
             expect(env.OMC_WORKER_AGENT_TYPE).toBe('codex');
         });
         it('propagates allowlisted model selection env vars into worker startup env', () => {
-            const env = getWorkerEnv('my-team', 'worker-1', 'claude', {
+            const env = getWorkerEnv('my-team', 'worker-1', 'qoder', {
                 ANTHROPIC_MODEL: 'claude-opus-4-1',
-                CLAUDE_MODEL: 'claude-sonnet-4-5',
+                QODER_MODEL: 'claude-sonnet-4-5',
                 ANTHROPIC_BASE_URL: 'https://example-gateway.invalid',
-                CLAUDE_CODE_USE_BEDROCK: '1',
-                CLAUDE_CODE_BEDROCK_OPUS_MODEL: 'us.anthropic.claude-opus-4-6-v1:0',
-                CLAUDE_CODE_BEDROCK_SONNET_MODEL: 'us.anthropic.claude-sonnet-4-6-v1:0',
-                CLAUDE_CODE_BEDROCK_HAIKU_MODEL: 'us.anthropic.claude-haiku-4-5-v1:0',
+                QODER_USE_BEDROCK: '1',
+                QODER_BEDROCK_OPUS_MODEL: 'us.anthropic.claude-opus-4-6-v1:0',
+                QODER_BEDROCK_SONNET_MODEL: 'us.anthropic.claude-sonnet-4-6-v1:0',
+                QODER_BEDROCK_HAIKU_MODEL: 'us.anthropic.claude-haiku-4-5-v1:0',
                 ANTHROPIC_DEFAULT_OPUS_MODEL: 'claude-opus-4-6-custom',
                 ANTHROPIC_DEFAULT_SONNET_MODEL: 'claude-sonnet-4-6-custom',
                 ANTHROPIC_DEFAULT_HAIKU_MODEL: 'claude-haiku-4-5-custom',
@@ -411,12 +380,12 @@ describe('model-contract', () => {
                 ANTHROPIC_API_KEY: 'should-not-be-forwarded',
             });
             expect(env.ANTHROPIC_MODEL).toBe('claude-opus-4-1');
-            expect(env.CLAUDE_MODEL).toBe('claude-sonnet-4-5');
+            expect(env.QODER_MODEL).toBe('claude-sonnet-4-5');
             expect(env.ANTHROPIC_BASE_URL).toBe('https://example-gateway.invalid');
-            expect(env.CLAUDE_CODE_USE_BEDROCK).toBe('1');
-            expect(env.CLAUDE_CODE_BEDROCK_OPUS_MODEL).toBe('us.anthropic.claude-opus-4-6-v1:0');
-            expect(env.CLAUDE_CODE_BEDROCK_SONNET_MODEL).toBe('us.anthropic.claude-sonnet-4-6-v1:0');
-            expect(env.CLAUDE_CODE_BEDROCK_HAIKU_MODEL).toBe('us.anthropic.claude-haiku-4-5-v1:0');
+            expect(env.QODER_USE_BEDROCK).toBe('1');
+            expect(env.QODER_BEDROCK_OPUS_MODEL).toBe('us.anthropic.claude-opus-4-6-v1:0');
+            expect(env.QODER_BEDROCK_SONNET_MODEL).toBe('us.anthropic.claude-sonnet-4-6-v1:0');
+            expect(env.QODER_BEDROCK_HAIKU_MODEL).toBe('us.anthropic.claude-haiku-4-5-v1:0');
             expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('claude-opus-4-6-custom');
             expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('claude-sonnet-4-6-custom');
             expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('claude-haiku-4-5-custom');
@@ -449,14 +418,12 @@ describe('model-contract', () => {
             mockSpawnSync.mockReturnValueOnce({ status: 1, stdout: '', stderr: '', pid: 0, output: [], signal: null });
             let argv = [];
             withAnthropicApiKey('sk-test', () => {
-                argv = buildWorkerArgv('claude', { teamName: 'my-team', workerName: 'worker-1', cwd: '/tmp' });
+                argv = buildWorkerArgv('qoder', { teamName: 'my-team', workerName: 'worker-1', cwd: '/tmp' });
             });
-            expect(argv[0]).toBe('claude');
-            expect(argv).toContain('--dangerously-skip-permissions');
-            expect(argv).toContain('--bare');
-            expect(countArg(argv, '--bare')).toBe(1);
+            expect(argv[0]).toBe('qodercli');
+            expect(argv).toContain('--yolo');
             expect(argv).not.toContain('exec');
-            expect(mockSpawnSync).toHaveBeenCalledWith('which', ['claude'], { timeout: 5000, encoding: 'utf8' });
+            expect(mockSpawnSync).toHaveBeenCalledWith('which', ['qodercli'], { timeout: 5000, encoding: 'utf8' });
             mockSpawnSync.mockRestore();
         });
         it('prefers resolved absolute binary path when available', () => {
@@ -468,7 +435,7 @@ describe('model-contract', () => {
     });
     describe('parseCliOutput', () => {
         it('claude returns trimmed output', () => {
-            expect(parseCliOutput('claude', '  hello  ')).toBe('hello');
+            expect(parseCliOutput('qoder', '  hello  ')).toBe('hello');
         });
         it('codex extracts result from JSONL', () => {
             const jsonl = JSON.stringify({ type: 'result', output: 'the answer' });
@@ -529,8 +496,11 @@ describe('model-contract', () => {
             expect(c.supportsPromptMode).toBe(true);
             expect(c.promptModeFlag).toBe('-p');
         });
-        it('claude does not support prompt mode', () => {
-            expect(isPromptModeAgent('claude')).toBe(false);
+        it('qoder supports prompt mode', () => {
+            expect(isPromptModeAgent('qoder')).toBe(true);
+            const c = getContract('qoder');
+            expect(c.supportsPromptMode).toBe(true);
+            expect(c.promptModeFlag).toBe('-p');
         });
         it('codex launches as a persistent interactive worker, not prompt/exec mode', () => {
             expect(isPromptModeAgent('codex')).toBe(false);
@@ -562,94 +532,96 @@ describe('model-contract', () => {
             const args = getPromptModeArgs('gemini', 'Read inbox');
             expect(args).toEqual(['-p', 'Read inbox']);
         });
-        it('getPromptModeArgs returns empty array for interactive codex and claude workers', () => {
+        it('getPromptModeArgs returns empty array for interactive codex workers', () => {
             expect(getPromptModeArgs('codex', 'Read inbox')).toEqual([]);
-            expect(getPromptModeArgs('claude', 'Read inbox')).toEqual([]);
+        });
+        it('getPromptModeArgs returns flag + instruction for qoder workers', () => {
+            expect(getPromptModeArgs('qoder', 'Read inbox')).toEqual(['-p', 'Read inbox']);
         });
     });
-    describe('resolveClaudeWorkerModel (issue #1695)', () => {
+    describe('resolveQoderWorkerModel (issue #1695)', () => {
         it('returns undefined when OMC_ROUTING_FORCE_INHERIT=true even if Bedrock model env vars are set', () => {
             vi.stubEnv('OMC_ROUTING_FORCE_INHERIT', 'true');
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '1');
+            vi.stubEnv('QODER_USE_BEDROCK', '1');
             vi.stubEnv('ANTHROPIC_MODEL', 'us.anthropic.claude-sonnet-4-5-20250929-v1:0');
-            vi.stubEnv('CLAUDE_MODEL', 'us.anthropic.claude-opus-4-6-v1:0');
-            vi.stubEnv('CLAUDE_CODE_BEDROCK_SONNET_MODEL', 'us.anthropic.claude-sonnet-4-6-v1:0');
+            vi.stubEnv('QODER_MODEL', 'us.anthropic.claude-opus-4-6-v1:0');
+            vi.stubEnv('QODER_BEDROCK_SONNET_MODEL', 'us.anthropic.claude-sonnet-4-6-v1:0');
             vi.stubEnv('OMC_MODEL_MEDIUM', 'us.anthropic.claude-sonnet-4-5-20250929-v1:0');
-            expect(resolveClaudeWorkerModel()).toBeUndefined();
+            expect(resolveQoderWorkerModel()).toBeUndefined();
             vi.unstubAllEnvs();
         });
         it('returns undefined when OMC_ROUTING_FORCE_INHERIT=true on Vertex', () => {
             vi.stubEnv('OMC_ROUTING_FORCE_INHERIT', 'true');
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '');
-            vi.stubEnv('CLAUDE_CODE_USE_VERTEX', '1');
+            vi.stubEnv('QODER_USE_BEDROCK', '');
+            vi.stubEnv('QODER_USE_VERTEX', '1');
             vi.stubEnv('ANTHROPIC_MODEL', 'vertex_ai/claude-sonnet-4-6@20250514');
-            expect(resolveClaudeWorkerModel()).toBeUndefined();
+            expect(resolveQoderWorkerModel()).toBeUndefined();
             vi.unstubAllEnvs();
         });
         it('returns undefined when not on Bedrock or Vertex', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '');
-            vi.stubEnv('CLAUDE_CODE_USE_VERTEX', '');
+            vi.stubEnv('QODER_USE_BEDROCK', '');
+            vi.stubEnv('QODER_USE_VERTEX', '');
             vi.stubEnv('ANTHROPIC_MODEL', '');
-            vi.stubEnv('CLAUDE_MODEL', '');
-            expect(resolveClaudeWorkerModel()).toBeUndefined();
+            vi.stubEnv('QODER_MODEL', '');
+            expect(resolveQoderWorkerModel()).toBeUndefined();
             vi.unstubAllEnvs();
         });
         it('returns ANTHROPIC_MODEL on Bedrock when set', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '1');
+            vi.stubEnv('QODER_USE_BEDROCK', '1');
             vi.stubEnv('ANTHROPIC_MODEL', 'us.anthropic.claude-sonnet-4-5-20250929-v1:0');
-            vi.stubEnv('CLAUDE_MODEL', '');
-            expect(resolveClaudeWorkerModel()).toBe('us.anthropic.claude-sonnet-4-5-20250929-v1:0');
+            vi.stubEnv('QODER_MODEL', '');
+            expect(resolveQoderWorkerModel()).toBe('us.anthropic.claude-sonnet-4-5-20250929-v1:0');
             vi.unstubAllEnvs();
         });
-        it('returns CLAUDE_MODEL on Bedrock when ANTHROPIC_MODEL is not set', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '1');
+        it('returns QODER_MODEL on Bedrock when ANTHROPIC_MODEL is not set', () => {
+            vi.stubEnv('QODER_USE_BEDROCK', '1');
             vi.stubEnv('ANTHROPIC_MODEL', '');
-            vi.stubEnv('CLAUDE_MODEL', 'us.anthropic.claude-opus-4-6-v1:0');
-            expect(resolveClaudeWorkerModel()).toBe('us.anthropic.claude-opus-4-6-v1:0');
+            vi.stubEnv('QODER_MODEL', 'us.anthropic.claude-opus-4-6-v1:0');
+            expect(resolveQoderWorkerModel()).toBe('us.anthropic.claude-opus-4-6-v1:0');
             vi.unstubAllEnvs();
         });
-        it('falls back to CLAUDE_CODE_BEDROCK_SONNET_MODEL tier env var', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '1');
+        it('falls back to QODER_BEDROCK_SONNET_MODEL tier env var', () => {
+            vi.stubEnv('QODER_USE_BEDROCK', '1');
             vi.stubEnv('ANTHROPIC_MODEL', '');
-            vi.stubEnv('CLAUDE_MODEL', '');
-            vi.stubEnv('CLAUDE_CODE_BEDROCK_SONNET_MODEL', 'us.anthropic.claude-sonnet-4-6-v1:0');
-            expect(resolveClaudeWorkerModel()).toBe('us.anthropic.claude-sonnet-4-6-v1:0');
+            vi.stubEnv('QODER_MODEL', '');
+            vi.stubEnv('QODER_BEDROCK_SONNET_MODEL', 'us.anthropic.claude-sonnet-4-6-v1:0');
+            expect(resolveQoderWorkerModel()).toBe('us.anthropic.claude-sonnet-4-6-v1:0');
             vi.unstubAllEnvs();
         });
         it('falls back to OMC_MODEL_MEDIUM tier env var', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '1');
+            vi.stubEnv('QODER_USE_BEDROCK', '1');
             vi.stubEnv('ANTHROPIC_MODEL', '');
-            vi.stubEnv('CLAUDE_MODEL', '');
-            vi.stubEnv('CLAUDE_CODE_BEDROCK_SONNET_MODEL', '');
+            vi.stubEnv('QODER_MODEL', '');
+            vi.stubEnv('QODER_BEDROCK_SONNET_MODEL', '');
             vi.stubEnv('ANTHROPIC_DEFAULT_SONNET_MODEL', '');
             vi.stubEnv('OMC_MODEL_MEDIUM', 'us.anthropic.claude-sonnet-4-5-20250929-v1:0');
-            expect(resolveClaudeWorkerModel()).toBe('us.anthropic.claude-sonnet-4-5-20250929-v1:0');
+            expect(resolveQoderWorkerModel()).toBe('us.anthropic.claude-sonnet-4-5-20250929-v1:0');
             vi.unstubAllEnvs();
         });
         it('returns ANTHROPIC_MODEL on Vertex when set', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '');
-            vi.stubEnv('CLAUDE_CODE_USE_VERTEX', '1');
+            vi.stubEnv('QODER_USE_BEDROCK', '');
+            vi.stubEnv('QODER_USE_VERTEX', '1');
             vi.stubEnv('ANTHROPIC_MODEL', 'vertex_ai/claude-sonnet-4-6@20250514');
-            expect(resolveClaudeWorkerModel()).toBe('vertex_ai/claude-sonnet-4-6@20250514');
+            expect(resolveQoderWorkerModel()).toBe('vertex_ai/claude-sonnet-4-6@20250514');
             vi.unstubAllEnvs();
         });
         it('returns undefined on Bedrock when no model env vars are set', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '1');
+            vi.stubEnv('QODER_USE_BEDROCK', '1');
             vi.stubEnv('ANTHROPIC_MODEL', '');
-            vi.stubEnv('CLAUDE_MODEL', '');
-            vi.stubEnv('CLAUDE_CODE_BEDROCK_SONNET_MODEL', '');
+            vi.stubEnv('QODER_MODEL', '');
+            vi.stubEnv('QODER_BEDROCK_SONNET_MODEL', '');
             vi.stubEnv('ANTHROPIC_DEFAULT_SONNET_MODEL', '');
             vi.stubEnv('OMC_MODEL_MEDIUM', '');
-            expect(resolveClaudeWorkerModel()).toBeUndefined();
+            expect(resolveQoderWorkerModel()).toBeUndefined();
             vi.unstubAllEnvs();
         });
-        it('detects Bedrock from model ID pattern even without CLAUDE_CODE_USE_BEDROCK', () => {
-            vi.stubEnv('CLAUDE_CODE_USE_BEDROCK', '');
-            vi.stubEnv('CLAUDE_CODE_USE_VERTEX', '');
+        it('detects Bedrock from model ID pattern even without QODER_USE_BEDROCK', () => {
+            vi.stubEnv('QODER_USE_BEDROCK', '');
+            vi.stubEnv('QODER_USE_VERTEX', '');
             vi.stubEnv('ANTHROPIC_MODEL', 'us.anthropic.claude-sonnet-4-5-20250929-v1:0');
-            vi.stubEnv('CLAUDE_MODEL', '');
+            vi.stubEnv('QODER_MODEL', '');
             // isBedrock() detects Bedrock from the model ID pattern
-            expect(resolveClaudeWorkerModel()).toBe('us.anthropic.claude-sonnet-4-5-20250929-v1:0');
+            expect(resolveQoderWorkerModel()).toBe('us.anthropic.claude-sonnet-4-5-20250929-v1:0');
             vi.unstubAllEnvs();
         });
     });

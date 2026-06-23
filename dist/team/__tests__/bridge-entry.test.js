@@ -10,8 +10,8 @@ describe('bridge-entry security', () => {
     it('has validateBridgeWorkingDirectory function', () => {
         expect(source).toContain('validateBridgeWorkingDirectory');
     });
-    it('validates config path is under ~/.claude/ or .omc/', () => {
-        expect(source).toContain('.claude/');
+    it('validates config path is under ~/.qoder/ or .omc/', () => {
+        expect(source).toContain('.qoder/');
         expect(source).toContain('.omc/');
     });
     it('sanitizes team and worker names', () => {
@@ -65,18 +65,18 @@ describe('validateConfigPath', () => {
     it('should reject paths without trusted subpath', () => {
         expect(validateConfigPath('/home/user/project/config.json', home, claudeConfigDir)).toBe(false);
     });
-    it('should accept paths under ~/.claude/', () => {
-        expect(validateConfigPath('/home/user/.claude/teams/foo/config.json', home, claudeConfigDir)).toBe(true);
+    it('should accept paths under ~/.qoder/', () => {
+        expect(validateConfigPath('/home/user/.qoder/teams/foo/config.json', home, claudeConfigDir)).toBe(true);
     });
     it('should accept paths under project/.omc/', () => {
         expect(validateConfigPath('/home/user/project/.omc/state/config.json', home, claudeConfigDir)).toBe(true);
     });
     it('should reject path that matches subpath but not home', () => {
-        expect(validateConfigPath('/other/.claude/config.json', home, claudeConfigDir)).toBe(false);
+        expect(validateConfigPath('/other/.qoder/config.json', home, claudeConfigDir)).toBe(false);
     });
     it('should reject path traversal via ../ that escapes trusted subpath', () => {
-        // ~/foo/.claude/../../evil.json resolves to ~/evil.json (no trusted subpath)
-        expect(validateConfigPath('/home/user/foo/.claude/../../evil.json', home, claudeConfigDir)).toBe(false);
+        // ~/foo/.qoder/../../evil.json resolves to ~/evil.json (no trusted subpath)
+        expect(validateConfigPath('/home/user/foo/.qoder/../../evil.json', home, claudeConfigDir)).toBe(false);
     });
 });
 //# sourceMappingURL=bridge-entry.test.js.map

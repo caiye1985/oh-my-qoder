@@ -165,7 +165,7 @@ describe('team-server artifact convergence + scoped cleanup', () => {
         writeFileSync(join(teamDir, 'config.json'), JSON.stringify({
             name: 'team-one',
             task: 'demo',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_launch_mode: 'interactive',
             worker_count: 1,
             max_workers: 20,

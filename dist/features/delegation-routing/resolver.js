@@ -40,7 +40,7 @@ export function resolveDelegation(options) {
 function resolveExplicitTool(tool, model, agentRole) {
     // Only 'Task' is supported - explicit tool invocation always uses Claude
     return {
-        provider: 'claude',
+        provider: 'qoder',
         tool: 'Task',
         agentOrModel: agentRole,
         reason: `Explicit tool invocation: ${tool}`,
@@ -63,7 +63,7 @@ function resolveFromConfig(agentRole, route) {
         const claudeAgent = route.agentType || agentRole;
         const modelEvidence = route.model ? `; ignored external model "${route.model}"` : '';
         return {
-            provider: 'claude',
+            provider: 'qoder',
             tool: 'Task',
             agentOrModel: claudeAgent,
             reason: `Configured routing for role "${agentRole}" (deprecated provider "${provider}", falling back to Claude Task${modelEvidence})`,
@@ -91,20 +91,20 @@ function resolveDefault(agentRole, config) {
     const defaultAgent = ROLE_CATEGORY_DEFAULTS[agentRole];
     if (defaultAgent) {
         return {
-            provider: 'claude',
+            provider: 'qoder',
             tool: 'Task',
             agentOrModel: defaultAgent,
             reason: `Default heuristic: role "${agentRole}" → Claude subagent "${defaultAgent}"`,
         };
     }
     // Fall back to default provider or claude
-    const defaultProvider = config?.defaultProvider || 'claude';
+    const defaultProvider = config?.defaultProvider || 'qoder';
     if (isDeprecatedMcpProvider(defaultProvider)) {
         console.warn(DEPRECATED_MCP_PROVIDER_WARNING);
     }
     // Default to claude Task (codex/gemini default providers fall back to claude)
     return {
-        provider: 'claude',
+        provider: 'qoder',
         tool: 'Task',
         agentOrModel: agentRole,
         reason: `Fallback to Claude Task for role "${agentRole}"`,
@@ -114,7 +114,7 @@ export function isDeprecatedMcpProvider(provider) {
     return provider ? DEPRECATED_MCP_PROVIDERS.has(provider) : false;
 }
 /**
- * Parse fallback chain format ["claude:explore", "codex:gpt-5"]
+ * Parse fallback chain format ["qoder:explore", "codex:gpt-5"]
  */
 export function parseFallbackChain(fallback) {
     if (!fallback || fallback.length === 0) {

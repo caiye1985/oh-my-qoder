@@ -77,7 +77,7 @@ export function buildAutoresearchSetupPrompt(input) {
     const clarificationLines = (input.clarificationAnswers ?? [])
         .map((answer, index) => `Clarification ${index + 1}: ${answer}`);
     return [
-        'You are a short-lived Claude Code setup assistant for OMC autoresearch.',
+        'You are a short-lived Qoder setup assistant for OMC autoresearch.',
         'Your job is to prepare a launch handoff for a detached autoresearch runtime.',
         'Stay domain-generic. Prefer repository evidence and explicit user input over assumptions.',
         'If the evaluator is explicit and valid, keep using it.',
@@ -114,7 +114,7 @@ export function buildAutoresearchSetupPrompt(input) {
 }
 export function runAutoresearchSetupSession(input) {
     const prompt = buildAutoresearchSetupPrompt(input);
-    const result = spawnSync('claude', ['-p', prompt], {
+    const result = spawnSync('qodercli', ['-p', prompt, '--output-format', 'text'], {
         cwd: input.repoRoot,
         encoding: 'utf-8',
         shell: process.platform === 'win32',

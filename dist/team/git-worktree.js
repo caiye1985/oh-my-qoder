@@ -555,4 +555,93 @@ export function cleanupTeamWorktrees(teamName, repoRoot) {
     }
     return { removed, preserved };
 }
+// ---------------------------------------------------------------------------
+// Qoder CLI built-in --worktree integration (Phase 4)
+// ---------------------------------------------------------------------------
+/**
+ * Check whether Qoder CLI supports the `--worktree` flag.
+ *
+ * Detection strategy: verify that the `qodercli` binary is resolvable in PATH
+ * and that its `--help` output mentions "worktree". Falls back to a simple
+ * binary-existence check if the help output is inconclusive (e.g. the flag
+ * is present but undocumented in help text).
+ */
+export function isQoderWorktreeAvailable() {
+    try {
+        const helpOutput = execFileSync('qodercli', ['--help'], {
+            encoding: 'utf-8',
+            stdio: 'pipe',
+            timeout: 5000,
+        });
+        return /worktree/i.test(helpOutput);
+    }
+    catch {
+        // If --help fails, try a basic binary-existence probe via --version.
+        try {
+            execFileSync('qodercli', ['--version'], { encoding: 'utf-8', stdio: 'pipe', timeout: 3000 });
+            // Binary exists; assume worktree support optimistically.
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+}
+/**
+ * Build the command-line arguments array for launching a Qoder CLI session
+ * in an isolated git worktree.
+ *
+ * Pattern: `qodercli --worktree <name> [task] --yolo`
+ *
+ * The returned array does NOT include the binary path itself -- the caller
+ * should prepend the resolved `qodercli` path (e.g. via `resolveCliBinaryPath`).
+ *
+ * @param name  Worktree name (used as both the worktree directory suffix and
+ *              the branch name by Qoder CLI).
+ * @param task  Optional natural-language task description passed as a
+ *              positional argument after the worktree name.
+ * @param _cwd  Reserved for future use (e.g. --cwd flag); currently unused
+ *              but accepted for forward compatibility.
+ */
+export function buildQoderWorktreeCommand(name, task, _cwd) {
+    const args = ['--worktree', name];
+    if (task) {
+        args.push(task);
+    }
+    args.push('--yolo');
+    return args;
+}
+/**
+ * Resolve the filesystem path of a Qoder CLI-managed worktree by name.
+ *
+ * Qoder CLI creates worktrees under the repository's git worktree system.
+ * This function parses `git worktree list --porcelain` output to find a
+ * worktree whose path ends with the given name.
+ *
+ * @param name  The worktree name to search for.
+ * @returns     The absolute path to the worktree, or `null` if not found.
+ */
+export function getQoderWorktreePath(name) {
+    try {
+        const output = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+            encoding: 'utf-8',
+            stdio: 'pipe',
+        });
+        for (const line of output.split('\n')) {
+            if (!line.startsWith('worktree '))
+                continue;
+            const wtPath = line.slice('worktree '.length).trim();
+            // Match worktrees whose directory basename equals the given name,
+            // or whose full path ends with the name (covers nested paths).
+            const basename = wtPath.split('/').pop() ?? '';
+            if (basename === name || wtPath.endsWith(`/${name}`)) {
+                return wtPath;
+            }
+        }
+    }
+    catch {
+        // git not available or not inside a repo
+    }
+    return null;
+}
 //# sourceMappingURL=git-worktree.js.map

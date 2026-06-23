@@ -41,13 +41,15 @@ export type { WorkerPermissions } from './permissions.js';
 export { TeamPaths, absPath, teamStateRoot } from './state-paths.js';
 export { checkSentinelReadiness, waitForSentinelReadiness, } from './sentinel-gate.js';
 export type { SentinelReadinessOptions, SentinelGateResult, SentinelWaitOptions, SentinelWaitResult, } from './sentinel-gate.js';
+export type { SubagentWorkerConfig, SubagentTeamConfig, } from './subagent-runtime.js';
+export { generateSubagentConfig, buildSubagentCommand, isSubagentAvailable, writeSubagentAgentFile, createSubagentTeam, getActiveSubagentPids, stopSubagentTeam, } from './subagent-runtime.js';
 export type { CliAgentType, CliAgentContract, WorkerLaunchConfig } from './model-contract.js';
 export { getContract, isCliAvailable as isCliAvailableForAgent, validateCliAvailable as validateCliAvailableForAgent, buildLaunchArgs, buildWorkerCommand, parseCliOutput, shouldLoadShellRc, validateCliBinaryPath, resolveCliBinaryPath, clearResolvedPathCache, } from './model-contract.js';
 export type { CliBinaryValidation } from './model-contract.js';
 export type { CliInfo } from './cli-detection.js';
 export { detectCli, detectAllClis } from './cli-detection.js';
 export type { WorkerBootstrapParams } from './worker-bootstrap.js';
-export { generateWorkerOverlay, composeInitialInbox, appendToInbox, getWorkerEnv, ensureWorkerStateDir, writeWorkerOverlay, } from './worker-bootstrap.js';
+export { generateWorkerOverlay, composeInitialInbox, appendToInbox, getWorkerEnv, ensureWorkerStateDir, writeWorkerOverlay, generateSubagentOverlay, } from './worker-bootstrap.js';
 export { sendTmuxTrigger, queueInboxInstruction, queueDirectMessage, queueBroadcastMessage, readMailbox, } from './tmux-comm.js';
 export { LayoutStabilizer } from './layout-stabilizer.js';
 export type { LayoutStabilizerOptions } from './layout-stabilizer.js';
@@ -66,4 +68,5 @@ export { TEAM_NAME_SAFE_PATTERN, WORKER_NAME_SAFE_PATTERN, TASK_ID_SAFE_PATTERN,
 export type { TeamTaskStatus, TeamEventType, TeamTaskApprovalStatus, } from './contracts.js';
 export type { TeamTask, TeamTaskV2, TeamTaskClaim, TeamLeader, TeamTransportPolicy, TeamGovernance, TeamPolicy, PermissionsSnapshot, TeamManifestV2, WorkerInfo, TeamConfig as TeamConfigV2, TeamDispatchRequestKind, TeamDispatchRequestStatus, TeamDispatchTransportPreference, TeamDispatchRequest, TeamDispatchRequestInput, TeamEvent, TeamMailboxMessage, TeamMailbox, TaskApprovalRecord, TaskReadiness, ClaimTaskResult, TransitionTaskResult, ReleaseTaskClaimResult, TeamSummary, TeamSummaryPerformance, ShutdownAck, TeamMonitorSnapshotState, TeamPhaseState, WorkerStatus as TeamWorkerStatus, WorkerHeartbeat as TeamWorkerHeartbeat, } from './types.js';
 export { DEFAULT_TEAM_TRANSPORT_POLICY, DEFAULT_TEAM_GOVERNANCE, normalizeTeamTransportPolicy, normalizeTeamGovernance, normalizeTeamManifest, getConfigGovernance, } from './governance.js';
+export { resolveWorkerBackend } from './stage-router.js';
 //# sourceMappingURL=index.d.ts.map

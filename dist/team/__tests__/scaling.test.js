@@ -9,7 +9,7 @@ const tmuxUtilsMocks = vi.hoisted(() => ({
 const modelContractMocks = vi.hoisted(() => ({
     buildWorkerArgv: vi.fn(),
     getWorkerEnv: vi.fn(),
-    resolveClaudeWorkerModel: vi.fn(),
+    resolveQoderWorkerModel: vi.fn(),
 }));
 const teamOpsMocks = vi.hoisted(() => ({
     teamReadConfig: vi.fn(),
@@ -44,7 +44,7 @@ vi.mock('../../cli/tmux-utils.js', () => ({
 vi.mock('../model-contract.js', () => ({
     buildWorkerArgv: modelContractMocks.buildWorkerArgv,
     getWorkerEnv: modelContractMocks.getWorkerEnv,
-    resolveClaudeWorkerModel: modelContractMocks.resolveClaudeWorkerModel,
+    resolveQoderWorkerModel: modelContractMocks.resolveQoderWorkerModel,
     assertHeadlessSupported: () => { },
     isHeadlessSupportedOnPlatform: () => true,
 }));
@@ -82,11 +82,11 @@ describe('scaleUp duplicate worker guard', () => {
         const base = {
             name: 'demo-team',
             task: 'demo',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_launch_mode: 'interactive',
             worker_count: 1,
             max_workers: 20,
-            workers: [{ name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [], pane_id: '%1' }],
+            workers: [{ name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [], pane_id: '%1' }],
             created_at: new Date().toISOString(),
             tmux_session: 'demo-session:0',
             next_task_id: 2,
@@ -135,7 +135,7 @@ describe('scaleUp duplicate worker guard', () => {
             await rm(cwd, { recursive: true, force: true });
     });
     it('skips past colliding worker names when next_worker_index is stale without touching real tmux', async () => {
-        const result = await scaleUp('demo-team', 1, 'claude', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
+        const result = await scaleUp('demo-team', 1, 'qoder', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
         expect(result).toMatchObject({ ok: true, newWorkerCount: 2, nextWorkerIndex: 3 });
         expect(config.next_worker_index).toBe(3);
         expect(config.workers.map((worker) => worker.name)).toEqual(['worker-1', 'worker-2']);
@@ -147,12 +147,12 @@ describe('scaleUp duplicate worker guard', () => {
         config = makeConfig({
             worker_count: 2,
             workers: [
-                { name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [], pane_id: '%1' },
-                { name: 'worker-2', index: 2, role: 'claude', assigned_tasks: [], pane_id: '%2' },
+                { name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [], pane_id: '%1' },
+                { name: 'worker-2', index: 2, role: 'qoder', assigned_tasks: [], pane_id: '%2' },
             ],
             next_worker_index: 1,
         });
-        const result = await scaleUp('demo-team', 1, 'claude', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
+        const result = await scaleUp('demo-team', 1, 'qoder', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
         expect(result).toMatchObject({ ok: true, newWorkerCount: 3, nextWorkerIndex: 4 });
         expect(config.next_worker_index).toBe(4);
         expect(config.workers.map((worker) => worker.name)).toEqual(['worker-1', 'worker-2', 'worker-3']);
@@ -177,7 +177,7 @@ describe('scaleUp duplicate worker guard', () => {
             }
             return { status: 0, stdout: '', stderr: '' };
         });
-        const result = await scaleUp('demo-team', 1, 'claude', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
+        const result = await scaleUp('demo-team', 1, 'qoder', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
         expect(result).toMatchObject({ ok: true, newWorkerCount: 1, nextWorkerIndex: 2 });
         expect(tmuxUtilsMocks.tmuxSpawn).toHaveBeenCalledWith([
             'display-message', '-t', '%0', '-p', '#{session_name}',
@@ -192,7 +192,7 @@ describe('scaleUp duplicate worker guard', () => {
             leader_pane_id: '%997',
             tmux_session: undefined,
         });
-        const result = await scaleUp('demo-team', 1, 'claude', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
+        const result = await scaleUp('demo-team', 1, 'qoder', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
         expect(result).toMatchObject({ ok: false });
         expect(result.ok).toBe(false);
         if (!result.ok) {
@@ -218,7 +218,7 @@ describe('scaleUp duplicate worker guard', () => {
             }
             return { status: 0, stdout: '', stderr: '' };
         });
-        const result = await scaleUp('demo-team', 1, 'claude', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
+        const result = await scaleUp('demo-team', 1, 'qoder', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
         expect(result).toMatchObject({ ok: false });
         expect(result.ok).toBe(false);
         if (!result.ok) {
@@ -244,7 +244,7 @@ describe('scaleUp duplicate worker guard', () => {
             }
             return { status: 0, stdout: '', stderr: '' };
         });
-        const result = await scaleUp('demo-team', 1, 'claude', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
+        const result = await scaleUp('demo-team', 1, 'qoder', [{ subject: 'demo', description: 'demo task' }], cwd, { OMC_TEAM_SCALING_ENABLED: '1' });
         expect(result).toMatchObject({ ok: false });
         expect(result.ok).toBe(false);
         if (!result.ok) {

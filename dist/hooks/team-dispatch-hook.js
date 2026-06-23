@@ -279,7 +279,7 @@ function paneIsBootstrapping(captured) {
         || /\bconnecting\s+to\b/i.test(line));
 }
 function paneLineLooksLikeIdlePrompt(line) {
-    // Claude Code can render its idle input prompt inside a box/left gutter
+    // Qoder can render its idle input prompt inside a box/left gutter
     // (for example "│ ❯"). Treat that as ready while still requiring the prompt
     // glyph to be at the visual start of the line, not embedded in arbitrary
     // output text.
@@ -319,7 +319,7 @@ async function defaultInjector(request, config, _cwd) {
         }
     }
     catch { /* best effort */ }
-    // Claude Code v2.1.x sometimes swallows a single Enter during TUI state
+    // Qoder v2.1.x sometimes swallows a single Enter during TUI state
     // transitions (input-handler bind race) — same root cause documented at
     // runtime-v2.ts:788-793 for the startup path. Send 2 Enters here too so
     // the dispatch path does not stall with the trigger text typed but never

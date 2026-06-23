@@ -30,24 +30,24 @@ function readMarkdownDocs() {
         content: readFileSync(file, "utf-8"),
     }));
 }
-function claudeGoalDocs() {
-    return readMarkdownDocs().filter(({ content }) => /Claude Code[\s\S]{0,80}\/goal|\/goal[\s\S]{0,80}Claude Code/i.test(content));
+function qoderGoalDocs() {
+    return readMarkdownDocs().filter(({ content }) => /Qoder[\s\S]{0,80}\/goal|\/goal[\s\S]{0,80}Qoder/i.test(content));
 }
-describe("Claude Code /goal docs contract", () => {
-    it("does not use OpenAI or Codex documentation as authority for Claude Code /goal facts", () => {
-        const violations = claudeGoalDocs().flatMap(({ path, content }) => {
+describe("Qoder /goal docs contract", () => {
+    it("does not use OpenAI or Codex documentation as authority for Qoder /goal facts", () => {
+        const violations = qoderGoalDocs().flatMap(({ path, content }) => {
             const paragraphs = content.split(/\n\s*\n/);
             return paragraphs
                 .map((paragraph, index) => ({ paragraph, index }))
-                .filter(({ paragraph }) => /Claude Code[\s\S]*\/goal|\/goal[\s\S]*Claude Code/i.test(paragraph))
+                .filter(({ paragraph }) => /Qoder[\s\S]*\/goal|\/goal[\s\S]*Qoder/i.test(paragraph))
                 .filter(({ paragraph }) => /OpenAI docs|OpenAI documentation|Codex docs|Codex documentation/i.test(paragraph))
                 .filter(({ paragraph }) => !/do not (?:cite|use) (?:OpenAI|Codex|OpenAI\/Codex)/i.test(paragraph))
                 .map(({ index, paragraph }) => `${path} paragraph ${index + 1}: ${paragraph.replace(/\s+/g, " ").trim()}`);
         });
         expect(violations).toEqual([]);
     });
-    it("keeps Claude Code /goal evaluator limitations explicit and evidence-based", () => {
-        const violations = claudeGoalDocs().flatMap(({ path, content }) => {
+    it("keeps Qoder /goal evaluator limitations explicit and evidence-based", () => {
+        const violations = qoderGoalDocs().flatMap(({ path, content }) => {
             const forbiddenClaims = [
                 /evaluator\s+(?:can|will|does)\s+(?:independently\s+)?(?:run|execute)s?\s+commands/i,
                 /evaluator\s+(?:can|will|does)\s+(?:independently\s+)?read\s+files/i,
@@ -59,8 +59,8 @@ describe("Claude Code /goal docs contract", () => {
         });
         expect(violations).toEqual([]);
     });
-    it("forbids warn-only loop conflict policy in Claude Code /goal docs", () => {
-        const violations = claudeGoalDocs().flatMap(({ path, content }) => {
+    it("forbids warn-only loop conflict policy in Qoder /goal docs", () => {
+        const violations = qoderGoalDocs().flatMap(({ path, content }) => {
             const issues = [];
             if (/warn[- ]only|warn\s+and\s+proceed/i.test(content)) {
                 issues.push(`${path}: contains warn-only conflict handling`);

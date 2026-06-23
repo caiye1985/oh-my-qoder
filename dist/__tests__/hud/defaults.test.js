@@ -11,7 +11,7 @@ describe('HUD Default Configuration', () => {
         it('should have gitBranch disabled by default for backward compatibility', () => {
             expect(DEFAULT_HUD_CONFIG.elements.gitBranch).toBe(false);
         });
-        it('should enable model display by default when Claude Code provides reliable metadata', () => {
+        it('should enable model display by default when Qoder provides reliable metadata', () => {
             expect(DEFAULT_HUD_CONFIG.elements.model).toBe(true);
             expect(DEFAULT_HUD_CONFIG.elements.modelFormat).toBe('versioned');
         });

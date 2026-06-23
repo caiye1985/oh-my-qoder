@@ -3,7 +3,7 @@ import { createReadStream, existsSync, readdirSync, statSync } from 'fs';
 import { dirname, join, normalize, resolve } from 'path';
 import { createInterface } from 'readline';
 import { resolveToWorktreeRoot, validateSessionId, validateWorkingDirectory, getOmcRoot, } from '../../lib/worktree-paths.js';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 import { encodeProjectPath } from '../../utils/encode-project-path.js';
 const DEFAULT_LIMIT = 10;
 const DEFAULT_CONTEXT_CHARS = 120;
@@ -52,7 +52,7 @@ function getMainRepoRoot(projectRoot) {
     }
 }
 function getClaudeWorktreeParent(projectRoot) {
-    const marker = `${normalize('/.claude/worktrees/')}`;
+    const marker = `${normalize('/.qoder/worktrees/')}`;
     const normalizedRoot = normalize(projectRoot);
     const idx = normalizedRoot.indexOf(marker);
     if (idx === -1)
@@ -104,7 +104,7 @@ function uniqueSortedTargets(targets) {
     });
 }
 function buildCurrentProjectTargets(projectRoot) {
-    const claudeDir = getClaudeConfigDir();
+    const claudeDir = getQoderConfigDir();
     const projectRoots = new Set([projectRoot]);
     const mainRepoRoot = getMainRepoRoot(projectRoot);
     if (mainRepoRoot)
@@ -139,7 +139,7 @@ function buildCurrentProjectTargets(projectRoot) {
     return uniqueSortedTargets(targets);
 }
 function buildAllProjectTargets() {
-    const claudeDir = getClaudeConfigDir();
+    const claudeDir = getQoderConfigDir();
     const targets = [];
     for (const filePath of listJsonlFiles(join(claudeDir, 'projects'))) {
         targets.push({ filePath, sourceType: 'project-transcript' });

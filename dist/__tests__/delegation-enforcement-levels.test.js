@@ -41,21 +41,21 @@ import { existsSync, readFileSync } from 'fs';
 const mockExistsSync = vi.mocked(existsSync);
 const mockReadFileSync = vi.mocked(readFileSync);
 describe('delegation-enforcement-levels', () => {
-    const savedConfigDir = process.env.CLAUDE_CONFIG_DIR;
+    const savedConfigDir = process.env.QODER_CONFIG_DIR;
     beforeEach(() => {
         vi.clearAllMocks();
         clearEnforcementCache();
-        // Ensure tests use the mocked homedir, not a custom CLAUDE_CONFIG_DIR
-        delete process.env.CLAUDE_CONFIG_DIR;
+        // Ensure tests use the mocked homedir, not a custom QODER_CONFIG_DIR
+        delete process.env.QODER_CONFIG_DIR;
         // Default: no config files exist
         mockExistsSync.mockReturnValue(false);
     });
     afterEach(() => {
         if (savedConfigDir !== undefined) {
-            process.env.CLAUDE_CONFIG_DIR = savedConfigDir;
+            process.env.QODER_CONFIG_DIR = savedConfigDir;
         }
         else {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
     });
     // ─── 1. suggestAgentForFile (tested indirectly via warning messages) ───
@@ -270,8 +270,8 @@ describe('delegation-enforcement-levels', () => {
         describe('allowed paths always continue', () => {
             const allowedPaths = [
                 '.omc/plans/test.md',
-                '.claude/settings.json',
-                'docs/CLAUDE.md',
+                '.qoder/settings.json',
+                'docs/AGENTS.md',
                 'AGENTS.md',
             ];
             it.each(allowedPaths)('allows %s regardless of enforcement level', (filePath) => {
@@ -516,44 +516,44 @@ describe('delegation-enforcement-levels', () => {
         it('returns true for .omc/ paths', () => {
             expect(isAllowedPath('.omc/plans/test.md')).toBe(true);
         });
-        it('returns true for .claude/ paths', () => {
-            expect(isAllowedPath('.claude/settings.json')).toBe(true);
+        it('returns true for .qoder/ paths', () => {
+            expect(isAllowedPath('.qoder/settings.json')).toBe(true);
         });
-        it('returns true for absolute paths under CLAUDE_CONFIG_DIR', () => {
-            const originalConfigDir = process.env.CLAUDE_CONFIG_DIR;
-            process.env.CLAUDE_CONFIG_DIR = '/custom/claude-config';
+        it('returns true for absolute paths under QODER_CONFIG_DIR', () => {
+            const originalConfigDir = process.env.QODER_CONFIG_DIR;
+            process.env.QODER_CONFIG_DIR = '/custom/claude-config';
             try {
                 expect(isAllowedPath('/custom/claude-config/settings.json')).toBe(true);
                 expect(isAllowedPath('/custom/claude-config/agents/test.md')).toBe(true);
             }
             finally {
                 if (originalConfigDir === undefined) {
-                    delete process.env.CLAUDE_CONFIG_DIR;
+                    delete process.env.QODER_CONFIG_DIR;
                 }
                 else {
-                    process.env.CLAUDE_CONFIG_DIR = originalConfigDir;
+                    process.env.QODER_CONFIG_DIR = originalConfigDir;
                 }
             }
         });
-        it('returns true for absolute paths under a ~-prefixed CLAUDE_CONFIG_DIR', () => {
-            const originalConfigDir = process.env.CLAUDE_CONFIG_DIR;
-            process.env.CLAUDE_CONFIG_DIR = '~/.claude-alt';
+        it('returns true for absolute paths under a ~-prefixed QODER_CONFIG_DIR', () => {
+            const originalConfigDir = process.env.QODER_CONFIG_DIR;
+            process.env.QODER_CONFIG_DIR = '~/.qoder-alt';
             try {
                 expect(isAllowedPath(join('/mock/home', '.claude-alt', 'settings.json'))).toBe(true);
                 expect(isAllowedPath(join('/mock/home', '.claude-alt', 'agents', 'test.md'))).toBe(true);
             }
             finally {
                 if (originalConfigDir === undefined) {
-                    delete process.env.CLAUDE_CONFIG_DIR;
+                    delete process.env.QODER_CONFIG_DIR;
                 }
                 else {
-                    process.env.CLAUDE_CONFIG_DIR = originalConfigDir;
+                    process.env.QODER_CONFIG_DIR = originalConfigDir;
                 }
             }
         });
-        it('returns true for CLAUDE.md', () => {
-            expect(isAllowedPath('CLAUDE.md')).toBe(true);
-            expect(isAllowedPath('docs/CLAUDE.md')).toBe(true);
+        it('returns true for AGENTS.md', () => {
+            expect(isAllowedPath('AGENTS.md')).toBe(true);
+            expect(isAllowedPath('docs/AGENTS.md')).toBe(true);
         });
         it('returns true for AGENTS.md', () => {
             expect(isAllowedPath('AGENTS.md')).toBe(true);
@@ -568,8 +568,8 @@ describe('delegation-enforcement-levels', () => {
         it('rejects .omc/../src/file.ts traversal', () => {
             expect(isAllowedPath('.omc/../src/file.ts')).toBe(false);
         });
-        it('rejects .claude/../src/file.ts traversal', () => {
-            expect(isAllowedPath('.claude/../src/file.ts')).toBe(false);
+        it('rejects .qoder/../src/file.ts traversal', () => {
+            expect(isAllowedPath('.qoder/../src/file.ts')).toBe(false);
         });
         it('rejects bare .. traversal', () => {
             expect(isAllowedPath('../secret.ts')).toBe(false);

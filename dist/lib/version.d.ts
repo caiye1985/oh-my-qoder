@@ -14,10 +14,10 @@ export declare function getRuntimePackageVersion(): string;
  * Signals (any one triggers "local"):
  *  - A `.git/` directory exists at the package root (dev clone)
  *  - The resolved package directory is reached via a symlink/junction
- *    (e.g. `npm link`, or a manual junction in `~/.claude/plugins/marketplaces/`)
+ *    (e.g. `npm link`, or a manual junction in `~/.qoder/plugins/marketplaces/`)
  *  - A `src/` directory exists at the package root — the npm-published
  *    package ships only `dist/`. The presence of `src/` proves the
- *    payload came from a fork (e.g. Claude Code's plugin cache copied
+ *    payload came from a fork (e.g. Qoder's plugin cache copied
  *    the full repo through a marketplace junction).
  *
  * Used by the HUD to append an "L" suffix to the version tag, so users

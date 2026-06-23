@@ -22,7 +22,7 @@ function runPreToolEnforcerWithEnv(input, env = {}) {
         env: {
             ...process.env,
             HOME: homeDir,
-            CLAUDE_CONFIG_DIR: join(homeDir, '.claude'),
+            QODER_CONFIG_DIR: join(homeDir, '.claude'),
             NODE_ENV: 'test',
             DISABLE_OMC: '',
             OMC_SKIP_HOOKS: '',
@@ -31,22 +31,22 @@ function runPreToolEnforcerWithEnv(input, env = {}) {
             OMC_AGENT_PREFLIGHT_CONTEXT_THRESHOLD: '',
             OMC_ROUTING_FORCE_INHERIT: '',
             OMC_SUBAGENT_MODEL: '',
-            CLAUDE_MODEL: '',
+            QODER_MODEL: '',
             ANTHROPIC_MODEL: '',
             ANTHROPIC_BASE_URL: '',
-            CLAUDE_CODE_USE_BEDROCK: '',
-            CLAUDE_CODE_USE_VERTEX: '',
+            QODER_USE_BEDROCK: '',
+            QODER_USE_VERTEX: '',
             // Reset tier-resolution chain env vars (resolveTierAliasToSafeModel reads these).
             OMC_MODEL_LOW: '',
             OMC_MODEL_MEDIUM: '',
             OMC_MODEL_HIGH: '',
-            CLAUDE_CODE_BEDROCK_HAIKU_MODEL: '',
-            CLAUDE_CODE_BEDROCK_SONNET_MODEL: '',
-            CLAUDE_CODE_BEDROCK_OPUS_MODEL: '',
+            QODER_BEDROCK_HAIKU_MODEL: '',
+            QODER_BEDROCK_SONNET_MODEL: '',
+            QODER_BEDROCK_OPUS_MODEL: '',
             ANTHROPIC_DEFAULT_HAIKU_MODEL: '',
             ANTHROPIC_DEFAULT_SONNET_MODEL: '',
             ANTHROPIC_DEFAULT_OPUS_MODEL: '',
-            CLAUDE_CODE_BEDROCK_FABLE_MODEL: '',
+            QODER_BEDROCK_FABLE_MODEL: '',
             ANTHROPIC_DEFAULT_FABLE_MODEL: '',
             ...env,
         },
@@ -236,7 +236,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
             },
@@ -251,9 +251,9 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         expect(hookSpecificOutput.additionalContext).toContain('TeamCreate and TeamDelete are removed');
         expect(hookSpecificOutput.additionalContext).toContain('team_name for routing');
         expect(hookSpecificOutput.additionalContext).toContain('ignored legacy metadata');
-        expect(hookSpecificOutput.additionalContext).not.toContain('CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS');
-        expect(hookSpecificOutput.additionalContext).not.toContain('verify CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS');
-        expect(hookSpecificOutput.additionalContext).not.toContain('Restart Claude Code');
+        expect(hookSpecificOutput.additionalContext).not.toContain('QODER_EXPERIMENTAL_AGENT_TEAMS');
+        expect(hookSpecificOutput.additionalContext).not.toContain('verify QODER_EXPERIMENTAL_AGENT_TEAMS');
+        expect(hookSpecificOutput.additionalContext).not.toContain('Restart Qoder');
     });
     it('does NOT inject team-routing redirect when Task called WITH teammate name', () => {
         const sessionId = 'session-1006b';
@@ -265,7 +265,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 name: 'worker-1',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
@@ -289,7 +289,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
             },
@@ -303,9 +303,9 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         expect(context).toContain('native-team-compat');
         expect(context).toContain('name="worker-N"');
         expect(context).toContain('TeamCreate and TeamDelete are removed');
-        expect(context).not.toContain('verify CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS');
-        expect(context).not.toContain('CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS');
-        expect(context).not.toContain('Restart Claude Code');
+        expect(context).not.toContain('verify QODER_EXPERIMENTAL_AGENT_TEAMS');
+        expect(context).not.toContain('QODER_EXPERIMENTAL_AGENT_TEAMS');
+        expect(context).not.toContain('Restart Qoder');
     });
     it('does NOT inject team-routing redirect when Agent called WITH teammate name', () => {
         const sessionId = 'session-3323-agent-named';
@@ -317,7 +317,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 name: 'worker-1',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
@@ -331,9 +331,9 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         expect(context).not.toContain('TEAM ROUTING REQUIRED');
         expect(context).toContain('Spawning agent');
     });
-    it('keeps team skill guidance on the Claude Code 2.1.x implicit team contract', () => {
+    it('keeps team skill guidance on the Qoder 2.1.x implicit team contract', () => {
         const skillSource = readFileSync(join(process.cwd(), 'skills', 'team', 'SKILL.md'), 'utf-8');
-        expect(skillSource).toContain('implicit Claude Code team');
+        expect(skillSource).toContain('implicit Qoder team');
         expect(skillSource).toContain('Agent/Task');
         expect(skillSource).toContain('name="worker-N"');
         expect(skillSource).toContain('Do **not** call `TeamCreate`');
@@ -342,13 +342,13 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         expect(skillSource).not.toMatch(/TeamCreate\s*\(/);
         expect(skillSource).not.toMatch(/TeamDelete\s*\(/);
         expect(skillSource).not.toContain('If `TeamCreate` is not available');
-        expect(skillSource).not.toContain('Restart Claude Code');
+        expect(skillSource).not.toContain('Restart Qoder');
     });
     it('does NOT inject team-routing redirect when no team state is active', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
             },
@@ -388,7 +388,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
             },
@@ -397,7 +397,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         });
         const hookSpecificOutput = output.hookSpecificOutput;
         expect(output.continue).toBe(true);
-        expect(String(hookSpecificOutput.additionalContext)).toContain('Spawning agent: oh-my-claudecode:executor');
+        expect(String(hookSpecificOutput.additionalContext)).toContain('Spawning agent: oh-my-qoder:executor');
     });
     it('reads team state from legacy path when session_id is absent', () => {
         writeJson(join(tempDir, '.omc', 'state', 'team-state.json'), {
@@ -407,7 +407,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix something',
                 prompt: 'Fix it',
             },
@@ -440,7 +440,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
             },
@@ -461,7 +461,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix something',
                 prompt: 'Fix it',
             },
@@ -519,7 +519,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const taskOutput = runPreToolEnforcerWithEnv({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
             },
@@ -533,7 +533,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Fix type errors',
                 prompt: 'Fix all type errors in src/auth/',
             },
@@ -546,7 +546,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Implement a fallback',
                 prompt: 'Add a workaround if the normal architecture is hard.',
             },
@@ -620,7 +620,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Implement fallback routing',
                 prompt: 'Please implement a fallback layer for the flaky API.',
             },
@@ -635,7 +635,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Skip architecture for flaky API failures',
                 prompt: 'Please work around flaky API failures by skipping the normal architecture.',
             },
@@ -650,7 +650,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Add API fallback',
                 prompt: 'If the API fails, fall back on cached responses.',
             },
@@ -665,7 +665,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Add API fallback',
                 prompt: 'If the API fails, fallback to cached responses.',
             },
@@ -680,7 +680,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Implement fallback routing',
                 prompt: [
                     '## Implementation',
@@ -738,7 +738,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
             const output = runPreToolEnforcer({
                 tool_name: 'Task',
                 toolInput: {
-                    subagent_type: 'oh-my-claudecode:executor',
+                    subagent_type: 'oh-my-qoder:executor',
                     description: 'Handle benign fallback documentation',
                     prompt,
                 },
@@ -754,7 +754,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Preserve benign fallback and reject risky routing fallback',
                 prompt: 'Preserve the fail-soft fallback value, and fallback to weaker model if the preferred agent is unavailable.',
             },
@@ -769,7 +769,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Review quoted technical phrases',
                 prompt: [
                     'Review the quoted phrase "fallback to default config" in the migration notes.',
@@ -816,7 +816,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Implement primary dual-secret token fetch',
                 prompt: [
                     'Implement the primary dual-secret path using extraSecretFetch.',
@@ -840,7 +840,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
             const output = runPreToolEnforcer({
                 tool_name: 'Task',
                 toolInput: {
-                    subagent_type: 'oh-my-claudecode:executor',
+                    subagent_type: 'oh-my-qoder:executor',
                     description: 'Implement risky fallback',
                     prompt,
                 },
@@ -906,7 +906,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcer({
             tool_name: 'Skill',
             toolInput: {
-                skill: 'oh-my-claudecode:ralph',
+                skill: 'oh-my-qoder:ralph',
             },
             cwd: tempDir,
             session_id: sessionId,
@@ -920,7 +920,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('allows tier alias "sonnet" through when OMC_SUBAGENT_MODEL is set and forceInherit is enabled', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-alias',
         }, {
@@ -935,7 +935,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('allows tier alias "sonnet" via ANTHROPIC_DEFAULT_SONNET_MODEL without OMC_SUBAGENT_MODEL', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-default-sonnet',
         }, {
@@ -949,7 +949,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('allows tier alias "opus" via ANTHROPIC_DEFAULT_OPUS_MODEL without OMC_SUBAGENT_MODEL', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', model: 'opus' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', model: 'opus' },
             cwd: tempDir,
             session_id: 'session-tier-default-opus',
         }, {
@@ -963,7 +963,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('allows tier alias "haiku" via ANTHROPIC_DEFAULT_HAIKU_MODEL without OMC_SUBAGENT_MODEL', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'haiku' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'haiku' },
             cwd: tempDir,
             session_id: 'session-tier-default-haiku',
         }, {
@@ -977,7 +977,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('allows tier alias "fable" via ANTHROPIC_DEFAULT_FABLE_MODEL without OMC_SUBAGENT_MODEL (issue #3246)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', model: 'fable' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', model: 'fable' },
             cwd: tempDir,
             session_id: 'session-tier-default-fable',
         }, {
@@ -988,16 +988,16 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
     });
-    it('resolves tier alias "fable" via CLAUDE_CODE_BEDROCK_FABLE_MODEL (issue #3246)', () => {
+    it('resolves tier alias "fable" via QODER_BEDROCK_FABLE_MODEL (issue #3246)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'fable' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'fable' },
             cwd: tempDir,
             session_id: 'session-tier-fable-cc-bedrock-env',
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: '',
-            CLAUDE_CODE_BEDROCK_FABLE_MODEL: 'us.anthropic.claude-fable-5-v1:0',
+            QODER_BEDROCK_FABLE_MODEL: 'us.anthropic.claude-fable-5-v1:0',
         });
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
@@ -1005,7 +1005,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('blocks tier alias "fable" when no fable model env is configured (issue #3246)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', model: 'fable' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', model: 'fable' },
             cwd: tempDir,
             session_id: 'session-tier-fable-no-env',
         }, {
@@ -1023,7 +1023,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     ])('allows tier alias %s via proxy ANTHROPIC_DEFAULT_*_MODEL when non-Claude routing is active', (tier, envKey, proxyModel, sessionId) => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: tier },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: tier },
             cwd: tempDir,
             session_id: sessionId,
         }, {
@@ -1038,7 +1038,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('blocks tier alias when proxy ANTHROPIC_DEFAULT_*_MODEL is only whitespace', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-proxy-empty',
         }, {
@@ -1049,16 +1049,16 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const hookOutput = output.hookSpecificOutput;
         expect(hookOutput.permissionDecisionReason).toContain('MODEL ROUTING');
     });
-    it('preserves provider-specific validation for CLAUDE_CODE_BEDROCK_*_MODEL in proxy mode', () => {
+    it('preserves provider-specific validation for QODER_BEDROCK_*_MODEL in proxy mode', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-proxy-invalid-bedrock-var',
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: '',
-            CLAUDE_CODE_BEDROCK_SONNET_MODEL: 'glm-5.1:cloud',
+            QODER_BEDROCK_SONNET_MODEL: 'glm-5.1:cloud',
             ANTHROPIC_DEFAULT_SONNET_MODEL: '',
         });
         const hookOutput = output.hookSpecificOutput;
@@ -1070,7 +1070,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         writeFileSync(join(configDir, 'config.json'), JSON.stringify({ routing: { forceInherit: true } }));
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-config-proxy-default',
         }, {
@@ -1084,7 +1084,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('rejects proxy ANTHROPIC_DEFAULT_*_MODEL when env force-inherit runs under a normal Claude active model', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-env-force-normal-claude-proxy-default',
         }, {
@@ -1099,7 +1099,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('OMC_SUBAGENT_MODEL takes priority over ANTHROPIC_DEFAULT_*_MODEL when both set', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-priority',
         }, {
@@ -1119,7 +1119,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         // so [1m]-suffixed provider IDs are valid routing targets.
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-default-lm',
         }, {
@@ -1130,16 +1130,16 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
     });
-    it('resolves via CLAUDE_CODE_BEDROCK_SONNET_MODEL as sole configured env var', () => {
+    it('resolves via QODER_BEDROCK_SONNET_MODEL as sole configured env var', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-cc-bedrock-env',
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: '',
-            CLAUDE_CODE_BEDROCK_SONNET_MODEL: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
+            QODER_BEDROCK_SONNET_MODEL: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
         });
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
@@ -1150,7 +1150,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         // since CC handles that suffix correctly for explicit model= calls.
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-omc-model-fallback',
         }, {
@@ -1164,11 +1164,11 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     });
     it('blocks tier alias when only OMC_MODEL_* is set (not a CC-side routing proof)', () => {
         // OMC_MODEL_* proves OMC-bridge routing, not CC model resolution. Without a CC-native
-        // var (ANTHROPIC_DEFAULT_* or CLAUDE_CODE_BEDROCK_*), CC cannot route the tier alias
+        // var (ANTHROPIC_DEFAULT_* or QODER_BEDROCK_*), CC cannot route the tier alias
         // and the downstream Agent/Task call would fail — so the hook must deny.
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-omc-model-only',
         }, {
@@ -1176,7 +1176,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
             OMC_SUBAGENT_MODEL: '',
             OMC_MODEL_MEDIUM: 'global.anthropic.claude-sonnet-4-6',
             ANTHROPIC_DEFAULT_SONNET_MODEL: '',
-            CLAUDE_CODE_BEDROCK_SONNET_MODEL: '',
+            QODER_BEDROCK_SONNET_MODEL: '',
         });
         const hookOutput = output.hookSpecificOutput;
         expect(hookOutput.permissionDecisionReason).toContain('MODEL ROUTING');
@@ -1184,7 +1184,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('blocks tier alias when NO safe model env is configured at all', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-alias-no-env',
         }, {
@@ -1203,7 +1203,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1213,7 +1213,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: '',
             ANTHROPIC_DEFAULT_OPUS_MODEL: 'global.anthropic.claude-opus-4-6-v1',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         const hookOutput = output.hookSpecificOutput;
         expect(output.continue).toBe(true);
@@ -1224,7 +1224,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('blocks tier alias when OMC_SUBAGENT_MODEL is itself a bare Anthropic model ID', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'sonnet' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'sonnet' },
             cwd: tempDir,
             session_id: 'session-tier-alias-bare',
         }, {
@@ -1237,7 +1237,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('blocks tier alias when OMC_SUBAGENT_MODEL has a [1m] extended-context suffix', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'opus' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'opus' },
             cwd: tempDir,
             session_id: 'session-tier-alias-lm',
         }, {
@@ -1250,7 +1250,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
     it('still blocks bare Anthropic model ID even when OMC_SUBAGENT_MODEL is set', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', model: 'claude-sonnet-4-6' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', model: 'claude-sonnet-4-6' },
             cwd: tempDir,
             session_id: 'session-bare-anthropic',
         }, {
@@ -1269,7 +1269,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1278,7 +1278,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         const hookOutput = output.hookSpecificOutput;
         expect(output.continue).toBe(true);
@@ -1294,7 +1294,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Task',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 description: 'Implement feature',
                 prompt: 'Do the thing',
             },
@@ -1303,7 +1303,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         const hookOutput = output.hookSpecificOutput;
         expect(output.continue).toBe(true);
@@ -1318,7 +1318,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1327,7 +1327,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         const reason = output.hookSpecificOutput.permissionDecisionReason;
         expect(reason).toContain('claude-opus-4-6');
@@ -1338,7 +1338,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 model: 'opus',
                 description: 'Review spec',
                 prompt: 'Review this spec',
@@ -1356,7 +1356,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 model: 'opus',
                 description: 'Review spec',
                 prompt: 'Review this spec',
@@ -1375,7 +1375,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1392,7 +1392,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1426,7 +1426,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:../docs/CLAUDE',
+                subagent_type: 'oh-my-qoder:../docs/CLAUDE',
                 description: 'Some task',
                 prompt: 'Do something',
             },
@@ -1439,11 +1439,11 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
     });
-    it('falls back to script-relative agents dir when CLAUDE_PLUGIN_ROOT points to a non-existent path and allows shipped tier aliases', () => {
+    it('falls back to script-relative agents dir when QODER_PLUGIN_ROOT points to a non-existent path and allows shipped tier aliases', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1452,13 +1452,13 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: '/nonexistent/path/that/does/not/exist',
+            QODER_PLUGIN_ROOT: '/nonexistent/path/that/does/not/exist',
         });
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
     });
-    it('falls back to script-relative agents dir when CLAUDE_PLUGIN_ROOT/agents exists but lacks the specific agent file, and allows shipped tier aliases', () => {
-        // CLAUDE_PLUGIN_ROOT/agents/ exists (non-empty check passes) but does not contain critic.md
+    it('falls back to script-relative agents dir when QODER_PLUGIN_ROOT/agents exists but lacks the specific agent file, and allows shipped tier aliases', () => {
+        // QODER_PLUGIN_ROOT/agents/ exists (non-empty check passes) but does not contain critic.md
         const pluginRoot = join(tempDir, 'partial-plugin');
         const pluginAgentsDir = join(pluginRoot, 'agents');
         mkdirSync(pluginAgentsDir, { recursive: true });
@@ -1467,7 +1467,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:critic',
+                subagent_type: 'oh-my-qoder:critic',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1476,7 +1476,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
@@ -1490,7 +1490,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:body-hr-agent',
+                subagent_type: 'oh-my-qoder:body-hr-agent',
                 description: 'Some task',
                 prompt: 'Do something',
             },
@@ -1499,7 +1499,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         // A mid-body --- block is not frontmatter; must not trigger a deny
         expect(output.continue).toBe(true);
@@ -1514,7 +1514,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:body-model-agent',
+                subagent_type: 'oh-my-qoder:body-model-agent',
                 description: 'Some task',
                 prompt: 'Do something',
             },
@@ -1523,7 +1523,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         // model: in the body must not trigger a deny — frontmatter has no model field
         expect(output.continue).toBe(true);
@@ -1538,7 +1538,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:quoted-model-agent',
+                subagent_type: 'oh-my-qoder:quoted-model-agent',
                 description: 'Review spec',
                 prompt: 'Review this spec',
             },
@@ -1547,7 +1547,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         // Quoted model "claude-opus-4-6" must be stripped of quotes before the safety check
         const hookOutput = output.hookSpecificOutput;
@@ -1565,7 +1565,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:bedrock-quoted-agent',
+                subagent_type: 'oh-my-qoder:bedrock-quoted-agent',
                 description: 'Do something',
                 prompt: 'Do it',
             },
@@ -1574,7 +1574,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         expect(output.continue).toBe(true);
         expect(JSON.stringify(output)).not.toContain('MODEL ROUTING');
@@ -1588,7 +1588,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:bom-agent',
+                subagent_type: 'oh-my-qoder:bom-agent',
                 description: 'BOM test',
                 prompt: 'Test BOM handling',
             },
@@ -1597,7 +1597,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         }, {
             OMC_ROUTING_FORCE_INHERIT: 'true',
             OMC_SUBAGENT_MODEL: 'global.anthropic.claude-sonnet-4-6',
-            CLAUDE_PLUGIN_ROOT: pluginRoot,
+            QODER_PLUGIN_ROOT: pluginRoot,
         });
         // BOM must be stripped so the frontmatter regex matches and the bare
         // Anthropic model ID triggers a deny — not silently bypassed.
@@ -1626,7 +1626,7 @@ describe('pre-tool-enforcer fallback gating (issue #970)', () => {
         const output = runPreToolEnforcerWithEnv({
             tool_name: 'Agent',
             toolInput: {
-                subagent_type: 'oh-my-claudecode:nonexistent-agent-xyz',
+                subagent_type: 'oh-my-qoder:nonexistent-agent-xyz',
                 description: 'Some task',
                 prompt: 'Do something',
             },
@@ -1712,7 +1712,7 @@ describe('pre-tool-enforcer force-agent-delegation enforcement', () => {
         }
     });
     it('blocks the call that crosses the threshold and surfaces the configured deny message', () => {
-        const denyMessage = 'Too many Reads — spawn Agent(subagent_type=\'oh-my-claudecode:explore\', model=\'haiku\'). Bypass: ALLOW_RAW_READ=1.';
+        const denyMessage = 'Too many Reads — spawn Agent(subagent_type=\'oh-my-qoder:explore\', model=\'haiku\'). Bypass: ALLOW_RAW_READ=1.';
         writeDelegationConfig([
             {
                 pattern: 'Read',
@@ -1797,13 +1797,13 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
     beforeEach(() => {
         tempDir = mkdtempSync(join(tmpdir(), 'pre-tool-enforcer-agent-model-'));
         xdgConfigHome = join(tempDir, 'xdg-config');
-        mkdirSync(join(xdgConfigHome, 'claude-omc'), { recursive: true });
+        mkdirSync(join(xdgConfigHome, 'qoder-omc'), { recursive: true });
     });
     afterEach(() => {
         rmSync(tempDir, { recursive: true, force: true });
     });
     function writeUserConfig(jsonc) {
-        writeFileSync(join(xdgConfigHome, 'claude-omc', 'config.jsonc'), jsonc);
+        writeFileSync(join(xdgConfigHome, 'qoder-omc', 'config.jsonc'), jsonc);
     }
     function writeProjectConfig(jsonc) {
         const dir = join(tempDir, '.claude');
@@ -1822,7 +1822,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeUserConfig('{ "agents": { "explore": { "model": "sonnet" } } }');
         const output = run({
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:explore', prompt: 'x', description: 'find files' },
+            toolInput: { subagent_type: 'oh-my-qoder:explore', prompt: 'x', description: 'find files' },
             session_id: 'session-3242-inject',
         });
         expect(updatedModel(output)).toBe('sonnet');
@@ -1831,7 +1831,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeUserConfig('{ "agents": {} }');
         const output = run({
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:architect', prompt: 'x', description: 'design' },
+            toolInput: { subagent_type: 'oh-my-qoder:architect', prompt: 'x', description: 'design' },
             session_id: 'session-3242-noop',
         });
         expect(updatedModel(output)).toBeUndefined();
@@ -1840,7 +1840,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeUserConfig('{ "agents": { "explore": { "model": "sonnet" } } }');
         const output = run({
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:explore', model: 'opus', prompt: 'x', description: 'd' },
+            toolInput: { subagent_type: 'oh-my-qoder:explore', model: 'opus', prompt: 'x', description: 'd' },
             session_id: 'session-3242-explicit',
         });
         expect(updatedModel(output)).toBeUndefined();
@@ -1849,7 +1849,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeUserConfig('{ "agents": { "executor": { "model": "claude-opus-4-6" } } }');
         const output = run({
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:executor', prompt: 'x', description: 'd' },
+            toolInput: { subagent_type: 'oh-my-qoder:executor', prompt: 'x', description: 'd' },
             session_id: 'session-3242-normalize',
         });
         expect(updatedModel(output)).toBe('opus');
@@ -1859,7 +1859,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeProjectConfig('{ "agents": { "explore": { "model": "sonnet" } } }');
         const output = run({
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:explore', prompt: 'x', description: 'd' },
+            toolInput: { subagent_type: 'oh-my-qoder:explore', prompt: 'x', description: 'd' },
             session_id: 'session-3242-precedence',
         });
         expect(updatedModel(output)).toBe('sonnet');
@@ -1868,7 +1868,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeUserConfig('{ "agents": { "codeReviewer": { "model": "opus" } } }');
         const output = run({
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:reviewer', prompt: 'x', description: 'd' },
+            toolInput: { subagent_type: 'oh-my-qoder:reviewer', prompt: 'x', description: 'd' },
             session_id: 'session-3242-alias',
         });
         expect(updatedModel(output)).toBe('opus');
@@ -1877,7 +1877,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeUserConfig('{ "agents": { "explore": { "model": "sonnet" } } }');
         const output = run({
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:explore', prompt: 'x', description: 'd' },
+            toolInput: { subagent_type: 'oh-my-qoder:explore', prompt: 'x', description: 'd' },
             session_id: 'session-3242-force-inherit',
         }, { OMC_ROUTING_FORCE_INHERIT: 'true' });
         expect(updatedModel(output)).toBeUndefined();
@@ -1886,7 +1886,7 @@ describe('pre-tool-enforcer agents.<name>.model injection (issue #3242)', () => 
         writeUserConfig('{ "agents": { "explore": { "model": "sonnet" } } }');
         const input = {
             tool_name: 'Task',
-            toolInput: { subagent_type: 'oh-my-claudecode:explore', prompt: 'x', description: 'find files' },
+            toolInput: { subagent_type: 'oh-my-qoder:explore', prompt: 'x', description: 'find files' },
             session_id: 'session-3242-throttle',
         };
         // Pin the throttle clock so the second identical call lands inside the cooldown

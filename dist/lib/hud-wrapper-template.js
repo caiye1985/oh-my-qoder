@@ -5,7 +5,7 @@
  * used by `src/installer/index.ts` (Path A: `omc setup` / npm).
  *
  * The JS mirror lives at `scripts/lib/hud-wrapper-template.mjs` and is
- * used by `scripts/plugin-setup.mjs` (Path B: Claude Code plugin
+ * used by `scripts/plugin-setup.mjs` (Path B: Qoder plugin
  * marketplace). Both must read the same `.txt` file — drift is
  * enforced by `src/__tests__/hud-wrapper-template-sync.test.ts`.
  */

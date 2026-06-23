@@ -134,9 +134,9 @@ export function isTmuxAvailable() {
 /**
  * Check if claude CLI is available on the system
  */
-export function isClaudeAvailable() {
+export function isQoderAvailable() {
     try {
-        execFileSync('claude', ['--version'], {
+        execFileSync('qodercli', ['--version'], {
             stdio: 'ignore',
             shell: process.platform === 'win32',
         });

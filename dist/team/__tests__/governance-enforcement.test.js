@@ -22,7 +22,7 @@ describe('team governance enforcement', () => {
         await writeJson(`.omc/state/team/${teamName}/config.json`, {
             name: teamName,
             task: 'test',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_launch_mode: 'interactive',
             governance: {
                 delegation_only: false,
@@ -33,7 +33,7 @@ describe('team governance enforcement', () => {
             },
             worker_count: 1,
             max_workers: 20,
-            workers: [{ name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [] }],
+            workers: [{ name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [] }],
             created_at: new Date().toISOString(),
             tmux_session: 'approval-session',
             next_task_id: 2,
@@ -67,7 +67,7 @@ describe('team governance enforcement', () => {
             },
             tmux_session: 'approval-session',
             worker_count: 1,
-            workers: [{ name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [] }],
+            workers: [{ name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [] }],
             next_task_id: 2,
             created_at: new Date().toISOString(),
             leader_pane_id: null,
@@ -105,7 +105,7 @@ describe('team governance enforcement', () => {
         await writeJson(`.omc/state/team/${teamName}/config.json`, {
             name: teamName,
             task: 'test',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_launch_mode: 'interactive',
             governance: {
                 delegation_only: false,

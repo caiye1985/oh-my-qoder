@@ -17,7 +17,7 @@ import { parseSkillPipelineMetadata, renderSkillPipelineGuidance } from '../../u
 import { renderSkillResourcesGuidance } from '../../utils/skill-resources.js';
 import { renderSkillRuntimeGuidance } from './runtime-guidance.js';
 import { isSkininthegamebrosUser } from '../../utils/skininthegamebros-user.js';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 function getPackageDir() {
     if (typeof __dirname !== 'undefined' && __dirname) {
         const currentDirName = basename(__dirname);
@@ -43,7 +43,7 @@ function getPackageDir() {
 }
 const SKILLS_DIR = join(getPackageDir(), 'skills');
 /**
- * Claude Code native commands that must not be shadowed by OMC skill short names.
+ * Qoder native commands that must not be shadowed by OMC skill short names.
  * Skills with these names will still load but their name will be prefixed with 'omc-'
  * to avoid overriding built-in /review, /plan, /security-review etc.
  */
@@ -101,15 +101,15 @@ function readDeepInterviewThresholdFromSettings(path) {
         : null;
 }
 function getDeepInterviewAmbiguityThresholdResolution() {
-    const profileSettingsPath = join(getClaudeConfigDir(), 'settings.json');
+    const profileSettingsPath = join(getQoderConfigDir(), 'settings.json');
     const projectSettingsPath = join(process.cwd(), '.claude', 'settings.json');
     const profileThreshold = readDeepInterviewThresholdFromSettings(profileSettingsPath);
     const projectThreshold = readDeepInterviewThresholdFromSettings(projectSettingsPath);
     if (projectThreshold !== null) {
-        return { threshold: projectThreshold, source: './.claude/settings.json' };
+        return { threshold: projectThreshold, source: './.qoder/settings.json' };
     }
     if (profileThreshold !== null) {
-        return { threshold: profileThreshold, source: '[$CLAUDE_CONFIG_DIR|~/.claude]/settings.json' };
+        return { threshold: profileThreshold, source: '[$QODER_CONFIG_DIR|~/.qoder]/settings.json' };
     }
     return { threshold: DEFAULT_DEEP_INTERVIEW_AMBIGUITY_THRESHOLD, source: 'default' };
 }
@@ -159,7 +159,7 @@ function applyDeepInterviewRuntimeSettings(template) {
         || withResolvedPlaceholders.includes('## Phase 0: Resolve Ambiguity Threshold')
         ? withResolvedPlaceholders
         : withResolvedPlaceholders.replace('4. **Initialize state** via `state_write(mode="deep-interview")`:', [
-            `3.5. **Load runtime settings** from \`~/.claude/settings.json\` and \`./.claude/settings.json\` before state init (project overrides profile). For this run, use \`ambiguityThreshold = ${threshold}\`.`,
+            `3.5. **Load runtime settings** from \`~/.qoder/settings.json\` and \`./.qoder/settings.json\` before state init (project overrides profile). For this run, use \`ambiguityThreshold = ${threshold}\`.`,
             '4. **Initialize state** via `state_write(mode="deep-interview")`:',
         ].join('\n'));
     return withRuntimeSettings
@@ -174,7 +174,7 @@ function applyDeepInterviewRuntimeSettings(template) {
         .replace('ambiguity ≤ 20%', `ambiguity ≤ ${percent}`);
 }
 function normalizeSkillNameForRuntimeRendering(skillName) {
-    return skillName.trim().toLowerCase().replace(/^oh-my-claudecode:/, '').replace(/^omc:/, '');
+    return skillName.trim().toLowerCase().replace(/^oh-my-qoder:/, '').replace(/^omc:/, '');
 }
 export function renderBundledSkillBody(skillName, body) {
     const normalizedSkillName = normalizeSkillNameForRuntimeRendering(skillName);

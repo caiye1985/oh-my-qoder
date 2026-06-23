@@ -2,7 +2,7 @@
  * E2E drift guard for the standalone MCP server ListTools surface.
  *
  * Why this test exists (issue #2538):
- * The standalone server exposes a fixed set of tool families to Claude Code.
+ * The standalone server exposes a fixed set of tool families to Qoder.
  * When a new tool family is added to allTools in tool-registry.ts without a
  * corresponding guard here, the MCP surface silently drifts. This test catches
  * that drift by exercising buildListToolsResponse() — the exact same function

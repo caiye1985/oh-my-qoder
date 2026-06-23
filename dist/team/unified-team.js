@@ -2,12 +2,12 @@
 /**
  * Unified team member view across Claude native and MCP workers.
  *
- * Merges Claude Code's native team config with MCP shadow registry
+ * Merges Qoder's native team config with MCP shadow registry
  * to provide a single coherent view of all team members.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { listMcpWorkers } from './team-registration.js';
 import { readHeartbeat, isWorkerAlive } from './heartbeat.js';
 import { getDefaultCapabilities } from './capabilities.js';
@@ -18,13 +18,13 @@ export function getTeamMembers(teamName, workingDirectory) {
     const members = [];
     // 1. Read Claude native members from config.json
     try {
-        const configPath = join(getClaudeConfigDir(), 'teams', teamName, 'config.json');
+        const configPath = join(getQoderConfigDir(), 'teams', teamName, 'config.json');
         if (existsSync(configPath)) {
             const config = JSON.parse(readFileSync(configPath, 'utf-8'));
             if (Array.isArray(config.members)) {
                 for (const member of config.members) {
                     // Skip MCP workers registered via tmux backend (they'll be handled below)
-                    if (member.backendType === 'tmux' || String(member.agentType).startsWith('tmux-'))
+                    if (member.backendType === 'tmux' || member.backendType === 'qoder-subagent' || String(member.agentType).startsWith('tmux-') || String(member.agentType) === 'qoder-subagent')
                         continue;
                     members.push({
                         name: member.name || 'unknown',
@@ -63,7 +63,9 @@ export function getTeamMembers(teamName, workingDirectory) {
                 status = 'dead';
             // Determine backend and default capabilities
             let backend;
-            if (worker.agentType === 'mcp-gemini')
+            if (worker.agentType === 'qoder-subagent')
+                backend = 'qoder-subagent';
+            else if (worker.agentType === 'mcp-gemini')
                 backend = 'mcp-gemini';
             else if (worker.agentType === 'tmux-claude')
                 backend = 'tmux-claude';

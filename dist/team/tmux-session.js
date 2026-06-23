@@ -853,7 +853,7 @@ function paneHasClaudeStartupBanner(captured) {
         .filter((line) => line.length > 0)
         .slice(-20);
     const lastPromptIndex = lines.findLastIndex(paneLineLooksLikeIdlePrompt);
-    // Claude Code v2.1.x renders the permission-mode indicator
+    // Qoder v2.1.x renders the permission-mode indicator
     // ("⏵⏵ bypass permissions on (shift+tab to cycle)") *below* the prompt
     // as a persistent idle-state UI element. If a prompt is present anywhere
     // in the tail, the pane has finished bootstrapping and the banner is an
@@ -890,7 +890,7 @@ export function paneHasActiveTask(captured) {
     return false;
 }
 function paneLineLooksLikeIdlePrompt(line) {
-    // Claude Code can render its idle input prompt inside a box/left gutter
+    // Qoder can render its idle input prompt inside a box/left gutter
     // (for example "│ ❯"). Treat that as ready while still requiring the prompt
     // glyph to be at the visual start of the line, not embedded in arbitrary
     // output text.

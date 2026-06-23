@@ -3,8 +3,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-const originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
-const originalPluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+const originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
+const originalPluginRoot = process.env.QODER_PLUGIN_ROOT;
 const originalHome = process.env.HOME;
 let testClaudeDir;
 let testHomeDir;
@@ -24,37 +24,37 @@ function writeCompletePluginPayload(root) {
     }));
     writePluginFile(join(root, 'skills', 'plan', 'SKILL.md'), '# plan\n');
     writePluginFile(join(root, 'commands', 'omc-setup.md'), 'Read skills/omc-setup/SKILL.md and pass $ARGUMENTS.\n');
-    writePluginFile(join(root, '.claude-plugin', 'plugin.json'), JSON.stringify({
-        name: 'oh-my-claudecode',
+    writePluginFile(join(root, '.qoder-plugin', 'plugin.json'), JSON.stringify({
+        name: 'oh-my-qoder',
         commands: './commands/',
         skills: ['./skills/plan/'],
     }, null, 2));
-    writePluginFile(join(root, 'package.json'), JSON.stringify({ name: 'oh-my-claude-sisyphus', version: '9.9.9' }, null, 2));
+    writePluginFile(join(root, 'package.json'), JSON.stringify({ name: 'oh-my-qoder', version: '9.9.9' }, null, 2));
 }
 describe('install() standalone hook reconciliation', () => {
     beforeEach(() => {
         testClaudeDir = mkdtempSync(join(tmpdir(), 'omc-standalone-hooks-'));
         testHomeDir = mkdtempSync(join(tmpdir(), 'omc-home-'));
         mkdirSync(testHomeDir, { recursive: true });
-        writeFileSync(join(testHomeDir, 'CLAUDE.md'), '# test home claude');
-        process.env.CLAUDE_CONFIG_DIR = testClaudeDir;
+        writeFileSync(join(testHomeDir, 'AGENTS.md'), '# test home claude');
+        process.env.QODER_CONFIG_DIR = testClaudeDir;
         process.env.HOME = testHomeDir;
-        delete process.env.CLAUDE_PLUGIN_ROOT;
+        delete process.env.QODER_PLUGIN_ROOT;
     });
     afterEach(() => {
         rmSync(testClaudeDir, { recursive: true, force: true });
         rmSync(testHomeDir, { recursive: true, force: true });
         if (originalClaudeConfigDir !== undefined) {
-            process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+            process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
         }
         else {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
         if (originalPluginRoot !== undefined) {
-            process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+            process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
         }
         else {
-            delete process.env.CLAUDE_PLUGIN_ROOT;
+            delete process.env.QODER_PLUGIN_ROOT;
         }
         if (originalHome !== undefined) {
             process.env.HOME = originalHome;
@@ -80,9 +80,9 @@ describe('install() standalone hook reconciliation', () => {
         expect(writtenSettings.statusLine?.command).toContain(`${join(testClaudeDir, 'hud', 'omc-hud.mjs').replace(/\\/g, '/')}`);
         expect(writtenSettings.statusLine?.command).toContain('omc-hud-cache.sh');
         expect(readFileSync(join(testClaudeDir, 'hud', 'omc-hud-cache.sh'), 'utf-8')).toContain('HUD cached statusLine launcher');
-        expect(readFileSync(join(testClaudeDir, 'hud', 'omc-hud.mjs'), 'utf-8')).toContain('const { getClaudeConfigDir } = await import(pathToFileURL(join(__dirname, "lib", "config-dir.mjs")).href);');
-        expect(readFileSync(join(testClaudeDir, 'hud', 'lib', 'config-dir.mjs'), 'utf-8')).toContain('export function getClaudeConfigDir()');
-        expect(readFileSync(join(testClaudeDir, 'hooks', 'lib', 'config-dir.mjs'), 'utf-8')).toContain('export function getClaudeConfigDir()');
+        expect(readFileSync(join(testClaudeDir, 'hud', 'omc-hud.mjs'), 'utf-8')).toContain('const { getQoderConfigDir } = await import(pathToFileURL(join(__dirname, "lib", "config-dir.mjs")).href);');
+        expect(readFileSync(join(testClaudeDir, 'hud', 'lib', 'config-dir.mjs'), 'utf-8')).toContain('export function getQoderConfigDir()');
+        expect(readFileSync(join(testClaudeDir, 'hooks', 'lib', 'config-dir.mjs'), 'utf-8')).toContain('export function getQoderConfigDir()');
         expect(readFileSync(join(testClaudeDir, 'hooks', 'keyword-detector.mjs'), 'utf-8')).toContain('Ralph keywords');
         expect(readFileSync(join(testClaudeDir, 'hooks', 'pre-tool-use.mjs'), 'utf-8')).toContain('PreToolUse');
         expect(readFileSync(join(testClaudeDir, 'hooks', 'code-simplifier.mjs'), 'utf-8')).toContain('Code Simplifier');
@@ -135,7 +135,7 @@ describe('install() standalone hook reconciliation', () => {
                     encoding: 'utf-8',
                     env: {
                         ...process.env,
-                        CLAUDE_CONFIG_DIR: testClaudeDir,
+                        QODER_CONFIG_DIR: testClaudeDir,
                         HOME: testHomeDir,
                         USERPROFILE: testHomeDir,
                     },
@@ -149,7 +149,7 @@ describe('install() standalone hook reconciliation', () => {
             rmSync(projectDir, { recursive: true, force: true });
         }
     });
-    it('preserves non-OMC ~/.claude/hooks commands while adding standalone OMC hooks', async () => {
+    it('preserves non-OMC ~/.qoder/hooks commands while adding standalone OMC hooks', async () => {
         const settingsPath = join(testClaudeDir, 'settings.json');
         mkdirSync(testClaudeDir, { recursive: true });
         writeFileSync(settingsPath, JSON.stringify({
@@ -159,7 +159,7 @@ describe('install() standalone hook reconciliation', () => {
                         hooks: [
                             {
                                 type: 'command',
-                                command: 'node $HOME/.claude/hooks/other-plugin.mjs',
+                                command: 'node $HOME/.qoder/hooks/other-plugin.mjs',
                             },
                         ],
                     },
@@ -174,12 +174,12 @@ describe('install() standalone hook reconciliation', () => {
         const writtenSettings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
         const commands = writtenSettings.hooks.UserPromptSubmit.map(group => group.hooks[0]?.command);
         expect(result.success).toBe(true);
-        expect(commands).toContain('node $HOME/.claude/hooks/other-plugin.mjs');
+        expect(commands).toContain('node $HOME/.qoder/hooks/other-plugin.mjs');
         expect(commands).toContain(`node "${join(testClaudeDir, 'hooks', 'keyword-detector.mjs').replace(/\\/g, '/')}"`);
     });
     it('removes legacy OMC settings hooks in plugin mode without re-injecting them', async () => {
         const settingsPath = join(testClaudeDir, 'settings.json');
-        const pluginRoot = join(testClaudeDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '4.1.5');
+        const pluginRoot = join(testClaudeDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '4.1.5');
         mkdirSync(pluginRoot, { recursive: true });
         mkdirSync(testClaudeDir, { recursive: true });
         writeFileSync(settingsPath, JSON.stringify({
@@ -189,7 +189,7 @@ describe('install() standalone hook reconciliation', () => {
                         hooks: [
                             {
                                 type: 'command',
-                                command: 'node $HOME/.claude/hooks/keyword-detector.mjs',
+                                command: 'node $HOME/.qoder/hooks/keyword-detector.mjs',
                             },
                         ],
                     },
@@ -197,14 +197,14 @@ describe('install() standalone hook reconciliation', () => {
                         hooks: [
                             {
                                 type: 'command',
-                                command: 'node $HOME/.claude/hooks/other-plugin.mjs',
+                                command: 'node $HOME/.qoder/hooks/other-plugin.mjs',
                             },
                         ],
                     },
                 ],
             },
         }, null, 2));
-        process.env.CLAUDE_PLUGIN_ROOT = pluginRoot;
+        process.env.QODER_PLUGIN_ROOT = pluginRoot;
         const { install } = await loadInstaller();
         const result = install({
             force: true,
@@ -214,7 +214,7 @@ describe('install() standalone hook reconciliation', () => {
         const commands = writtenSettings.hooks?.UserPromptSubmit?.map(group => group.hooks[0]?.command) ?? [];
         expect(result.success).toBe(true);
         expect(result.hooksConfigured).toBe(true);
-        expect(commands).toEqual(['node $HOME/.claude/hooks/other-plugin.mjs']);
+        expect(commands).toEqual(['node $HOME/.qoder/hooks/other-plugin.mjs']);
         expect(commands).not.toContain(`node "${join(testClaudeDir, 'hooks', 'keyword-detector.mjs').replace(/\\/g, '/')}"`);
         expect(writtenSettings.statusLine?.command).toContain(`${join(testClaudeDir, 'hud', 'omc-hud.mjs').replace(/\\/g, '/')}`);
     });
@@ -226,10 +226,10 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
         testClaudeDir = mkdtempSync(join(tmpdir(), 'omc-hook-dedup-'));
         testHomeDir = mkdtempSync(join(tmpdir(), 'omc-home-dedup-'));
         mkdirSync(testHomeDir, { recursive: true });
-        writeFileSync(join(testHomeDir, 'CLAUDE.md'), '# test home claude');
-        process.env.CLAUDE_CONFIG_DIR = testClaudeDir;
+        writeFileSync(join(testHomeDir, 'AGENTS.md'), '# test home claude');
+        process.env.QODER_CONFIG_DIR = testClaudeDir;
         process.env.HOME = testHomeDir;
-        delete process.env.CLAUDE_PLUGIN_ROOT;
+        delete process.env.QODER_PLUGIN_ROOT;
     });
     afterEach(() => {
         if (fakePluginRoot) {
@@ -238,16 +238,16 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
         rmSync(testClaudeDir, { recursive: true, force: true });
         rmSync(testHomeDir, { recursive: true, force: true });
         if (originalClaudeConfigDir !== undefined) {
-            process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+            process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
         }
         else {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
         if (originalPluginRoot !== undefined) {
-            process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+            process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
         }
         else {
-            delete process.env.CLAUDE_PLUGIN_ROOT;
+            delete process.env.QODER_PLUGIN_ROOT;
         }
         if (originalHome !== undefined) {
             process.env.HOME = originalHome;
@@ -265,12 +265,12 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
         const pluginsDir = join(testClaudeDir, 'plugins');
         mkdirSync(pluginsDir, { recursive: true });
         writeFileSync(join(pluginsDir, 'installed_plugins.json'), JSON.stringify({
-            'oh-my-claudecode': [{ installPath: fakePluginRoot }],
+            'oh-my-qoder': [{ installPath: fakePluginRoot }],
         }));
         // Mark plugin as enabled in settings.json
         mkdirSync(testClaudeDir, { recursive: true });
         writeFileSync(join(testClaudeDir, 'settings.json'), JSON.stringify({
-            enabledPlugins: { 'oh-my-claudecode': true },
+            enabledPlugins: { 'oh-my-qoder': true },
         }, null, 2));
     }
     it('hasPluginProvidedHookFiles returns true when hooks.json exists in plugin root', async () => {
@@ -286,7 +286,7 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
         setupPluginWithHooks();
         const { install } = await loadInstaller();
         install({ force: true, skipClaudeCheck: true });
-        // Standalone hook scripts should NOT be copied to ~/.claude/hooks/
+        // Standalone hook scripts should NOT be copied to ~/.qoder/hooks/
         expect(existsSync(join(testClaudeDir, 'hooks', 'keyword-detector.mjs'))).toBe(false);
         expect(existsSync(join(testClaudeDir, 'hooks', 'pre-tool-use.mjs'))).toBe(false);
         expect(existsSync(join(testClaudeDir, 'hooks', 'session-start.mjs'))).toBe(false);
@@ -304,13 +304,13 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
         // Pre-populate settings.json with stale OMC hook entries (simulating prior standalone install)
         mkdirSync(testClaudeDir, { recursive: true });
         writeFileSync(join(testClaudeDir, 'settings.json'), JSON.stringify({
-            enabledPlugins: { 'oh-my-claudecode': true },
+            enabledPlugins: { 'oh-my-qoder': true },
             hooks: {
                 UserPromptSubmit: [
                     {
                         hooks: [{
                                 type: 'command',
-                                command: 'node "$HOME/.claude/hooks/keyword-detector.mjs"',
+                                command: 'node "$HOME/.qoder/hooks/keyword-detector.mjs"',
                             }],
                     },
                 ],
@@ -318,7 +318,7 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
                     {
                         hooks: [{
                                 type: 'command',
-                                command: 'node "$HOME/.claude/hooks/session-start.mjs"',
+                                command: 'node "$HOME/.qoder/hooks/session-start.mjs"',
                             }],
                     },
                 ],
@@ -338,19 +338,19 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
         setupPluginWithHooks();
         // Then overwrite settings.json with mixed OMC + non-OMC hooks
         writeFileSync(join(testClaudeDir, 'settings.json'), JSON.stringify({
-            enabledPlugins: { 'oh-my-claudecode': true },
+            enabledPlugins: { 'oh-my-qoder': true },
             hooks: {
                 UserPromptSubmit: [
                     {
                         hooks: [{
                                 type: 'command',
-                                command: 'node $HOME/.claude/hooks/other-plugin.mjs',
+                                command: 'node $HOME/.qoder/hooks/other-plugin.mjs',
                             }],
                     },
                     {
                         hooks: [{
                                 type: 'command',
-                                command: 'node "$HOME/.claude/hooks/keyword-detector.mjs"',
+                                command: 'node "$HOME/.qoder/hooks/keyword-detector.mjs"',
                             }],
                     },
                 ],
@@ -361,9 +361,9 @@ describe('install() plugin-provided hook deduplication (#2252)', () => {
         const writtenSettings = JSON.parse(readFileSync(join(testClaudeDir, 'settings.json'), 'utf-8'));
         // Non-OMC hook should be preserved
         const commands = writtenSettings.hooks?.UserPromptSubmit?.map(g => g.hooks[0]?.command) ?? [];
-        expect(commands).toContain('node $HOME/.claude/hooks/other-plugin.mjs');
+        expect(commands).toContain('node $HOME/.qoder/hooks/other-plugin.mjs');
         // OMC hook should NOT be re-added
-        expect(commands).not.toContain('node "$HOME/.claude/hooks/keyword-detector.mjs"');
+        expect(commands).not.toContain('node "$HOME/.qoder/hooks/keyword-detector.mjs"');
     });
 });
 //# sourceMappingURL=standalone-hook-reconcile.test.js.map

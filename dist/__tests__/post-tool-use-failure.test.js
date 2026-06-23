@@ -12,7 +12,7 @@ function runHook(input, extraEnv) {
         encoding: 'utf-8',
         env: {
             ...process.env,
-            CLAUDE_PLUGIN_ROOT: REPO_ROOT,
+            QODER_PLUGIN_ROOT: REPO_ROOT,
             NODE_ENV: 'test',
             ...extraEnv,
         },

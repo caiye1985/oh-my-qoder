@@ -90,7 +90,7 @@ export interface McpWorkerMember {
 export interface HeartbeatData {
     workerName: string;
     teamName: string;
-    provider: 'codex' | 'gemini' | 'claude' | 'cursor' | 'grok' | 'antigravity';
+    provider: 'codex' | 'gemini' | 'qoder' | 'cursor' | 'grok' | 'antigravity';
     pid: number;
     lastPollAt: string;
     currentTaskId?: string;
@@ -110,7 +110,7 @@ export interface ConfigProbeResult {
 /** Sidecar mapping task IDs to execution modes */
 export interface TaskModeMap {
     teamName: string;
-    taskModes: Record<string, 'mcp_codex' | 'mcp_gemini' | 'claude_worker'>;
+    taskModes: Record<string, 'mcp_codex' | 'mcp_gemini' | 'qoder_worker'>;
 }
 /** Failure sidecar for a task */
 export interface TaskFailureSidecar {
@@ -120,7 +120,7 @@ export interface TaskFailureSidecar {
     lastFailedAt: string;
 }
 /** Worker backend type */
-export type WorkerBackend = 'claude-native' | 'mcp-codex' | 'mcp-gemini' | 'tmux-claude' | 'tmux-codex' | 'tmux-gemini' | 'tmux-cursor' | 'tmux-grok' | 'tmux-antigravity';
+export type WorkerBackend = 'qoder-subagent' | 'claude-native' | 'mcp-codex' | 'mcp-gemini' | 'tmux-claude' | 'tmux-codex' | 'tmux-gemini' | 'tmux-cursor' | 'tmux-grok' | 'tmux-antigravity';
 /** Worker capability tag */
 export type WorkerCapability = 'code-edit' | 'code-review' | 'security-review' | 'architecture' | 'testing' | 'documentation' | 'ui-design' | 'refactoring' | 'research' | 'general';
 /** Team task with required version for optimistic concurrency */
@@ -232,7 +232,7 @@ export interface WorkerInfo {
     name: string;
     index: number;
     role: string;
-    worker_cli?: 'codex' | 'claude' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
+    worker_cli?: 'codex' | 'qoder' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
     assigned_tasks: string[];
     pid?: number;
     pane_id?: string;

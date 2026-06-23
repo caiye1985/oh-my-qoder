@@ -9,7 +9,7 @@
  *
  * Applies to roles in CONTRACT_ROLES (critic, code-reviewer,
  * security-reviewer, test-engineer) when the resolved provider is
- * `codex` or `gemini`. Claude workers participate in team messaging
+ * `codex` or `gemini`. Qoder workers participate in team messaging
  * directly and do not use this contract. Codex team workers are launched as
  * persistent `codex` panes, not `codex exec`; they still receive this verdict
  * contract in their inbox when assigned reviewer-style roles.
@@ -31,14 +31,14 @@ const VALID_SEVERITIES = new Set(['critical', 'major', 'minor', 'nit']);
 export function shouldInjectContract(role, provider) {
     if (!role || !provider)
         return false;
-    // Claude workers speak through the team messaging API directly.
+    // Qoder workers speak through the team messaging API directly.
     // Cursor workers run as interactive REPLs — they cannot perform the
     // write-verdict-and-exit dance the contract requires, so reviewer
     // roles must not be assigned to cursor in the first place. The
     // role-router and worker-bootstrap guidance both flag this; here we
     // simply skip contract injection if a cursor worker somehow lands on
     // a CONTRACT_ROLES role rather than emit instructions it cannot follow.
-    if (provider === 'claude' || provider === 'cursor')
+    if (provider === 'qoder' || provider === 'cursor')
         return false;
     return CONTRACT_ROLES.has(role);
 }

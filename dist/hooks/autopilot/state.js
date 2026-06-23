@@ -392,7 +392,7 @@ export function transitionToFailed(directory, error, sessionId) {
     return { success: true, state };
 }
 /**
- * Get a prompt for Claude to execute the transition
+ * Get a prompt for Qoder to execute the transition
  */
 export function getTransitionPrompt(fromPhase, toPhase) {
     if (fromPhase === "execution" && toPhase === "qa") {
@@ -431,13 +431,13 @@ You are now in validation phase. Spawn parallel validation architects:
 
 \`\`\`
 // Spawn all three in parallel
-Task(subagent_type="oh-my-claudecode:architect", model="opus",
+Task(subagent_type="oh-my-qoder:architect", model="opus",
   prompt="FUNCTIONAL COMPLETENESS REVIEW: Verify all requirements from spec are implemented")
 
-Task(subagent_type="oh-my-claudecode:security-reviewer", model="opus",
+Task(subagent_type="oh-my-qoder:security-reviewer", model="opus",
   prompt="SECURITY REVIEW: Check for vulnerabilities, injection risks, auth issues")
 
-Task(subagent_type="oh-my-claudecode:code-reviewer", model="opus",
+Task(subagent_type="oh-my-qoder:code-reviewer", model="opus",
   prompt="CODE QUALITY REVIEW: Check patterns, maintainability, test coverage")
 \`\`\`
 

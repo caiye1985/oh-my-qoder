@@ -6,14 +6,14 @@ import { getAgentDefinitions } from '../agents/definitions.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const MODEL_ENV_KEYS = [
-    'CLAUDE_MODEL',
+    'QODER_MODEL',
     'ANTHROPIC_MODEL',
     'ANTHROPIC_BASE_URL',
-    'CLAUDE_CODE_USE_BEDROCK',
-    'CLAUDE_CODE_USE_VERTEX',
-    'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-    'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-    'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+    'QODER_USE_BEDROCK',
+    'QODER_USE_VERTEX',
+    'QODER_BEDROCK_OPUS_MODEL',
+    'QODER_BEDROCK_SONNET_MODEL',
+    'QODER_BEDROCK_HAIKU_MODEL',
     'ANTHROPIC_DEFAULT_OPUS_MODEL',
     'ANTHROPIC_DEFAULT_SONNET_MODEL',
     'ANTHROPIC_DEFAULT_HAIKU_MODEL',
@@ -77,9 +77,9 @@ describe('Agent Registry Validation', () => {
         }
     });
     test('resolves agent models from env-based tier defaults when forceInherit is disabled', async () => {
-        process.env.CLAUDE_CODE_BEDROCK_OPUS_MODEL = 'us.anthropic.claude-opus-4-6-v1:0';
-        process.env.CLAUDE_CODE_BEDROCK_SONNET_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
-        process.env.CLAUDE_CODE_BEDROCK_HAIKU_MODEL = 'us.anthropic.claude-haiku-4-5-v1:0';
+        process.env.QODER_BEDROCK_OPUS_MODEL = 'us.anthropic.claude-opus-4-6-v1:0';
+        process.env.QODER_BEDROCK_SONNET_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
+        process.env.QODER_BEDROCK_HAIKU_MODEL = 'us.anthropic.claude-haiku-4-5-v1:0';
         process.env.OMC_ROUTING_FORCE_INHERIT = 'false';
         const agents = getAgentDefinitions();
         expect(agents.architect?.model).toBe('us.anthropic.claude-opus-4-6-v1:0');
@@ -88,7 +88,7 @@ describe('Agent Registry Validation', () => {
         expect(agents.tracer?.model).toBe('us.anthropic.claude-sonnet-4-6-v1:0');
     });
     test('inherits parent session model when forceInherit is enabled and no configured model exists', async () => {
-        process.env.CLAUDE_MODEL = 'claude-3-7-session-parent';
+        process.env.QODER_MODEL = 'claude-3-7-session-parent';
         const { DEFAULT_CONFIG } = await import('../config/loader.js');
         const agents = getAgentDefinitions({
             config: {
@@ -135,7 +135,7 @@ describe('Agent Registry Validation', () => {
         expect(agents.executor?.model).not.toBe('glm-5.1:cloud');
     });
     test('explicit override model still wins when forceInherit is enabled', async () => {
-        process.env.CLAUDE_MODEL = 'claude-3-7-session-parent';
+        process.env.QODER_MODEL = 'claude-3-7-session-parent';
         const { DEFAULT_CONFIG } = await import('../config/loader.js');
         const agents = getAgentDefinitions({
             config: {
@@ -155,7 +155,7 @@ describe('Agent Registry Validation', () => {
         expect(agents.executor?.model).toBe('opus');
     });
     test('keeps agent fallback model when forceInherit is disabled and no configured model exists', async () => {
-        process.env.CLAUDE_MODEL = 'claude-3-7-session-parent';
+        process.env.QODER_MODEL = 'claude-3-7-session-parent';
         const { DEFAULT_CONFIG } = await import('../config/loader.js');
         const agents = getAgentDefinitions({
             config: {

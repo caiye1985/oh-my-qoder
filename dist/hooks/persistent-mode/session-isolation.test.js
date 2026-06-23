@@ -267,7 +267,7 @@ describe("Persistent Mode Session Isolation (Issue #311)", () => {
             });
             expect(output.decision).toBe("block");
             expect(output.reason).toContain("AUTOPILOT");
-            expect(output.reason).not.toContain('/oh-my-claudecode:cancel');
+            expect(output.reason).not.toContain('/oh-my-qoder:cancel');
         });
         it("should include cancel guidance only for session-owned autopilot state", () => {
             const sessionId = "session-autopilot-owned";
@@ -285,7 +285,7 @@ describe("Persistent Mode Session Isolation (Issue #311)", () => {
                 sessionId,
             });
             expect(output.decision).toBe("block");
-            expect(output.reason).toContain('/oh-my-claudecode:cancel');
+            expect(output.reason).toContain('/oh-my-qoder:cancel');
             expect(output.reason).toContain("this session's autopilot state files");
         });
     });

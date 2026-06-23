@@ -16,7 +16,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync, appendFileSync, realpathSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 // --- task-file-ops imports ---
 import { readTask, updateTask, findNextTask, areBlockersResolved, writeTaskFailure, readTaskFailure, listTaskIds } from '../task-file-ops.js';
 // --- inbox-outbox imports ---
@@ -35,11 +35,11 @@ const EDGE_TEAM_IO = 'test-edge-io';
 // task-file-ops tests use canonical path via cwd
 let TASK_TEST_CWD;
 let TASKS_DIR;
-const TEAMS_IO_DIR = join(getClaudeConfigDir(), 'teams', EDGE_TEAM_IO);
+const TEAMS_IO_DIR = join(getQoderConfigDir(), 'teams', EDGE_TEAM_IO);
 const HB_DIR = join(tmpdir(), 'test-edge-hb');
 const REG_DIR = join(tmpdir(), 'test-edge-reg');
 const REG_TEAM = 'test-edge-reg-team';
-const CONFIG_DIR = join(getClaudeConfigDir(), 'teams', REG_TEAM);
+const CONFIG_DIR = join(getQoderConfigDir(), 'teams', REG_TEAM);
 function writeTaskHelper(task) {
     mkdirSync(TASKS_DIR, { recursive: true });
     writeFileSync(join(TASKS_DIR, `${task.id}.json`), JSON.stringify(task, null, 2));
@@ -731,7 +731,7 @@ describe('team-registration edge cases', () => {
             writeFileSync(configPath, JSON.stringify({
                 teamName: REG_TEAM,
                 members: [
-                    { name: 'claude-agent', backendType: 'subprocess', agentType: 'claude' },
+                    { name: 'claude-agent', backendType: 'subprocess', agentType: 'qoder' },
                     { name: 'mcp-w1', backendType: 'tmux', agentType: 'mcp-codex' },
                 ],
             }));

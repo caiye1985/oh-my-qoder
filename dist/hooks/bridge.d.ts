@@ -9,7 +9,7 @@
  * ```bash
  * #!/bin/bash
  * INPUT=$(cat)
- * echo "$INPUT" | node ~/.claude/omc/hook-bridge.mjs --hook=keyword-detector
+ * echo "$INPUT" | node ~/.qoder/omc/hook-bridge.mjs --hook=keyword-detector
  * ```
  */
 /**
@@ -18,7 +18,7 @@
  */
 export declare function requiredKeysForHook(hookType: string): string[];
 /**
- * Input format from Claude Code hooks (via stdin)
+ * Input format from Qoder hooks (via stdin)
  */
 export interface HookInput {
     /** Session identifier */
@@ -48,7 +48,7 @@ export interface HookInput {
     directory?: string;
 }
 /**
- * Output format for Claude Code hooks (to stdout)
+ * Output format for Qoder hooks (to stdout)
  */
 export interface HookOutput {
     /** Whether to continue with the operation */
@@ -66,7 +66,7 @@ type SerializableHookOutput = HookOutput & {
     hookSpecificOutput?: Record<string, unknown>;
 };
 /**
- * Strip empty hook text fields before serializing to Claude Code.
+ * Strip empty hook text fields before serializing to Qoder.
  *
  * Some hook handlers use empty strings as internal sentinels. Passing those
  * through to the shell hook protocol can create empty system-message/context

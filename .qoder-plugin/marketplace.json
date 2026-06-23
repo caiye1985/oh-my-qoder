@@ -1,10 +1,10 @@
 {
-  "$schema": "https://anthropic.com/qoder/marketplace.schema.json",
+  "$schema": "https://qoder.com/schemas/plugin-marketplace.schema.json",
   "name": "omc",
   "description": "Qoder native multi-agent orchestration - intelligent model routing, 28 agents, 32 skills",
   "owner": {
-    "name": "Yeachan Heo",
-    "email": "hurrc04@gmail.com"
+    "name": "caiye1985",
+    "email": ""
   },
   "plugins": [
     {
@@ -12,8 +12,8 @@
       "description": "Qoder native multi-agent orchestration with intelligent model routing, 28 agent variants, and 32 powerful skills. Zero learning curve. Maximum power.",
       "version": "4.15.0",
       "author": {
-        "name": "Yeachan Heo",
-        "email": "hurrc04@gmail.com"
+        "name": "caiye1985",
+        "email": ""
       },
       "source": "./",
       "category": "productivity",

@@ -4,7 +4,7 @@
  * Unified handler for persistent work modes: ultrawork, ralph, and todo-continuation.
  * This hook intercepts Stop events and enforces work continuation based on:
  * 1. Active ultrawork mode with pending todos
- * 2. Active ralph loop (until cancelled via /oh-my-claudecode:cancel)
+ * 2. Active ralph loop (until cancelled via /oh-my-qoder:cancel)
  * 3. Any pending todos (general enforcement)
  *
  * Priority order: Ralph > Ultrawork > Todo Continuation
@@ -91,7 +91,7 @@ export declare function recordIdleNotificationSent(stateDir: string, sessionId?:
  */
 export declare function checkPersistentModes(sessionId?: string, directory?: string, stopContext?: StopContext): Promise<PersistentModeResult>;
 /**
- * Create hook output for Claude Code.
+ * Create hook output for Qoder.
  * Returns `continue: false` when `shouldBlock` is true to hard-block the stop event.
  * Returns `continue: true` for terminal states, escape hatches, and errors.
  */

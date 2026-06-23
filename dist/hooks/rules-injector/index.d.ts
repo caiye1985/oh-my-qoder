@@ -2,8 +2,8 @@
  * Rules Injector Hook
  *
  * Automatically injects relevant rule files when Claude accesses files.
- * Supports project-level (.claude/rules, .github/instructions) and
- * user-level rules under [$CLAUDE_CONFIG_DIR|~/.claude].
+ * Supports project-level (.qoder/rules, .github/instructions) and
+ * user-level rules under [$QODER_CONFIG_DIR|~/.qoder].
  *
  * Ported from oh-my-opencode's rules-injector hook.
  */
@@ -15,7 +15,7 @@ export * from './parser.js';
 export * from './matcher.js';
 export * from './storage.js';
 /**
- * Create a rules injector hook for Claude Code.
+ * Create a rules injector hook for Qoder.
  *
  * @param workingDirectory - The working directory for resolving paths
  * @returns Hook handlers for tool execution

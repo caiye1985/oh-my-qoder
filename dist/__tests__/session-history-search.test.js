@@ -9,17 +9,17 @@ function writeTranscript(filePath, entries) {
 }
 describe('session history search', () => {
     const repoRoot = process.cwd();
-    const originalConfigDir = process.env.CLAUDE_CONFIG_DIR;
+    const originalConfigDir = process.env.QODER_CONFIG_DIR;
     let tempRoot;
     let claudeDir;
     let otherProject;
     let tildeClaudeDir;
     beforeEach(() => {
         tempRoot = mkdtempSync(join(tmpdir(), 'omc-session-search-'));
-        claudeDir = join(tempRoot, 'claude');
+        claudeDir = join(tempRoot, 'qoder');
         otherProject = join(tempRoot, 'other-project');
         tildeClaudeDir = join(homedir(), `.omc-session-search-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-        process.env.CLAUDE_CONFIG_DIR = claudeDir;
+        process.env.QODER_CONFIG_DIR = claudeDir;
         process.env.OMC_STATE_DIR = join(tempRoot, 'omc-state');
         const currentProjectDir = join(claudeDir, 'projects', encodeProjectPath(repoRoot));
         const otherProjectDir = join(claudeDir, 'projects', encodeProjectPath(otherProject));
@@ -60,10 +60,10 @@ describe('session history search', () => {
     });
     afterEach(() => {
         if (originalConfigDir === undefined) {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
         else {
-            process.env.CLAUDE_CONFIG_DIR = originalConfigDir;
+            process.env.QODER_CONFIG_DIR = originalConfigDir;
         }
         delete process.env.OMC_STATE_DIR;
         rmSync(tempRoot, { recursive: true, force: true });
@@ -111,8 +111,8 @@ describe('session history search', () => {
         expect(report.results).toHaveLength(1);
         expect(report.results[0].sessionId).toBe('session-current');
     });
-    it('uses a ~-prefixed CLAUDE_CONFIG_DIR for transcript discovery', async () => {
-        process.env.CLAUDE_CONFIG_DIR = `~/${basename(tildeClaudeDir)}`;
+    it('uses a ~-prefixed QODER_CONFIG_DIR for transcript discovery', async () => {
+        process.env.QODER_CONFIG_DIR = `~/${basename(tildeClaudeDir)}`;
         const tildeProjectDir = join(tildeClaudeDir, 'projects', encodeProjectPath(repoRoot));
         writeTranscript(join(tildeProjectDir, 'session-tilde.jsonl'), [
             {
@@ -130,9 +130,9 @@ describe('session history search', () => {
         expect(report.totalMatches).toBe(1);
         expect(report.results[0].sessionId).toBe('session-tilde');
     });
-    it('encodes a Windows drive path the same way Claude Code names its project dir', () => {
+    it('encodes a Windows drive path the same way Qoder names its project dir', () => {
         // Regression: the drive colon must be replaced with "-" so the encoded directory
-        // matches Claude Code's actual project dir (e.g. ~/.claude/projects/C--Users-me-proj).
+        // matches Qoder's actual project dir (e.g. ~/.qoder/projects/C--Users-me-proj).
         // Before the fix this returned "C:-Users-me-proj", which never matched on Windows and
         // made current-scope search find zero project transcripts. Platform-independent: this
         // asserts the encoding of a literal Windows-style string regardless of host OS.

@@ -20,9 +20,9 @@ describe('tmux-detector', () => {
         vi.clearAllMocks();
     });
     describe('analyzePaneContent', () => {
-        it('should detect rate limit messages with Claude Code context', () => {
+        it('should detect rate limit messages with Qoder context', () => {
             const content = `
-        Claude Code v1.2.3
+        Qoder v1.2.3
         You've reached your rate limit. Please wait for the limit to reset.
         [1] Continue when ready
         [2] Exit
@@ -35,7 +35,7 @@ describe('tmux-detector', () => {
         });
         it('should detect 5-hour rate limit', () => {
             const content = `
-        Claude Code assistant
+        Qoder assistant
         5-hour usage limit reached
         [1] Wait for reset
       `;
@@ -45,7 +45,7 @@ describe('tmux-detector', () => {
         });
         it('should detect weekly rate limit', () => {
             const content = `
-        Claude Code
+        Qoder
         Weekly usage quota exceeded
         Please try again later
       `;
@@ -53,7 +53,7 @@ describe('tmux-detector', () => {
             expect(result.hasRateLimitMessage).toBe(true);
             expect(result.rateLimitType).toBe('weekly');
         });
-        it('should not flag content without Claude Code indicators', () => {
+        it('should not flag content without Qoder indicators', () => {
             const content = `
         vim test.js
         Hello World
@@ -91,7 +91,7 @@ describe('tmux-detector', () => {
         });
         it('should detect Claude limit screen phrasing: hit your limit + numeric menu', () => {
             const content = `
-        Claude Code
+        Qoder
         You've hit your limit · resets Feb 17 at 2pm (Asia/Seoul)
         What do you want to do?
 
@@ -262,7 +262,7 @@ describe('tmux-detector', () => {
     describe('formatBlockedPanesSummary', () => {
         it('should format empty list', () => {
             const result = formatBlockedPanesSummary([]);
-            expect(result).toBe('No blocked Claude Code sessions detected.');
+            expect(result).toBe('No blocked Qoder sessions detected.');
         });
         it('should format blocked panes', () => {
             const panes = [
@@ -317,10 +317,10 @@ describe('tmux-detector', () => {
     // ── Regression: stale tmux keyword false-positives ────────────────────────
     describe('analyzePaneContent — false-positive suppression', () => {
         it('should NOT flag git log with "weekly" in a commit message as rate-limited', () => {
-            // Reproduces: running `git log` in a Claude Code session pane where a
+            // Reproduces: running `git log` in a Qoder session pane where a
             // commit message contains "weekly" caused a false blocked-pane alert.
             const content = `
-        Claude Code v1.0
+        Qoder v1.0
         $ git log --oneline -3
         commit abc1234def5678901234
         Author: Dev <dev@example.com>
@@ -355,9 +355,9 @@ describe('tmux-detector', () => {
             expect(result.isBlocked).toBe(false);
         });
         it('should STILL detect genuine "weekly usage limit" rate-limit message', () => {
-            // Positive control: genuine Claude Code rate-limit screen must still trigger.
+            // Positive control: genuine Qoder rate-limit screen must still trigger.
             const content = `
-        Claude Code
+        Qoder
 
         ⚠️  Weekly usage limit reached
 
@@ -375,7 +375,7 @@ describe('tmux-detector', () => {
         });
         it('should STILL detect "weekly quota exceeded" phrasing', () => {
             const content = `
-        Claude Code
+        Qoder
         Weekly usage quota exceeded
         Please try again later
       `;
@@ -408,7 +408,7 @@ describe('tmux-detector', () => {
             vi.mocked(tmuxSpawn).mockReturnValue(tmuxAvailableReturn);
             vi.mocked(tmuxExec).mockReturnValue('main:0.0 %0 1 dev Claude\n');
             // getNewPaneTail returns new rate-limit content
-            vi.mocked(getNewPaneTail).mockReturnValue('Claude Code\nYou\'ve hit your limit · resets Feb 17 at 2pm\n❯ 1. Stop and wait\nEnter to confirm');
+            vi.mocked(getNewPaneTail).mockReturnValue('Qoder\nYou\'ve hit your limit · resets Feb 17 at 2pm\n❯ 1. Stop and wait\nEnter to confirm');
             const blocked = scanForBlockedPanes(15, '/project/.omc/state');
             expect(blocked).toHaveLength(1);
             expect(blocked[0].id).toBe('%0');

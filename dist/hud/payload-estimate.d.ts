@@ -1,7 +1,7 @@
 /**
  * HUD payload byte pressure estimation.
  *
- * Claude Code does not expose the exact serialized Anthropic request body to
+ * Qoder does not expose the exact serialized Anthropic request body to
  * statusline hooks. The HUD can only observe local session artifacts such as the
  * transcript JSONL path. Transcript size is therefore a conservative signal for
  * screenshot/tool-output-heavy sessions, not an exact API payload byte count.

@@ -2,12 +2,12 @@ export interface WorkerCadenceContext {
     teamName: string;
     workerName: string;
     worktreePath: string;
-    agentType: 'claude' | 'codex' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
+    agentType: 'qoder' | 'codex' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
     enabled: boolean;
 }
 export type CadenceMethod = 'hook' | 'fallback-poll' | 'none';
 /**
- * Writes `{worktreePath}/.claude/settings.json` containing a PostToolUse hook
+ * Writes `{worktreePath}/.qoder/settings.json` containing a PostToolUse hook
  * that auto-commits after every Write/Edit/MultiEdit.
  *
  * Skips installation if the .hook-paused sentinel is present.
@@ -43,7 +43,7 @@ export declare function startFallbackPoller(worktreePath: string, workerName: st
 }): FallbackPollerHandle;
 /**
  * Installs the appropriate commit cadence for the worker agent type.
- * - claude  → PostToolUse hook in .claude/settings.json
+ * - claude  → PostToolUse hook in .qoder/settings.json
  * - codex / gemini / cursor / antigravity → fallback fs-watch poller (caller owns the handle)
  *
  * Returns the chosen method. The fallback-poll handle is NOT started here;
@@ -53,7 +53,7 @@ export declare function installCommitCadence(ctx: WorkerCadenceContext): Promise
     method: CadenceMethod;
 }>;
 /**
- * Removes the auto-commit PostToolUse hook from .claude/settings.json.
+ * Removes the auto-commit PostToolUse hook from .qoder/settings.json.
  * For fallback-poll workers the caller is responsible for stopping the poller handle.
  */
 export declare function uninstallCommitCadence(ctx: WorkerCadenceContext): Promise<void>;

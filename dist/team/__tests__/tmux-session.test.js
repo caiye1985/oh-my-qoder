@@ -125,9 +125,9 @@ describe('buildWorkerStartCommand', () => {
             envVars: {
                 OMC_TEAM_WORKER: "team name/worker 'one'",
                 OMC_TEAM_STATE_ROOT: 'C:\\Users\\Test User\\AppData\\Local\\omc state',
-                CLAUDE_CODE_USE_BEDROCK: 'value with spaces & [brackets] "quotes"',
+                QODER_USE_BEDROCK: 'value with spaces & [brackets] "quotes"',
             },
-            launchBinary: 'C:\\Program Files\\Claude Code\\claude.exe',
+            launchBinary: 'C:\\Program Files\\Qoder\\claude.exe',
             launchArgs: [
                 '--model',
                 'sonnet "quoted"',
@@ -137,8 +137,8 @@ describe('buildWorkerStartCommand', () => {
         });
         expect(cmd).toContain('set "OMC_TEAM_WORKER=team name/worker \'one\'"');
         expect(cmd).toContain('set "OMC_TEAM_STATE_ROOT=C:\\Users\\Test User\\AppData\\Local\\omc state"');
-        expect(cmd).toContain('set "CLAUDE_CODE_USE_BEDROCK=value with spaces & [brackets] ""quotes"""');
-        expect(cmd).toContain('"C:\\Program Files\\Claude Code\\claude.exe" "--model" "sonnet ""quoted""" "--label=worker \'one\'"');
+        expect(cmd).toContain('set "QODER_USE_BEDROCK=value with spaces & [brackets] ""quotes"""');
+        expect(cmd).toContain('"C:\\Program Files\\Qoder\\claude.exe" "--model" "sonnet ""quoted""" "--label=worker \'one\'"');
         expect(cmd).not.toContain('$env:OMC_TEAM_WORKER');
     });
     it('escapes literal percent signs in native Windows cmd env values and launch args', () => {
@@ -151,7 +151,7 @@ describe('buildWorkerStartCommand', () => {
                 OMC_TEAM_WORKER: 'team/worker-1',
                 OMC_TOKEN: 'literal%USERPROFILE%token%25',
             },
-            launchBinary: 'C:\\Program Files\\Claude Code\\claude.exe',
+            launchBinary: 'C:\\Program Files\\Qoder\\claude.exe',
             launchArgs: ['--label', '100% ready %USERPROFILE%', '--token=abc%25'],
             cwd: 'C:\\repo'
         });
@@ -261,7 +261,7 @@ describe('buildWorkerStartCommand', () => {
             workerName: 'w',
             envVars: {
                 ANTHROPIC_MODEL: 'us.anthropic.claude-sonnet-4-6-v1[1m]',
-                CLAUDE_CODE_USE_BEDROCK: '1',
+                QODER_USE_BEDROCK: '1',
             },
             launchBinary: '/usr/local/bin/claude',
             launchArgs: ['--dangerously-skip-permissions'],
@@ -271,7 +271,7 @@ describe('buildWorkerStartCommand', () => {
         // Correct:   ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6-v1[1m]'
         // Wrong:     'ANTHROPIC_MODEL='"'"'us.anthropic...'"'"''  (double-escaped)
         expect(cmd).toContain("ANTHROPIC_MODEL='us.anthropic.claude-sonnet-4-6-v1[1m]'");
-        expect(cmd).toContain("CLAUDE_CODE_USE_BEDROCK='1'");
+        expect(cmd).toContain("QODER_USE_BEDROCK='1'");
         // The env keyword and other args should still be shell-escaped
         expect(cmd).toMatch(/^'env'/);
         expect(cmd).toContain("'/usr/local/bin/claude'");
@@ -399,14 +399,14 @@ describe('pane readiness startup banners', () => {
         expect(paneLooksReady('Welcome\n> ')).toBe(true);
         expect(paneLooksReady('⏵⏵ bypass permissions on (shift+tab to cycle)\nReady\n❯ ')).toBe(true);
     });
-    it('treats Claude Code v2.1.x idle pane (prompt above persistent mode indicator) as ready', () => {
-        // Claude Code v2.1.142 renders the permission-mode indicator
+    it('treats Qoder v2.1.x idle pane (prompt above persistent mode indicator) as ready', () => {
+        // Qoder v2.1.142 renders the permission-mode indicator
         // ("⏵⏵ bypass permissions on (shift+tab to cycle)") *below* the prompt
         // as a persistent idle-state UI element. Before this fix, the pane was
         // misread as still bootstrapping and OMC never dispatched the inbox to
-        // claude workers, leaving them hung with "[OMC] Starting..." forever.
+        // qoder workers, leaving them hung with "[OMC] Starting..." forever.
         const capture = [
-            '▐▛███▜▌   Claude Code v2.1.142',
+            '▐▛███▜▌   Qoder v2.1.142',
             '▝▜█████▛▘  Opus 4.7 (1M context) · Claude Max',
             '  ▘▘ ▝▝    ~/some/repo',
             '',
@@ -421,7 +421,7 @@ describe('pane readiness startup banners', () => {
     it('treats Claude idle prompt inside the TUI gutter as ready for initial dispatch', () => {
         const capture = [
             '╭────────────────────────────────────────────────────────╮',
-            '│ ✻ Welcome to Claude Code v2.1.142                      │',
+            '│ ✻ Welcome to Qoder v2.1.142                      │',
             '│                                                        │',
             '│ ❯                                                      │',
             '╰────────────────────────────────────────────────────────╯',
@@ -430,7 +430,7 @@ describe('pane readiness startup banners', () => {
         expect(paneLooksReady(capture)).toBe(true);
         expect(paneHasActiveTask(capture)).toBe(false);
     });
-    it('still flags Claude Code v2.1.x mid-task panes via paneHasActiveTask', () => {
+    it('still flags Qoder v2.1.x mid-task panes via paneHasActiveTask', () => {
         // Same v2.1.x pane shape with a spinner + "esc to interrupt" — paneLooksReady
         // sees the prompt and reports ready, but waitForPaneReady's secondary
         // paneHasActiveTask guard catches the in-flight task and keeps the worker

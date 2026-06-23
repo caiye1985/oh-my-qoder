@@ -3,10 +3,20 @@
  *
  * Discovers skill files using hybrid search (user + project).
  * Project skills override user skills with same ID.
+ *
+ * Search paths:
+ *   Project-level:
+ *     - ${project}/.omc/skills/
+ *     - ${project}/.agents/skills/
+ *     - ${project}/.qoder/skills/
+ *   User-level:
+ *     - ~/.omc/skills/
+ *     - ~/.qoder/skills/omc-learned/
+ *     - ~/.qoder/skills/
  */
 import { existsSync, readdirSync, realpathSync, mkdirSync } from 'fs';
 import { join, normalize, sep } from 'path';
-import { USER_SKILLS_DIR, PROJECT_SKILLS_SUBDIR, PROJECT_AGENT_SKILLS_SUBDIR, SKILL_EXTENSION, DEBUG_ENABLED, GLOBAL_SKILLS_DIR, MAX_RECURSION_DEPTH } from './constants.js';
+import { USER_SKILLS_DIR, USER_SKILLS_QODER_DIR, PROJECT_SKILLS_SUBDIR, PROJECT_AGENT_SKILLS_SUBDIR, PROJECT_QODER_SKILLS_SUBDIR, SKILL_EXTENSION, DEBUG_ENABLED, GLOBAL_SKILLS_DIR, MAX_RECURSION_DEPTH, } from './constants.js';
 /**
  * Recursively find all skill files in a directory.
  */
@@ -67,6 +77,7 @@ export function findSkillFiles(projectRoot, options) {
         const projectSkillDirs = [
             join(projectRoot, PROJECT_SKILLS_SUBDIR),
             join(projectRoot, PROJECT_AGENT_SKILLS_SUBDIR),
+            join(projectRoot, PROJECT_QODER_SKILLS_SUBDIR),
         ];
         for (const projectSkillsDir of projectSkillDirs) {
             const projectFiles = [];
@@ -92,9 +103,9 @@ export function findSkillFiles(projectRoot, options) {
             }
         }
     }
-    // 2. Search user-level skills from both directories (if scope allows)
+    // 2. Search user-level skills from all directories (if scope allows)
     if (scope === 'user' || scope === 'all') {
-        const userDirs = [GLOBAL_SKILLS_DIR, USER_SKILLS_DIR];
+        const userDirs = [GLOBAL_SKILLS_DIR, USER_SKILLS_DIR, USER_SKILLS_QODER_DIR];
         for (const userDir of userDirs) {
             const userFiles = [];
             findSkillFilesRecursive(userDir, userFiles);

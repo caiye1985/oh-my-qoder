@@ -2,8 +2,8 @@
  * Configuration Loader
  *
  * Handles loading and merging configuration from multiple sources:
- * - User config: ~/.config/claude-omc/config.jsonc
- * - Project config: .claude/omc.jsonc
+ * - User config: ~/.config/qoder-omc/config.jsonc
+ * - Project config: .qoder/omc.jsonc
  * - Environment variables
  */
 import { readFileSync, existsSync } from "fs";
@@ -142,7 +142,7 @@ export function buildDefaultConfig() {
         // Delegation routing configuration (opt-in feature for external model routing)
         delegationRouting: {
             enabled: false,
-            defaultProvider: "claude",
+            defaultProvider: "qoder",
             roles: {},
         },
         // /team role routing (Option E — /team-scoped per-role provider & model)
@@ -192,7 +192,7 @@ export const DEFAULT_CONFIG = buildDefaultConfig();
 export function getConfigPaths() {
     const userConfigDir = getConfigDir();
     return {
-        user: join(userConfigDir, "claude-omc", "config.jsonc"),
+        user: join(userConfigDir, "qoder-omc", "config.jsonc"),
         project: join(process.cwd(), ".claude", "omc.jsonc"),
     };
 }
@@ -364,7 +364,7 @@ export function loadEnvConfig() {
         const policy = process.env.OMC_EXTERNAL_MODELS_FALLBACK_POLICY;
         if (policy === "provider_chain" ||
             policy === "cross_provider" ||
-            policy === "claude_only") {
+            policy === "qoder_only") {
             externalModelsFallback.onModelFailure = policy;
         }
     }
@@ -385,7 +385,7 @@ export function loadEnvConfig() {
     }
     if (process.env.OMC_DELEGATION_ROUTING_DEFAULT_PROVIDER) {
         const provider = process.env.OMC_DELEGATION_ROUTING_DEFAULT_PROVIDER;
-        if (["claude", "codex", "gemini"].includes(provider)) {
+        if (["qoder", "codex", "gemini"].includes(provider)) {
             config.delegationRouting = {
                 ...config.delegationRouting,
                 defaultProvider: provider,
@@ -437,7 +437,7 @@ const CANONICAL_TEAM_ROLE_SET = new Set(CANONICAL_TEAM_ROLES);
 const CURSOR_EXECUTOR_TEAM_ROLE_SET = new Set(CURSOR_EXECUTOR_TEAM_ROLES);
 const KNOWN_AGENT_NAME_SET = new Set(KNOWN_AGENT_NAMES);
 // /team CLI workers — codex/gemini/grok/cursor here are CLI integrations, NOT the deprecated MCP delegationRouting providers.
-const TEAM_ROLE_PROVIDERS = new Set(["claude", "codex", "gemini", "grok", "cursor", "antigravity"]);
+const TEAM_ROLE_PROVIDERS = new Set(["qoder", "codex", "gemini", "grok", "cursor", "antigravity"]);
 const TEAM_ROLE_TIERS = new Set(["HIGH", "MEDIUM", "LOW"]);
 export function validateTeamConfig(config) {
     const team = config.team;
@@ -503,7 +503,7 @@ export function validateTeamConfig(config) {
 const AUTOPILOT_EXECUTION_BACKENDS = new Set(["team", "solo"]);
 const AUTOPILOT_PLANNING_MODES = new Set(["ralplan", "direct"]);
 const AUTOPILOT_TEAM_AGENT_TYPES = new Set([
-    "claude",
+    "qoder",
     "codex",
     "gemini",
     "grok",
@@ -586,8 +586,8 @@ export function loadConfig() {
     // Auto-enable forceInherit for non-standard providers (issues #1201, #1025)
     // Only auto-enable if user hasn't explicitly set it via config or env var.
     // Triggers for: CC Switch / LiteLLM (non-Claude model IDs), custom
-    // ANTHROPIC_BASE_URL, AWS Bedrock (CLAUDE_CODE_USE_BEDROCK=1), and
-    // Google Vertex AI (CLAUDE_CODE_USE_VERTEX=1). Passing Claude-specific
+    // ANTHROPIC_BASE_URL, AWS Bedrock (QODER_USE_BEDROCK=1), and
+    // Google Vertex AI (QODER_USE_VERTEX=1). Passing Claude-specific
     // tier names (sonnet/opus/haiku) causes 400 errors on these platforms.
     if (config.routing?.forceInherit !== true &&
         process.env.OMC_ROUTING_FORCE_INHERIT === undefined &&
@@ -649,7 +649,7 @@ export function compactOmcStartupGuidance(content) {
     return `${normalized.slice(0, OMC_STARTUP_GUIDANCE_MAX_CHARS - notice.length).trimEnd()}${notice}`;
 }
 /**
- * Find and load AGENTS.md or CLAUDE.md files for context injection
+ * Find and load AGENTS.md or AGENTS.md files for context injection
  */
 export function findContextFiles(startDir) {
     const files = [];
@@ -657,9 +657,9 @@ export function findContextFiles(startDir) {
     // Files to look for
     const contextFileNames = [
         "AGENTS.md",
-        "CLAUDE.md",
-        ".claude/CLAUDE.md",
-        ".claude/AGENTS.md",
+        "AGENTS.md",
+        ".qoder/AGENTS.md",
+        ".qoder/AGENTS.md",
     ];
     // Search in current directory and parent directories
     let currentDir = searchDir;
@@ -680,7 +680,7 @@ export function findContextFiles(startDir) {
     return files;
 }
 /**
- * Load context from AGENTS.md/CLAUDE.md files
+ * Load context from AGENTS.md/AGENTS.md files
  */
 export function loadContextFromFiles(files) {
     const contexts = [];
@@ -713,7 +713,7 @@ export function loadContextFromFiles(files) {
 export function generateConfigSchema() {
     return {
         $schema: "http://json-schema.org/draft-07/schema#",
-        title: "Oh-My-ClaudeCode Configuration",
+        title: "Oh-My-Qoder Configuration",
         type: "object",
         properties: {
             agents: {
@@ -905,7 +905,7 @@ export function generateConfigSchema() {
                     forceInherit: {
                         type: "boolean",
                         default: false,
-                        description: "Force all agents to inherit the parent model, bypassing OMC model routing. When true, no model parameter is passed to Task/Agent calls, so agents use the user's Claude Code model setting. Auto-enabled for non-Claude providers (CC Switch, custom ANTHROPIC_BASE_URL), AWS Bedrock, and Google Vertex AI.",
+                        description: "Force all agents to inherit the parent model, bypassing OMC model routing. When true, no model parameter is passed to Task/Agent calls, so agents use the user's Qoder model setting. Auto-enabled for non-Claude providers (CC Switch, custom ANTHROPIC_BASE_URL), AWS Bedrock, and Google Vertex AI.",
                     },
                 },
             },
@@ -973,7 +973,7 @@ export function generateConfigSchema() {
                         properties: {
                             onModelFailure: {
                                 type: "string",
-                                enum: ["provider_chain", "cross_provider", "claude_only"],
+                                enum: ["provider_chain", "cross_provider", "qoder_only"],
                                 default: "provider_chain",
                                 description: "Fallback strategy when a model fails",
                             },
@@ -1003,8 +1003,8 @@ export function generateConfigSchema() {
                     },
                     defaultProvider: {
                         type: "string",
-                        enum: ["claude", "codex", "gemini"],
-                        default: "claude",
+                        enum: ["qoder", "codex", "gemini"],
+                        default: "qoder",
                         description: "Default provider for delegation routing when no specific role mapping exists",
                     },
                     roles: {
@@ -1015,7 +1015,7 @@ export function generateConfigSchema() {
                             properties: {
                                 provider: {
                                     type: "string",
-                                    enum: ["claude", "codex", "gemini"],
+                                    enum: ["qoder", "codex", "gemini"],
                                 },
                                 tool: { type: "string", enum: ["Task"] },
                                 model: { type: "string" },
@@ -1064,7 +1064,7 @@ export function generateConfigSchema() {
                                 type: "array",
                                 items: {
                                     type: "string",
-                                    enum: ["claude", "codex", "gemini", "grok", "cursor", "antigravity"],
+                                    enum: ["qoder", "codex", "gemini", "grok", "cursor", "antigravity"],
                                 },
                                 description: "Preferred CLI worker types for executor-style autopilot team execution tasks",
                             },
@@ -1082,8 +1082,8 @@ export function generateConfigSchema() {
                             maxAgents: { type: "integer", minimum: 1 },
                             defaultAgentType: {
                                 type: "string",
-                                enum: ["claude", "codex", "gemini", "grok", "cursor", "antigravity"],
-                                default: "claude",
+                                enum: ["qoder", "codex", "gemini", "grok", "cursor", "antigravity"],
+                                default: "qoder",
                             },
                             monitorIntervalMs: { type: "integer", minimum: 1 },
                             shutdownTimeoutMs: { type: "integer", minimum: 1 },
@@ -1096,7 +1096,7 @@ export function generateConfigSchema() {
                         additionalProperties: {
                             type: "object",
                             properties: {
-                                provider: { type: "string", enum: ["claude", "codex", "gemini", "grok", "cursor", "antigravity"] },
+                                provider: { type: "string", enum: ["qoder", "codex", "gemini", "grok", "cursor", "antigravity"] },
                                 model: { type: "string" },
                                 agent: { type: "string" },
                             },

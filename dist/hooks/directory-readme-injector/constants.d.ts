@@ -12,6 +12,8 @@ export declare const README_INJECTOR_STORAGE: string;
 export declare const README_FILENAME = "README.md";
 /** AGENTS.md filename to search for (deepinit output) */
 export declare const AGENTS_FILENAME = "AGENTS.md";
+/** AGENTS.local.md filename (machine-local, not committed to git) */
+export declare const AGENTS_LOCAL_FILE = "AGENTS.local.md";
 /** All context filenames to search for during directory walks */
 export declare const CONTEXT_FILENAMES: string[];
 /** Tools that trigger context file injection */

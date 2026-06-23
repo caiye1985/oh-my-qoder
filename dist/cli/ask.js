@@ -13,7 +13,7 @@ export const ASK_USAGE = [
     '   or: omc ask <claude|codex|gemini|antigravity|grok|cursor> --agent-prompt <role> "<prompt>"',
     '   or: omc ask <claude|codex|gemini|antigravity|grok|cursor> --agent-prompt=<role> --prompt "<prompt>"',
 ].join('\n');
-const ASK_PROVIDERS = ['claude', 'codex', 'gemini', 'antigravity', 'grok', 'cursor'];
+const ASK_PROVIDERS = ['qoder', 'codex', 'gemini', 'antigravity', 'grok', 'cursor'];
 const ASK_PROVIDER_SET = new Set(ASK_PROVIDERS);
 const ASK_AGENT_PROMPT_FLAG = '--agent-prompt';
 const SAFE_ROLE_PATTERN = /^[a-z][a-z0-9-]*$/;
@@ -165,9 +165,9 @@ function resolveSignalExitCode(signal) {
 }
 export async function askCommand(args) {
     const parsed = parseAskArgs(args);
-    if (parsed.provider !== 'claude' && isExternalLLMDisabled()) {
+    if (parsed.provider !== 'qoder' && isExternalLLMDisabled()) {
         throw new Error(`[ask] External LLM provider "${parsed.provider}" is blocked by security policy ` +
-            `(disableExternalLLM). Only "claude" is allowed in the current security configuration.`);
+            `(disableExternalLLM). Only "qoder" is allowed in the current security configuration.`);
     }
     const packageRoot = getPackageRoot();
     const advisorScriptPath = resolveAskAdvisorScriptPath(packageRoot);

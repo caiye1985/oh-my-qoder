@@ -12,7 +12,7 @@
 import { resolve } from 'path';
 import { mkdir, readFile } from 'fs/promises';
 import { tmuxExec, tmuxSpawn } from '../cli/tmux-utils.js';
-import { buildWorkerArgv, getWorkerEnv as getModelWorkerEnv, resolveClaudeWorkerModel, assertHeadlessSupported, } from './model-contract.js';
+import { buildWorkerArgv, getWorkerEnv as getModelWorkerEnv, resolveQoderWorkerModel, assertHeadlessSupported, } from './model-contract.js';
 import { CANONICAL_TEAM_ROLES } from '../shared/types.js';
 import { normalizeDelegationRole } from '../features/delegation-routing/types.js';
 import { routeTaskToRole } from './role-router.js';
@@ -24,7 +24,7 @@ import { writeWorkerOverlay } from './worker-bootstrap.js';
 import { ensureWorkerWorktree, installWorktreeRootAgents, prepareWorkerWorktreeForRemoval, removeWorkerWorktree, restoreWorktreeRootAgents, } from './git-worktree.js';
 // ── Environment gate ──────────────────────────────────────────────────────────
 const OMC_TEAM_SCALING_ENABLED_ENV = 'OMC_TEAM_SCALING_ENABLED';
-const CLI_AGENT_TYPES = new Set(['claude', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
+const CLI_AGENT_TYPES = new Set(['qoder', 'codex', 'gemini', 'grok', 'cursor', 'antigravity']);
 export function isScalingEnabled(env = process.env) {
     const raw = env[OMC_TEAM_SCALING_ENABLED_ENV];
     if (!raw)
@@ -239,9 +239,9 @@ export async function scaleUp(teamName, count, agentType, tasks, cwd, env = proc
                     workerModel = primary.model;
                 }
             }
-            else if (cliAgentType === 'claude') {
-                // Honor Bedrock/Vertex default-model resolution for non-routed claude workers.
-                workerModel = resolveClaudeWorkerModel(env);
+            else if (cliAgentType === 'qoder') {
+                // Honor Bedrock/Vertex default-model resolution for non-routed qoder workers.
+                workerModel = resolveQoderWorkerModel(env);
             }
             // AC-8: try the resolved provider first; on trust-path / not-found
             // failure, emit a loud warning and retry with the snapshot's Claude
@@ -270,7 +270,7 @@ export async function scaleUp(teamName, count, agentType, tasks, cwd, env = proc
                 const fallbackPair = routedPair?.fallback;
                 const fallbackProvider = fallbackPair
                     ? fallbackPair.provider
-                    : 'claude';
+                    : 'qoder';
                 const fallbackModel = fallbackPair?.model;
                 process.stderr.write(`[team/scaling] cli_binary_missing:${workerAgentType}: ${primaryReason} — falling back to ${fallbackProvider} (AC-8)\n`);
                 await teamAppendEvent(sanitized, {

@@ -3,6 +3,16 @@
  *
  * Discovers skill files using hybrid search (user + project).
  * Project skills override user skills with same ID.
+ *
+ * Search paths:
+ *   Project-level:
+ *     - ${project}/.omc/skills/
+ *     - ${project}/.agents/skills/
+ *     - ${project}/.qoder/skills/
+ *   User-level:
+ *     - ~/.omc/skills/
+ *     - ~/.qoder/skills/omc-learned/
+ *     - ~/.qoder/skills/
  */
 import type { SkillFileCandidate } from './types.js';
 /**

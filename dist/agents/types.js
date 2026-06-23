@@ -1,5 +1,5 @@
 /**
- * Agent Types for Oh-My-ClaudeCode
+ * Agent Types for Oh-My-Qoder
  *
  * Defines types for agent configuration and metadata used in dynamic prompt generation.
  * Ported from oh-my-opencode's agent type system.
@@ -14,7 +14,7 @@ export function isGptModel(modelId) {
  * Check if a model ID is a Claude model
  */
 export function isClaudeModel(modelId) {
-    return modelId.toLowerCase().includes('claude');
+    return modelId.toLowerCase().includes('qoder');
 }
 /**
  * Get default model for a category

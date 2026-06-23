@@ -161,7 +161,7 @@ export function checkForComments(filePath, content, oldString, newString, edits)
  */
 const pendingCalls = new Map();
 /**
- * Create comment checker hook for Claude Code shell hooks
+ * Create comment checker hook for Qoder shell hooks
  *
  * This hook checks for comments in Write/Edit operations and injects
  * a message prompting Claude to justify or remove unnecessary comments.

@@ -15,7 +15,7 @@ function buildChildEnv(envOverrides = {}, options = {}) {
     if (options.preserveClaudeSessionEnv) {
         return { ...process.env, ...envOverrides };
     }
-    const { CLAUDECODE: _cc, ...cleanEnv } = process.env;
+    const { QODER: _cc, ...cleanEnv } = process.env;
     return { ...cleanEnv, ...envOverrides };
 }
 function runCli(args, cwd, envOverrides = {}, options = {}) {
@@ -104,9 +104,9 @@ function writeSpawnSyncCapturePrelude(dir) {
         "      stdio: options.stdio ?? null,",
         "      input: options.input ?? null,",
         '      env: {',
-        "        CLAUDECODE: options.env?.CLAUDECODE ?? null,",
+        "        QODER: options.env?.QODER ?? null,",
         "        CLAUDE_SESSION_ID: options.env?.CLAUDE_SESSION_ID ?? null,",
-        "        CLAUDECODE_SESSION_ID: options.env?.CLAUDECODE_SESSION_ID ?? null,",
+        "        QODER_SESSION_ID: options.env?.QODER_SESSION_ID ?? null,",
         "        CLAUDE_CODE_ENTRYPOINT: options.env?.CLAUDE_CODE_ENTRYPOINT ?? null,",
         "        RUST_LOG: options.env?.RUST_LOG ?? null,",
         "        RUST_BACKTRACE: options.env?.RUST_BACKTRACE ?? null,",
@@ -218,9 +218,9 @@ exit 9
 }
 describe('parseAskArgs', () => {
     it('supports positional and print/prompt flag forms', () => {
-        expect(parseAskArgs(['claude', 'review', 'this'])).toEqual({ provider: 'claude', prompt: 'review this' });
+        expect(parseAskArgs(['qoder', 'review', 'this'])).toEqual({ provider: 'qoder', prompt: 'review this' });
         expect(parseAskArgs(['gemini', '-p', 'brainstorm'])).toEqual({ provider: 'gemini', prompt: 'brainstorm' });
-        expect(parseAskArgs(['claude', '--print', 'draft', 'summary'])).toEqual({ provider: 'claude', prompt: 'draft summary' });
+        expect(parseAskArgs(['qoder', '--print', 'draft', 'summary'])).toEqual({ provider: 'qoder', prompt: 'draft summary' });
         expect(parseAskArgs(['gemini', '--prompt=ship safely'])).toEqual({ provider: 'gemini', prompt: 'ship safely' });
         expect(parseAskArgs(['antigravity', '-p', 'x'])).toEqual({ provider: 'antigravity', prompt: 'x' });
         expect(parseAskArgs(['antigravity', '--prompt=ship safely'])).toEqual({ provider: 'antigravity', prompt: 'ship safely' });
@@ -232,8 +232,8 @@ describe('parseAskArgs', () => {
         expect(parseAskArgs(['cursor', '-p', 'brainstorm'])).toEqual({ provider: 'cursor', prompt: 'brainstorm' });
     });
     it('supports --agent-prompt flag and equals syntax', () => {
-        expect(parseAskArgs(['claude', '--agent-prompt', 'executor', 'do', 'it'])).toEqual({
-            provider: 'claude',
+        expect(parseAskArgs(['qoder', '--agent-prompt', 'executor', 'do', 'it'])).toEqual({
+            provider: 'qoder',
             prompt: 'do it',
             agentPromptRole: 'executor',
         });
@@ -257,13 +257,13 @@ describe('omc ask command', () => {
         const wd = mkdtempSync(join(tmpdir(), 'omc-ask-canonical-'));
         try {
             const stubPath = writeAdvisorStub(wd);
-            const result = runCli(['ask', 'claude', '--print', 'hello world'], wd, { OMC_ASK_ADVISOR_SCRIPT: stubPath });
+            const result = runCli(['ask', 'qoder', '--print', 'hello world'], wd, { OMC_ASK_ADVISOR_SCRIPT: stubPath });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
             expect(result.stderr).toBe('');
             const payload = JSON.parse(result.stdout);
             expect(payload).toEqual({
-                provider: 'claude',
+                provider: 'qoder',
                 prompt: 'hello world',
                 originalTask: 'hello world',
                 passthrough: null,
@@ -291,13 +291,13 @@ describe('omc ask command', () => {
             rmSync(wd, { recursive: true, force: true });
         }
     });
-    it('allows codex ask inside a Claude Code session', () => {
+    it('allows codex ask inside a Qoder session', () => {
         const wd = mkdtempSync(join(tmpdir(), 'omc-ask-cli-codex-nested-'));
         try {
             const stubPath = writeAdvisorStub(wd);
             const result = runCli(['ask', 'codex', '--prompt', 'cli nested codex prompt'], wd, {
                 OMC_ASK_ADVISOR_SCRIPT: stubPath,
-                CLAUDECODE: '1',
+                QODER: '1',
             }, { preserveClaudeSessionEnv: true });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
@@ -314,13 +314,13 @@ describe('omc ask command', () => {
             rmSync(wd, { recursive: true, force: true });
         }
     });
-    it('allows gemini ask inside a Claude Code session', () => {
+    it('allows gemini ask inside a Qoder session', () => {
         const wd = mkdtempSync(join(tmpdir(), 'omc-ask-cli-gemini-nested-'));
         try {
             const stubPath = writeAdvisorStub(wd);
             const result = runCli(['ask', 'gemini', '--prompt', 'cli nested gemini prompt'], wd, {
                 OMC_ASK_ADVISOR_SCRIPT: stubPath,
-                CLAUDECODE: '1',
+                QODER: '1',
             }, { preserveClaudeSessionEnv: true });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
@@ -335,13 +335,13 @@ describe('omc ask command', () => {
             rmSync(wd, { recursive: true, force: true });
         }
     });
-    it('allows antigravity ask inside a Claude Code session', () => {
+    it('allows antigravity ask inside a Qoder session', () => {
         const wd = mkdtempSync(join(tmpdir(), 'omc-ask-cli-antigravity-nested-'));
         try {
             const stubPath = writeAdvisorStub(wd);
             const result = runCli(['ask', 'antigravity', '--prompt', 'cli nested antigravity prompt'], wd, {
                 OMC_ASK_ADVISOR_SCRIPT: stubPath,
-                CLAUDECODE: '1',
+                QODER: '1',
             }, { preserveClaudeSessionEnv: true });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
@@ -356,13 +356,13 @@ describe('omc ask command', () => {
             rmSync(wd, { recursive: true, force: true });
         }
     });
-    it('allows cursor ask inside a Claude Code session', () => {
+    it('allows cursor ask inside a Qoder session', () => {
         const wd = mkdtempSync(join(tmpdir(), 'omc-ask-cli-cursor-nested-'));
         try {
             const stubPath = writeAdvisorStub(wd);
             const result = runCli(['ask', 'cursor', '--prompt', 'cli nested cursor prompt'], wd, {
                 OMC_ASK_ADVISOR_SCRIPT: stubPath,
-                CLAUDECODE: '1',
+                QODER: '1',
             }, { preserveClaudeSessionEnv: true });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
@@ -385,7 +385,7 @@ describe('omc ask command', () => {
             mkdirSync(join(wd, '.codex', 'prompts'), { recursive: true });
             writeFileSync(join(wd, '.omx', 'setup-scope.json'), JSON.stringify({ scope: 'project' }), 'utf8');
             writeFileSync(join(wd, '.codex', 'prompts', 'executor.md'), 'ROLE HEADER\nFollow checks.', 'utf8');
-            const result = runCli(['ask', 'claude', '--agent-prompt=executor', '--prompt', 'ship feature'], wd, { OMC_ASK_ADVISOR_SCRIPT: stubPath });
+            const result = runCli(['ask', 'qoder', '--agent-prompt=executor', '--prompt', 'ship feature'], wd, { OMC_ASK_ADVISOR_SCRIPT: stubPath });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
             const payload = JSON.parse(result.stdout);
@@ -402,8 +402,8 @@ describe('run-provider-advisor script contract', () => {
     it('writes artifact to .omc/artifacts/ask/{provider}-{slug}-{timestamp}.md', () => {
         const wd = mkdtempSync(join(tmpdir(), 'omc-ask-artifact-'));
         try {
-            const binDir = writeFakeProviderBinary(wd, 'claude');
-            const result = runAdvisorScript(['claude', '--print', 'artifact path contract'], wd, { PATH: `${binDir}:${process.env.PATH || ''}` });
+            const binDir = writeFakeProviderBinary(wd, 'qoder');
+            const result = runAdvisorScript(['qoder', '--print', 'artifact path contract'], wd, { PATH: `${binDir}:${process.env.PATH || ''}` });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
             const artifactPath = result.stdout.trim();
@@ -437,7 +437,7 @@ describe('run-provider-advisor script contract', () => {
         }
     });
     it.each([
-        ['claude', ['claude', '--prompt', 'nested claude prompt']],
+        ['qoder', ['qoder', '--prompt', 'nested claude prompt']],
         ['codex', ['codex', '--prompt', 'nested codex prompt']],
         ['gemini', ['gemini', '--prompt', 'nested gemini prompt']],
         // antigravity is intentionally omitted here: this matrix runs under the win32
@@ -445,16 +445,16 @@ describe('run-provider-advisor script contract', () => {
         // env-stripping on supported platforms is covered by the non-Windows tests.
         ['grok', ['grok', '--prompt', 'nested grok prompt']],
         ['cursor', ['cursor', '--prompt', 'nested cursor prompt']],
-    ])('strips Claude session env vars for %s advisor spawns', (provider, args) => {
+    ])('strips Qoder session env vars for %s advisor spawns', (provider, args) => {
         const wd = mkdtempSync(join(tmpdir(), `omc-ask-${provider}-advisor-env-`));
         try {
             const capturePath = join(wd, 'spawn-sync-calls.json');
             const preludePath = writeSpawnSyncCapturePrelude(wd);
             const result = runAdvisorScriptWithPrelude(preludePath, args, wd, {
                 SPAWN_CAPTURE_PATH: capturePath,
-                CLAUDECODE: '1',
+                QODER: '1',
                 CLAUDE_SESSION_ID: 'session-123',
-                CLAUDECODE_SESSION_ID: 'session-legacy',
+                QODER_SESSION_ID: 'session-legacy',
                 CLAUDE_CODE_ENTRYPOINT: 'plugin',
             }, { preserveClaudeSessionEnv: true });
             expect(result.error).toBeUndefined();
@@ -463,9 +463,9 @@ describe('run-provider-advisor script contract', () => {
             expect(calls).toHaveLength(2);
             for (const call of calls) {
                 expect(call.options.env).toMatchObject({
-                    CLAUDECODE: null,
+                    QODER: null,
                     CLAUDE_SESSION_ID: null,
-                    CLAUDECODE_SESSION_ID: null,
+                    QODER_SESSION_ID: null,
                     CLAUDE_CODE_ENTRYPOINT: null,
                 });
             }
@@ -798,13 +798,13 @@ describe('run-provider-advisor script contract', () => {
         try {
             const capturePath = join(wd, 'spawn-sync-calls.json');
             const preludePath = writeSpawnSyncCapturePreludeNative(wd);
-            const result = runAdvisorScriptWithPrelude(preludePath, ['claude', '--prompt', multilinePrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
+            const result = runAdvisorScriptWithPrelude(preludePath, ['qoder', '--prompt', multilinePrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
             const calls = JSON.parse(readFileSync(capturePath, 'utf8'));
             expect(calls).toHaveLength(2);
             expect(calls[1]).toMatchObject({
-                command: 'claude',
+                command: 'qoder',
                 args: ['-p'],
                 options: { stdio: null, input: multilinePrompt },
             });
@@ -819,13 +819,13 @@ describe('run-provider-advisor script contract', () => {
         try {
             const capturePath = join(wd, 'spawn-sync-calls.json');
             const preludePath = writeSpawnSyncCapturePreludeNative(wd);
-            const result = runAdvisorScriptWithPrelude(preludePath, ['claude', '--prompt', frontmatterPrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
+            const result = runAdvisorScriptWithPrelude(preludePath, ['qoder', '--prompt', frontmatterPrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
             const calls = JSON.parse(readFileSync(capturePath, 'utf8'));
             expect(calls).toHaveLength(2);
             expect(calls[1]).toMatchObject({
-                command: 'claude',
+                command: 'qoder',
                 args: ['-p'],
                 options: { input: frontmatterPrompt },
             });
@@ -840,13 +840,13 @@ describe('run-provider-advisor script contract', () => {
         try {
             const capturePath = join(wd, 'spawn-sync-calls.json');
             const preludePath = writeSpawnSyncCapturePreludeNative(wd);
-            const result = runAdvisorScriptWithPrelude(preludePath, ['claude', '--prompt', dashPrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
+            const result = runAdvisorScriptWithPrelude(preludePath, ['qoder', '--prompt', dashPrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
             const calls = JSON.parse(readFileSync(capturePath, 'utf8'));
             expect(calls).toHaveLength(2);
             expect(calls[1]).toMatchObject({
-                command: 'claude',
+                command: 'qoder',
                 args: ['-p'],
                 options: { input: dashPrompt },
             });
@@ -861,13 +861,13 @@ describe('run-provider-advisor script contract', () => {
         try {
             const capturePath = join(wd, 'spawn-sync-calls.json');
             const preludePath = writeSpawnSyncCapturePreludeNative(wd);
-            const result = runAdvisorScriptWithPrelude(preludePath, ['claude', '--prompt', shortPrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
+            const result = runAdvisorScriptWithPrelude(preludePath, ['qoder', '--prompt', shortPrompt], wd, { SPAWN_CAPTURE_PATH: capturePath });
             expect(result.error).toBeUndefined();
             expect(result.status).toBe(0);
             const calls = JSON.parse(readFileSync(capturePath, 'utf8'));
             expect(calls).toHaveLength(2);
             expect(calls[1]).toMatchObject({
-                command: 'claude',
+                command: 'qoder',
                 args: ['-p', shortPrompt],
                 options: { input: null },
             });
@@ -911,7 +911,7 @@ describe('run-provider-advisor script contract', () => {
         ['codex', ['codex', '--prompt', 'short prompt']],
         ['gemini', ['gemini', '--prompt', 'short prompt']],
         ['antigravity', ['antigravity', '--prompt', 'short prompt']],
-        ['claude', ['claude', '--prompt', 'short prompt']],
+        ['qoder', ['qoder', '--prompt', 'short prompt']],
     ])('closes stdin for %s on non-Windows to prevent hang in piped environments', (provider, args) => {
         const wd = mkdtempSync(join(tmpdir(), `omc-ask-${provider}-stdin-close-`));
         try {

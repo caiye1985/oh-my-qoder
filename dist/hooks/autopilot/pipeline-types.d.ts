@@ -5,7 +5,7 @@
  * The pipeline unifies autopilot/ultrawork/ultrapilot into a single
  * configurable sequence: RALPLAN -> EXECUTION -> RALPH -> QA.
  *
- * @see https://github.com/Yeachan-Heo/oh-my-claudecode/issues/1130
+ * @see https://github.com/Yeachan-Heo/oh-my-qoder/issues/1130
  */
 /**
  * Pipeline stage identifiers in execution order.
@@ -23,7 +23,7 @@ export declare const STAGE_ORDER: readonly PipelineStageId[];
 /** Execution backend for the execution stage */
 export type ExecutionBackend = "team" | "solo";
 /** CLI-backed worker types supported by the tmux team runtime. */
-export type AutopilotTeamAgentType = "claude" | "codex" | "gemini" | "grok" | "cursor" | "antigravity";
+export type AutopilotTeamAgentType = "qoder" | "codex" | "gemini" | "grok" | "cursor" | "antigravity";
 /** Team execution options for autopilot execution=team. */
 export interface AutopilotTeamConfig {
     /** Preferred CLI worker types for executor-style implementation tasks. */

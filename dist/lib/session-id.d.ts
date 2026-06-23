@@ -5,13 +5,13 @@
  *  - CLI commands (autopilot, ralph, ultraqa, ultragoal, etc.) running in a
  *    shell where the only signal is the `OMC_SESSION_ID` env var.
  *  - Hooks (session-start, post-tool-use-failure, etc.) running with a
- *    `data.session_id` payload from Claude Code.
+ *    `data.session_id` payload from Qoder.
  *
  * Precedence is INTENTIONALLY asymmetric:
  *  - In CLI contexts the env var is authoritative — the user controls it
  *    explicitly per-shell, and a stale payload from a previous run must not
  *    override the active terminal's intent.
- *  - In hook contexts the payload is authoritative — Claude Code is the
+ *  - In hook contexts the payload is authoritative — Qoder is the
  *    source of truth for the current session, and the env var may belong to
  *    a different shell.
  *

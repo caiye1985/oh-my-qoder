@@ -7,7 +7,7 @@
  */
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 import { getOmcRoot } from '../../lib/worktree-paths.js';
 import { resolveLiveData } from './live-data.js';
 import { parseFrontmatter, parseFrontmatterAliases, stripOptionalQuotes } from '../../utils/frontmatter.js';
@@ -16,10 +16,10 @@ import { parseSkillPipelineMetadata, renderSkillPipelineGuidance } from '../../u
 import { renderSkillResourcesGuidance } from '../../utils/skill-resources.js';
 import { renderSkillRuntimeGuidance } from '../../features/builtin-skills/runtime-guidance.js';
 import { getSkillsDir, renderBundledSkillBody } from '../../features/builtin-skills/skills.js';
-/** Claude config directory */
-const CLAUDE_CONFIG_DIR = getClaudeConfigDir();
+/** Qoder config directory */
+const QODER_CONFIG_DIR = getQoderConfigDir();
 /**
- * Claude Code native commands that must not be shadowed by user skills.
+ * Qoder native commands that must not be shadowed by user skills.
  * Skills whose canonical name or alias matches one of these will be prefixed
  * with `omc-` to avoid overriding built-in CC slash commands.
  */
@@ -159,12 +159,12 @@ function discoverSkillsFromDir(skillsDir) {
  * Discover all available commands from multiple sources
  */
 export function discoverAllCommands() {
-    const userCommandsDir = join(CLAUDE_CONFIG_DIR, 'commands');
+    const userCommandsDir = join(QODER_CONFIG_DIR, 'commands');
     const projectCommandsDir = join(process.cwd(), '.claude', 'commands');
     const projectClaudeSkillsDir = join(process.cwd(), '.claude', 'skills');
     const projectOmcSkillsDir = join(getOmcRoot(), 'skills');
     const projectAgentSkillsDir = join(process.cwd(), '.agents', 'skills');
-    const userSkillsDir = join(CLAUDE_CONFIG_DIR, 'skills');
+    const userSkillsDir = join(QODER_CONFIG_DIR, 'skills');
     const userCommands = discoverCommandsFromDir(userCommandsDir, 'user');
     const projectCommands = discoverCommandsFromDir(projectCommandsDir, 'project');
     const projectClaudeSkills = discoverSkillsFromDir(projectClaudeSkillsDir);
@@ -172,7 +172,7 @@ export function discoverAllCommands() {
     const projectAgentSkills = discoverSkillsFromDir(projectAgentSkillsDir);
     const userSkills = discoverSkillsFromDir(userSkillsDir);
     const builtinSkills = discoverSkillsFromDir(getSkillsDir());
-    // Priority: project commands > user commands > project Claude Code skills > project OMC skills > project compatibility skills > user skills > builtin skills
+    // Priority: project commands > user commands > project Qoder skills > project OMC skills > project compatibility skills > user skills > builtin skills
     const prioritized = [
         ...projectCommands,
         ...userCommands,
@@ -225,7 +225,7 @@ function renderDeepInterviewAutoresearchGuidance(args) {
         '- If the mission is not already clear, start by asking: "What should autoresearch improve or prove for this repo?"',
         '- Treat evaluator clarity as a required readiness gate before launch.',
         '- When the mission and evaluator are ready, write setup artifacts and hand off with:',
-        '  `Skill("oh-my-claudecode:autoresearch")`',
+        '  `Skill("oh-my-qoder:autoresearch")`',
         '- Do **not** hand off to `omc-plan`, `autopilot`, `ralph`, `team`, or the hard-deprecated `omc autoresearch` CLI in this mode.',
     ];
     if (missionSeed) {
@@ -298,7 +298,7 @@ export function executeSlashCommand(parsed) {
     if (!command) {
         return {
             success: false,
-            error: `Command "/${parsed.command}" not found. Available commands are in ${CLAUDE_CONFIG_DIR}/commands/ or .claude/commands/`,
+            error: `Command "/${parsed.command}" not found. Available commands are in ${QODER_CONFIG_DIR}/commands/ or .qoder/commands/`,
         };
     }
     try {

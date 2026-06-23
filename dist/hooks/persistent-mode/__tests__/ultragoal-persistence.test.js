@@ -11,7 +11,7 @@ function runHook(script, payload, env = {}) {
         input: JSON.stringify(payload),
         encoding: 'utf-8',
         cwd: process.cwd(),
-        env: { ...process.env, CLAUDE_PLUGIN_ROOT: '', ...env },
+        env: { ...process.env, QODER_PLUGIN_ROOT: '', ...env },
     });
     return JSON.parse(stdout);
 }
@@ -35,8 +35,8 @@ function writeUltragoalState(cwd, overrides = {}) {
     writeFileSync(join(cwd, '.omc', 'state', 'sessions', 'session-a', 'ultragoal-state.json'), `${JSON.stringify(state, null, 2)}\n`);
     return state;
 }
-describe('ultragoal persistence and Claude /goal enforcement', () => {
-    it('allows PreToolUse when active ultragoal has a matching active Claude /goal', () => {
+describe('ultragoal persistence and Qoder /goal enforcement', () => {
+    it('allows PreToolUse when active ultragoal has a matching active Qoder /goal', () => {
         const cwd = makeTempProject('omc-ultragoal-pass-');
         writeUltragoalState(cwd);
         const result = runHook(preToolScript, {
@@ -48,7 +48,7 @@ describe('ultragoal persistence and Claude /goal enforcement', () => {
         });
         expect(result.hookSpecificOutput?.permissionDecision).not.toBe('deny');
     });
-    it('allows ultragoal CLI bootstrap commands before Claude /goal is visible', () => {
+    it('allows ultragoal CLI bootstrap commands before Qoder /goal is visible', () => {
         const cwd = makeTempProject('omc-ultragoal-bootstrap-');
         writeUltragoalState(cwd);
         const createGoals = runHook(preToolScript, {
@@ -66,7 +66,7 @@ describe('ultragoal persistence and Claude /goal enforcement', () => {
         expect(createGoals.hookSpecificOutput?.permissionDecision).not.toBe('deny');
         expect(completeGoals.hookSpecificOutput?.permissionDecision).not.toBe('deny');
     });
-    it('denies PreToolUse when active ultragoal has no visible Claude /goal', () => {
+    it('denies PreToolUse when active ultragoal has no visible Qoder /goal', () => {
         const cwd = makeTempProject('omc-ultragoal-deny-');
         writeUltragoalState(cwd);
         const result = runHook(preToolScript, {

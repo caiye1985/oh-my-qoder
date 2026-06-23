@@ -1,7 +1,7 @@
 /**
  * OMC Tools Server - In-process MCP server for custom tools
  *
- * Exposes 18 custom tools (12 LSP, 2 AST, 1 python_repl, 3 skills) via the Claude Agent SDK's
+ * Exposes 18 custom tools (12 LSP, 2 AST, 1 python_repl, 3 skills) via the Qoder Agent SDK's
  * createSdkMcpServer helper for local Node.js Agent SDK integrations. This is not a VS Code
  * extension host or CI runner by itself.
  */

@@ -5,7 +5,7 @@
  * resolved to the original project's transcript path.
  *
  * Covers:
- *   - Claude internal worktrees (.claude/worktrees/X) — issue #1094
+ *   - Claude internal worktrees (.qoder/worktrees/X) — issue #1094
  *   - Native git worktrees (git worktree add) — issue #1191
  */
 export {};

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const availability = vi.hoisted(() => ({
-    claude: true,
+    qoder: true,
     codex: false,
     gemini: false,
 }));
@@ -10,17 +10,17 @@ vi.mock('../team/model-contract.js', () => ({
 import { clearSkillsCache, getBuiltinSkill } from '../features/builtin-skills/skills.js';
 import { renderSkillRuntimeGuidance } from '../features/builtin-skills/runtime-guidance.js';
 describe('deep-interview provider-aware approval-gated recommendations', () => {
-    const originalPluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+    const originalPluginRoot = process.env.QODER_PLUGIN_ROOT;
     const originalPath = process.env.PATH;
     beforeEach(() => {
-        availability.claude = true;
+        availability.qoder = true;
         availability.codex = false;
         availability.gemini = false;
         if (originalPluginRoot === undefined) {
-            delete process.env.CLAUDE_PLUGIN_ROOT;
+            delete process.env.QODER_PLUGIN_ROOT;
         }
         else {
-            process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+            process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
         }
         if (originalPath === undefined) {
             delete process.env.PATH;
@@ -32,10 +32,10 @@ describe('deep-interview provider-aware approval-gated recommendations', () => {
     });
     afterEach(() => {
         if (originalPluginRoot === undefined) {
-            delete process.env.CLAUDE_PLUGIN_ROOT;
+            delete process.env.QODER_PLUGIN_ROOT;
         }
         else {
-            process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+            process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
         }
         if (originalPath === undefined) {
             delete process.env.PATH;

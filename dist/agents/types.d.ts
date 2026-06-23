@@ -1,5 +1,5 @@
 /**
- * Agent Types for Oh-My-ClaudeCode
+ * Agent Types for Oh-My-Qoder
  *
  * Defines types for agent configuration and metadata used in dynamic prompt generation.
  * Ported from oh-my-opencode's agent type system.
@@ -75,7 +75,7 @@ export interface FullAgentConfig extends AgentConfig {
     temperature?: number;
     /** Max tokens */
     maxTokens?: number;
-    /** Thinking configuration (for Claude models) */
+    /** Thinking configuration (for Qoder models) */
     thinking?: {
         type: 'enabled' | 'disabled';
         budgetTokens?: number;

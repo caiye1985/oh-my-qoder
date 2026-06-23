@@ -34,20 +34,21 @@ __export(bridge_exports, {
   parseSkillFile: () => parseSkillFile
 });
 module.exports = __toCommonJS(bridge_exports);
-var import_fs2 = require("fs");
+var import_fs3 = require("fs");
 var import_path3 = require("path");
 var import_os3 = require("os");
 
 // src/lib/worktree-paths.ts
 var import_crypto = require("crypto");
 var import_child_process = require("child_process");
-var import_fs = require("fs");
+var import_fs2 = require("fs");
 var import_os2 = require("os");
 var import_path2 = require("path");
 
 // src/utils/config-dir.ts
 var import_path = require("path");
 var import_os = require("os");
+var import_fs = require("fs");
 
 // src/lib/worktree-paths.ts
 var OmcPaths = {
@@ -247,7 +248,7 @@ function getSkillMetadataCache(projectRoot) {
   const skills = [];
   for (const candidate of candidates) {
     try {
-      const content = (0, import_fs2.readFileSync)(candidate.path, "utf-8");
+      const content = (0, import_fs3.readFileSync)(candidate.path, "utf-8");
       const parsed = parseSkillFile(content);
       if (!parsed) continue;
       const triggers = (parsed.metadata.triggers ?? []).map((trigger) => trigger.trim()).filter(Boolean);
@@ -291,8 +292,8 @@ function getStateFilePath(projectRoot) {
 function readSessionState(projectRoot) {
   const stateFile = getStateFilePath(projectRoot);
   try {
-    if ((0, import_fs2.existsSync)(stateFile)) {
-      const content = (0, import_fs2.readFileSync)(stateFile, "utf-8");
+    if ((0, import_fs3.existsSync)(stateFile)) {
+      const content = (0, import_fs3.readFileSync)(stateFile, "utf-8");
       return JSON.parse(content);
     }
   } catch {
@@ -302,8 +303,8 @@ function readSessionState(projectRoot) {
 function writeSessionState(projectRoot, state) {
   const stateFile = getStateFilePath(projectRoot);
   try {
-    (0, import_fs2.mkdirSync)((0, import_path3.dirname)(stateFile), { recursive: true });
-    (0, import_fs2.writeFileSync)(stateFile, JSON.stringify(state, null, 2), "utf-8");
+    (0, import_fs3.mkdirSync)((0, import_path3.dirname)(stateFile), { recursive: true });
+    (0, import_fs3.writeFileSync)(stateFile, JSON.stringify(state, null, 2), "utf-8");
   } catch {
   }
 }
@@ -332,10 +333,10 @@ function markSkillsInjected(sessionId, paths, projectRoot) {
   writeSessionState(projectRoot, state);
 }
 function findSkillFilesRecursive(dir, results, depth = 0) {
-  if (!(0, import_fs2.existsSync)(dir)) return;
+  if (!(0, import_fs3.existsSync)(dir)) return;
   if (depth > MAX_RECURSION_DEPTH) return;
   try {
-    const entries = (0, import_fs2.readdirSync)(dir, { withFileTypes: true });
+    const entries = (0, import_fs3.readdirSync)(dir, { withFileTypes: true });
     for (const entry of entries) {
       const fullPath = (0, import_path3.join)(dir, entry.name);
       if (entry.isDirectory()) {
@@ -349,7 +350,7 @@ function findSkillFilesRecursive(dir, results, depth = 0) {
 }
 function safeRealpathSync(filePath) {
   try {
-    return (0, import_fs2.realpathSync)(filePath);
+    return (0, import_fs3.realpathSync)(filePath);
   } catch {
     return filePath;
   }

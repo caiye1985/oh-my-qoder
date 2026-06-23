@@ -20,7 +20,7 @@ export declare function findSessionOwnedStateFiles(mode: string, sessionId: stri
 /**
  * Find active session-scoped state files that are safe to treat as orphaned.
  *
- * A fresh `/cancel` invocation may run in a new Claude session id while the
+ * A fresh `/cancel` invocation may run in a new Qoder session id while the
  * state files that keep the Stop hook alive still live under the completed
  * session's directory.  We intentionally require durable completion evidence
  * (`.omc/sessions/{sessionId}.json`) before returning a sibling session's file

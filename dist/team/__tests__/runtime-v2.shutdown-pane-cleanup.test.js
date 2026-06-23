@@ -80,13 +80,13 @@ describe('shutdownTeamV2 split-pane pane cleanup', () => {
         await writeJson(cwd, `${teamRoot}/config.json`, {
             name: teamName,
             task: 'demo',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_launch_mode: 'interactive',
             worker_count: 2,
             max_workers: 20,
             workers: [
-                { name: 'worker-1', index: 1, role: 'claude', assigned_tasks: [], pane_id: '%2' },
-                { name: 'worker-2', index: 2, role: 'claude', assigned_tasks: [] },
+                { name: 'worker-1', index: 1, role: 'qoder', assigned_tasks: [], pane_id: '%2' },
+                { name: 'worker-2', index: 2, role: 'qoder', assigned_tasks: [] },
             ],
             created_at: new Date().toISOString(),
             tmux_session: 'leader-session:0',

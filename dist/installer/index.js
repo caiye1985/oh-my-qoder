@@ -2,7 +2,7 @@
  * Installer Module
  *
  * Handles installation of OMC agents, commands, and configuration
- * into the Claude Code config directory (~/.claude/).
+ * into the Qoder config directory (~/.qoder/).
  *
  * Cross-platform support via Node.js-based hook scripts (.mjs).
  * Bash hook scripts were removed in v3.9.0.
@@ -14,7 +14,7 @@ import { homedir } from 'os';
 import { execSync } from 'child_process';
 import { isWindows, MIN_NODE_VERSION, getHooksSettingsConfig, } from './hooks.js';
 import { getRuntimePackageVersion } from '../lib/version.js';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { resolveNodeBinary } from '../utils/resolve-node.js';
 import { parseFrontmatter } from '../utils/frontmatter.js';
 import { isSkininthegamebrosUser } from '../utils/skininthegamebros-user.js';
@@ -23,22 +23,22 @@ import { OMC_CONFIG_FILE_REL } from '../lib/paths.js';
 import { buildHudWrapper } from '../lib/hud-wrapper-template.js';
 import { getOmcRoot } from '../lib/worktree-paths.js';
 import { syncOmcLearnedUserSkillsForClaudeCode } from '../utils/user-skill-compat.js';
-/** Claude Code configuration directory */
-export const CLAUDE_CONFIG_DIR = getClaudeConfigDir();
-export const AGENTS_DIR = join(CLAUDE_CONFIG_DIR, 'agents');
-export const COMMANDS_DIR = join(CLAUDE_CONFIG_DIR, 'commands');
-export const SKILLS_DIR = join(CLAUDE_CONFIG_DIR, 'skills');
-export const HOOKS_DIR = join(CLAUDE_CONFIG_DIR, 'hooks');
-export const HUD_DIR = join(CLAUDE_CONFIG_DIR, 'hud');
-export const SETTINGS_FILE = join(CLAUDE_CONFIG_DIR, 'settings.json');
-export const VERSION_FILE = join(CLAUDE_CONFIG_DIR, '.omc-version.json');
+/** Qoder configuration directory */
+export const QODER_CONFIG_DIR = getQoderConfigDir();
+export const AGENTS_DIR = join(QODER_CONFIG_DIR, 'agents');
+export const COMMANDS_DIR = join(QODER_CONFIG_DIR, 'commands');
+export const SKILLS_DIR = join(QODER_CONFIG_DIR, 'skills');
+export const HOOKS_DIR = join(QODER_CONFIG_DIR, 'hooks');
+export const HUD_DIR = join(QODER_CONFIG_DIR, 'hud');
+export const SETTINGS_FILE = join(QODER_CONFIG_DIR, 'settings.json');
+export const VERSION_FILE = join(QODER_CONFIG_DIR, '.omc-version.json');
 const OMC_MANAGED_SKILL_MARKER = '.omc-managed';
 const PLUGIN_FULL_SKILL_BODIES_DIR = 'skill-bodies';
 const PLUGIN_COMPACT_SKILL_SHIM_MARKER = '<!-- OMC:COMPACT-PLUGIN-SKILL -->';
 /**
  * Core commands - DISABLED for v3.0+
- * All commands are now plugin-scoped skills managed by Claude Code.
- * The installer no longer copies commands to ~/.claude/commands/
+ * All commands are now plugin-scoped skills managed by Qoder.
+ * The installer no longer copies commands to ~/.qoder/commands/
  */
 export const CORE_COMMANDS = [];
 /** Current version */
@@ -62,14 +62,14 @@ const SKININTHEGAMEBROS_ONLY_SKILLS = new Set([
     'debug',
 ]);
 function currentAgentsDir() {
-    return join(getClaudeConfigDir(), 'agents');
+    return join(getQoderConfigDir(), 'agents');
 }
 function currentSkillsDir() {
-    return join(getClaudeConfigDir(), 'skills');
+    return join(getQoderConfigDir(), 'skills');
 }
 /**
  * Detects the newest installed OMC version from persistent metadata or
- * existing CLAUDE.md markers so an older CLI package cannot overwrite a
+ * existing AGENTS.md markers so an older CLI package cannot overwrite a
  * newer installation during `omc setup`.
  */
 function isComparableVersion(version) {
@@ -103,12 +103,12 @@ function getNewestInstalledVersionHint() {
             }
         }
         catch {
-            // Ignore unreadable metadata and fall back to CLAUDE.md markers.
+            // Ignore unreadable metadata and fall back to AGENTS.md markers.
         }
     }
     const claudeCandidates = [
-        join(CLAUDE_CONFIG_DIR, 'CLAUDE.md'),
-        join(homedir(), 'CLAUDE.md'),
+        join(QODER_CONFIG_DIR, 'AGENTS.md'),
+        join(homedir(), 'AGENTS.md'),
     ];
     for (const candidatePath of claudeCandidates) {
         if (!existsSync(candidatePath))
@@ -120,7 +120,7 @@ function getNewestInstalledVersionHint() {
             }
         }
         catch {
-            // Ignore unreadable CLAUDE.md candidates.
+            // Ignore unreadable AGENTS.md candidates.
         }
     }
     if (candidates.length === 0) {
@@ -181,16 +181,16 @@ function buildStatusLineCommand(nodeBin, hudScriptPath, findNodePath, cacheWrapp
     }
     const normalizedHudScriptPath = hudScriptPath.replace(/\\/g, '/');
     if (cacheWrapperPath) {
-        if (isDefaultClaudeConfigDirPath(CLAUDE_CONFIG_DIR)) {
-            return 'sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud-cache.sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs';
+        if (isDefaultClaudeConfigDirPath(QODER_CONFIG_DIR)) {
+            return 'sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud-cache.sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs';
         }
         return `sh ${quoteShellArg(cacheWrapperPath.replace(/\\/g, '/'))} ${quoteShellArg(normalizedHudScriptPath)}`;
     }
-    if (isDefaultClaudeConfigDirPath(CLAUDE_CONFIG_DIR)) {
+    if (isDefaultClaudeConfigDirPath(QODER_CONFIG_DIR)) {
         if (findNodePath) {
-            return 'sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/find-node.sh ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs';
+            return 'sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/find-node.sh ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs';
         }
-        return 'node ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs';
+        return 'node ${QODER_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs';
     }
     if (findNodePath) {
         return `sh ${quoteShellArg(findNodePath.replace(/\\/g, '/'))} ${quoteShellArg(normalizedHudScriptPath)}`;
@@ -217,7 +217,7 @@ function trimClaudeUserContent(content) {
  * (avoids circular dependency since auto-update imports from installer)
  */
 export function isHudEnabledInConfig() {
-    const configPath = join(CLAUDE_CONFIG_DIR, OMC_CONFIG_FILE_REL);
+    const configPath = join(QODER_CONFIG_DIR, OMC_CONFIG_FILE_REL);
     if (!existsSync(configPath)) {
         return true; // default: enabled
     }
@@ -232,7 +232,7 @@ export function isHudEnabledInConfig() {
     }
 }
 /**
- * Detect whether a statusLine config belongs to oh-my-claudecode.
+ * Detect whether a statusLine config belongs to oh-my-qoder.
  *
  * Checks the command string for known OMC HUD paths so that custom
  * (non-OMC) statusLine configurations are preserved during forced
@@ -244,7 +244,7 @@ export function isHudEnabledInConfig() {
 export function isOmcStatusLine(statusLine) {
     if (!statusLine)
         return false;
-    // Legacy string format (pre-v4.5): "~/.claude/hud/omc-hud.mjs"
+    // Legacy string format (pre-v4.5): "~/.qoder/hud/omc-hud.mjs"
     if (typeof statusLine === 'string') {
         return statusLine.includes('omc-hud');
     }
@@ -258,7 +258,7 @@ export function isOmcStatusLine(statusLine) {
     return false;
 }
 /**
- * Known OMC hook script filenames installed into .claude/hooks/.
+ * Known OMC hook script filenames installed into .qoder/hooks/.
  * Must be kept in sync with HOOKS_SETTINGS_CONFIG_NODE command entries.
  */
 const OMC_HOOK_FILENAMES = new Set([
@@ -272,12 +272,12 @@ const OMC_HOOK_FILENAMES = new Set([
     'stop-continuation.mjs',
 ]);
 /**
- * Detect whether a hook command belongs to oh-my-claudecode.
+ * Detect whether a hook command belongs to oh-my-qoder.
  *
  * Recognition strategy (any match is sufficient):
  * 1. Command path contains "omc" as a path/word segment (e.g. `omc-hook.mjs`, `/omc/`)
- * 2. Command path contains "oh-my-claudecode"
- * 3. Command references a known OMC hook filename inside .claude/hooks/
+ * 2. Command path contains "oh-my-qoder"
+ * 3. Command references a known OMC hook filename inside .qoder/hooks/
  *
  * @param command - The hook command string
  * @returns true if the command belongs to OMC
@@ -287,12 +287,12 @@ export function isOmcHook(command) {
     // Match "omc" as a path segment or word boundary
     // Matches: /omc/, /omc-, omc/, -omc, _omc, omc_
     const omcPattern = /(?:^|[\/\\_-])omc(?:$|[\/\\_-])/;
-    const fullNamePattern = /oh-my-claudecode/;
+    const fullNamePattern = /oh-my-qoder/;
     if (omcPattern.test(lowerCommand) || fullNamePattern.test(lowerCommand)) {
         return true;
     }
-    // Check for known OMC hook filenames in .claude/hooks/ path.
-    // Handles both Unix (.claude/hooks/) and Windows (.claude\hooks\) paths.
+    // Check for known OMC hook filenames in .qoder/hooks/ path.
+    // Handles both Unix (.qoder/hooks/) and Windows (.claude\hooks\) paths.
     const containsHooksDir = /hooks[/\\]/.test(lowerCommand);
     const hookFilenameMatch = lowerCommand.match(/([a-z0-9-]+\.mjs)(?:$|["'\s])/);
     if (containsHooksDir && hookFilenameMatch && OMC_HOOK_FILENAMES.has(hookFilenameMatch[1])) {
@@ -312,7 +312,7 @@ export function checkNodeVersion() {
     };
 }
 /**
- * Check if Claude Code is installed
+ * Check if Qoder is installed
  * Uses 'where' on Windows, 'which' on Unix
  */
 export function isClaudeInstalled() {
@@ -326,40 +326,40 @@ export function isClaudeInstalled() {
     }
 }
 /**
- * Check if we're running in Claude Code plugin context
+ * Check if we're running in Qoder plugin context
  *
- * When installed as a plugin, we should NOT copy files to ~/.claude/
- * because the plugin system already handles file access via ${CLAUDE_PLUGIN_ROOT}.
+ * When installed as a plugin, we should NOT copy files to ~/.qoder/
+ * because the plugin system already handles file access via ${QODER_PLUGIN_ROOT}.
  *
  * Detection method:
- * - Check if CLAUDE_PLUGIN_ROOT environment variable is set (primary method)
- * - This env var is set by the Claude Code plugin system when running plugin hooks
+ * - Check if QODER_PLUGIN_ROOT environment variable is set (primary method)
+ * - This env var is set by the Qoder plugin system when running plugin hooks
  *
  * @returns true if running in plugin context, false otherwise
  */
 export function isRunningAsPlugin() {
-    // Check for CLAUDE_PLUGIN_ROOT env var (set by plugin system)
+    // Check for QODER_PLUGIN_ROOT env var (set by plugin system)
     // This is the most reliable indicator that we're running as a plugin
-    return !!process.env.CLAUDE_PLUGIN_ROOT;
+    return !!process.env.QODER_PLUGIN_ROOT;
 }
 /**
  * Check if we're running as a project-scoped plugin (not global)
  *
- * Project-scoped plugins are installed in the project's .claude/plugins/ directory,
- * while global plugins are installed in ~/.claude/plugins/.
+ * Project-scoped plugins are installed in the project's .qoder/plugins/ directory,
+ * while global plugins are installed in ~/.qoder/plugins/.
  *
- * When project-scoped, we should NOT modify global settings (like ~/.claude/settings.json)
+ * When project-scoped, we should NOT modify global settings (like ~/.qoder/settings.json)
  * because the user explicitly chose project-level installation.
  *
  * @returns true if running as a project-scoped plugin, false otherwise
  */
 export function isProjectScopedPlugin() {
-    const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+    const pluginRoot = process.env.QODER_PLUGIN_ROOT;
     if (!pluginRoot) {
         return false;
     }
-    // Global plugins are installed under ~/.claude/plugins/
-    const globalPluginBase = join(CLAUDE_CONFIG_DIR, 'plugins');
+    // Global plugins are installed under ~/.qoder/plugins/
+    const globalPluginBase = join(QODER_CONFIG_DIR, 'plugins');
     // If the plugin root is NOT under the global plugin directory, it's project-scoped
     // Normalize paths for comparison (resolve symlinks, trailing slashes, etc.)
     const normalizedPluginRoot = pluginRoot.replace(/\\/g, '/').replace(/\/$/, '');
@@ -375,7 +375,7 @@ function configureInstallerSettings(baseSettings, context) {
             const groupList = groups;
             const filtered = groupList.filter(group => {
                 const isLegacy = group.hooks.every(h => h.type === 'command'
-                    && (h.command.includes('/.claude/hooks/') || h.command.includes('\\.claude\\hooks\\'))
+                    && (h.command.includes('/.qoder/hooks/') || h.command.includes('\\.claude\\hooks\\'))
                     && isOmcHook(h.command));
                 if (isLegacy)
                     legacyRemoved++;
@@ -585,7 +585,7 @@ function mergeHookGroups(eventType, existingGroups, newOmcGroups, options, log, 
  * Remove stale OMC-created agent files from the config agents directory.
  *
  * When OMC drops an agent definition in a new version, the old .md file
- * lingers in ~/.claude/agents/. This function compares the installed files
+ * lingers in ~/.qoder/agents/. This function compares the installed files
  * against the current package's agent definitions and removes any that:
  *   1. Are .md files (OMC agent naming convention)
  *   2. Were previously shipped by OMC (match the frontmatter `name:` pattern)
@@ -627,7 +627,7 @@ export function cleanupStaleAgents(log) {
  * Remove standalone agent files that duplicate plugin-provided agents (#2252).
  *
  * When the plugin is the canonical agent source, standalone copies in
- * ~/.claude/agents/ from a prior `omc setup` cause agent definitions to
+ * ~/.qoder/agents/ from a prior `omc setup` cause agent definitions to
  * appear twice. Removes standalone copies with OMC frontmatter whose
  * filename matches a current package agent.
  */
@@ -718,7 +718,7 @@ export function cleanupStaleSkills(log) {
  * Remove standalone skill directories that duplicate plugin-provided skills.
  *
  * When the plugin is the canonical skill source, standalone copies in
- * ~/.claude/skills/ from a prior `omc setup` cause every command to appear
+ * ~/.qoder/skills/ from a prior `omc setup` cause every command to appear
  * twice (#2252). This function removes standalone copies whose SKILL.md
  * content-hashes match any installed plugin version, preserving user-authored
  * skills that happen to share a name.
@@ -818,11 +818,11 @@ function directoryHasSkillDefinitions(directory) {
 }
 export function getInstalledOmcPluginRoots() {
     const pluginRoots = new Set();
-    const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT?.trim();
+    const pluginRoot = process.env.QODER_PLUGIN_ROOT?.trim();
     if (pluginRoot) {
         pluginRoots.add(pluginRoot);
     }
-    const installedPluginsPath = join(CLAUDE_CONFIG_DIR, 'plugins', 'installed_plugins.json');
+    const installedPluginsPath = join(QODER_CONFIG_DIR, 'plugins', 'installed_plugins.json');
     if (!existsSync(installedPluginsPath)) {
         return Array.from(pluginRoots);
     }
@@ -830,7 +830,7 @@ export function getInstalledOmcPluginRoots() {
         const raw = JSON.parse(readFileSync(installedPluginsPath, 'utf-8'));
         const plugins = raw.plugins ?? raw;
         for (const [pluginId, entries] of Object.entries(plugins)) {
-            if (!pluginId.toLowerCase().includes('oh-my-claudecode') || !Array.isArray(entries)) {
+            if (!pluginId.toLowerCase().includes('oh-my-qoder') || !Array.isArray(entries)) {
                 continue;
             }
             for (const entry of entries) {
@@ -855,14 +855,14 @@ const PLUGIN_SYNC_PAYLOAD = [
     'commands',
     'templates',
     'docs',
-    '.claude-plugin',
+    '.qoder-plugin',
     '.mcp.json',
     'README.md',
     'LICENSE',
     'package.json',
 ];
 const REQUIRED_PLUGIN_PAYLOAD_FILES = [
-    '.claude-plugin/plugin.json',
+    '.qoder-plugin/plugin.json',
     'package.json',
     'dist/hooks/skill-bridge.cjs',
     'bridge/cli.cjs',
@@ -872,20 +872,20 @@ const REQUIRED_PLUGIN_COMMAND_FILES = [
     'commands/omc-setup.md',
 ];
 function readPluginManifest(root) {
-    const manifestPath = join(root, '.claude-plugin', 'plugin.json');
+    const manifestPath = join(root, '.qoder-plugin', 'plugin.json');
     if (!existsSync(manifestPath)) {
         return { manifest: null, errors: [] };
     }
     try {
         const parsed = JSON.parse(readFileSync(manifestPath, 'utf-8'));
         if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-            return { manifest: null, errors: ['Invalid plugin manifest: .claude-plugin/plugin.json must be a JSON object'] };
+            return { manifest: null, errors: ['Invalid plugin manifest: .qoder-plugin/plugin.json must be a JSON object'] };
         }
         return { manifest: parsed, errors: [] };
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return { manifest: null, errors: [`Invalid plugin manifest: .claude-plugin/plugin.json: ${message}`] };
+        return { manifest: null, errors: [`Invalid plugin manifest: .qoder-plugin/plugin.json: ${message}`] };
     }
 }
 function normalizePluginRelPath(value) {
@@ -904,19 +904,19 @@ function validatePluginManifestSchema(root, manifest) {
         return errors;
     }
     if (typeof manifest.name !== 'string' || manifest.name.trim().length === 0) {
-        errors.push('Invalid plugin manifest: .claude-plugin/plugin.json name must be a non-empty string');
+        errors.push('Invalid plugin manifest: .qoder-plugin/plugin.json name must be a non-empty string');
     }
     if (typeof manifest.commands !== 'string' || manifest.commands.trim().length === 0) {
-        errors.push('Invalid plugin manifest: .claude-plugin/plugin.json commands must be a non-empty relative path');
+        errors.push('Invalid plugin manifest: .qoder-plugin/plugin.json commands must be a non-empty relative path');
     }
     else if (!isSafePluginRelPath(manifest.commands)) {
-        errors.push('Invalid plugin manifest: .claude-plugin/plugin.json commands must stay inside the plugin root');
+        errors.push('Invalid plugin manifest: .qoder-plugin/plugin.json commands must stay inside the plugin root');
     }
     else if (!directoryHasMarkdownFiles(join(root, normalizePluginRelPath(manifest.commands)))) {
         errors.push(`Missing declared plugin command markdown files in ${normalizePluginRelPath(manifest.commands)}/`);
     }
     if (!Array.isArray(manifest.skills) || manifest.skills.length === 0) {
-        errors.push('Invalid plugin manifest: .claude-plugin/plugin.json skills must be a non-empty array');
+        errors.push('Invalid plugin manifest: .qoder-plugin/plugin.json skills must be a non-empty array');
     }
     return errors;
 }
@@ -928,7 +928,7 @@ function validateDeclaredPluginSkills(root, manifest) {
     }
     for (const declaredSkill of declaredSkills) {
         if (typeof declaredSkill !== 'string' || declaredSkill.trim().length === 0) {
-            errors.push('Invalid plugin skill declaration in .claude-plugin/plugin.json');
+            errors.push('Invalid plugin skill declaration in .qoder-plugin/plugin.json');
             continue;
         }
         if (!isSafePluginRelPath(declaredSkill)) {
@@ -984,7 +984,7 @@ function countPluginSyncPayloadEntries(root) {
     return score;
 }
 function getKnownMarketplaceInstallRoots() {
-    const knownMarketplacesPath = join(CLAUDE_CONFIG_DIR, 'plugins', 'known_marketplaces.json');
+    const knownMarketplacesPath = join(QODER_CONFIG_DIR, 'plugins', 'known_marketplaces.json');
     if (!existsSync(knownMarketplacesPath)) {
         return [];
     }
@@ -993,7 +993,7 @@ function getKnownMarketplaceInstallRoots() {
         const roots = new Set();
         for (const [marketplaceId, entry] of Object.entries(raw)) {
             const isOmcMarketplace = marketplaceId.toLowerCase().includes('omc')
-                || marketplaceId.toLowerCase().includes('oh-my-claudecode');
+                || marketplaceId.toLowerCase().includes('oh-my-qoder');
             if (!isOmcMarketplace) {
                 continue;
             }
@@ -1021,7 +1021,7 @@ function getGlobalInstalledPackageRoot() {
         if (!npmRoot) {
             return null;
         }
-        const globalPackageRoot = join(npmRoot, 'oh-my-claude-sisyphus');
+        const globalPackageRoot = join(npmRoot, 'oh-my-qoder');
         return existsSync(globalPackageRoot) ? globalPackageRoot : null;
     }
     catch {
@@ -1030,7 +1030,7 @@ function getGlobalInstalledPackageRoot() {
 }
 function isCacheInstalledPluginRoot(root) {
     const normalizedRoot = normalizePath(root);
-    const cacheBase = normalizePath(join(CLAUDE_CONFIG_DIR, 'plugins', 'cache'));
+    const cacheBase = normalizePath(join(QODER_CONFIG_DIR, 'plugins', 'cache'));
     if (!(normalizedRoot === cacheBase || normalizedRoot.startsWith(`${cacheBase}/`))) {
         return false;
     }
@@ -1108,7 +1108,7 @@ function renderCompactPluginSkillShim(skillDirName, content) {
     const fullBodyRelPath = `../../${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md`;
     frontmatter = upsertYamlStringField(frontmatter, 'description', description);
     frontmatter = upsertYamlStringField(frontmatter, 'omc-full-body', fullBodyRelPath);
-    return `---\n${frontmatter.trim()}\n---\n\n${PLUGIN_COMPACT_SKILL_SHIM_MARKER}\n\n# ${skillDirName}\n\nThis is a compact Claude Code plugin registry shim. It keeps startup skill descriptions small while preserving the full OMC skill body for on-demand invocation.\n\nWhen this skill is invoked, read and follow the full bundled instructions from the active plugin root:\n\n\`${'${CLAUDE_PLUGIN_ROOT:-${OMC_PLUGIN_ROOT}}'}/${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md\`\n\nThe plugin root is the directory containing both \`skills/\` and \`${PLUGIN_FULL_SKILL_BODIES_DIR}/\`. Do not resolve \`${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md\` under this shim's \`skills/${skillDirName}/\` directory; \`${PLUGIN_FULL_SKILL_BODIES_DIR}/\` is a direct child of the plugin root. The same archived body path is recorded in frontmatter as \`omc-full-body: ${fullBodyRelPath}\` for hosts that understand plugin-root-relative metadata.\n`;
+    return `---\n${frontmatter.trim()}\n---\n\n${PLUGIN_COMPACT_SKILL_SHIM_MARKER}\n\n# ${skillDirName}\n\nThis is a compact Qoder plugin registry shim. It keeps startup skill descriptions small while preserving the full OMC skill body for on-demand invocation.\n\nWhen this skill is invoked, read and follow the full bundled instructions from the active plugin root:\n\n\`${'${QODER_PLUGIN_ROOT:-${OMC_PLUGIN_ROOT}}'}/${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md\`\n\nThe plugin root is the directory containing both \`skills/\` and \`${PLUGIN_FULL_SKILL_BODIES_DIR}/\`. Do not resolve \`${PLUGIN_FULL_SKILL_BODIES_DIR}/${skillDirName}/SKILL.md\` under this shim's \`skills/${skillDirName}/\` directory; \`${PLUGIN_FULL_SKILL_BODIES_DIR}/\` is a direct child of the plugin root. The same archived body path is recorded in frontmatter as \`omc-full-body: ${fullBodyRelPath}\` for hosts that understand plugin-root-relative metadata.\n`;
 }
 export function compactPluginSkillPayload(targetRoot) {
     const skillsDir = join(targetRoot, 'skills');
@@ -1232,8 +1232,8 @@ export function syncInstalledPluginPayload() {
     return { ...result, sourceRoot, targetRoots };
 }
 /**
- * Detect whether an installed Claude Code plugin already provides OMC agent
- * markdown files, so the legacy ~/.claude/agents copy can be skipped.
+ * Detect whether an installed Qoder plugin already provides OMC agent
+ * markdown files, so the legacy ~/.qoder/agents copy can be skipped.
  */
 export function hasPluginProvidedAgentFiles() {
     return getInstalledOmcPluginRoots().some(pluginRoot => hasCompletePluginPayload(pluginRoot) && directoryHasMarkdownFiles(join(pluginRoot, 'agents')));
@@ -1245,7 +1245,7 @@ export function hasPluginProvidedHookFiles() {
     return getInstalledOmcPluginRoots().some(pluginRoot => hasCompletePluginPayload(pluginRoot) && existsSync(join(pluginRoot, 'hooks', 'hooks.json')));
 }
 export function hasEnabledOmcPlugin() {
-    if (process.env.CLAUDE_PLUGIN_ROOT?.trim()) {
+    if (process.env.QODER_PLUGIN_ROOT?.trim()) {
         return true;
     }
     if (!existsSync(SETTINGS_FILE)) {
@@ -1258,12 +1258,12 @@ export function hasEnabledOmcPlugin() {
         // an enabled OMC plugin entry in either field.
         for (const candidate of [settings.enabledPlugins, settings.plugins]) {
             if (Array.isArray(candidate)) {
-                if (candidate.some(plugin => typeof plugin === 'string' && plugin.toLowerCase().includes('oh-my-claudecode'))) {
+                if (candidate.some(plugin => typeof plugin === 'string' && plugin.toLowerCase().includes('oh-my-qoder'))) {
                     return true;
                 }
             }
             else if (candidate && typeof candidate === 'object') {
-                if (Object.entries(candidate).some(([pluginId, value]) => pluginId.toLowerCase().includes('oh-my-claudecode') && value !== false)) {
+                if (Object.entries(candidate).some(([pluginId, value]) => pluginId.toLowerCase().includes('oh-my-qoder') && value !== false)) {
                     return true;
                 }
             }
@@ -1277,12 +1277,12 @@ export function hasEnabledOmcPlugin() {
 function isOmcPluginEnabledInSettings(settings) {
     for (const candidate of [settings.enabledPlugins, settings.plugins]) {
         if (Array.isArray(candidate)) {
-            if (candidate.some(plugin => typeof plugin === 'string' && plugin.toLowerCase().includes('oh-my-claudecode'))) {
+            if (candidate.some(plugin => typeof plugin === 'string' && plugin.toLowerCase().includes('oh-my-qoder'))) {
                 return true;
             }
         }
         else if (candidate && typeof candidate === 'object') {
-            if (Object.entries(candidate).some(([pluginId, value]) => pluginId.toLowerCase().includes('oh-my-claudecode') && value !== false)) {
+            if (Object.entries(candidate).some(([pluginId, value]) => pluginId.toLowerCase().includes('oh-my-qoder') && value !== false)) {
                 return true;
             }
         }
@@ -1426,15 +1426,15 @@ function syncUserSkillCompatShims(log) {
     return synced;
 }
 function loadClaudeMdContent() {
-    const claudeMdPath = join(getPackageDir(), 'docs', 'CLAUDE.md');
+    const claudeMdPath = join(getPackageDir(), 'docs', 'AGENTS.md');
     if (!existsSync(claudeMdPath)) {
-        console.error(`FATAL: CLAUDE.md not found: ${claudeMdPath}`);
+        console.error(`FATAL: AGENTS.md not found: ${claudeMdPath}`);
         process.exit(1);
     }
     return readFileSync(claudeMdPath, 'utf-8');
 }
 /**
- * Extract the embedded OMC version from a CLAUDE.md file.
+ * Extract the embedded OMC version from a AGENTS.md file.
  *
  * Primary source of truth is the injected `<!-- OMC:VERSION:x.y.z -->` marker.
  * Falls back to legacy headings that may include a version string inline.
@@ -1445,7 +1445,7 @@ export function extractOmcVersionFromClaudeMd(content) {
         const markerVersion = versionMarkerMatch[1].trim();
         return markerVersion.startsWith('v') ? markerVersion : `v${markerVersion}`;
     }
-    const headingMatch = content.match(/^#\s+oh-my-claudecode.*?\b(v?\d+\.\d+\.\d+(?:[-+][^\s]+)?)\b/m);
+    const headingMatch = content.match(/^#\s+oh-my-qoder.*?\b(v?\d+\.\d+\.\d+(?:[-+][^\s]+)?)\b/m);
     if (headingMatch?.[1]) {
         const headingVersion = headingMatch[1].trim();
         return headingVersion.startsWith('v') ? headingVersion : `v${headingVersion}`;
@@ -1460,7 +1460,7 @@ export function extractOmcVersionFromClaudeMd(content) {
  * the interactive setup wizard had been completed.
  */
 export function syncPersistedSetupVersion(options) {
-    const configPath = options?.configPath ?? join(CLAUDE_CONFIG_DIR, OMC_CONFIG_FILE_REL);
+    const configPath = options?.configPath ?? join(QODER_CONFIG_DIR, OMC_CONFIG_FILE_REL);
     let config = {};
     if (existsSync(configPath)) {
         const rawConfig = readFileSync(configPath, 'utf-8').trim();
@@ -1475,7 +1475,7 @@ export function syncPersistedSetupVersion(options) {
     }
     let detectedVersion = options?.version?.trim();
     if (!detectedVersion) {
-        const claudeMdPath = options?.claudeMdPath ?? join(CLAUDE_CONFIG_DIR, 'CLAUDE.md');
+        const claudeMdPath = options?.claudeMdPath ?? join(QODER_CONFIG_DIR, 'AGENTS.md');
         if (existsSync(claudeMdPath)) {
             detectedVersion = extractOmcVersionFromClaudeMd(readFileSync(claudeMdPath, 'utf-8')) ?? undefined;
         }
@@ -1492,8 +1492,8 @@ export function syncPersistedSetupVersion(options) {
     return true;
 }
 /**
- * Merge OMC content into existing CLAUDE.md using markers
- * @param existingContent - Existing CLAUDE.md content (null if file doesn't exist)
+ * Merge OMC content into existing AGENTS.md using markers
+ * @param existingContent - Existing AGENTS.md content (null if file doesn't exist)
  * @param omcContent - New OMC content to inject
  * @returns Merged content with markers
  */
@@ -1505,7 +1505,7 @@ export function mergeClaudeMd(existingContent, omcContent, version) {
     const markerStartRegex = createLineAnchoredMarkerRegex(START_MARKER);
     const markerEndRegex = createLineAnchoredMarkerRegex(END_MARKER);
     // Idempotency guard: strip markers from omcContent if already present
-    // This handles the case where docs/CLAUDE.md ships with markers
+    // This handles the case where docs/AGENTS.md ships with markers
     let cleanOmcContent = omcContent;
     const omcStartIdx = findLineAnchoredMarker(omcContent, START_MARKER);
     const omcEndIdx = findLineAnchoredMarker(omcContent, END_MARKER, true);
@@ -1542,6 +1542,45 @@ export function mergeClaudeMd(existingContent, omcContent, version) {
     }
     // Case 3: Preserve only user-authored content that lives outside OMC markers
     return `${START_MARKER}\n${versionMarker}${cleanOmcContent}\n${END_MARKER}\n\n${USER_CUSTOMIZATIONS}\n${preservedUserContent}`;
+}
+/**
+ * Ensure AGENTS.local.md is listed in the project's .gitignore.
+ *
+ * AGENTS.local.md is machine-specific and should never be committed to git.
+ * This function creates or appends to .gitignore in the given project root.
+ *
+ * @param projectRoot - The project root directory containing .git/
+ * @param log - Logging function
+ */
+export function ensureAgentsLocalGitignore(projectRoot, log) {
+    const gitignorePath = join(projectRoot, '.gitignore');
+    const entry = 'AGENTS.local.md';
+    if (existsSync(gitignorePath)) {
+        try {
+            const content = readFileSync(gitignorePath, 'utf-8');
+            // Check if entry already exists (as a whole line)
+            const lines = content.split('\n').map(l => l.trim());
+            if (lines.includes(entry)) {
+                return;
+            }
+            // Append entry, ensuring newline before it
+            const trimmed = content.trimEnd();
+            writeFileSync(gitignorePath, trimmed + '\n' + entry + '\n');
+            log('  Added AGENTS.local.md to .gitignore');
+        }
+        catch {
+            log('  Warning: Could not update .gitignore (non-fatal)');
+        }
+    }
+    else {
+        try {
+            writeFileSync(gitignorePath, entry + '\n');
+            log('  Created .gitignore with AGENTS.local.md entry');
+        }
+        catch {
+            log('  Warning: Could not create .gitignore (non-fatal)');
+        }
+    }
 }
 /**
  * Install OMC agents, commands, skills, and hooks
@@ -1607,7 +1646,7 @@ export function install(options = {}) {
     const pluginProvidesSkillFiles = hasPluginProvidedSkillFiles();
     const pluginProvidesHookFiles = hasPluginProvidedHookFiles();
     const enabledOmcPlugin = hasEnabledOmcPlugin();
-    // Dev plugin-dir mode: user launched OMC via `claude --plugin-dir <path>` or
+    // Dev plugin-dir mode: user launched OMC via `qodercli --plugin-dir <path>` or
     // `omc --plugin-dir <path>`. The plugin already exposes agents/skills at runtime,
     // so skip copying them into <configDir>. Auto-detected via OMC_PLUGIN_ROOT in CLI.
     // `noPlugin` still wins (CLI enforces precedence and warns), so we ignore
@@ -1620,8 +1659,8 @@ export function install(options = {}) {
     const shouldInstallBundledSkills = !pluginDirMode && (options.noPlugin === true || !enabledOmcPlugin || !pluginProvidesSkillFiles);
     const allowPluginHookRefresh = runningAsPlugin && options.refreshHooksInPlugin && !projectScoped;
     if (runningAsPlugin) {
-        log('Detected Claude Code plugin context - skipping agent/command file installation');
-        log('Plugin files are managed by Claude Code plugin system');
+        log('Detected Qoder plugin context - skipping agent/command file installation');
+        log('Plugin files are managed by Qoder plugin system');
         if (projectScoped) {
             log('Detected project-scoped plugin - skipping global HUD/settings modifications');
         }
@@ -1634,29 +1673,29 @@ export function install(options = {}) {
         // Don't return early - continue to install HUD (unless project-scoped)
     }
     else if (pluginProvidesAgentFiles) {
-        log('Detected installed OMC plugin agent definitions - skipping legacy ~/.claude/agents sync');
+        log('Detected installed OMC plugin agent definitions - skipping legacy ~/.qoder/agents sync');
     }
     // Check Claude installation (optional)
     if (!options.skipClaudeCheck && !isClaudeInstalled()) {
-        log('Warning: Claude Code not found. Install it first:');
+        log('Warning: Qoder not found. Install it first:');
         if (isWindows()) {
-            log('  Visit https://docs.anthropic.com/claude-code for Windows installation');
+            log('  Visit https://docs.anthropic.com/qoder for Windows installation');
         }
         else {
-            log('  curl -fsSL https://claude.ai/install.sh | bash');
+            log('  curl -fsSL https://qoder.ai/install.sh | bash');
         }
         // Continue anyway - user might be installing ahead of time
     }
     try {
         // Ensure base config directory exists (skip for project-scoped plugins)
-        if ((!projectScoped || shouldInstallBundledSkills) && !existsSync(CLAUDE_CONFIG_DIR)) {
-            mkdirSync(CLAUDE_CONFIG_DIR, { recursive: true });
+        if ((!projectScoped || shouldInstallBundledSkills) && !existsSync(QODER_CONFIG_DIR)) {
+            mkdirSync(QODER_CONFIG_DIR, { recursive: true });
         }
         if (shouldInstallBundledSkills && !existsSync(SKILLS_DIR)) {
             mkdirSync(SKILLS_DIR, { recursive: true });
         }
         // Skip agent/command/hook file installation when running as plugin
-        // Plugin system handles these via ${CLAUDE_PLUGIN_ROOT}
+        // Plugin system handles these via ${QODER_PLUGIN_ROOT}
         if (!runningAsPlugin) {
             // Create directories
             log('Creating directories...');
@@ -1701,8 +1740,8 @@ export function install(options = {}) {
                 }
             }
             // Skip command installation - all commands are now plugin-scoped skills
-            // Commands are accessible via the plugin system (${CLAUDE_PLUGIN_ROOT}/commands/)
-            // and are managed by Claude Code's skill discovery mechanism.
+            // Commands are accessible via the plugin system (${QODER_PLUGIN_ROOT}/commands/)
+            // and are managed by Qoder's skill discovery mechanism.
             log('Skipping slash command installation (all commands are now plugin-scoped skills)');
             // The command installation loop is disabled - CORE_COMMANDS is empty
             for (const [filename, content] of Object.entries(loadCommandDefinitions())) {
@@ -1730,9 +1769,9 @@ export function install(options = {}) {
                     log(`  Installed ${filename}`);
                 }
             }
-            // Standalone installs still need ~/.claude/hooks/* scripts because their
+            // Standalone installs still need ~/.qoder/hooks/* scripts because their
             // settings.json hook entries execute those local paths directly. Plugin installs
-            // keep using hooks/hooks.json + scripts/ under CLAUDE_PLUGIN_ROOT.
+            // keep using hooks/hooks.json + scripts/ under QODER_PLUGIN_ROOT.
             // Skip when the plugin already provides hooks AND is enabled to prevent
             // duplicate firing (#2252). If the plugin is disabled, standalone scripts
             // are still needed for settings.json hook entries to work at runtime.
@@ -1781,13 +1820,13 @@ export function install(options = {}) {
                 log(`Synced ${syncedUserSkillCompat.length} user skill compatibility shim(s)`);
             }
         }
-        // Install CLAUDE.md with merge support.
+        // Install AGENTS.md with merge support.
         // This runs regardless of plugin context so that `omc update` (which re-execs
-        // as `update-reconcile` with CLAUDE_PLUGIN_ROOT still set) always keeps the
-        // version marker and OMC instructions in ~/.claude/CLAUDE.md up to date.
+        // as `update-reconcile` with QODER_PLUGIN_ROOT still set) always keeps the
+        // version marker and OMC instructions in ~/.qoder/AGENTS.md up to date.
         // Skipped only for project-scoped plugins to avoid mutating global config.
         if (!projectScoped) {
-            const claudeMdPath = join(CLAUDE_CONFIG_DIR, 'CLAUDE.md');
+            const claudeMdPath = join(QODER_CONFIG_DIR, 'AGENTS.md');
             const omcContent = loadClaudeMdContent();
             // Read existing content if it exists
             let existingContent = null;
@@ -1797,19 +1836,33 @@ export function install(options = {}) {
             // Always create backup before modification (if file exists)
             if (existingContent !== null) {
                 const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0]; // YYYY-MM-DDTHH-MM-SS
-                const backupPath = join(CLAUDE_CONFIG_DIR, `CLAUDE.md.backup.${timestamp}`);
+                const backupPath = join(QODER_CONFIG_DIR, `AGENTS.md.backup.${timestamp}`);
                 writeFileSync(backupPath, existingContent);
-                log(`Backed up existing CLAUDE.md to ${backupPath}`);
+                log(`Backed up existing AGENTS.md to ${backupPath}`);
             }
             // Merge OMC content with existing content
             const mergedContent = mergeClaudeMd(existingContent, omcContent, targetVersion);
             writeFileSync(claudeMdPath, mergedContent);
             if (existingContent) {
-                log('Updated CLAUDE.md (merged with existing content)');
+                log('Updated AGENTS.md (merged with existing content)');
             }
             else {
-                log('Created CLAUDE.md');
+                log('Created AGENTS.md');
             }
+        }
+        // Ensure AGENTS.local.md is in the project's .gitignore.
+        // This runs when the current working directory looks like a project root
+        // (contains .git/) so that machine-local overrides are never committed.
+        try {
+            const cwd = process.cwd();
+            const projectGitDir = join(cwd, '.git');
+            if (existsSync(projectGitDir)) {
+                log('Ensuring AGENTS.local.md is in project .gitignore...');
+                ensureAgentsLocalGitignore(cwd, log);
+            }
+        }
+        catch {
+            log('  Warning: Could not check project .gitignore (non-fatal)');
         }
         // Install HUD statusline (skip for project-scoped plugins, skipHud option, or hudEnabled config)
         let hudScriptPath = null;
@@ -1879,7 +1932,7 @@ export function install(options = {}) {
                 //    find-node.sh (used in hooks/hooks.json) can locate it at hook runtime
                 //    even when node is not on PATH (nvm/fnm users, issue #892).
                 try {
-                    const configPath = join(CLAUDE_CONFIG_DIR, OMC_CONFIG_FILE_REL);
+                    const configPath = join(QODER_CONFIG_DIR, OMC_CONFIG_FILE_REL);
                     let omcConfig = {};
                     if (existsSync(configPath)) {
                         omcConfig = JSON.parse(readFileSync(configPath, 'utf-8'));
@@ -1933,7 +1986,7 @@ export function install(options = {}) {
                 const templateVersionStamp = {
                     version: targetVersion,
                     installedAt: new Date().toISOString(),
-                    pluginRoot: process.env.CLAUDE_PLUGIN_ROOT ?? null
+                    pluginRoot: process.env.QODER_PLUGIN_ROOT ?? null
                 };
                 writeFileSync(join(omcRoot, 'template-version.json'), JSON.stringify(templateVersionStamp, null, 2));
                 log('Saved template-version stamp');

@@ -2,8 +2,8 @@
 /**
  * OMC HUD - Main Entry Point
  *
- * Statusline command that visualizes oh-my-claudecode state.
- * Receives stdin JSON from Claude Code and outputs formatted statusline.
+ * Statusline command that visualizes oh-my-qoder state.
+ * Receives stdin JSON from Qoder and outputs formatted statusline.
  */
 /** @internal Reset spawn guard — used by tests only. */
 export declare function _resetSummarySpawnTimestamp(): void;

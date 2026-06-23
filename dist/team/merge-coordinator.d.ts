@@ -6,12 +6,12 @@
 export declare function validateBranchName(branch: string): void;
 /**
  * Harness overlay files that OMC writes into every worker worktree
- * (AGENTS.md and the .claude/ settings overlay). They are infrastructure,
+ * (AGENTS.md and the .qoder/ settings overlay). They are infrastructure,
  * not task output, and differ per worker — so the auto-merge / auto-rebase
  * fan-out collides on them (`UU AGENTS.md`) even when the actual task files
  * are disjoint. See issue #3224.
  */
-export declare const HARNESS_MERGE_PATHS: readonly ["AGENTS.md", ".claude/**"];
+export declare const HARNESS_MERGE_PATHS: readonly ["AGENTS.md", ".qoder/**"];
 /**
  * Configure a trivial `merge=ours` driver for harness overlay files so the
  * team auto-merge / auto-rebase never conflicts on infrastructure (#3224).

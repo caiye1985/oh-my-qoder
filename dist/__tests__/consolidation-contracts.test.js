@@ -73,10 +73,10 @@ describe('Consolidation contracts', () => {
         it('normalizes deprecated agent aliases in delegation routing', () => {
             const researcherRoute = resolveDelegation({ agentRole: 'researcher' });
             const tddGuideRoute = resolveDelegation({ agentRole: 'tdd-guide' });
-            expect(researcherRoute.provider).toBe('claude');
+            expect(researcherRoute.provider).toBe('qoder');
             expect(researcherRoute.tool).toBe('Task');
             expect(researcherRoute.agentOrModel).toBe('document-specialist');
-            expect(tddGuideRoute.provider).toBe('claude');
+            expect(tddGuideRoute.provider).toBe('qoder');
             expect(tddGuideRoute.tool).toBe('Task');
             expect(tddGuideRoute.agentOrModel).toBe('test-engineer');
         });

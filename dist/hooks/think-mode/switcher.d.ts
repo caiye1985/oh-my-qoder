@@ -27,7 +27,7 @@ export declare function isAlreadyHighVariant(modelId: string): boolean;
 export declare function getThinkingConfig(providerId: string, modelId: string): ThinkingConfig | null;
 /**
  * Get Claude-specific thinking configuration.
- * This is used by Claude Code for extended thinking.
+ * This is used by Qoder for extended thinking.
  */
 export declare function getClaudeThinkingConfig(budgetTokens?: number): {
     thinking: {

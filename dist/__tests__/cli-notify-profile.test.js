@@ -13,7 +13,7 @@ function runCli(args, homeDir) {
         env: {
             ...process.env,
             HOME: homeDir,
-            CLAUDE_CONFIG_DIR: join(homeDir, '.claude'),
+            QODER_CONFIG_DIR: join(homeDir, '.claude'),
         },
         encoding: 'utf-8',
     });

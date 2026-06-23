@@ -2,8 +2,8 @@
  * OMC HUD - API Key Source Element
  *
  * Detects and renders where the active ANTHROPIC_API_KEY comes from:
- * - 'project': set in .claude/settings.local.json (project-level)
- * - 'global': set in ~/.claude/settings.json (user-level)
+ * - 'project': set in .qoder/settings.local.json (project-level)
+ * - 'global': set in ~/.qoder/settings.json (user-level)
  * - 'env': present only as an environment variable
  *
  * Never displays the actual key value.
@@ -11,7 +11,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { dim, cyan } from '../colors.js';
-import { getClaudeConfigDir } from '../../utils/config-dir.js';
+import { getQoderConfigDir } from '../../utils/config-dir.js';
 /**
  * Check whether a settings file defines ANTHROPIC_API_KEY in its env block.
  */
@@ -34,8 +34,8 @@ function settingsFileHasApiKey(filePath) {
  * Detect where the active ANTHROPIC_API_KEY comes from.
  *
  * Priority:
- * 1. Project-level: .claude/settings.local.json in cwd
- * 2. Global-level: ~/.claude/settings.json
+ * 1. Project-level: .qoder/settings.local.json in cwd
+ * 2. Global-level: ~/.qoder/settings.json
  * 3. Environment variable
  *
  * @param cwd - Current working directory (project root)
@@ -49,7 +49,7 @@ export function detectApiKeySource(cwd) {
             return 'project';
     }
     // 2. Global config
-    const globalSettings = join(getClaudeConfigDir(), 'settings.json');
+    const globalSettings = join(getQoderConfigDir(), 'settings.json');
     if (settingsFileHasApiKey(globalSettings))
         return 'global';
     // 3. Environment variable

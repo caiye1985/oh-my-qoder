@@ -1,5 +1,5 @@
 /**
- * Shared types for Oh-My-ClaudeCode
+ * Shared types for Oh-My-Qoder
  */
 export type ModelType = "sonnet" | "opus" | "haiku" | "inherit";
 export interface AgentConfig {
@@ -15,7 +15,7 @@ export interface AgentConfig {
 }
 export type AutopilotExecutionBackend = "team" | "solo";
 export type AutopilotPlanningMode = "ralplan" | "direct" | false;
-export type AutopilotTeamAgentType = "claude" | "codex" | "gemini" | "grok" | "cursor" | "antigravity";
+export type AutopilotTeamAgentType = "qoder" | "codex" | "gemini" | "grok" | "cursor" | "antigravity";
 export interface AutopilotConfigBlock {
     /** Maximum total iterations across all phases. */
     maxIterations?: number;
@@ -151,7 +151,7 @@ export interface PluginConfig {
         /**
          * Force all agents to inherit the parent model instead of using OMC model routing.
          * When true, the `model` parameter is stripped from all Task/Agent calls so agents use
-         * the user's Claude Code model setting. Overrides all per-agent model recommendations.
+         * the user's Qoder model setting. Overrides all per-agent model recommendations.
          * Env: OMC_ROUTING_FORCE_INHERIT=true
          */
         forceInherit?: boolean;
@@ -328,7 +328,7 @@ export interface ExternalModelsDefaults {
  * External models fallback policy
  */
 export interface ExternalModelsFallbackPolicy {
-    onModelFailure: "provider_chain" | "cross_provider" | "claude_only";
+    onModelFailure: "provider_chain" | "cross_provider" | "qoder_only";
     allowCrossProvider?: boolean;
     crossProviderOrder?: ExternalModelProvider[];
 }
@@ -361,7 +361,7 @@ export interface ResolveOptions {
 /**
  * Provider type for delegation routing
  */
-export type DelegationProvider = "claude"
+export type DelegationProvider = "qoder"
 /** Use /team to coordinate Codex CLI workers in tmux panes. */
  | "codex"
 /** Use /team to coordinate Gemini CLI workers in tmux panes. */
@@ -412,7 +412,7 @@ export type CanonicalTeamRole = typeof CANONICAL_TEAM_ROLES[number];
 /** Cursor team workers are currently supported only for executor-style tasks. */
 export declare const CURSOR_EXECUTOR_TEAM_ROLES: readonly ["executor"];
 /** Provider for /team role routing. */
-export type TeamRoleProvider = 'claude' | 'codex' | 'gemini' | 'grok' | 'cursor' | 'antigravity';
+export type TeamRoleProvider = 'qoder' | 'codex' | 'gemini' | 'grok' | 'cursor' | 'antigravity';
 /** Tier name accepted in role-assignment `model` field. */
 export type TeamRoleTier = 'HIGH' | 'MEDIUM' | 'LOW';
 /** Known agent names derived from `buildDefaultConfig().agents` keys in src/config/loader.ts. */

@@ -75,7 +75,7 @@ describe('plugin-setup.mjs Ralph Ruby dependency guidance (issue #2969)', () => 
     it('prints actionable install guidance for fresh Ubuntu users', () => {
         expect(scriptContent).toContain('Ralph workflows require Ruby');
         expect(scriptContent).toContain('sudo apt update && sudo apt install ruby-full');
-        expect(scriptContent).toContain('restart Claude Code');
+        expect(scriptContent).toContain('restart Qoder');
     });
 });
 describe('plugin-setup.mjs hook command portability', () => {
@@ -85,21 +85,21 @@ describe('plugin-setup.mjs hook command portability', () => {
     const scriptContent = existsSync(PLUGIN_SETUP_PATH)
         ? readFileSync(PLUGIN_SETUP_PATH, 'utf-8')
         : '';
-    const UNIX_PREFIX = 'sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs ';
-    const WINDOWS_PREFIX = 'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs ';
+    const UNIX_PREFIX = 'sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs ';
+    const WINDOWS_PREFIX = 'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs ';
     /** Run one command string through the same patching rules as plugin-setup.mjs. */
     function patchCommand(cmd, prefix = UNIX_PREFIX) {
-        const findNodePattern = /^sh "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
-        const currentFindNodePattern = /^(?:"\/bin\/sh"|sh) "\$CLAUDE_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs "\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
-        const directRunCjsPattern = /^node\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
-        const absNodePattern = /^"([^"]*\/node|[A-Za-z]:\\[^"]*\\node(?:\.exe)?)"\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$CLAUDE_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+        const findNodePattern = /^sh "\$\{QODER_PLUGIN_ROOT\}\/scripts\/find-node\.sh" "\$\{QODER_PLUGIN_ROOT\}\/scripts\/([^"\s]+)"?(.*)$/;
+        const currentFindNodePattern = /^(?:"\/bin\/sh"|sh) "\$QODER_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs "\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+        const directRunCjsPattern = /^node\s+"\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
+        const absNodePattern = /^"([^"]*\/node|[A-Za-z]:\\[^"]*\\node(?:\.exe)?)"\s+"\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs\s+"\$QODER_PLUGIN_ROOT"\/scripts\/([^"\s]+)"?(.*)$/;
         const m = cmd.match(currentFindNodePattern) ?? cmd.match(findNodePattern) ?? cmd.match(directRunCjsPattern);
         if (m) {
-            return `${prefix}"$CLAUDE_PLUGIN_ROOT"/scripts/${m[1]}${m[2]}`;
+            return `${prefix}"$QODER_PLUGIN_ROOT"/scripts/${m[1]}${m[2]}`;
         }
         const absNodeMatch = cmd.match(absNodePattern);
         if (absNodeMatch) {
-            return `${prefix}"$CLAUDE_PLUGIN_ROOT"/scripts/${absNodeMatch[2]}${absNodeMatch[3]}`;
+            return `${prefix}"$QODER_PLUGIN_ROOT"/scripts/${absNodeMatch[2]}${absNodeMatch[3]}`;
         }
         return cmd;
     }
@@ -109,32 +109,32 @@ describe('plugin-setup.mjs hook command portability', () => {
         expect(scriptContent).toContain('normalizeHooksDataForPlatform');
     });
     it('leaves the canonical sh+find-node+run.cjs command unchanged', () => {
-        const canonical = `${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs`;
+        const canonical = `${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs`;
         expect(patchCommand(canonical)).toBe(canonical);
     });
-    it('normalizes legacy sh "${CLAUDE_PLUGIN_ROOT}/..." form to the canonical prefix', () => {
-        const legacy = 'sh "${CLAUDE_PLUGIN_ROOT}/scripts/find-node.sh" "${CLAUDE_PLUGIN_ROOT}/scripts/keyword-detector.mjs"';
+    it('normalizes legacy sh "${QODER_PLUGIN_ROOT}/..." form to the canonical prefix', () => {
+        const legacy = 'sh "${QODER_PLUGIN_ROOT}/scripts/find-node.sh" "${QODER_PLUGIN_ROOT}/scripts/keyword-detector.mjs"';
         const result = patchCommand(legacy);
-        expect(result).toBe(`${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs`);
+        expect(result).toBe(`${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs`);
     });
     it('normalizes bare "node run.cjs" form (node on PATH) to the find-node bootstrap', () => {
-        const bare = 'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-start.mjs';
+        const bare = 'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-start.mjs';
         const result = patchCommand(bare);
-        expect(result).toBe(`${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/session-start.mjs`);
+        expect(result).toBe(`${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/session-start.mjs`);
     });
     it('keeps source hook commands portable with sh rather than absolute /bin/sh', () => {
-        const source = `${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs`;
+        const source = `${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs`;
         expect(source).not.toContain('/bin/sh');
         expect(patchCommand(source)).toBe(source);
     });
     it('self-heals an absolute node path baked in at publish time', () => {
-        const absolute = '"/opt/hostedtoolcache/node/20.0.0/x64/bin/node" "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs';
+        const absolute = '"/opt/hostedtoolcache/node/20.0.0/x64/bin/node" "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs';
         const result = patchCommand(absolute);
-        expect(result).toBe(`${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs`);
+        expect(result).toBe(`${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs`);
     });
     it('keeps generated SessionEnd hooks native-Windows safe without sh', () => {
-        const sessionEnd = 'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs';
-        const wikiSessionEnd = 'node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/wiki-session-end.mjs';
+        const sessionEnd = 'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs';
+        const wikiSessionEnd = 'node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/wiki-session-end.mjs';
         expect(patchCommand(sessionEnd, WINDOWS_PREFIX)).toBe(sessionEnd);
         expect(patchCommand(wikiSessionEnd, WINDOWS_PREFIX)).toBe(wikiSessionEnd);
         expect(sessionEnd).not.toContain('sh ');
@@ -149,7 +149,7 @@ describe('plugin-setup.mjs hook command portability', () => {
         expect(commands.length).toBeGreaterThan(0);
         for (const { event, command } of commands) {
             const patched = patchCommand(command, WINDOWS_PREFIX);
-            expect(patched, event).toMatch(/^node "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs /);
+            expect(patched, event).toMatch(/^node "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs /);
             expect(patched, event).not.toContain('find-node.sh');
             expect(patched, event).not.toContain('/bin/sh');
             expect(patched, event).not.toMatch(/^sh /);
@@ -164,8 +164,8 @@ describe('plugin-setup.mjs hook command portability', () => {
         expect(commands.length).toBeGreaterThan(0);
         for (const { event, command } of commands) {
             const patched = patchCommand(command, UNIX_PREFIX);
-            expect(patched, event).toMatch(/^sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$CLAUDE_PLUGIN_ROOT"\/scripts\/run\.cjs /);
-            expect(patched, event).toContain('"$CLAUDE_PLUGIN_ROOT"/scripts/');
+            expect(patched, event).toMatch(/^sh "\$QODER_PLUGIN_ROOT"\/scripts\/find-node\.sh "\$QODER_PLUGIN_ROOT"\/scripts\/run\.cjs /);
+            expect(patched, event).toContain('"$QODER_PLUGIN_ROOT"/scripts/');
             expect(patched, event).not.toContain('/bin/sh');
         }
     });
@@ -174,7 +174,7 @@ describe('plugin-setup.mjs hook command portability', () => {
         const before = readFileSync(hooksJsonPath, 'utf-8');
         const tempRoot = mkdtempSync(join(tmpdir(), 'omc-plugin-setup-source-hooks-'));
         try {
-            const configDir = join(tempRoot, 'claude');
+            const configDir = join(tempRoot, 'qoder');
             const fakeHome = join(tempRoot, 'home');
             mkdirSync(configDir, { recursive: true });
             mkdirSync(fakeHome, { recursive: true });
@@ -182,7 +182,7 @@ describe('plugin-setup.mjs hook command portability', () => {
                 cwd: PACKAGE_ROOT,
                 env: {
                     ...process.env,
-                    CLAUDE_CONFIG_DIR: configDir,
+                    QODER_CONFIG_DIR: configDir,
                     HOME: fakeHome,
                 },
                 stdio: 'pipe',
@@ -194,8 +194,8 @@ describe('plugin-setup.mjs hook command portability', () => {
         }
     });
     it('normalizes current sh find-node commands to node run.cjs on Windows', () => {
-        const current = 'sh "$CLAUDE_PLUGIN_ROOT"/scripts/find-node.sh "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs';
-        expect(patchCommand(current, WINDOWS_PREFIX)).toBe('node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs');
+        const current = 'sh "$QODER_PLUGIN_ROOT"/scripts/find-node.sh "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs';
+        expect(patchCommand(current, WINDOWS_PREFIX)).toBe('node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs');
     });
     it.runIf(process.platform !== 'win32')('executes a Unix hook command with minimal PATH by resolving Volta-managed node', () => {
         const tempRoot = mkdtempSync(join(tmpdir(), 'omc-min-path-hook-'));
@@ -211,12 +211,12 @@ describe('plugin-setup.mjs hook command portability', () => {
             const fakeNode = join(voltaBin, 'node');
             writeFileSync(fakeNode, '#!/bin/sh\nprintf "%s\\n" "$@" > "$OMC_FAKE_NODE_ARGS"\n');
             chmodSync(fakeNode, 0o755);
-            const command = `${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/keyword-detector.mjs --smoke`;
+            const command = `${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/keyword-detector.mjs --smoke`;
             execFileSync('/bin/sh', ['-c', command], {
                 env: {
                     HOME: tempHome,
                     PATH: tempBin,
-                    CLAUDE_PLUGIN_ROOT: PACKAGE_ROOT,
+                    QODER_PLUGIN_ROOT: PACKAGE_ROOT,
                     OMC_FAKE_NODE_ARGS: argsFile,
                 },
                 stdio: 'pipe',
@@ -248,12 +248,12 @@ describe('plugin-setup.mjs hook command portability', () => {
             const fakeNode = join(nvmBin, 'node');
             writeFileSync(fakeNode, '#!/bin/sh\nprintf "%s\\n" "$@" > "$OMC_FAKE_NODE_ARGS"\n');
             chmodSync(fakeNode, 0o755);
-            const command = `${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs`;
+            const command = `${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/session-end.mjs`;
             execFileSync('/bin/sh', ['-c', command], {
                 env: {
                     HOME: tempHome,
                     PATH: `${tempBin}:${asdfBin}`,
-                    CLAUDE_PLUGIN_ROOT: PACKAGE_ROOT,
+                    QODER_PLUGIN_ROOT: PACKAGE_ROOT,
                     OMC_FAKE_NODE_ARGS: argsFile,
                 },
                 stdio: 'pipe',
@@ -287,12 +287,12 @@ describe('plugin-setup.mjs hook command portability', () => {
             const fakeNode = join(nvmBin, 'node');
             writeFileSync(fakeNode, '#!/bin/sh\nprintf "%s\\n" "$@" > "$OMC_FAKE_NODE_ARGS"\n');
             chmodSync(fakeNode, 0o755);
-            const command = `${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs`;
+            const command = `${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/session-end.mjs`;
             execFileSync('/bin/sh', ['-c', command], {
                 env: {
                     HOME: tempHome,
                     PATH: tempBin,
-                    CLAUDE_PLUGIN_ROOT: PACKAGE_ROOT,
+                    QODER_PLUGIN_ROOT: PACKAGE_ROOT,
                     OMC_FAKE_NODE_ARGS: argsFile,
                 },
                 stdio: 'pipe',
@@ -306,8 +306,8 @@ describe('plugin-setup.mjs hook command portability', () => {
         }
     });
     it('keeps the Windows hook command direct-node and shell-wrapper free', () => {
-        const command = patchCommand(`${UNIX_PREFIX}"$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs`, WINDOWS_PREFIX);
-        expect(command).toBe('node "$CLAUDE_PLUGIN_ROOT"/scripts/run.cjs "$CLAUDE_PLUGIN_ROOT"/scripts/session-end.mjs');
+        const command = patchCommand(`${UNIX_PREFIX}"$QODER_PLUGIN_ROOT"/scripts/session-end.mjs`, WINDOWS_PREFIX);
+        expect(command).toBe('node "$QODER_PLUGIN_ROOT"/scripts/run.cjs "$QODER_PLUGIN_ROOT"/scripts/session-end.mjs');
         expect(command).not.toContain('find-node.sh');
         expect(command).not.toMatch(/(?:^|\s)sh(?:\s|$)/);
         expect(command).not.toContain('/bin/sh');

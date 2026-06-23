@@ -343,9 +343,9 @@ describe('AutopilotValidation', () => {
             const prompt = getValidationSpawnPrompt(specPath);
             expect(prompt).toContain('SPAWN PARALLEL VALIDATION ARCHITECTS');
             expect(prompt).toContain(specPath);
-            expect(prompt).toContain('oh-my-claudecode:architect');
-            expect(prompt).toContain('oh-my-claudecode:security-reviewer');
-            expect(prompt).toContain('oh-my-claudecode:code-reviewer');
+            expect(prompt).toContain('oh-my-qoder:architect');
+            expect(prompt).toContain('oh-my-qoder:security-reviewer');
+            expect(prompt).toContain('oh-my-qoder:code-reviewer');
         });
         it('should include all three validation types', () => {
             const prompt = getValidationSpawnPrompt('/spec.md');

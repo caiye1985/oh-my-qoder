@@ -10,7 +10,7 @@ function readProjectFile(...segments) {
 }
 describe('Tier-0 contract docs consistency', () => {
     const referenceDoc = readProjectFile('docs', 'REFERENCE.md');
-    const claudeDoc = readProjectFile('docs', 'CLAUDE.md');
+    const claudeDoc = readProjectFile('docs', 'AGENTS.md');
     it('keeps REFERENCE ToC counts aligned with section headings', () => {
         const tocAgents = referenceDoc.match(/\[Agents \((\d+) Total\)\]\(#agents-\d+-total\)/);
         const headingAgents = referenceDoc.match(/^## Agents \((\d+) Total\)$/m);
@@ -21,17 +21,17 @@ describe('Tier-0 contract docs consistency', () => {
     });
     it('documents all Tier-0 slash commands in REFERENCE.md', () => {
         for (const skillName of ['autopilot', 'ultrawork', 'ralph', 'team', 'ralplan']) {
-            expect(referenceDoc).toContain(`/oh-my-claudecode:${skillName}`);
+            expect(referenceDoc).toContain(`/oh-my-qoder:${skillName}`);
         }
     });
-    it('documents all Tier-0 keywords in CLAUDE.md', () => {
+    it('documents all Tier-0 keywords in AGENTS.md', () => {
         for (const keyword of ['autopilot', 'ultrawork', 'ralph', 'team', 'ralplan']) {
             expect(claudeDoc).toContain(`\`${keyword}\``);
         }
     });
     it('does not contain blank placeholder rows in core skill/command docs', () => {
         expect(referenceDoc).not.toContain('| `` |');
-        expect(referenceDoc).not.toContain('/oh-my-claudecode: <task>');
+        expect(referenceDoc).not.toContain('/oh-my-qoder: <task>');
         expect(referenceDoc).not.toContain('incl. )');
     });
     it('keeps ralplan documented as a keyword trigger', () => {
@@ -43,14 +43,14 @@ describe('Tier-0 contract docs consistency', () => {
         expect(referenceDoc).toContain('`psm` | **Deprecated** compatibility alias for `project-session-manager`');
     });
     it('does not document removed wrapper slash commands as installed skills', () => {
-        expect(referenceDoc).not.toContain('/oh-my-claudecode:analyze <target>');
-        expect(referenceDoc).not.toContain('/oh-my-claudecode:tdd <feature>');
+        expect(referenceDoc).not.toContain('/oh-my-qoder:analyze <target>');
+        expect(referenceDoc).not.toContain('/oh-my-qoder:tdd <feature>');
     });
     it('documents team as explicit-only rather than an auto-triggered keyword', () => {
         expect(claudeDoc).toContain('Team orchestration is explicit via `/team`.');
         expect(referenceDoc).not.toContain('| `team`, `coordinated team`');
     });
-    it('keeps issue #3316 failure-mode guardrails in the installed CLAUDE.md template', () => {
+    it('keeps issue #3316 failure-mode guardrails in the installed AGENTS.md template', () => {
         expect(claudeDoc).toContain('<failure_mode_guards>');
         expect(claudeDoc).toContain('use AskUserQuestion instead of ending with a prose question');
         expect(claudeDoc).toContain('git status --short --branch');
@@ -60,8 +60,8 @@ describe('Tier-0 contract docs consistency', () => {
     });
     it('keeps install and update guidance aligned on canonical setup entrypoints', () => {
         const localPluginDoc = readProjectFile('docs', 'LOCAL_PLUGIN_INSTALL.md');
-        expect(claudeDoc).toContain('Say "setup omc" or run `/oh-my-claudecode:omc-setup`.');
-        expect(referenceDoc).toContain('/oh-my-claudecode:setup');
+        expect(claudeDoc).toContain('Say "setup omc" or run `/oh-my-qoder:omc-setup`.');
+        expect(referenceDoc).toContain('/oh-my-qoder:setup');
         expect(localPluginDoc).toContain('/setup');
         expect(localPluginDoc).toContain('git worktrees');
     });
@@ -81,14 +81,14 @@ describe('Tier-0 contract docs consistency', () => {
             'README.zh.md',
         ].map((file) => readProjectFile(file));
         for (const content of readmes) {
-            expect(content).not.toContain('https://yeachan-heo.github.io/oh-my-claudecode-website/docs.html');
-            expect(content).toContain('https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#');
+            expect(content).not.toContain('https://yeachan-heo.github.io/oh-my-qoder-website/docs.html');
+            expect(content).toContain('https://yeachan-heo.github.io/oh-my-qoder-website/docs/#');
         }
     });
     it('keeps root AGENTS.md aligned with OMC branding and state paths', () => {
         const agentsDoc = readProjectFile('AGENTS.md');
-        expect(agentsDoc).toContain('# oh-my-claudecode - Intelligent Multi-Agent Orchestration');
-        expect(agentsDoc).toContain('You are running with oh-my-claudecode (OMC), a multi-agent orchestration layer for Claude Code.');
+        expect(agentsDoc).toContain('# oh-my-qoder - Intelligent Multi-Agent Orchestration');
+        expect(agentsDoc).toContain('You are running with oh-my-qoder (OMC), a multi-agent orchestration layer for Qoder.');
         expect(agentsDoc).toContain('`.omc/state/`');
         expect(agentsDoc).toContain('Run `omc setup` to install all components. Run `omc doctor` to verify installation.');
         expect(agentsDoc).not.toContain('oh-my-codex');

@@ -1,4 +1,4 @@
-export type CliAgentType = 'claude' | 'codex' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
+export type CliAgentType = 'qoder' | 'codex' | 'gemini' | 'cursor' | 'grok' | 'antigravity';
 export interface CliAgentContract {
     agentType: CliAgentType;
     binary: string;
@@ -50,14 +50,6 @@ export declare const _testInternals: {
     getTrustedPrefixes: typeof getTrustedPrefixes;
     isTrustedPrefix: typeof isTrustedPrefix;
 };
-/**
- * Detect parent launch env for Claude Code API-key auth.
- *
- * Claude Code's `--dangerously-skip-permissions` only bypasses permission
- * prompts. When an API key is present, `--bare` is needed to avoid the
- * interactive OAuth/session login path for team worker panes.
- */
-export declare function shouldUseClaudeBareMode(env?: NodeJS.ProcessEnv): boolean;
 export declare function getContract(agentType: CliAgentType): CliAgentContract;
 export declare function isCliAvailable(agentType: CliAgentType): boolean;
 export declare function validateCliAvailable(agentType: CliAgentType): void;
@@ -72,22 +64,22 @@ export declare function parseCliOutput(agentType: CliAgentType, rawOutput: strin
  */
 export declare function isPromptModeAgent(agentType: CliAgentType): boolean;
 /**
- * Resolve the active model for Claude team workers on Bedrock/Vertex.
+ * Resolve the active model for Qoder team workers on Bedrock/Vertex.
  *
  * When running on a non-standard provider (Bedrock, Vertex), workers need
  * the provider-specific model ID passed explicitly via --model. Without it,
- * Claude Code falls back to its built-in default (claude-sonnet-4-6) which
+ * Qoder falls back to its built-in default (claude-sonnet-4-6) which
  * is invalid on these providers.
  *
  * Resolution order:
- *   1. ANTHROPIC_MODEL / CLAUDE_MODEL env vars (user's explicit setting)
- *   2. Provider tier-specific env vars (CLAUDE_CODE_BEDROCK_SONNET_MODEL, etc.)
- *   3. undefined — let Claude Code handle its own default
+ *   1. ANTHROPIC_MODEL / QODER_MODEL env vars (user's explicit setting)
+ *   2. Provider tier-specific env vars (QODER_BEDROCK_SONNET_MODEL, etc.)
+ *   3. undefined — let Qoder handle its own default
  *
  * Returns undefined when not on Bedrock/Vertex (standard Anthropic API
  * handles bare aliases fine).
  */
-export declare function resolveClaudeWorkerModel(env?: NodeJS.ProcessEnv): string | undefined;
+export declare function resolveQoderWorkerModel(env?: NodeJS.ProcessEnv): string | undefined;
 /**
  * Get the extra CLI args needed to pass an instruction in prompt mode.
  * Returns empty array if the agent does not support prompt mode.

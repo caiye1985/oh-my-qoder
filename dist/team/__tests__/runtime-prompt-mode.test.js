@@ -10,7 +10,7 @@ import { tmpdir } from 'os';
  * (interactive mode) so the TUI is bypassed entirely. Trust-confirm and send-keys
  * notification are skipped for prompt-mode agents.
  *
- * See: https://github.com/anthropics/claude-code/issues/1000
+ * See: https://github.com/anthropics/qoder/issues/1000
  */
 // Track all tmux calls made during spawn
 const tmuxCalls = vi.hoisted(() => ({
@@ -241,7 +241,7 @@ describe('spawnWorkerForTask – prompt mode and interactive worker launch', () 
         rmSync(cwd, { recursive: true, force: true });
     });
     it('non-prompt worker waits for pane readiness before sending inbox instruction', async () => {
-        const runtime = makeRuntime(cwd, 'claude');
+        const runtime = makeRuntime(cwd, 'qoder');
         await spawnWorkerForTask(runtime, 'worker-1', 0);
         const captureCalls = tmuxCalls.args.filter(args => args[0] === 'capture-pane');
         expect(captureCalls.length).toBeGreaterThan(0);
@@ -251,7 +251,7 @@ describe('spawnWorkerForTask – prompt mode and interactive worker launch', () 
         rmSync(cwd, { recursive: true, force: true });
     });
     it('non-prompt worker throws when pane never becomes ready and resets task to pending', async () => {
-        const runtime = makeRuntime(cwd, 'claude');
+        const runtime = makeRuntime(cwd, 'qoder');
         tmuxCalls.capturePaneText = 'still booting\n';
         process.env.OMC_SHELL_READY_TIMEOUT_MS = '40';
         await expect(spawnWorkerForTask(runtime, 'worker-1', 0)).rejects.toThrow('worker_pane_not_ready:worker-1');
@@ -299,13 +299,13 @@ describe('spawnWorkerForTask – model passthrough from environment variables', 
         delete process.env.OMC_EXTERNAL_MODELS_DEFAULT_ANTIGRAVITY_MODEL;
         delete process.env.OMC_ANTIGRAVITY_DEFAULT_MODEL;
         delete process.env.ANTHROPIC_MODEL;
-        delete process.env.CLAUDE_MODEL;
+        delete process.env.QODER_MODEL;
         delete process.env.ANTHROPIC_BASE_URL;
-        delete process.env.CLAUDE_CODE_USE_BEDROCK;
-        delete process.env.CLAUDE_CODE_USE_VERTEX;
-        delete process.env.CLAUDE_CODE_BEDROCK_OPUS_MODEL;
-        delete process.env.CLAUDE_CODE_BEDROCK_SONNET_MODEL;
-        delete process.env.CLAUDE_CODE_BEDROCK_HAIKU_MODEL;
+        delete process.env.QODER_USE_BEDROCK;
+        delete process.env.QODER_USE_VERTEX;
+        delete process.env.QODER_BEDROCK_OPUS_MODEL;
+        delete process.env.QODER_BEDROCK_SONNET_MODEL;
+        delete process.env.QODER_BEDROCK_HAIKU_MODEL;
         delete process.env.ANTHROPIC_DEFAULT_OPUS_MODEL;
         delete process.env.ANTHROPIC_DEFAULT_SONNET_MODEL;
         delete process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
@@ -415,10 +415,10 @@ describe('spawnWorkerForTask – model passthrough from environment variables', 
         // A DIRECT grok launch must resolve its model only from grok env vars.
         // Even with Bedrock/Claude model env present, grok must NOT receive any
         // --model flag (its grok env vars are unset here) and must NOT pick up a
-        // Claude/Bedrock model id via resolveClaudeWorkerModel().
-        process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+        // Claude/Bedrock model id via resolveQoderWorkerModel().
+        process.env.QODER_USE_BEDROCK = '1';
         process.env.ANTHROPIC_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
-        process.env.CLAUDE_CODE_BEDROCK_SONNET_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
+        process.env.QODER_BEDROCK_SONNET_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
         process.env.OMC_MODEL_MEDIUM = 'us.anthropic.claude-sonnet-4-6-v1:0';
         const runtime = makeRuntime(cwd, 'grok');
         await spawnWorkerForTask(runtime, 'worker-1', 0);
@@ -426,10 +426,10 @@ describe('spawnWorkerForTask – model passthrough from environment variables', 
         expect(launchCall).toBeDefined();
         const launchCmd = launchCall[launchCall.length - 1];
         // grok env vars unset → no --model flag at all. The grok IIFE branch returns
-        // undefined and never falls through to resolveClaudeWorkerModel(), so the
+        // undefined and never falls through to resolveQoderWorkerModel(), so the
         // Claude/Bedrock model id is never passed as a `--model` CLI argument.
         // (The Bedrock ids still appear in the forwarded env prefix via the worker
-        //  model-env allowlist, exactly as they would for any non-claude worker —
+        //  model-env allowlist, exactly as they would for any non-qoder worker —
         //  that is pane startup env, not the grok model selection.)
         expect(launchCmd).toContain("'--always-approve'");
         expect(launchCmd).not.toContain("'--model'");
@@ -459,19 +459,19 @@ describe('spawnWorkerForTask – model passthrough from environment variables', 
         expect(launchCmd).toContain("'--model'");
         expect(launchCmd).toContain('Gemini 3.1 Pro');
     });
-    it('claude worker does not pass model flag (not supported)', async () => {
+    it('qoder worker does not pass model flag (not supported)', async () => {
         process.env.OMC_EXTERNAL_MODELS_DEFAULT_CODEX_MODEL = 'gpt-4o';
-        const runtime = makeRuntime(cwd, 'claude');
+        const runtime = makeRuntime(cwd, 'qoder');
         await spawnWorkerForTask(runtime, 'worker-1', 0);
         const launchCall = tmuxCalls.args.find(args => args[0] === 'send-keys' && args.includes('-l'));
         expect(launchCall).toBeDefined();
         const launchCmd = launchCall[launchCall.length - 1];
-        // Claude worker should not have --model flag
+        // Qoder worker should not have --model flag
         expect(launchCmd).not.toContain("'--model'");
     });
-    it('claude worker propagates ANTHROPIC_MODEL into the pane startup env', async () => {
+    it('qoder worker propagates ANTHROPIC_MODEL into the pane startup env', async () => {
         process.env.ANTHROPIC_MODEL = 'claude-opus-4-1';
-        const runtime = makeRuntime(cwd, 'claude');
+        const runtime = makeRuntime(cwd, 'qoder');
         await spawnWorkerForTask(runtime, 'worker-1', 0);
         const launchCall = tmuxCalls.args.find(args => args[0] === 'send-keys' && args.includes('-l'));
         expect(launchCall).toBeDefined();
@@ -480,41 +480,41 @@ describe('spawnWorkerForTask – model passthrough from environment variables', 
         expect(launchCmd).toContain('claude-opus-4-1');
         expect(launchCmd).not.toContain("'--model'");
     });
-    it('claude worker propagates custom provider env needed for inherited model selection', async () => {
-        process.env.CLAUDE_MODEL = 'vertex_ai/claude-3-5-sonnet';
+    it('qoder worker propagates custom provider env needed for inherited model selection', async () => {
+        process.env.QODER_MODEL = 'vertex_ai/claude-3-5-sonnet';
         process.env.ANTHROPIC_BASE_URL = 'https://gateway.example.invalid';
-        const runtime = makeRuntime(cwd, 'claude');
+        const runtime = makeRuntime(cwd, 'qoder');
         await spawnWorkerForTask(runtime, 'worker-1', 0);
         const launchCall = tmuxCalls.args.find(args => args[0] === 'send-keys' && args.includes('-l'));
         expect(launchCall).toBeDefined();
         const launchCmd = launchCall[launchCall.length - 1];
-        expect(launchCmd).toContain('CLAUDE_MODEL=');
+        expect(launchCmd).toContain('QODER_MODEL=');
         expect(launchCmd).toContain('vertex_ai/claude-3-5-sonnet');
         expect(launchCmd).toContain('ANTHROPIC_BASE_URL=');
         expect(launchCmd).toContain('https://gateway.example.invalid');
     });
-    it('claude worker propagates tiered Bedrock/env model selection variables', async () => {
-        process.env.CLAUDE_CODE_USE_BEDROCK = '1';
-        process.env.CLAUDE_CODE_BEDROCK_OPUS_MODEL = 'us.anthropic.claude-opus-4-6-v1:0';
-        process.env.CLAUDE_CODE_BEDROCK_SONNET_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
-        process.env.CLAUDE_CODE_BEDROCK_HAIKU_MODEL = 'us.anthropic.claude-haiku-4-5-v1:0';
+    it('qoder worker propagates tiered Bedrock/env model selection variables', async () => {
+        process.env.QODER_USE_BEDROCK = '1';
+        process.env.QODER_BEDROCK_OPUS_MODEL = 'us.anthropic.claude-opus-4-6-v1:0';
+        process.env.QODER_BEDROCK_SONNET_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
+        process.env.QODER_BEDROCK_HAIKU_MODEL = 'us.anthropic.claude-haiku-4-5-v1:0';
         process.env.ANTHROPIC_DEFAULT_OPUS_MODEL = 'claude-opus-4-6-custom';
         process.env.ANTHROPIC_DEFAULT_SONNET_MODEL = 'claude-sonnet-4-6-custom';
         process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = 'claude-haiku-4-5-custom';
         process.env.OMC_MODEL_HIGH = 'claude-opus-4-6-override';
         process.env.OMC_MODEL_MEDIUM = 'claude-sonnet-4-6-override';
         process.env.OMC_MODEL_LOW = 'claude-haiku-4-5-override';
-        const runtime = makeRuntime(cwd, 'claude');
+        const runtime = makeRuntime(cwd, 'qoder');
         await spawnWorkerForTask(runtime, 'worker-1', 0);
         const launchCall = tmuxCalls.args.find(args => args[0] === 'send-keys' && args.includes('-l'));
         expect(launchCall).toBeDefined();
         const launchCmd = launchCall[launchCall.length - 1];
-        expect(launchCmd).toContain('CLAUDE_CODE_USE_BEDROCK=');
-        expect(launchCmd).toContain('CLAUDE_CODE_BEDROCK_OPUS_MODEL=');
+        expect(launchCmd).toContain('QODER_USE_BEDROCK=');
+        expect(launchCmd).toContain('QODER_BEDROCK_OPUS_MODEL=');
         expect(launchCmd).toContain('us.anthropic.claude-opus-4-6-v1:0');
-        expect(launchCmd).toContain('CLAUDE_CODE_BEDROCK_SONNET_MODEL=');
+        expect(launchCmd).toContain('QODER_BEDROCK_SONNET_MODEL=');
         expect(launchCmd).toContain('us.anthropic.claude-sonnet-4-6-v1:0');
-        expect(launchCmd).toContain('CLAUDE_CODE_BEDROCK_HAIKU_MODEL=');
+        expect(launchCmd).toContain('QODER_BEDROCK_HAIKU_MODEL=');
         expect(launchCmd).toContain('us.anthropic.claude-haiku-4-5-v1:0');
         expect(launchCmd).toContain('ANTHROPIC_DEFAULT_OPUS_MODEL=');
         expect(launchCmd).toContain('claude-opus-4-6-custom');
@@ -528,7 +528,7 @@ describe('spawnWorkerForTask – model passthrough from environment variables', 
         expect(launchCmd).toContain('claude-sonnet-4-6-override');
         expect(launchCmd).toContain('OMC_MODEL_LOW=');
         expect(launchCmd).toContain('claude-haiku-4-5-override');
-        // With Bedrock env vars set, resolveClaudeWorkerModel returns the sonnet model
+        // With Bedrock env vars set, resolveQoderWorkerModel returns the sonnet model
         // so --model IS expected now (this was the #1695 fix)
         expect(launchCmd).toContain("'--model'");
         expect(launchCmd).toContain('us.anthropic.claude-sonnet-4-6-v1:0');

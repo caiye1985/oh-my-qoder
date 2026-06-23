@@ -3,7 +3,7 @@ import { resolveRoleAssignment, buildResolvedRoutingSnapshot } from '../stage-ro
 import { CANONICAL_TEAM_ROLES } from '../../shared/types.js';
 /**
  * AC-3: With empty `team.roleRouting`, snapshot must mirror pre-patch behavior:
- * - Every role resolves to provider='claude'
+ * - Every role resolves to provider='qoder'
  * - Models match the role's tier-default (claude-only world)
  * - Agents match the canonical role→agent map
  * - Snapshot is a pure function of config (no env/IO surprises)
@@ -13,14 +13,14 @@ describe('AC-3: behavior snapshot — empty config preserves pre-patch /team sem
     it('every canonical role resolves to provider=claude when no routing is configured', () => {
         for (const role of CANONICAL_TEAM_ROLES) {
             const out = resolveRoleAssignment(role, EMPTY);
-            expect(out.provider, `role=${role}`).toBe('claude');
+            expect(out.provider, `role=${role}`).toBe('qoder');
         }
     });
     it('snapshot primary === fallback when no roles are externally routed', () => {
         const snap = buildResolvedRoutingSnapshot(EMPTY);
         for (const role of CANONICAL_TEAM_ROLES) {
-            expect(snap[role].primary.provider).toBe('claude');
-            expect(snap[role].fallback.provider).toBe('claude');
+            expect(snap[role].primary.provider).toBe('qoder');
+            expect(snap[role].fallback.provider).toBe('qoder');
             expect(snap[role].primary.model).toBe(snap[role].fallback.model);
             expect(snap[role].primary.agent).toBe(snap[role].fallback.agent);
         }
@@ -39,8 +39,8 @@ describe('AC-3: behavior snapshot — empty config preserves pre-patch /team sem
             team: { roleRouting: { orchestrator: { model: 'HIGH' } } },
         };
         const snap = buildResolvedRoutingSnapshot(cfg);
-        expect(snap.orchestrator.primary.provider).toBe('claude');
-        expect(snap.orchestrator.fallback.provider).toBe('claude');
+        expect(snap.orchestrator.primary.provider).toBe('qoder');
+        expect(snap.orchestrator.fallback.provider).toBe('qoder');
     });
     it('externally-routed role keeps non-routed siblings on claude (per-role isolation)', () => {
         const cfg = {
@@ -52,7 +52,7 @@ describe('AC-3: behavior snapshot — empty config preserves pre-patch /team sem
         for (const role of CANONICAL_TEAM_ROLES) {
             if (role === 'critic')
                 continue;
-            expect(snap[role].primary.provider, `sibling role=${role}`).toBe('claude');
+            expect(snap[role].primary.provider, `sibling role=${role}`).toBe('qoder');
         }
     });
     it('snapshot output shape matches RoleAssignment contract for every role', () => {

@@ -19,7 +19,7 @@ vi.mock('child_process', async (importOriginal) => {
         spawnSync: vi.fn(),
     };
 });
-import { buildTmuxShellCommand, buildTmuxShellCommandWithEnv, createHudWatchPane, isClaudeAvailable, killTmuxPane, listHudWatchPaneIdsInCurrentWindow, resolveLaunchPolicy, tmuxExec, tmuxEnv, tmuxSpawn, tmuxCmdAsync, wrapWithLoginShell, quoteShellArg, sanitizeTmuxToken, } from '../tmux-utils.js';
+import { buildTmuxShellCommand, buildTmuxShellCommandWithEnv, createHudWatchPane, isQoderAvailable, killTmuxPane, listHudWatchPaneIdsInCurrentWindow, resolveLaunchPolicy, tmuxExec, tmuxEnv, tmuxSpawn, tmuxCmdAsync, wrapWithLoginShell, quoteShellArg, sanitizeTmuxToken, } from '../tmux-utils.js';
 const mockedExecFileSync = vi.mocked(execFileSync);
 const mockedExec = vi.mocked(exec);
 const mockedExecFile = vi.mocked(execFile);
@@ -131,13 +131,13 @@ describe('resolveLaunchPolicy', () => {
         Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
     });
 });
-describe('isClaudeAvailable', () => {
+describe('isQoderAvailable', () => {
     it('uses shell:true on win32 so npm .cmd wrappers resolve', () => {
         const originalPlatform = process.platform;
         Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
         mockedExecFileSync.mockReturnValue(Buffer.from('2.1.116'));
-        expect(isClaudeAvailable()).toBe(true);
-        expect(mockedExecFileSync).toHaveBeenCalledWith('claude', ['--version'], {
+        expect(isQoderAvailable()).toBe(true);
+        expect(mockedExecFileSync).toHaveBeenCalledWith('qoder', ['--version'], {
             stdio: 'ignore',
             shell: true,
         });
@@ -157,9 +157,9 @@ describe('tmuxEnv', () => {
     });
     it('preserves unrelated env vars', () => {
         vi.stubEnv('PSMUX_SESSION', 'psmux-session-1');
-        vi.stubEnv('CLAUDE_CONFIG_DIR', '/tmp/cfg');
+        vi.stubEnv('QODER_CONFIG_DIR', '/tmp/cfg');
         const env = tmuxEnv();
-        expect(env.CLAUDE_CONFIG_DIR).toBe('/tmp/cfg');
+        expect(env.QODER_CONFIG_DIR).toBe('/tmp/cfg');
         expect(env.PSMUX_SESSION).toBeUndefined();
     });
     it('passes a PSMUX_SESSION-free env to execFile for detached creation (stripTmux: true)', () => {
@@ -287,8 +287,8 @@ describe('wrapWithLoginShell', () => {
         vi.stubEnv('COMSPEC', 'C:\\Windows\\System32\\cmd.exe');
         vi.stubEnv('SHELL', '');
         vi.stubEnv('HOME', 'C:\\Users\\test');
-        const result = wrapWithLoginShell('claude --print');
-        expect(result).toBe('C:\\Windows\\System32\\cmd.exe /d /s /c "claude --print"');
+        const result = wrapWithLoginShell('qodercli --print');
+        expect(result).toBe('C:\\Windows\\System32\\cmd.exe /d /s /c "qodercli --print"');
         expect(result).not.toContain('exec ');
         expect(result).not.toContain('-lc');
         expect(result).not.toContain('.bashrc');
@@ -298,14 +298,14 @@ describe('wrapWithLoginShell', () => {
     it('uses cmd-style argument quoting for Windows tmux shell commands', () => {
         const originalPlatform = process.platform;
         Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
-        expect(buildTmuxShellCommand('claude', ['--print', 'hello world'])).toBe('claude --print "hello world"');
+        expect(buildTmuxShellCommand('qoder', ['--print', 'hello world'])).toBe('qodercli --print "hello world"');
         Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
     });
     it('uses cmd-style env injection for Windows tmux shell commands', () => {
         const originalPlatform = process.platform;
         Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
-        expect(buildTmuxShellCommandWithEnv('claude', ['--print'], { CODEX_HOME: 'C:\\Users\\me\\codex home' }))
-            .toBe('set "CODEX_HOME=C:\\Users\\me\\codex home" && claude --print');
+        expect(buildTmuxShellCommandWithEnv('qoder', ['--print'], { CODEX_HOME: 'C:\\Users\\me\\codex home' }))
+            .toBe('set "CODEX_HOME=C:\\Users\\me\\codex home" && qodercli --print');
         Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
     });
     it('keeps Unix login-shell wrapping on MSYS2 Windows', () => {
@@ -314,7 +314,7 @@ describe('wrapWithLoginShell', () => {
         vi.stubEnv('MSYSTEM', 'MINGW64');
         vi.stubEnv('SHELL', '/usr/bin/bash');
         vi.stubEnv('HOME', '/home/testuser');
-        const result = wrapWithLoginShell('claude');
+        const result = wrapWithLoginShell('qoder');
         expect(result).toContain('exec ');
         expect(result).toContain('-lc');
         expect(result).toContain('/home/testuser/.bashrc');
@@ -322,10 +322,10 @@ describe('wrapWithLoginShell', () => {
     });
     it('wraps command with login shell using $SHELL', () => {
         vi.stubEnv('SHELL', '/bin/zsh');
-        const result = wrapWithLoginShell('claude --print');
+        const result = wrapWithLoginShell('qodercli --print');
         expect(result).toContain('/bin/zsh');
         expect(result).toContain('-lc');
-        expect(result).toContain('claude --print');
+        expect(result).toContain('qodercli --print');
         expect(result).toMatch(/^exec /);
     });
     it('defaults to /bin/sh when $SHELL is not set', () => {
@@ -353,7 +353,7 @@ describe('wrapWithLoginShell', () => {
         expect(result).toContain('/bin/zsh');
         expect(result).toContain('-lc');
         expect(result).toContain('sleep 0.3');
-        expect(result).toContain('claude');
+        expect(result).toContain('qoder');
     });
     it('handles shells with unusual paths', () => {
         vi.stubEnv('SHELL', '/usr/local/bin/fish');
@@ -364,14 +364,14 @@ describe('wrapWithLoginShell', () => {
     it('sources ~/.zshrc for zsh shells', () => {
         vi.stubEnv('SHELL', '/bin/zsh');
         vi.stubEnv('HOME', '/home/testuser');
-        const result = wrapWithLoginShell('claude');
+        const result = wrapWithLoginShell('qoder');
         expect(result).toContain('.zshrc');
         expect(result).toContain('/home/testuser/.zshrc');
     });
     it('sources ~/.bashrc for bash shells', () => {
         vi.stubEnv('SHELL', '/bin/bash');
         vi.stubEnv('HOME', '/home/testuser');
-        const result = wrapWithLoginShell('claude');
+        const result = wrapWithLoginShell('qoder');
         expect(result).toContain('.bashrc');
         expect(result).toContain('/home/testuser/.bashrc');
     });
@@ -385,14 +385,14 @@ describe('wrapWithLoginShell', () => {
     it('skips rc sourcing when HOME is not set', () => {
         vi.stubEnv('SHELL', '/bin/zsh');
         vi.stubEnv('HOME', '');
-        const result = wrapWithLoginShell('claude');
+        const result = wrapWithLoginShell('qoder');
         expect(result).not.toContain('.zshrc');
-        expect(result).toContain('claude');
+        expect(result).toContain('qoder');
     });
     it('uses conditional test before sourcing rc file', () => {
         vi.stubEnv('SHELL', '/bin/zsh');
         vi.stubEnv('HOME', '/home/testuser');
-        const result = wrapWithLoginShell('claude');
+        const result = wrapWithLoginShell('qoder');
         expect(result).toContain('[ -f');
         expect(result).toContain('] && .');
     });

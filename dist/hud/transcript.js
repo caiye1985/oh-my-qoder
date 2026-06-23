@@ -1,7 +1,7 @@
 /**
  * OMC HUD - Transcript Parser
  *
- * Parse JSONL transcript from Claude Code to extract agents and todos.
+ * Parse JSONL transcript from Qoder to extract agents and todos.
  * Based on claude-hud reference implementation.
  *
  * Performance optimizations:
@@ -21,7 +21,7 @@ const MAX_TAIL_BYTES = 4 * 1024 * 1024;
 const MAX_AGENT_MAP_SIZE = 100; // Cap agent tracking
 const _MIN_RUNNING_AGENTS_THRESHOLD = 10; // Early termination threshold
 /**
- * Tools known to require permission approval in Claude Code.
+ * Tools known to require permission approval in Qoder.
  * Only these tools will trigger the "APPROVE?" indicator.
  */
 const PERMISSION_TOOLS = [
@@ -262,7 +262,7 @@ function extractBackgroundAgentId(content) {
 /**
  * Parse TaskOutput result for completion status.
  *
- * Claude Code emits completion as a `<task-notification>` block with
+ * Qoder emits completion as a `<task-notification>` block with
  * hyphen-cased tags (`<task-id>`, `<tool-use-id>`, `<status>`). Accept
  * both hyphen and underscore variants for defence in depth.
  */
@@ -270,7 +270,7 @@ function parseTaskOutputResult(content) {
     const text = typeof content === "string"
         ? content
         : content.find((c) => c.type === "text")?.text || "";
-    // Hyphen variant (real Claude Code format) first, underscore fallback second.
+    // Hyphen variant (real Qoder format) first, underscore fallback second.
     const taskIdMatch = text.match(/<task-id>([^<]+)<\/task-id>/) ||
         text.match(/<task_id>([^<]+)<\/task_id>/);
     const statusMatch = text.match(/<status>([^<]+)<\/status>/);
@@ -332,7 +332,7 @@ function processEntry(entry, agentMap, latestTodos, result, maxAgentMapSize = 50
         result.sessionStart = timestamp;
     }
     const content = entry.message?.content;
-    // Claude Code emits background-agent completion as a user-role message with
+    // Qoder emits background-agent completion as a user-role message with
     // string-shaped content: `<task-notification>...<tool-use-id>...</tool-use-id>
     // ...<status>completed</status>...</task-notification>`. The block-based
     // parser below only handles array-shaped content, so we handle the string

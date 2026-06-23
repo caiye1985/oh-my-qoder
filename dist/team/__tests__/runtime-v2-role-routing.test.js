@@ -198,7 +198,7 @@ describe('runtime-v2 role routing — processCliWorkerVerdicts (AC-7)', () => {
         await writeFile(join(teamRoot, 'config.json'), JSON.stringify({
             name: teamName,
             task: 'demo',
-            agent_type: 'claude',
+            agent_type: 'qoder',
             worker_launch_mode: 'interactive',
             worker_count: 1,
             max_workers: 20,
@@ -206,7 +206,7 @@ describe('runtime-v2 role routing — processCliWorkerVerdicts (AC-7)', () => {
                     name: 'worker-1',
                     index: 1,
                     role: 'executor',
-                    worker_cli: 'claude',
+                    worker_cli: 'qoder',
                     assigned_tasks: [],
                     pane_id: '%2',
                     working_dir: cwd,

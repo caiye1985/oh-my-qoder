@@ -435,7 +435,7 @@ async function pollDiscord(config, state, rateLimiter) {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            content: `${mentionPrefix}Injected into Claude Code session.`,
+                            content: `${mentionPrefix}Injected into Qoder session.`,
                             message_reference: { message_id: msg.id },
                             allowed_mentions: feedbackAllowedMentions,
                         }),
@@ -555,7 +555,7 @@ async function pollTelegram(config, state, rateLimiter) {
                 try {
                     const replyBody = JSON.stringify({
                         chat_id: config.telegramChatId,
-                        text: 'Injected into Claude Code session.',
+                        text: 'Injected into Qoder session.',
                         reply_to_message_id: msg.message_id,
                     });
                     await new Promise((resolve) => {

@@ -9,7 +9,7 @@
  * This module caps the echoed text to a compact length that still preserves
  * enough task identity to be useful.
  *
- * @see https://github.com/anthropics/claude-code/issues/2542
+ * @see https://github.com/anthropics/qoder/issues/2542
  */
 /** Default character cap for echoed task prompts in stop-hook feedback. */
 export const DEFAULT_PROMPT_ECHO_MAX_CHARS = 150;

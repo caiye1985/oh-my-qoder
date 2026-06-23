@@ -13,7 +13,7 @@ import { execSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, realpathSync, readdirSync, writeFileSync, unlinkSync } from 'fs';
 import { homedir, tmpdir } from 'os';
 import { resolve, normalize, relative, sep, join, isAbsolute, basename, dirname } from 'path';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
 import { encodeProjectPath } from '../utils/encode-project-path.js';
 /**
  * Workspace marker filename. A directory containing this file is treated as
@@ -562,7 +562,7 @@ let processSessionId = null;
  * Format: `pid-{PID}-{startTimestamp}`
  * Example: `pid-12345-1707350400000`
  *
- * This prevents concurrent Claude Code instances in the same repo from
+ * This prevents concurrent Qoder instances in the same repo from
  * sharing state files (Issue #456). The ID is stable for the process
  * lifetime and unique across concurrent processes.
  *
@@ -629,9 +629,9 @@ export function isValidTranscriptPath(transcriptPath) {
     // Normalize and check it's within allowed directories
     const normalized = normalize(expandedPath);
     const home = homedir();
-    // Allowed: [$CLAUDE_CONFIG_DIR|~/.claude], ~/.omc/..., system temp dir
+    // Allowed: [$QODER_CONFIG_DIR|~/.qoder], ~/.omc/..., system temp dir
     const allowedPrefixes = [
-        getClaudeConfigDir(),
+        getQoderConfigDir(),
         join(home, '.omc'),
         tmpdir(), // honors $TMPDIR; covers /tmp and macOS /var/folders defaults
         '/tmp',
@@ -785,23 +785,23 @@ export function resolveToWorktreeRoot(directory) {
 // TRANSCRIPT PATH RESOLUTION (Issue #1094)
 // ============================================================================
 /**
- * Resolve a Claude Code transcript path that may be mismatched in worktree sessions.
+ * Resolve a Qoder transcript path that may be mismatched in worktree sessions.
  *
- * When Claude Code runs inside a worktree (.claude/worktrees/X), it encodes the
+ * When Qoder runs inside a worktree (.qoder/worktrees/X), it encodes the
  * worktree CWD into the project directory path, creating a transcript_path like:
- *   ~/.claude/projects/-path-to-project--claude-worktrees-X/<session>.jsonl
+ *   ~/.qoder/projects/-path-to-project--claude-worktrees-X/<session>.jsonl
  *
  * But the actual transcript lives at the original project's path:
- *   ~/.claude/projects/-path-to-project/<session>.jsonl
+ *   ~/.qoder/projects/-path-to-project/<session>.jsonl
  *
- * Claude Code encodes `/` and `.` as `-`. The `.claude/worktrees/`
+ * Qoder encodes `/` and `.` as `-`. The `.qoder/worktrees/`
  * segment becomes `-claude-worktrees-`, preceded by a `-` from the path
  * separator, yielding the distinctive `--claude-worktrees-` pattern in the
  * encoded directory name.
  *
  * This function detects the mismatch and resolves to the correct path.
  *
- * @param transcriptPath - The transcript_path from Claude Code hook input
+ * @param transcriptPath - The transcript_path from Qoder hook input
  * @param cwd - Optional CWD for fallback detection
  * @returns The resolved transcript path (original if already correct or no resolution found)
  */
@@ -812,8 +812,8 @@ export function resolveTranscriptPath(transcriptPath, cwd) {
     if (existsSync(transcriptPath))
         return transcriptPath;
     // Strategy 1: Detect worktree-encoded segment in the transcript path itself.
-    // The pattern `--claude-worktrees-` appears when Claude Code encodes a CWD
-    // containing `/.claude/worktrees/` (separator `/` → `-`, dot `.` → `-`).
+    // The pattern `--claude-worktrees-` appears when Qoder encodes a CWD
+    // containing `/.qoder/worktrees/` (separator `/` → `-`, dot `.` → `-`).
     // Strip everything from this pattern to the next `/` to recover the original
     // project directory encoding.
     const worktreeSegmentPattern = /--claude-worktrees-[^/\\]+/;
@@ -826,10 +826,10 @@ export function resolveTranscriptPath(transcriptPath, cwd) {
     // When the CWD contains `<sep>.claude<sep>worktrees<sep>`, we can derive the
     // main project root and look for the transcript there. The marker is
     // normalized so it matches the OS-native separator — on Windows the CWD uses
-    // `\`, so a hard-coded `/.claude/worktrees/` would never match.
+    // `\`, so a hard-coded `/.qoder/worktrees/` would never match.
     const effectiveCwd = cwd || process.cwd();
     const normalizedCwd = normalize(effectiveCwd);
-    const worktreeMarker = normalize('/.claude/worktrees/');
+    const worktreeMarker = normalize('/.qoder/worktrees/');
     const markerIdx = normalizedCwd.indexOf(worktreeMarker);
     if (markerIdx !== -1) {
         // The marker includes its leading separator, so everything before it is
@@ -839,10 +839,10 @@ export function resolveTranscriptPath(transcriptPath, cwd) {
         // Windows (transcript_path arrives with `\`) and `/` on POSIX.
         const sessionFile = basename(transcriptPath);
         if (sessionFile) {
-            // The projects directory is under the Claude config dir
-            const projectsDir = join(getClaudeConfigDir(), 'projects');
+            // The projects directory is under the Qoder config dir
+            const projectsDir = join(getQoderConfigDir(), 'projects');
             if (existsSync(projectsDir)) {
-                // Encode the main project root the same way Claude Code does.
+                // Encode the main project root the same way Qoder does.
                 const encodedMain = encodeProjectPath(mainProjectRoot);
                 const resolvedPath = join(projectsDir, encodedMain, sessionFile);
                 if (existsSync(resolvedPath))
@@ -883,7 +883,7 @@ export function resolveTranscriptPath(transcriptPath, cwd) {
             // basename handles `\` (Windows transcript_path) and `/` (POSIX).
             const sessionFile = basename(transcriptPath);
             if (sessionFile) {
-                const projectsDir = join(getClaudeConfigDir(), 'projects');
+                const projectsDir = join(getQoderConfigDir(), 'projects');
                 if (existsSync(projectsDir)) {
                     const encodedMain = encodeProjectPath(mainRepoRoot);
                     const resolvedPath = join(projectsDir, encodedMain, sessionFile);

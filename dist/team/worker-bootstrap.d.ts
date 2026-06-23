@@ -50,4 +50,14 @@ export declare function ensureWorkerStateDir(teamName: string, workerName: strin
  * This is separate from the project AGENTS.md — it will be passed to the worker via inbox.
  */
 export declare function writeWorkerOverlay(params: WorkerBootstrapParams): Promise<string>;
+/**
+ * Generate a subagent-format overlay (YAML frontmatter + system prompt).
+ *
+ * Unlike the tmux inbox-based overlay (`generateWorkerOverlay`), this
+ * produces the `.qoder/agents/<role>.md` format consumed by Qoder CLI's
+ * native subagent dispatch. The overlay is a self-contained system prompt
+ * — no inbox/heartbeat/mailbox protocol is needed because Qoder manages
+ * the subagent lifecycle directly.
+ */
+export declare function generateSubagentOverlay(role: string, task: string, systemPrompt: string): string;
 //# sourceMappingURL=worker-bootstrap.d.ts.map

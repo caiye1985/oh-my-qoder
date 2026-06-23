@@ -7,9 +7,9 @@ vi.mock('fs', async () => {
     const { join: pathJoin } = await import('path');
     const repoRoot = process.cwd();
     const sourceAgentsDir = pathJoin(repoRoot, 'src', 'agents');
-    const sourceClaudeMdPath = pathJoin(repoRoot, 'src', 'docs', 'CLAUDE.md');
+    const sourceClaudeMdPath = pathJoin(repoRoot, 'src', 'docs', 'AGENTS.md');
     const realAgentsDir = pathJoin(repoRoot, 'agents');
-    const realClaudeMdPath = pathJoin(repoRoot, 'docs', 'CLAUDE.md');
+    const realClaudeMdPath = pathJoin(repoRoot, 'docs', 'AGENTS.md');
     const withRedirect = (pathLike) => {
         const normalized = String(pathLike).replace(/\\/g, '/');
         const normalizedSourceAgentsDir = sourceAgentsDir.replace(/\\/g, '/');
@@ -34,7 +34,7 @@ vi.mock('fs', async () => {
 });
 async function loadInstallerWithEnv(claudeConfigDir, homeDir) {
     vi.resetModules();
-    process.env.CLAUDE_CONFIG_DIR = claudeConfigDir;
+    process.env.QODER_CONFIG_DIR = claudeConfigDir;
     process.env.HOME = homeDir;
     return import('../installer/index.js');
 }
@@ -48,12 +48,12 @@ function writeCompletePluginPayload(root) {
     writePluginFile(join(root, 'hooks', 'hooks.json'), '{}\n');
     writePluginFile(join(root, 'skills', 'plan', 'SKILL.md'), '# plan\n');
     writePluginFile(join(root, 'commands', 'omc-setup.md'), 'Read skills/omc-setup/SKILL.md and pass $ARGUMENTS.\n');
-    writePluginFile(join(root, '.claude-plugin', 'plugin.json'), JSON.stringify({
-        name: 'oh-my-claudecode',
+    writePluginFile(join(root, '.qoder-plugin', 'plugin.json'), JSON.stringify({
+        name: 'oh-my-qoder',
         commands: './commands/',
         skills: ['./skills/plan/'],
     }, null, 2));
-    writePluginFile(join(root, 'package.json'), JSON.stringify({ name: 'oh-my-claude-sisyphus', version: '9.9.9' }, null, 2));
+    writePluginFile(join(root, 'package.json'), JSON.stringify({ name: 'oh-my-qoder', version: '9.9.9' }, null, 2));
 }
 describe('installer legacy agent sync gating (issue #1502)', () => {
     let tempRoot;
@@ -67,15 +67,15 @@ describe('installer legacy agent sync gating (issue #1502)', () => {
         claudeConfigDir = join(homeDir, '.claude');
         mkdirSync(homeDir, { recursive: true });
         mkdirSync(claudeConfigDir, { recursive: true });
-        originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
+        originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
         originalHome = process.env.HOME;
     });
     afterEach(() => {
         if (originalClaudeConfigDir === undefined) {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
         else {
-            process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+            process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
         }
         if (originalHome === undefined) {
             delete process.env.HOME;
@@ -86,8 +86,8 @@ describe('installer legacy agent sync gating (issue #1502)', () => {
         rmSync(tempRoot, { recursive: true, force: true });
         vi.resetModules();
     });
-    it('skips recreating ~/.claude/agents when installed plugin agent files already exist', async () => {
-        const pluginInstallPath = join(claudeConfigDir, 'plugins', 'cache', 'omc', 'oh-my-claudecode', '9.9.9');
+    it('skips recreating ~/.qoder/agents when installed plugin agent files already exist', async () => {
+        const pluginInstallPath = join(claudeConfigDir, 'plugins', 'cache', 'omc', 'oh-my-qoder', '9.9.9');
         const pluginAgentsDir = join(pluginInstallPath, 'agents');
         writeCompletePluginPayload(pluginInstallPath);
         mkdirSync(pluginAgentsDir, { recursive: true });
@@ -96,7 +96,7 @@ describe('installer legacy agent sync gating (issue #1502)', () => {
         mkdirSync(join(claudeConfigDir, 'plugins'), { recursive: true });
         writeFileSync(installedPluginsPath, JSON.stringify({
             plugins: {
-                'oh-my-claudecode@omc': [
+                'oh-my-qoder@omc': [
                     { installPath: pluginInstallPath }
                 ]
             }

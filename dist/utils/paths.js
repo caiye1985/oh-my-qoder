@@ -8,7 +8,7 @@
 import { join } from 'path';
 import { existsSync, readFileSync, readdirSync, statSync, unlinkSync, rmSync, symlinkSync } from 'fs';
 import { homedir } from 'os';
-import { getClaudeConfigDir } from './config-dir.js';
+import { getQoderConfigDir } from './config-dir.js';
 /**
  * Convert a path to use forward slashes (for JSON/config files)
  * This is necessary because settings.json commands are executed
@@ -141,13 +141,13 @@ export function getGlobalOmcStateCandidates(...segments) {
     ]);
 }
 /**
- * Get the plugin cache base directory for oh-my-claudecode.
+ * Get the plugin cache base directory for oh-my-qoder.
  * This is the directory containing version subdirectories.
  *
- * Structure: <configDir>/plugins/cache/omc/oh-my-claudecode/
+ * Structure: <configDir>/plugins/cache/omc/oh-my-qoder/
  */
 export function getPluginCacheBase() {
-    return join(getClaudeConfigDir(), 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+    return join(getQoderConfigDir(), 'plugins', 'cache', 'omc', 'oh-my-qoder');
 }
 /**
  * Safely delete a file, ignoring ENOENT errors.
@@ -184,7 +184,7 @@ export function safeRmSync(dirPath) {
  * Purge stale plugin cache versions that are no longer referenced by
  * installed_plugins.json.
  *
- * Claude Code caches each plugin version under:
+ * Qoder caches each plugin version under:
  *   <configDir>/plugins/cache/<marketplace>/<plugin>/<version>/
  *
  * On plugin update the old version directory is left behind. This function
@@ -199,7 +199,7 @@ function stripTrailing(p) {
 }
 /** Default grace period: skip directories modified within the last 24 hours.
  * Extended from 1 hour to 24 hours to avoid deleting cache directories that
- * are still referenced by long-running sessions via CLAUDE_PLUGIN_ROOT. */
+ * are still referenced by long-running sessions via QODER_PLUGIN_ROOT. */
 const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000;
 /**
  * Compare two semver-like version strings descending (higher version first).
@@ -217,7 +217,7 @@ function compareSemverDesc(a, b) {
 }
 export function purgeStalePluginCacheVersions(options) {
     const result = { removed: 0, removedPaths: [], symlinked: 0, symlinkPaths: [], errors: [] };
-    const configDir = getClaudeConfigDir();
+    const configDir = getQoderConfigDir();
     const pluginsDir = join(configDir, 'plugins');
     const installedFile = join(pluginsDir, 'installed_plugins.json');
     const cacheDir = join(pluginsDir, 'cache');
@@ -305,7 +305,7 @@ export function purgeStalePluginCacheVersions(options) {
                 }
                 // When an active version exists in the same plugin namespace, replace the
                 // stale directory with a symlink rather than deleting it.  This keeps any
-                // running session whose CLAUDE_PLUGIN_ROOT still points to this path working.
+                // running session whose QODER_PLUGIN_ROOT still points to this path working.
                 const pluginDirNorm = stripTrailing(pluginDir);
                 const activeVersionDirsHere = dedupePaths(activePathsArray
                     .filter(ap => ap.startsWith(pluginDirNorm + '/'))

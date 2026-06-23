@@ -91,4 +91,41 @@ export declare function listTeamWorktrees(teamName: string, repoRoot: string): W
 export declare function inspectTeamWorktreeCleanupSafety(teamName: string, repoRoot: string): TeamWorktreeCleanupSafety;
 /** Remove all clean worktrees for a team, preserving dirty worktrees. */
 export declare function cleanupTeamWorktrees(teamName: string, repoRoot: string): CleanupTeamWorktreesResult;
+/**
+ * Check whether Qoder CLI supports the `--worktree` flag.
+ *
+ * Detection strategy: verify that the `qodercli` binary is resolvable in PATH
+ * and that its `--help` output mentions "worktree". Falls back to a simple
+ * binary-existence check if the help output is inconclusive (e.g. the flag
+ * is present but undocumented in help text).
+ */
+export declare function isQoderWorktreeAvailable(): boolean;
+/**
+ * Build the command-line arguments array for launching a Qoder CLI session
+ * in an isolated git worktree.
+ *
+ * Pattern: `qodercli --worktree <name> [task] --yolo`
+ *
+ * The returned array does NOT include the binary path itself -- the caller
+ * should prepend the resolved `qodercli` path (e.g. via `resolveCliBinaryPath`).
+ *
+ * @param name  Worktree name (used as both the worktree directory suffix and
+ *              the branch name by Qoder CLI).
+ * @param task  Optional natural-language task description passed as a
+ *              positional argument after the worktree name.
+ * @param _cwd  Reserved for future use (e.g. --cwd flag); currently unused
+ *              but accepted for forward compatibility.
+ */
+export declare function buildQoderWorktreeCommand(name: string, task?: string, _cwd?: string): string[];
+/**
+ * Resolve the filesystem path of a Qoder CLI-managed worktree by name.
+ *
+ * Qoder CLI creates worktrees under the repository's git worktree system.
+ * This function parses `git worktree list --porcelain` output to find a
+ * worktree whose path ends with the given name.
+ *
+ * @param name  The worktree name to search for.
+ * @returns     The absolute path to the worktree, or `null` if not found.
+ */
+export declare function getQoderWorktreePath(name: string): string | null;
 //# sourceMappingURL=git-worktree.d.ts.map

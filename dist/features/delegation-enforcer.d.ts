@@ -4,7 +4,7 @@
  * Middleware that ensures model parameter is always present in Task/Agent calls.
  * Automatically injects the default model from agent definitions when not specified.
  *
- * This solves the problem where Claude Code doesn't automatically apply models
+ * This solves the problem where Qoder doesn't automatically apply models
  * from agent definitions - every Task call must explicitly pass the model parameter.
  *
  * For non-Claude providers (CC Switch, LiteLLM, etc.), forceInherit is auto-enabled
@@ -13,9 +13,9 @@
  * Claude-specific tier names (sonnet/opus/haiku) that the provider won't recognize.
  */
 /** Normalize a model ID to a CC-supported alias (sonnet/opus/haiku/fable) if possible */
-export declare function normalizeToCcAlias(model: string): string;
+export declare function normalizeToQoderAlias(model: string): string;
 /**
- * Agent input structure from Claude Agent SDK
+ * Agent input structure from Qoder Agent SDK
  */
 export interface AgentInput {
     description: string;

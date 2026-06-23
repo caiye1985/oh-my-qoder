@@ -3,8 +3,8 @@
 // PostToolUse hook installer + fs-watch fallback poller for worker auto-commit cadence.
 //
 // Two commit-cadence mechanisms:
-//   hook   — writes {worktreePath}/.claude/settings.json with a PostToolUse hook that
-//             auto-commits after every Write/Edit/MultiEdit tool use (Claude Code only).
+//   hook   — writes {worktreePath}/.qoder/settings.json with a PostToolUse hook that
+//             auto-commits after every Write/Edit/MultiEdit tool use (Qoder only).
 //   fallback-poll — uses node:fs.watch with a 3 s debounce to detect filesystem changes
 //             and auto-commit (for codex/gemini workers that lack PostToolUse support).
 //
@@ -96,7 +96,7 @@ async function mergeSettingsWithHook(settingsPath, hookCommand) {
 // installPostToolUseHook
 // ---------------------------------------------------------------------------
 /**
- * Writes `{worktreePath}/.claude/settings.json` containing a PostToolUse hook
+ * Writes `{worktreePath}/.qoder/settings.json` containing a PostToolUse hook
  * that auto-commits after every Write/Edit/MultiEdit.
  *
  * Skips installation if the .hook-paused sentinel is present.
@@ -212,7 +212,7 @@ export function startFallbackPoller(worktreePath, workerName, opts) {
 // ---------------------------------------------------------------------------
 /**
  * Installs the appropriate commit cadence for the worker agent type.
- * - claude  → PostToolUse hook in .claude/settings.json
+ * - claude  → PostToolUse hook in .qoder/settings.json
  * - codex / gemini / cursor / antigravity → fallback fs-watch poller (caller owns the handle)
  *
  * Returns the chosen method. The fallback-poll handle is NOT started here;
@@ -222,7 +222,7 @@ export async function installCommitCadence(ctx) {
     if (!ctx.enabled) {
         return { method: 'none' };
     }
-    if (ctx.agentType === 'claude') {
+    if (ctx.agentType === 'qoder') {
         await installPostToolUseHook(ctx.worktreePath, ctx.workerName);
         return { method: 'hook' };
     }
@@ -230,11 +230,11 @@ export async function installCommitCadence(ctx) {
     return { method: 'fallback-poll' };
 }
 /**
- * Removes the auto-commit PostToolUse hook from .claude/settings.json.
+ * Removes the auto-commit PostToolUse hook from .qoder/settings.json.
  * For fallback-poll workers the caller is responsible for stopping the poller handle.
  */
 export async function uninstallCommitCadence(ctx) {
-    if (ctx.agentType !== 'claude')
+    if (ctx.agentType !== 'qoder')
         return;
     const settingsPath = join(ctx.worktreePath, '.claude', 'settings.json');
     try {

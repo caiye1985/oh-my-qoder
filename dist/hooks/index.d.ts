@@ -1,13 +1,13 @@
 /**
- * Hooks Module for Oh-My-ClaudeCode
+ * Hooks Module for Oh-My-Qoder
  *
- * This module provides the TypeScript bridge for Claude Code's native shell hook system.
+ * This module provides the TypeScript bridge for Qoder's native shell hook system.
  * Shell scripts call these TypeScript functions for complex logic processing.
  *
  * Architecture:
- * - Claude Code runs shell scripts on hook events (UserPromptSubmit, Stop, etc.)
+ * - Qoder runs shell scripts on hook events (UserPromptSubmit, Stop, etc.)
  * - Shell scripts invoke Node.js bridge for complex processing
- * - Bridge returns JSON response that shell passes back to Claude Code
+ * - Bridge returns JSON response that shell passes back to Qoder
  */
 export { detectKeywordsWithType, extractPromptText, removeCodeBlocks, type DetectedKeyword, type KeywordType } from './keyword-detector/index.js';
 export { createRalphLoopHook, readRalphState, writeRalphState, clearRalphState, clearLinkedUltraworkState, incrementRalphIteration, isUltraQAActive, hasPrd, getPrdCompletionStatus, getRalphContext, setCurrentStory, enablePrdMode, recordStoryProgress, recordPattern, shouldCompleteByPrd, readPrd, writePrd, findPrdPath, getPrdPath, getOmcPrdPath, getPrdStatus, markStoryComplete, markStoryIncomplete, getStory, getNextStory, createPrd, createSimplePrd, initPrd, formatPrdStatus, formatStory, formatPrd, formatNextStoryPrompt, PRD_FILENAME, PRD_EXAMPLE_FILENAME, readProgress, readProgressRaw, parseProgress, findProgressPath, getProgressPath, getOmcProgressPath, initProgress, appendProgress, addPattern, getPatterns, getRecentLearnings, formatPatternsForContext, formatProgressForContext, formatLearningsForContext, getProgressContext, PROGRESS_FILENAME, PATTERNS_HEADER, ENTRY_SEPARATOR, readVerificationState, writeVerificationState, clearVerificationState, startVerification, recordArchitectFeedback, getArchitectVerificationPrompt, getArchitectRejectionContinuationPrompt, detectArchitectApproval, detectArchitectRejection, type RalphLoopState, type RalphLoopOptions, type RalphLoopHook, type PRD, type PRDStatus, type UserStory, type UserStoryInput, type ProgressEntry, type CodebasePattern, type ProgressLog, type VerificationState } from './ralph/index.js';

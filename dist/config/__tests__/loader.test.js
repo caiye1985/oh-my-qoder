@@ -5,18 +5,18 @@ import { join } from "node:path";
 import { compactOmcStartupGuidance, generateConfigSchema, loadConfig, loadContextFromFiles, } from "../loader.js";
 import { saveAndClear, restore } from "./test-helpers.js";
 const ALL_KEYS = [
-    "CLAUDE_CODE_USE_BEDROCK",
-    "CLAUDE_CODE_USE_VERTEX",
-    "CLAUDE_MODEL",
+    "QODER_USE_BEDROCK",
+    "QODER_USE_VERTEX",
+    "QODER_MODEL",
     "ANTHROPIC_MODEL",
     "ANTHROPIC_BASE_URL",
     "OMC_ROUTING_FORCE_INHERIT",
     "OMC_MODEL_HIGH",
     "OMC_MODEL_MEDIUM",
     "OMC_MODEL_LOW",
-    "CLAUDE_CODE_BEDROCK_OPUS_MODEL",
-    "CLAUDE_CODE_BEDROCK_SONNET_MODEL",
-    "CLAUDE_CODE_BEDROCK_HAIKU_MODEL",
+    "QODER_BEDROCK_OPUS_MODEL",
+    "QODER_BEDROCK_SONNET_MODEL",
+    "QODER_BEDROCK_HAIKU_MODEL",
     "ANTHROPIC_DEFAULT_OPUS_MODEL",
     "ANTHROPIC_DEFAULT_SONNET_MODEL",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL",
@@ -39,8 +39,8 @@ describe("loadConfig() — auto-forceInherit for non-standard providers", () => 
         const config = loadConfig();
         expect(config.routing?.forceInherit).toBe(true);
     });
-    it("auto-enables forceInherit when CLAUDE_CODE_USE_BEDROCK=1", () => {
-        process.env.CLAUDE_CODE_USE_BEDROCK = "1";
+    it("auto-enables forceInherit when QODER_USE_BEDROCK=1", () => {
+        process.env.QODER_USE_BEDROCK = "1";
         const config = loadConfig();
         expect(config.routing?.forceInherit).toBe(true);
     });
@@ -55,8 +55,8 @@ describe("loadConfig() — auto-forceInherit for non-standard providers", () => 
         const config = loadConfig();
         expect(config.routing?.forceInherit).toBe(true);
     });
-    it("auto-enables forceInherit when CLAUDE_CODE_USE_VERTEX=1", () => {
-        process.env.CLAUDE_CODE_USE_VERTEX = "1";
+    it("auto-enables forceInherit when QODER_USE_VERTEX=1", () => {
+        process.env.QODER_USE_VERTEX = "1";
         const config = loadConfig();
         expect(config.routing?.forceInherit).toBe(true);
     });
@@ -72,14 +72,14 @@ describe("loadConfig() — auto-forceInherit for non-standard providers", () => 
         expect(config.routing?.forceInherit).toBe(false);
         expect(config.agents?.executor?.model).toBe("glm-5.1:cloud");
     });
-    it("does NOT auto-enable forceInherit when direct Claude CLAUDE_MODEL beats stale ANTHROPIC_MODEL", () => {
-        process.env.CLAUDE_MODEL = "claude-sonnet-4-6";
+    it("does NOT auto-enable forceInherit when direct Claude QODER_MODEL beats stale ANTHROPIC_MODEL", () => {
+        process.env.QODER_MODEL = "claude-sonnet-4-6";
         process.env.ANTHROPIC_MODEL = "kimi-k2.6:cloud";
         const config = loadConfig();
         expect(config.routing?.forceInherit).toBe(false);
     });
-    it("does NOT auto-enable forceInherit when direct Claude CLAUDE_MODEL beats stale OMC tier env vars", () => {
-        process.env.CLAUDE_MODEL = "claude-sonnet-4-6";
+    it("does NOT auto-enable forceInherit when direct Claude QODER_MODEL beats stale OMC tier env vars", () => {
+        process.env.QODER_MODEL = "claude-sonnet-4-6";
         process.env.OMC_MODEL_MEDIUM = "glm-5.1:cloud";
         const config = loadConfig();
         expect(config.routing?.forceInherit).toBe(false);
@@ -109,11 +109,11 @@ describe("loadConfig() — auto-forceInherit for non-standard providers", () => 
         expect(config.routing?.forceInherit).toBe(false);
     });
     it("maps Bedrock family env vars into agent defaults and routing tiers", () => {
-        process.env.CLAUDE_CODE_BEDROCK_OPUS_MODEL =
+        process.env.QODER_BEDROCK_OPUS_MODEL =
             "us.anthropic.claude-opus-4-6-v1:0";
-        process.env.CLAUDE_CODE_BEDROCK_SONNET_MODEL =
+        process.env.QODER_BEDROCK_SONNET_MODEL =
             "us.anthropic.claude-sonnet-4-6-v1:0";
-        process.env.CLAUDE_CODE_BEDROCK_HAIKU_MODEL =
+        process.env.QODER_BEDROCK_HAIKU_MODEL =
             "us.anthropic.claude-haiku-4-5-v1:0";
         const config = loadConfig();
         expect(config.agents?.architect?.model).toBe("us.anthropic.claude-opus-4-6-v1:0");
@@ -138,7 +138,7 @@ describe("startup context compaction", () => {
         const tempDir = mkdtempSync(join(tmpdir(), "omc-loader-context-"));
         try {
             const omcAgentsPath = join(tempDir, "AGENTS.md");
-            const omcGuidance = `# oh-my-claudecode - Intelligent Multi-Agent Orchestration
+            const omcGuidance = `# oh-my-qoder - Intelligent Multi-Agent Orchestration
 
 <guidance_schema_contract>
 schema
@@ -182,9 +182,9 @@ schema
         const tempDir = mkdtempSync(join(tmpdir(), "omc-loader-context-aggregate-"));
         try {
             const fileA = join(tempDir, "AGENTS.md");
-            const fileB = join(tempDir, "nested", "CLAUDE.md");
+            const fileB = join(tempDir, "nested", "AGENTS.md");
             require("node:fs").mkdirSync(join(tempDir, "nested"), { recursive: true });
-            const largeSection = `# oh-my-claudecode - Intelligent Multi-Agent Orchestration
+            const largeSection = `# oh-my-qoder - Intelligent Multi-Agent Orchestration
 
 <guidance_schema_contract>schema</guidance_schema_contract>
 
@@ -207,7 +207,7 @@ ${"- keep this\n".repeat(900)}
         }
     });
     it("caps very large OMC guidance after preserving high-value sections", () => {
-        const largeOmc = `# oh-my-claudecode - Intelligent Multi-Agent Orchestration
+        const largeOmc = `# oh-my-qoder - Intelligent Multi-Agent Orchestration
 
 <guidance_schema_contract>
 schema
@@ -423,7 +423,7 @@ describe("team.roleRouting (Option E)", () => {
             const claudeDir = join(tempDir, ".claude");
             require("node:fs").mkdirSync(claudeDir, { recursive: true });
             writeFileSync(join(claudeDir, "omc.jsonc"), JSON.stringify({
-                team: { roleRouting: { critic: { provider: "claude", model: "HIGH" } } },
+                team: { roleRouting: { critic: { provider: "qoder", model: "HIGH" } } },
             }));
             process.env.OMC_TEAM_ROLE_OVERRIDES = JSON.stringify({
                 critic: { provider: "codex" },
@@ -537,7 +537,7 @@ describe("team.roleRouting (Option E)", () => {
             const claudeDir = join(tempDir, ".claude");
             require("node:fs").mkdirSync(claudeDir, { recursive: true });
             writeFileSync(join(claudeDir, "omc.jsonc"), JSON.stringify({
-                team: { roleRouting: { "totally-fake-role": { provider: "claude" } } },
+                team: { roleRouting: { "totally-fake-role": { provider: "qoder" } } },
             }));
             process.chdir(tempDir);
             expect(() => loadConfig()).toThrow(/unknown role "totally-fake-role"/);

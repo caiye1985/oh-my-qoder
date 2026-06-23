@@ -2,8 +2,8 @@
  * Configuration Loader
  *
  * Handles loading and merging configuration from multiple sources:
- * - User config: ~/.config/claude-omc/config.jsonc
- * - Project config: .claude/omc.jsonc
+ * - User config: ~/.config/qoder-omc/config.jsonc
+ * - Project config: .qoder/omc.jsonc
  * - Environment variables
  */
 import type { PluginConfig } from "../shared/types.js";
@@ -44,11 +44,11 @@ export declare function validateAutopilotConfig(config: PluginConfig): void;
 export declare function loadConfig(): PluginConfig;
 export declare function compactOmcStartupGuidance(content: string): string;
 /**
- * Find and load AGENTS.md or CLAUDE.md files for context injection
+ * Find and load AGENTS.md or AGENTS.md files for context injection
  */
 export declare function findContextFiles(startDir?: string): string[];
 /**
- * Load context from AGENTS.md/CLAUDE.md files
+ * Load context from AGENTS.md/AGENTS.md files
  */
 export declare function loadContextFromFiles(files: string[]): string;
 /**

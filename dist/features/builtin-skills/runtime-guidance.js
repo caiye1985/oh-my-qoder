@@ -9,7 +9,7 @@ export function detectSkillRuntimeAvailability(detector = isCliAvailable) {
         }
     };
     return {
-        claude: safeDetect('claude'),
+        qoder: safeDetect('qoder'),
         codex: safeDetect('codex'),
         gemini: safeDetect('gemini'),
         grok: safeDetect('grok'),

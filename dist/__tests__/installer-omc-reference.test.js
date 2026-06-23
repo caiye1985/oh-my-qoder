@@ -7,9 +7,9 @@ vi.mock('fs', async () => {
     const { join: pathJoin } = await import('path');
     const repoRoot = process.cwd();
     const sourceSkillsDir = pathJoin(repoRoot, 'src', 'skills');
-    const sourceClaudeMdPath = pathJoin(repoRoot, 'src', 'docs', 'CLAUDE.md');
+    const sourceClaudeMdPath = pathJoin(repoRoot, 'src', 'docs', 'AGENTS.md');
     const realSkillsDir = pathJoin(repoRoot, 'skills');
-    const realClaudeMdPath = pathJoin(repoRoot, 'docs', 'CLAUDE.md');
+    const realClaudeMdPath = pathJoin(repoRoot, 'docs', 'AGENTS.md');
     const withRedirect = (pathLike) => {
         const normalized = String(pathLike).replace(/\\/g, '/');
         const normalizedSourceSkillsDir = sourceSkillsDir.replace(/\\/g, '/');
@@ -34,7 +34,7 @@ vi.mock('fs', async () => {
 });
 async function loadInstallerWithEnv(claudeConfigDir, homeDir) {
     vi.resetModules();
-    process.env.CLAUDE_CONFIG_DIR = claudeConfigDir;
+    process.env.QODER_CONFIG_DIR = claudeConfigDir;
     process.env.HOME = homeDir;
     return import('../installer/index.js');
 }
@@ -42,13 +42,13 @@ function writeInstalledPluginRegistry(claudeConfigDir, pluginRoot) {
     const pluginsDir = join(claudeConfigDir, 'plugins');
     mkdirSync(pluginsDir, { recursive: true });
     writeFileSync(join(pluginsDir, 'installed_plugins.json'), JSON.stringify({
-        'oh-my-claudecode': [
+        'oh-my-qoder': [
             { installPath: pluginRoot },
         ],
     }, null, 2));
 }
 function writeEnabledPluginSettings(claudeConfigDir) {
-    writeFileSync(join(claudeConfigDir, 'settings.json'), JSON.stringify({ plugins: ['oh-my-claudecode'] }, null, 2));
+    writeFileSync(join(claudeConfigDir, 'settings.json'), JSON.stringify({ plugins: ['oh-my-qoder'] }, null, 2));
 }
 function writeMinimallyCompletePluginPayload(pluginRoot) {
     mkdirSync(join(pluginRoot, 'dist', 'hooks'), { recursive: true });
@@ -61,13 +61,13 @@ function writeMinimallyCompletePluginPayload(pluginRoot) {
     writeFileSync(join(pluginRoot, 'commands', 'omc-setup.md'), 'Read skills/omc-setup/SKILL.md.\n');
     mkdirSync(join(pluginRoot, 'skills', 'ralph'), { recursive: true });
     writeFileSync(join(pluginRoot, 'skills', 'ralph', 'SKILL.md'), 'name: ralph\n');
-    mkdirSync(join(pluginRoot, '.claude-plugin'), { recursive: true });
-    writeFileSync(join(pluginRoot, '.claude-plugin', 'plugin.json'), JSON.stringify({
-        name: 'oh-my-claudecode',
+    mkdirSync(join(pluginRoot, '.qoder-plugin'), { recursive: true });
+    writeFileSync(join(pluginRoot, '.qoder-plugin', 'plugin.json'), JSON.stringify({
+        name: 'oh-my-qoder',
         commands: './commands/',
         skills: ['./skills/ralph/'],
     }, null, 2));
-    writeFileSync(join(pluginRoot, 'package.json'), JSON.stringify({ name: 'oh-my-claude-sisyphus', version: '4.10.2' }, null, 2));
+    writeFileSync(join(pluginRoot, 'package.json'), JSON.stringify({ name: 'oh-my-qoder', version: '4.10.2' }, null, 2));
 }
 function getBundledSkillNames() {
     const skininthegamebrosOnlySkills = new Set(['remember', 'verify', 'debug']);
@@ -90,15 +90,15 @@ describe('installer bundled + standalone skill sync', () => {
         claudeConfigDir = join(homeDir, '.claude');
         mkdirSync(homeDir, { recursive: true });
         mkdirSync(claudeConfigDir, { recursive: true });
-        originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
+        originalClaudeConfigDir = process.env.QODER_CONFIG_DIR;
         originalHome = process.env.HOME;
     });
     afterEach(() => {
         if (originalClaudeConfigDir === undefined) {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
         else {
-            process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+            process.env.QODER_CONFIG_DIR = originalClaudeConfigDir;
         }
         if (originalHome === undefined) {
             delete process.env.HOME;
@@ -109,7 +109,7 @@ describe('installer bundled + standalone skill sync', () => {
         rmSync(tempRoot, { recursive: true, force: true });
         vi.resetModules();
     });
-    it('installs standalone slash skills into ~/.claude/skills during legacy install', async () => {
+    it('installs standalone slash skills into ~/.qoder/skills during legacy install', async () => {
         const installer = await loadInstallerWithEnv(claudeConfigDir, homeDir);
         const result = installer.install({
             skipClaudeCheck: true,
@@ -133,7 +133,7 @@ describe('installer bundled + standalone skill sync', () => {
         expect(existsSync(join(claudeConfigDir, 'skills', 'plan', 'SKILL.md'))).toBe(false);
     });
     it('installs bundled skills when no enabled OMC plugin is configured', async () => {
-        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-claudecode', '4.10.2');
+        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-qoder', '4.10.2');
         mkdirSync(join(pluginRoot, 'skills', 'ralph'), { recursive: true });
         writeFileSync(join(pluginRoot, 'skills', 'ralph', 'SKILL.md'), 'name: ralph\n');
         writeInstalledPluginRegistry(claudeConfigDir, pluginRoot);
@@ -156,7 +156,7 @@ describe('installer bundled + standalone skill sync', () => {
         expect(existsSync(join(claudeConfigDir, 'skills', 'omc-setup', 'phases', '04-welcome.md'))).toBe(true);
     });
     it('skips bundled skill sync when an installed plugin already provides skills', async () => {
-        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-claudecode', '4.10.2');
+        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-qoder', '4.10.2');
         writeMinimallyCompletePluginPayload(pluginRoot);
         writeInstalledPluginRegistry(claudeConfigDir, pluginRoot);
         writeEnabledPluginSettings(claudeConfigDir);
@@ -170,7 +170,7 @@ describe('installer bundled + standalone skill sync', () => {
         expect(existsSync(join(claudeConfigDir, 'skills', 'ralph', 'SKILL.md'))).toBe(false);
     });
     it('forces bundled skill sync with noPlugin even when plugin skills exist', async () => {
-        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-claudecode', '4.10.2');
+        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-qoder', '4.10.2');
         mkdirSync(join(pluginRoot, 'skills', 'ralph'), { recursive: true });
         writeFileSync(join(pluginRoot, 'skills', 'ralph', 'SKILL.md'), 'name: ralph\n');
         writeInstalledPluginRegistry(claudeConfigDir, pluginRoot);
@@ -187,7 +187,7 @@ describe('installer bundled + standalone skill sync', () => {
         expect(readFileSync(join(claudeConfigDir, 'skills', 'ralph', 'SKILL.md'), 'utf-8')).toContain('name: ralph');
     });
     it('falls back to bundled skills when plugin is enabled but skill files are unavailable', async () => {
-        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-claudecode', '4.10.2');
+        const pluginRoot = join(tempRoot, 'plugin-cache', 'oh-my-qoder', '4.10.2');
         mkdirSync(pluginRoot, { recursive: true });
         writeInstalledPluginRegistry(claudeConfigDir, pluginRoot);
         writeEnabledPluginSettings(claudeConfigDir);

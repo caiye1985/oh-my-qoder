@@ -7,21 +7,21 @@ describe('install() user-skill compatibility shims', () => {
     let originalConfigDir;
     beforeEach(() => {
         tempDir = mkdtempSync(join(tmpdir(), 'omc-installer-user-skill-compat-'));
-        originalConfigDir = process.env.CLAUDE_CONFIG_DIR;
-        process.env.CLAUDE_CONFIG_DIR = tempDir;
+        originalConfigDir = process.env.QODER_CONFIG_DIR;
+        process.env.QODER_CONFIG_DIR = tempDir;
         vi.resetModules();
     });
     afterEach(() => {
         if (originalConfigDir === undefined) {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
         else {
-            process.env.CLAUDE_CONFIG_DIR = originalConfigDir;
+            process.env.QODER_CONFIG_DIR = originalConfigDir;
         }
         rmSync(tempDir, { recursive: true, force: true });
         vi.resetModules();
     });
-    it('syncs existing omc-learned user skills into flat Claude Code skill directories during install', async () => {
+    it('syncs existing omc-learned user skills into flat Qoder skill directories during install', async () => {
         const learnedDir = join(tempDir, 'skills', 'omc-learned');
         mkdirSync(learnedDir, { recursive: true });
         writeFileSync(join(learnedDir, 'expert-review.md'), '---\nname: expert-review\ndescription: review\ntriggers:\n  - expert-review\n---\n\nUse expert review.\n');

@@ -26,16 +26,16 @@ export declare function getRoleRoutingSpec(roleRouting: Record<string, TeamRoleA
  *   1. Normalize role via `normalizeDelegationRole` (handles aliases like
  *      "quality-reviewer" → "code-reviewer", "reviewer" → "code-reviewer").
  *   2. Read explicit spec from `cfg.team.roleRouting[role]` if present.
- *   3. Orchestrator: provider is always pinned to 'claude' (user cannot
+ *   3. Orchestrator: provider is always pinned to 'qoder' (user cannot
  *      override, per Option E).
- *   4. Fill in defaults: provider='claude', model=role-default-tier,
+ *   4. Fill in defaults: provider='qoder', model=role-default-tier,
  *      agent=canonical agent for the role.
  */
 export declare function resolveRoleAssignment(role: CanonicalTeamRole, cfg: PluginConfig): RoleAssignment;
 /**
  * Pre-resolve EVERY canonical role into a `{ primary, fallback }` pair.
  *
- * Fallback is always a Claude worker with the same model + agent as primary,
+ * Fallback is always a Qoder worker with the same model + agent as primary,
  * used when the primary provider's CLI binary is missing at spawn time
  * (AC-8). Persisted to `TeamConfig.resolved_routing` at team creation by
  * `startTeamV2`; read (never re-resolved) by spawn / scaleUp / restart paths.
@@ -44,4 +44,14 @@ export declare function buildResolvedRoutingSnapshot(cfg: PluginConfig): Record<
     primary: RoleAssignment;
     fallback: RoleAssignment;
 }>;
+/**
+ * Resolve the preferred worker backend for a given role assignment.
+ *
+ * When the provider is `'qoder'` and the subagent runtime is available
+ * (subagent is the default for qoder provider), returns `'qoder-subagent'`.
+ * Otherwise falls back to the tmux-based Qoder worker (`'tmux-claude'`).
+ *
+ * For external providers, returns the corresponding tmux backend.
+ */
+export declare function resolveWorkerBackend(assignment: RoleAssignment): import('./types.js').WorkerBackend;
 //# sourceMappingURL=stage-router.d.ts.map

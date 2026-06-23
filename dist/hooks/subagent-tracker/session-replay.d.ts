@@ -27,7 +27,7 @@ export interface ReplayEvent {
     model?: string;
     /** Hook name (e.g., "keyword-detector") */
     hook?: string;
-    /** Claude Code event (e.g., "UserPromptSubmit") */
+    /** Qoder event (e.g., "UserPromptSubmit") */
     hook_event?: string;
     /** Detected keyword */
     keyword?: string;

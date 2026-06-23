@@ -46,10 +46,10 @@ export interface ConflictReport {
     hasConflicts: boolean;
 }
 /**
- * Check for hook conflicts in both profile-level (~/.claude/settings.json)
- * and project-level (./.claude/settings.json).
+ * Check for hook conflicts in both profile-level (~/.qoder/settings.json)
+ * and project-level (./.qoder/settings.json).
  *
- * Claude Code settings precedence: project > profile > defaults.
+ * Qoder settings precedence: project > profile > defaults.
  * We check both levels so the diagnostic is complete.
  */
 export declare function checkHookConflicts(): ConflictReport['hookConflicts'];
@@ -60,7 +60,7 @@ export declare function checkHookConflicts(): ConflictReport['hookConflicts'];
  */
 export declare function checkWindowsUnsafePluginHooks(): ConflictReport['windowsUnsafePluginHooks'];
 /**
- * Check CLAUDE.md for OMC markers and user content.
+ * Check AGENTS.md for OMC markers and user content.
  * Also checks companion files (CLAUDE-omc.md, etc.) for the file-split pattern
  * where users keep OMC config in a separate file.
  */

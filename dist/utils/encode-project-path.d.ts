@@ -1,8 +1,8 @@
 /**
- * Claude Code project-directory name encoding.
+ * Qoder project-directory name encoding.
  *
- * Claude Code stores a project's transcripts under
- * `~/.claude/projects/<encoded>` where `<encoded>` is the project's absolute
+ * Qoder stores a project's transcripts under
+ * `~/.qoder/projects/<encoded>` where `<encoded>` is the project's absolute
  * path with path separators, dots, and the Windows drive colon all replaced
  * by `-`. For example:
  *

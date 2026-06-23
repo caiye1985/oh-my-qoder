@@ -43,7 +43,7 @@ describe('HUD cache wrapper stale render cleanup', () => {
                 OMC_HUD_SYNC_REFRESH: '1',
             },
         });
-        // First render is synchronous when stdin is available so Claude Code v2.1.x
+        // First render is synchronous when stdin is available so Qoder v2.1.x
         // does not stay stuck on the placeholder until the next user keystroke.
         expect(output).toBe('rendered issue 3002\n');
         expect(() => statSync(currentLock)).toThrow();

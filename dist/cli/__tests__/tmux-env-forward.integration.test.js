@@ -2,8 +2,8 @@
  * Integration test: tmux env var forwarding
  *
  * Verifies that env vars set on the omc process actually arrive inside
- * a tmux session created the same way runClaudeOutsideTmux does.
- * No Claude CLI or API tokens are involved — the test runs `printenv`
+ * a tmux session created the same way runQoderOutsideTmux does.
+ * No Qoder CLI or API tokens are involved — the test runs `printenv`
  * inside the tmux pane and reads the output from a temp file.
  *
  * Skipped when tmux is not available (CI without tmux, Windows, etc.).
@@ -43,24 +43,24 @@ describe.skipIf(!HAS_TMUX)('tmux env forwarding — integration', () => {
             rmSync(tempDir, { recursive: true, force: true });
         }
     });
-    it('CLAUDE_CONFIG_DIR set via buildEnvExportPrefix reaches the tmux pane', () => {
+    it('QODER_CONFIG_DIR set via buildEnvExportPrefix reaches the tmux pane', () => {
         const testValue = '/tmp/omc-test-config-dir';
-        // Build the env export prefix the same way runClaudeOutsideTmux does,
+        // Build the env export prefix the same way runQoderOutsideTmux does,
         // but with a controlled env snapshot instead of process.env
-        const savedConfigDir = process.env.CLAUDE_CONFIG_DIR;
-        process.env.CLAUDE_CONFIG_DIR = testValue;
-        const envPrefix = buildEnvExportPrefix(['CLAUDE_CONFIG_DIR']);
+        const savedConfigDir = process.env.QODER_CONFIG_DIR;
+        process.env.QODER_CONFIG_DIR = testValue;
+        const envPrefix = buildEnvExportPrefix(['QODER_CONFIG_DIR']);
         // Restore immediately — we only needed it for the prefix string
         if (savedConfigDir !== undefined) {
-            process.env.CLAUDE_CONFIG_DIR = savedConfigDir;
+            process.env.QODER_CONFIG_DIR = savedConfigDir;
         }
         else {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
-        // Build command: export env, then write CLAUDE_CONFIG_DIR to file
-        const innerCmd = `${envPrefix}printenv CLAUDE_CONFIG_DIR > ${quoteShellArg(outFile)}`;
+        // Build command: export env, then write QODER_CONFIG_DIR to file
+        const innerCmd = `${envPrefix}printenv QODER_CONFIG_DIR > ${quoteShellArg(outFile)}`;
         const shellCmd = wrapWithLoginShell(innerCmd);
-        // Create a detached tmux session (same as runClaudeOutsideTmux)
+        // Create a detached tmux session (same as runQoderOutsideTmux)
         execFileSync('tmux', [
             'new-session', '-d', '-s', SESSION_NAME, shellCmd,
         ]);
@@ -86,16 +86,16 @@ describe.skipIf(!HAS_TMUX)('tmux env forwarding — integration', () => {
         const testValue = "/tmp/path with spaces/it's-a-test";
         const specialOutFile = join(tempDir, 'env-special');
         const specialSession = `${SESSION_NAME}-special`;
-        const savedConfigDir = process.env.CLAUDE_CONFIG_DIR;
-        process.env.CLAUDE_CONFIG_DIR = testValue;
-        const envPrefix = buildEnvExportPrefix(['CLAUDE_CONFIG_DIR']);
+        const savedConfigDir = process.env.QODER_CONFIG_DIR;
+        process.env.QODER_CONFIG_DIR = testValue;
+        const envPrefix = buildEnvExportPrefix(['QODER_CONFIG_DIR']);
         if (savedConfigDir !== undefined) {
-            process.env.CLAUDE_CONFIG_DIR = savedConfigDir;
+            process.env.QODER_CONFIG_DIR = savedConfigDir;
         }
         else {
-            delete process.env.CLAUDE_CONFIG_DIR;
+            delete process.env.QODER_CONFIG_DIR;
         }
-        const innerCmd = `${envPrefix}printenv CLAUDE_CONFIG_DIR > ${quoteShellArg(specialOutFile)}`;
+        const innerCmd = `${envPrefix}printenv QODER_CONFIG_DIR > ${quoteShellArg(specialOutFile)}`;
         const shellCmd = wrapWithLoginShell(innerCmd);
         try {
             execFileSync('tmux', [

@@ -1,13 +1,13 @@
 /**
  * Native tmux shell launch for omc
- * Launches Claude Code with tmux session management
+ * Launches Qoder with tmux session management
  */
 export declare function prepareOmcLaunchConfigDir(baseConfigDir?: string): string;
 /**
  * Extract the OMC-specific --notify flag from launch args.
  * --notify false  → disable notifications (OMC_NOTIFY=0)
  * --notify true   → enable notifications (default)
- * This flag must be stripped before passing args to Claude CLI.
+ * This flag must be stripped before passing args to Qoder CLI.
  */
 export declare function extractNotifyFlag(args: string[]): {
     notifyEnabled: boolean;
@@ -23,7 +23,7 @@ export declare function extractNotifyFlag(args: string[]): {
  *   --openclaw=0      -> disable OpenClaw
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export declare function extractOpenClawFlag(args: string[]): {
     openclawEnabled: boolean | undefined;
@@ -39,7 +39,7 @@ export declare function extractOpenClawFlag(args: string[]): {
  *   --telegram=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export declare function extractTelegramFlag(args: string[]): {
     telegramEnabled: boolean | undefined;
@@ -55,7 +55,7 @@ export declare function extractTelegramFlag(args: string[]): {
  *   --discord=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export declare function extractDiscordFlag(args: string[]): {
     discordEnabled: boolean | undefined;
@@ -71,7 +71,7 @@ export declare function extractDiscordFlag(args: string[]): {
  *   --slack=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export declare function extractSlackFlag(args: string[]): {
     slackEnabled: boolean | undefined;
@@ -87,7 +87,7 @@ export declare function extractSlackFlag(args: string[]): {
  *   --webhook=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export declare function extractWebhookFlag(args: string[]): {
     webhookEnabled: boolean | undefined;
@@ -95,10 +95,10 @@ export declare function extractWebhookFlag(args: string[]): {
 };
 /**
  * Normalize Claude launch arguments
- * Maps --madmax/--yolo to --dangerously-skip-permissions
+ * Maps --madmax to --yolo (Qoder CLI bypass flag)
  * All other flags pass through unchanged
  */
-export declare function normalizeClaudeLaunchArgs(args: string[]): string[];
+export declare function normalizeQoderLaunchArgs(args: string[]): string[];
 /**
  * preLaunch: Prepare environment before Claude starts
  * Currently a placeholder - can be extended for:
@@ -115,12 +115,12 @@ export declare function preLaunch(_cwd: string, _sessionId: string): Promise<voi
 export declare function isPrintMode(args: string[]): boolean;
 /**
  * Detect raw --madmax / --yolo tokens in launch args. Used before
- * normalizeClaudeLaunchArgs strips them so we can apply OMC-specific
+ * normalizeQoderLaunchArgs strips them so we can apply OMC-specific
  * launch contracts (e.g. tmux-mandatory on macOS).
  */
 export declare function hasMadmaxFlag(args: string[]): boolean;
 /**
- * runClaude: Launch Claude CLI (blocks until exit)
+ * runQoder: Launch Qoder CLI (blocks until exit)
  * Handles 3 scenarios:
  * 1. inside-tmux: Launch claude in current pane
  * 2. outside-tmux: Create new tmux session with claude
@@ -134,11 +134,11 @@ export declare function hasMadmaxFlag(args: string[]): boolean;
  * tmux is installed but new-session/attach-session fails, we surface the
  * error instead of silently demoting to direct mode.
  */
-export declare function runClaude(cwd: string, args: string[], sessionId: string): void;
+export declare function runQoder(cwd: string, args: string[], sessionId: string): void;
 /**
  * Env vars that must be forwarded into tmux sessions.
  * tmux new-session inherits the *server's* environment, not the calling
- * process's, so vars set on process.env (e.g. CLAUDE_CONFIG_DIR at launch)
+ * process's, so vars set on process.env (e.g. QODER_CONFIG_DIR at launch)
  * are silently lost.  We inject them as `export` statements into the shell
  * command that runs inside the tmux pane, *after* .zshrc/.bashrc sourcing
  * so our values take precedence.
@@ -161,7 +161,7 @@ export declare function postLaunch(_cwd: string, _sessionId: string): Promise<vo
  * Parse `--plugin-dir <path>` / `--plugin-dir=<path>` from launch args (non-consuming).
  *
  * Returns the resolved absolute path if found, or null. The flag is NOT removed
- * from `args` — it must still forward to Claude Code's plugin loader untouched.
+ * from `args` — it must still forward to Qoder's plugin loader untouched.
  */
 export declare function parsePluginDirArg(args: string[]): string | null;
 export declare function launchCommand(args: string[]): Promise<void>;

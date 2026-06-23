@@ -1,13 +1,13 @@
 /**
- * Hooks Module for Oh-My-ClaudeCode
+ * Hooks Module for Oh-My-Qoder
  *
- * This module provides the TypeScript bridge for Claude Code's native shell hook system.
+ * This module provides the TypeScript bridge for Qoder's native shell hook system.
  * Shell scripts call these TypeScript functions for complex logic processing.
  *
  * Architecture:
- * - Claude Code runs shell scripts on hook events (UserPromptSubmit, Stop, etc.)
+ * - Qoder runs shell scripts on hook events (UserPromptSubmit, Stop, etc.)
  * - Shell scripts invoke Node.js bridge for complex processing
- * - Bridge returns JSON response that shell passes back to Claude Code
+ * - Bridge returns JSON response that shell passes back to Qoder
  */
 export { 
 // Keyword detection

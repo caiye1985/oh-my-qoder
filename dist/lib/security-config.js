@@ -8,7 +8,7 @@
  *    - "strict": all security features enabled
  *    - unset/other: per-feature defaults apply
  *
- * 2. Config file (.claude/omc.jsonc or ~/.config/claude-omc/config.jsonc)
+ * 2. Config file (.qoder/omc.jsonc or ~/.config/qoder-omc/config.jsonc)
  *    security section — granular overrides (highest precedence)
  *
  * Precedence: config file > OMC_SECURITY env var > defaults (all off)
@@ -44,7 +44,7 @@ let cachedConfig = null;
 function loadSecurityFromConfigFiles() {
     const paths = [
         join(process.cwd(), ".claude", "omc.jsonc"),
-        join(getConfigDir(), "claude-omc", "config.jsonc"),
+        join(getConfigDir(), "qoder-omc", "config.jsonc"),
     ];
     for (const configPath of paths) {
         if (!existsSync(configPath))

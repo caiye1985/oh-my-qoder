@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, normalize, relative } from 'node:path';
 const PACKAGE_ROOT = process.cwd();
 const HOOKS_JSON_PATH = join(PACKAGE_ROOT, 'hooks', 'hooks.json');
-const PLUGIN_JSON_PATH = join(PACKAGE_ROOT, '.claude-plugin', 'plugin.json');
+const PLUGIN_JSON_PATH = join(PACKAGE_ROOT, '.qoder-plugin', 'plugin.json');
 const MCP_JSON_PATH = join(PACKAGE_ROOT, '.mcp.json');
 const SCRIPTS_ROOT = join(PACKAGE_ROOT, 'scripts');
 function referencesStandardHooksManifest(value) {
@@ -48,7 +48,7 @@ function listPluginMcpRuntimeFiles() {
             if (typeof arg !== 'string') {
                 continue;
             }
-            const match = arg.match(/^\$\{CLAUDE_PLUGIN_ROOT\}\/(.+)$/);
+            const match = arg.match(/^\$\{QODER_PLUGIN_ROOT\}\/(.+)$/);
             if (match) {
                 runtimeFiles.add(match[1]);
             }
@@ -57,7 +57,7 @@ function listPluginMcpRuntimeFiles() {
     return [...runtimeFiles].sort();
 }
 const LOCAL_IMPORT_RE = /(?:import\s+(?:[^'"()]+?\s+from\s+)?|import\s*\(|export\s+\*\s+from\s+|export\s+\{[^}]*\}\s+from\s+|require\s*\()\s*['"](\.[^'"]+)['"]/g;
-const PLUGIN_SCRIPT_RE = /"\$CLAUDE_PLUGIN_ROOT"\/(scripts\/[^\s"]+)/g;
+const PLUGIN_SCRIPT_RE = /"\$QODER_PLUGIN_ROOT"\/(scripts\/[^\s"]+)/g;
 let packedFilesCache = null;
 function listHookScriptEntries() {
     const hooksJson = JSON.parse(readFileSync(HOOKS_JSON_PATH, 'utf-8'));
@@ -129,14 +129,14 @@ describe('npm package hook surface regression', () => {
         const pluginJson = JSON.parse(readFileSync(PLUGIN_JSON_PATH, 'utf-8'));
         expect(referencesStandardHooksManifest(pluginJson.hooks)).toBe(false);
         const packedFiles = getPackedFiles();
-        expect(packedFiles.has('.claude-plugin/plugin.json')).toBe(true);
+        expect(packedFiles.has('.qoder-plugin/plugin.json')).toBe(true);
     });
     it('packs the runtime-critical plugin cache payload surface', () => {
         const packedFiles = getPackedFiles();
         expect(packedFiles.has('commands/omc-setup.md')).toBe(true);
         expect(packedFiles.has('dist/hooks/skill-bridge.cjs')).toBe(true);
         expect(packedFiles.has('bridge/cli.cjs')).toBe(true);
-        expect(packedFiles.has('.claude-plugin/plugin.json')).toBe(true);
+        expect(packedFiles.has('.qoder-plugin/plugin.json')).toBe(true);
     });
     it('packs the public plugin MCP config and referenced runtime files', () => {
         const packedFiles = getPackedFiles();

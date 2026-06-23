@@ -63,7 +63,7 @@ describe('session-start template guard for same-root parallel sessions (#1744)',
             last_checked_at: '2026-04-23T00:05:00.000Z',
             original_prompt: 'budget '.repeat(520),
         }));
-        writeFileSync(join(fakeProject, 'AGENTS.md'), `# oh-my-claudecode - Intelligent Multi-Agent Orchestration
+        writeFileSync(join(fakeProject, 'AGENTS.md'), `# oh-my-qoder - Intelligent Multi-Agent Orchestration
 
 <guidance_schema_contract>schema</guidance_schema_contract>
 
@@ -82,7 +82,7 @@ ${'- preserve this startup guidance\n'.repeat(400)}
     it('compacts large OMC AGENTS guidance and caps aggregate session context', () => {
         mkdirSync(fakeProject, { recursive: true });
         const largeAgents = [
-            '# oh-my-claudecode - Intelligent Multi-Agent Orchestration',
+            '# oh-my-qoder - Intelligent Multi-Agent Orchestration',
             '<guidance_schema_contract>schema details</guidance_schema_contract>',
             '<operating_principles>keep this high value section</operating_principles>',
             '<agent_catalog>' + 'agent '.repeat(5000) + '</agent_catalog>',
@@ -145,7 +145,7 @@ ${'- preserve this startup guidance\n'.repeat(400)}
         expect(context).not.toContain('[ULTRAWORK MODE RESTORED]');
     });
     it('keeps model routing override under budget for non-standard providers', () => {
-        writeFileSync(join(fakeProject, 'AGENTS.md'), `# oh-my-claudecode - Intelligent Multi-Agent Orchestration
+        writeFileSync(join(fakeProject, 'AGENTS.md'), `# oh-my-qoder - Intelligent Multi-Agent Orchestration
 
 <guidance_schema_contract>schema</guidance_schema_contract>
 
@@ -157,7 +157,7 @@ ${'- oversized startup guidance\n'.repeat(700)}
             session_id: 'session-bedrock-template',
             cwd: fakeProject,
         }, {
-            CLAUDE_CODE_USE_BEDROCK: '1',
+            QODER_USE_BEDROCK: '1',
         });
         const context = output.hookSpecificOutput?.additionalContext || '';
         expect(output.continue).toBe(true);

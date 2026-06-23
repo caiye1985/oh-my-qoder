@@ -1,6 +1,6 @@
 /**
  * Native tmux shell launch for omc
- * Launches Claude Code with tmux session management
+ * Launches Qoder with tmux session management
  */
 import { execFileSync } from 'child_process';
 import { cpSync, copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync, } from 'fs';
@@ -8,15 +8,15 @@ import { homedir } from 'os';
 import { basename, dirname, join } from 'path';
 import { resolvePluginDirArg } from '../lib/plugin-dir.js';
 import { stripRetiredTeamMcpServers } from '../installer/mcp-registry.js';
-import { getClaudeConfigDir } from '../utils/config-dir.js';
-import { resolveLaunchPolicy, buildTmuxSessionName, buildTmuxShellCommand, buildTmuxShellCommandWithEnv, isNativeWindowsShell, wrapWithLoginShell, isClaudeAvailable, isTmuxAvailable, quoteShellArg, tmuxExec, } from './tmux-utils.js';
+import { getQoderConfigDir } from '../utils/config-dir.js';
+import { resolveLaunchPolicy, buildTmuxSessionName, buildTmuxShellCommand, buildTmuxShellCommandWithEnv, isNativeWindowsShell, wrapWithLoginShell, isQoderAvailable, isTmuxAvailable, quoteShellArg, tmuxExec, } from './tmux-utils.js';
 import { configureTmuxClipboardForCurrentSession, configureTmuxClipboardForSession } from './tmux-clipboard.js';
 import { OMC_PLUGIN_ROOT_ENV } from '../lib/env-vars.js';
 import { OMC_CONFIG_FILE_REL } from '../lib/paths.js';
 // Flag mapping
 const MADMAX_FLAG = '--madmax';
 const YOLO_FLAG = '--yolo';
-const CLAUDE_BYPASS_FLAG = '--dangerously-skip-permissions';
+const QODER_BYPASS_FLAG = '--yolo';
 const NOTIFY_FLAG = '--notify';
 const OPENCLAW_FLAG = '--openclaw';
 const TELEGRAM_FLAG = '--telegram';
@@ -83,7 +83,7 @@ function refreshRuntimeClaudeJsonMcpServers(baseConfigDir, runtimeClaudeJsonPath
     runtimeClaudeJson.mcpServers = sourceClaudeJson.mcpServers;
     writeFileSync(runtimeClaudeJsonPath, JSON.stringify(runtimeClaudeJson, null, 2));
 }
-export function prepareOmcLaunchConfigDir(baseConfigDir = getClaudeConfigDir()) {
+export function prepareOmcLaunchConfigDir(baseConfigDir = getQoderConfigDir()) {
     const companionPath = join(baseConfigDir, 'CLAUDE-omc.md');
     if (!hasOmcMarkers(companionPath)) {
         return baseConfigDir;
@@ -99,7 +99,7 @@ export function prepareOmcLaunchConfigDir(baseConfigDir = getClaudeConfigDir()) 
         writeFileSync(runtimeClaudeJsonPath, preservedClaudeJson);
     }
     refreshRuntimeClaudeJsonMcpServers(baseConfigDir, runtimeClaudeJsonPath);
-    copyFileSync(companionPath, join(runtimeConfigDir, 'CLAUDE.md'));
+    copyFileSync(companionPath, join(runtimeConfigDir, 'AGENTS.md'));
     for (const entry of [
         'agents',
         'commands',
@@ -144,7 +144,7 @@ function isDefaultClaudeConfigDirPath(configDir) {
  * Extract the OMC-specific --notify flag from launch args.
  * --notify false  → disable notifications (OMC_NOTIFY=0)
  * --notify true   → enable notifications (default)
- * This flag must be stripped before passing args to Claude CLI.
+ * This flag must be stripped before passing args to Qoder CLI.
  */
 export function extractNotifyFlag(args) {
     let notifyEnabled = true;
@@ -181,7 +181,7 @@ export function extractNotifyFlag(args) {
  *   --openclaw=0      -> disable OpenClaw
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export function extractOpenClawFlag(args) {
     let openclawEnabled = undefined;
@@ -211,7 +211,7 @@ export function extractOpenClawFlag(args) {
  *   --telegram=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export function extractTelegramFlag(args) {
     let telegramEnabled = undefined;
@@ -240,7 +240,7 @@ export function extractTelegramFlag(args) {
  *   --discord=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export function extractDiscordFlag(args) {
     let discordEnabled = undefined;
@@ -269,7 +269,7 @@ export function extractDiscordFlag(args) {
  *   --slack=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export function extractSlackFlag(args) {
     let slackEnabled = undefined;
@@ -298,7 +298,7 @@ export function extractSlackFlag(args) {
  *   --webhook=0      -> disable
  *
  * Does NOT consume the next positional arg (no space-separated value).
- * This flag is stripped before passing args to Claude CLI.
+ * This flag is stripped before passing args to Qoder CLI.
  */
 export function extractWebhookFlag(args) {
     let webhookEnabled = undefined;
@@ -319,22 +319,18 @@ export function extractWebhookFlag(args) {
 }
 /**
  * Normalize Claude launch arguments
- * Maps --madmax/--yolo to --dangerously-skip-permissions
+ * Maps --madmax to --yolo (Qoder CLI bypass flag)
  * All other flags pass through unchanged
  */
-export function normalizeClaudeLaunchArgs(args) {
+export function normalizeQoderLaunchArgs(args) {
     const normalized = [];
     let wantsBypass = false;
     let hasBypass = false;
     for (const arg of args) {
-        if (arg === MADMAX_FLAG || arg === YOLO_FLAG) {
-            wantsBypass = true;
-            continue;
-        }
-        if (arg === CLAUDE_BYPASS_FLAG) {
+        if (arg === MADMAX_FLAG || arg === YOLO_FLAG || arg === QODER_BYPASS_FLAG) {
             wantsBypass = true;
             if (!hasBypass) {
-                normalized.push(arg);
+                normalized.push(QODER_BYPASS_FLAG);
                 hasBypass = true;
             }
             continue;
@@ -342,7 +338,7 @@ export function normalizeClaudeLaunchArgs(args) {
         normalized.push(arg);
     }
     if (wantsBypass && !hasBypass) {
-        normalized.push(CLAUDE_BYPASS_FLAG);
+        normalized.push(QODER_BYPASS_FLAG);
     }
     return normalized;
 }
@@ -367,7 +363,7 @@ export function isPrintMode(args) {
 }
 /**
  * Detect raw --madmax / --yolo tokens in launch args. Used before
- * normalizeClaudeLaunchArgs strips them so we can apply OMC-specific
+ * normalizeQoderLaunchArgs strips them so we can apply OMC-specific
  * launch contracts (e.g. tmux-mandatory on macOS).
  */
 export function hasMadmaxFlag(args) {
@@ -396,7 +392,7 @@ function abortMadmaxRequiresTmux(reason) {
     throw new MadmaxTmuxRequiredError(reason);
 }
 /**
- * runClaude: Launch Claude CLI (blocks until exit)
+ * runQoder: Launch Qoder CLI (blocks until exit)
  * Handles 3 scenarios:
  * 1. inside-tmux: Launch claude in current pane
  * 2. outside-tmux: Create new tmux session with claude
@@ -410,10 +406,10 @@ function abortMadmaxRequiresTmux(reason) {
  * tmux is installed but new-session/attach-session fails, we surface the
  * error instead of silently demoting to direct mode.
  */
-export function runClaude(cwd, args, sessionId) {
+export function runQoder(cwd, args, sessionId) {
     // Print mode must bypass tmux so stdout flows to the parent process (issue #1665)
     if (isPrintMode(args)) {
-        runClaudeDirect(cwd, args);
+        runQoderDirect(cwd, args);
         return;
     }
     const requireTmux = process.platform === 'darwin' && hasMadmaxFlag(args);
@@ -424,23 +420,23 @@ export function runClaude(cwd, args, sessionId) {
         const policy = resolveLaunchPolicy(process.env, args, { requireTmux });
         switch (policy) {
             case 'inside-tmux':
-                runClaudeInsideTmux(cwd, args);
+                runQoderInsideTmux(cwd, args);
                 break;
             case 'outside-tmux':
-                runClaudeOutsideTmux(cwd, args, sessionId, { requireTmux });
+                runQoderOutsideTmux(cwd, args, sessionId, { requireTmux });
                 break;
             case 'direct':
                 if (requireTmux) {
                     abortMadmaxRequiresTmux('missing');
                 }
-                runClaudeDirect(cwd, args);
+                runQoderDirect(cwd, args);
                 break;
         }
     }
     catch (err) {
         if (err instanceof MadmaxTmuxRequiredError) {
             // Already reported via stderr + process.exit(1); swallow so test harnesses
-            // that mock process.exit do not see the synthetic throw escape runClaude.
+            // that mock process.exit do not see the synthetic throw escape runQoder.
             return;
         }
         throw err;
@@ -450,7 +446,7 @@ export function runClaude(cwd, args, sessionId) {
  * Run Claude inside existing tmux session
  * Launches Claude in current pane
  */
-function runClaudeInsideTmux(cwd, args) {
+function runQoderInsideTmux(cwd, args) {
     // Enable OSC 52 clipboard forwarding and mouse scrolling in the current tmux session (non-fatal if unsupported).
     try {
         configureTmuxClipboardForCurrentSession({ stdio: 'ignore' });
@@ -462,7 +458,7 @@ function runClaudeInsideTmux(cwd, args) {
     catch { /* non-fatal — user's tmux may not support these options */ }
     // Launch Claude in current pane
     try {
-        execFileSync('claude', args, {
+        execFileSync('qodercli', args, {
             cwd,
             stdio: 'inherit',
             shell: process.platform === 'win32',
@@ -481,13 +477,13 @@ function runClaudeInsideTmux(cwd, args) {
 /**
  * Env vars that must be forwarded into tmux sessions.
  * tmux new-session inherits the *server's* environment, not the calling
- * process's, so vars set on process.env (e.g. CLAUDE_CONFIG_DIR at launch)
+ * process's, so vars set on process.env (e.g. QODER_CONFIG_DIR at launch)
  * are silently lost.  We inject them as `export` statements into the shell
  * command that runs inside the tmux pane, *after* .zshrc/.bashrc sourcing
  * so our values take precedence.
  */
 export const TMUX_ENV_FORWARD = [
-    'CLAUDE_CONFIG_DIR',
+    'QODER_CONFIG_DIR',
     'OMC_NOTIFY',
     'OMC_OPENCLAW',
     'OMC_TELEGRAM',
@@ -512,13 +508,13 @@ export function buildEnvExportPrefix(vars) {
  * `requireTmux=true` (set by --madmax on macOS) turns the tmux launch
  * failures from silent demotions into hard errors with a remediation hint.
  */
-function runClaudeOutsideTmux(cwd, args, _sessionId, options = {}) {
+function runQoderOutsideTmux(cwd, args, _sessionId, options = {}) {
     const forwardedEnv = Object.fromEntries(TMUX_ENV_FORWARD
         .map((name) => [name, process.env[name]])
         .filter(([, value]) => value !== undefined));
     const rawClaudeCmd = isNativeWindowsShell()
-        ? buildTmuxShellCommandWithEnv('claude', args, forwardedEnv)
-        : buildTmuxShellCommand('claude', args);
+        ? buildTmuxShellCommandWithEnv('qoder', args, forwardedEnv)
+        : buildTmuxShellCommand('qoder', args);
     const envPrefix = !isNativeWindowsShell() && Object.keys(forwardedEnv).length > 0
         ? buildEnvExportPrefix(TMUX_ENV_FORWARD)
         : '';
@@ -540,7 +536,7 @@ function runClaudeOutsideTmux(cwd, args, _sessionId, options = {}) {
         if (options.requireTmux) {
             abortMadmaxRequiresTmux('launch-failed');
         }
-        runClaudeDirect(cwd, args);
+        runQoderDirect(cwd, args);
         return;
     }
     try {
@@ -564,13 +560,13 @@ function runClaudeOutsideTmux(cwd, args, _sessionId, options = {}) {
         }
         // If the detached session still exists, preserve it so interrupted
         // attach paths (SSH disconnect, terminal drop, etc.) do not kill or
-        // duplicate a valid Claude session.
+        // duplicate a valid Qoder session.
         try {
             tmuxExec(['has-session', '-t', sessionName], { stripTmux: true, stdio: 'ignore' });
             return;
         }
         catch {
-            runClaudeDirect(cwd, args);
+            runQoderDirect(cwd, args);
         }
     }
 }
@@ -578,9 +574,9 @@ function runClaudeOutsideTmux(cwd, args, _sessionId, options = {}) {
  * Run Claude directly (no tmux)
  * Fallback when tmux is not available
  */
-function runClaudeDirect(cwd, args) {
+function runQoderDirect(cwd, args) {
     try {
-        execFileSync('claude', args, {
+        execFileSync('qodercli', args, {
             cwd,
             stdio: 'inherit',
             shell: process.platform === 'win32',
@@ -615,7 +611,7 @@ export async function postLaunch(_cwd, _sessionId) {
  * Parse `--plugin-dir <path>` / `--plugin-dir=<path>` from launch args (non-consuming).
  *
  * Returns the resolved absolute path if found, or null. The flag is NOT removed
- * from `args` — it must still forward to Claude Code's plugin loader untouched.
+ * from `args` — it must still forward to Qoder's plugin loader untouched.
  */
 export function parsePluginDirArg(args) {
     for (let i = 0; i < args.length; i++) {
@@ -637,13 +633,13 @@ export function parsePluginDirArg(args) {
 }
 export async function launchCommand(args) {
     // Capture --plugin-dir <path> so the HUD wrapper (and any other env-aware
-    // child of Claude Code) can resolve the active plugin root via OMC_PLUGIN_ROOT.
-    // Non-consuming: the flag still flows through to Claude Code untouched.
+    // child of Qoder) can resolve the active plugin root via OMC_PLUGIN_ROOT.
+    // Non-consuming: the flag still flows through to Qoder untouched.
     const pluginDir = parsePluginDirArg(args);
     if (pluginDir) {
         process.env[OMC_PLUGIN_ROOT_ENV] = pluginDir;
     }
-    // Extract OMC-specific --notify flag before passing remaining args to Claude CLI
+    // Extract OMC-specific --notify flag before passing remaining args to Qoder CLI
     const { notifyEnabled, remainingArgs } = extractNotifyFlag(args);
     if (!notifyEnabled) {
         process.env.OMC_NOTIFY = '0';
@@ -690,24 +686,24 @@ export async function launchCommand(args) {
     }
     const cwd = process.cwd();
     // Pre-flight: check for nested session
-    if (process.env.CLAUDECODE) {
-        console.error('[omc] Error: Already inside a Claude Code session. Nested launches are not supported.');
+    if (process.env.QODER) {
+        console.error('[omc] Error: Already inside a Qoder session. Nested launches are not supported.');
         process.exit(1);
     }
     // Pre-flight: check claude CLI availability
-    if (!isClaudeAvailable()) {
-        console.error('[omc] Error: claude CLI not found. Install Claude Code first:');
+    if (!isQoderAvailable()) {
+        console.error('[omc] Error: claude CLI not found. Install Qoder first:');
         console.error('  https://code.claude.com/docs/en/setup');
         process.exit(1);
     }
     const launchConfigDir = prepareOmcLaunchConfigDir();
     if (isDefaultClaudeConfigDirPath(launchConfigDir)) {
-        delete process.env.CLAUDE_CONFIG_DIR;
+        delete process.env.QODER_CONFIG_DIR;
     }
     else {
-        process.env.CLAUDE_CONFIG_DIR = launchConfigDir;
+        process.env.QODER_CONFIG_DIR = launchConfigDir;
     }
-    const normalizedArgs = normalizeClaudeLaunchArgs(argsAfterWebhook);
+    const normalizedArgs = normalizeQoderLaunchArgs(argsAfterWebhook);
     const sessionId = `omc-${Date.now()}-${crypto.randomUUID().replace(/-/g, '').slice(0, 8)}`;
     // Phase 1: preLaunch
     try {
@@ -719,7 +715,7 @@ export async function launchCommand(args) {
     }
     // Phase 2: run
     try {
-        runClaude(cwd, normalizedArgs, sessionId);
+        runQoder(cwd, normalizedArgs, sessionId);
     }
     finally {
         // Phase 3: postLaunch

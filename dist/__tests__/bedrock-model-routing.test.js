@@ -7,30 +7,30 @@
  *
  * Root cause chain:
  * 1. buildDefaultConfig() → config.agents.executor.model = 'claude-sonnet-4-6'
- *    (from CLAUDE_FAMILY_DEFAULTS.SONNET, because no Bedrock env vars found)
+ *    (from QODER_FAMILY_DEFAULTS.SONNET, because no Bedrock env vars found)
  * 2. getAgentDefinitions() resolves executor.model = 'claude-sonnet-4-6'
  *    (configuredModel from config takes precedence over agent's defaultModel)
  * 3. enforceModel() injects 'claude-sonnet-4-6' into Task calls
- * 4. Claude Code passes it to Bedrock API → 400 invalid model
+ * 4. Qoder passes it to Bedrock API → 400 invalid model
  *
- * The defense (forceInherit) works IF CLAUDE_CODE_USE_BEDROCK=1 is in the env.
+ * The defense (forceInherit) works IF QODER_USE_BEDROCK=1 is in the env.
  * But if that env var doesn't propagate to the MCP server / hook process,
  * forceInherit is never auto-enabled, and bare model IDs leak through.
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 // ── Env helpers ──────────────────────────────────────────────────────────────
 const BEDROCK_ENV_KEYS = [
-    'CLAUDE_CODE_USE_BEDROCK',
-    'CLAUDE_CODE_USE_VERTEX',
-    'CLAUDE_MODEL',
+    'QODER_USE_BEDROCK',
+    'QODER_USE_VERTEX',
+    'QODER_MODEL',
     'ANTHROPIC_MODEL',
     'ANTHROPIC_BASE_URL',
     'ANTHROPIC_DEFAULT_SONNET_MODEL',
     'ANTHROPIC_DEFAULT_OPUS_MODEL',
     'ANTHROPIC_DEFAULT_HAIKU_MODEL',
-    'CLAUDE_CODE_BEDROCK_SONNET_MODEL',
-    'CLAUDE_CODE_BEDROCK_OPUS_MODEL',
-    'CLAUDE_CODE_BEDROCK_HAIKU_MODEL',
+    'QODER_BEDROCK_SONNET_MODEL',
+    'QODER_BEDROCK_OPUS_MODEL',
+    'QODER_BEDROCK_HAIKU_MODEL',
     'OMC_MODEL_HIGH',
     'OMC_MODEL_MEDIUM',
     'OMC_MODEL_LOW',
@@ -64,13 +64,13 @@ describe('Bedrock model routing repro', () => {
     });
     // ── Unit tests: building blocks ────────────────────────────────────────────
     describe('detection: isBedrock()', () => {
-        it('detects CLAUDE_CODE_USE_BEDROCK=1', async () => {
-            process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+        it('detects QODER_USE_BEDROCK=1', async () => {
+            process.env.QODER_USE_BEDROCK = '1';
             const { isBedrock } = await import('../config/models.js');
             expect(isBedrock()).toBe(true);
         });
-        it('detects Bedrock model ID in CLAUDE_MODEL', async () => {
-            process.env.CLAUDE_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
+        it('detects Bedrock model ID in QODER_MODEL', async () => {
+            process.env.QODER_MODEL = 'us.anthropic.claude-sonnet-4-6-v1:0';
             const { isBedrock } = await import('../config/models.js');
             expect(isBedrock()).toBe(true);
         });
@@ -97,11 +97,11 @@ describe('Bedrock model routing repro', () => {
         });
     });
     // ── E2E Repro Scenario A ──────────────────────────────────────────────────
-    // CLAUDE_CODE_USE_BEDROCK=1 not propagated to MCP/hook process
-    describe('SCENARIO A: CLAUDE_CODE_USE_BEDROCK not propagated to hook process', () => {
+    // QODER_USE_BEDROCK=1 not propagated to MCP/hook process
+    describe('SCENARIO A: QODER_USE_BEDROCK not propagated to hook process', () => {
         it('full chain: Task call injects invalid model for Bedrock', async () => {
             // ── Setup: simulate MCP server process that did NOT inherit
-            //    CLAUDE_CODE_USE_BEDROCK from parent Claude Code process ──
+            //    QODER_USE_BEDROCK from parent Qoder process ──
             // (all Bedrock env vars already cleared by beforeEach)
             // 1. Bedrock detection fails
             const { isBedrock, isNonClaudeProvider } = await import('../config/models.js');
@@ -123,7 +123,7 @@ describe('Bedrock model routing repro', () => {
             const executorResult = enforceModel({
                 description: 'Implement feature',
                 prompt: 'Write the code',
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
             });
             expect(executorResult.injected).toBe(true);
             expect(executorResult.modifiedInput.model).toBe('sonnet');
@@ -131,7 +131,7 @@ describe('Bedrock model routing repro', () => {
             const exploreResult = enforceModel({
                 description: 'Find files',
                 prompt: 'Search codebase',
-                subagent_type: 'oh-my-claudecode:explore',
+                subagent_type: 'oh-my-qoder:explore',
             });
             expect(exploreResult.injected).toBe(true);
             expect(exploreResult.modifiedInput.model).toBe('haiku');
@@ -139,7 +139,7 @@ describe('Bedrock model routing repro', () => {
             const architectResult = enforceModel({
                 description: 'Design system',
                 prompt: 'Analyze architecture',
-                subagent_type: 'oh-my-claudecode:architect',
+                subagent_type: 'oh-my-qoder:architect',
             });
             expect(architectResult.injected).toBe(true);
             expect(architectResult.modifiedInput.model).toBe('opus');
@@ -148,9 +148,9 @@ describe('Bedrock model routing repro', () => {
             expect(['sonnet', 'opus', 'haiku'].includes(exploreResult.modifiedInput.model)).toBe(true);
             expect(['sonnet', 'opus', 'haiku'].includes(architectResult.modifiedInput.model)).toBe(true);
         });
-        it('the defense works when CLAUDE_CODE_USE_BEDROCK IS propagated', async () => {
+        it('the defense works when QODER_USE_BEDROCK IS propagated', async () => {
             // Same scenario but with the env var properly set
-            process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+            process.env.QODER_USE_BEDROCK = '1';
             const { isBedrock } = await import('../config/models.js');
             expect(isBedrock()).toBe(true);
             const { loadConfig } = await import('../config/loader.js');
@@ -162,7 +162,7 @@ describe('Bedrock model routing repro', () => {
                 const result = enforceModel({
                     description: 'test',
                     prompt: 'test',
-                    subagent_type: `oh-my-claudecode:${agent}`,
+                    subagent_type: `oh-my-qoder:${agent}`,
                 });
                 expect(result.model).toBe('inherit');
                 expect(result.modifiedInput.model).toBeUndefined();
@@ -171,11 +171,11 @@ describe('Bedrock model routing repro', () => {
     });
     // ── E2E Repro Scenario B ──────────────────────────────────────────────────
     // User has ANTHROPIC_DEFAULT_SONNET_MODEL in Bedrock format,
-    // but CLAUDE_CODE_USE_BEDROCK and CLAUDE_MODEL/ANTHROPIC_MODEL are missing
+    // but QODER_USE_BEDROCK and QODER_MODEL/ANTHROPIC_MODEL are missing
     describe('SCENARIO B: Bedrock tier env vars set without session model env vars', () => {
         it('full chain: tier env Bedrock models do not globally force inherit', async () => {
             // ── Setup: user has Bedrock-format models in ANTHROPIC_DEFAULT_*_MODEL
-            //    (as shown in their settings) but CLAUDE_CODE_USE_BEDROCK is not set ──
+            //    (as shown in their settings) but QODER_USE_BEDROCK is not set ──
             process.env.ANTHROPIC_DEFAULT_SONNET_MODEL = 'global.anthropic.claude-sonnet-4-6-v1:0';
             process.env.ANTHROPIC_DEFAULT_OPUS_MODEL = 'global.anthropic.claude-opus-4-6-v1:0';
             process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = 'global.anthropic.claude-haiku-4-5-v1:0';
@@ -202,7 +202,7 @@ describe('Bedrock model routing repro', () => {
             const result = enforceModel({
                 description: 'Implement feature',
                 prompt: 'Write the code',
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
             });
             expect(result.injected).toBe(true);
             expect(result.model).toBe('global.anthropic.claude-sonnet-4-6-v1:0');
@@ -210,7 +210,7 @@ describe('Bedrock model routing repro', () => {
         });
         it('isBedrock detects Bedrock patterns in tier env vars', async () => {
             // ANTHROPIC_DEFAULT_*_MODEL values can be the only Bedrock signal
-            // when CLAUDE_MODEL/ANTHROPIC_MODEL are unset.
+            // when QODER_MODEL/ANTHROPIC_MODEL are unset.
             process.env.ANTHROPIC_DEFAULT_SONNET_MODEL = 'global.anthropic.claude-sonnet-4-6-v1:0';
             const { isBedrock, hasTierModelEnvOverrides } = await import('../config/models.js');
             // The env var IS detected by hasTierModelEnvOverrides
@@ -225,7 +225,7 @@ describe('Bedrock model routing repro', () => {
             // When forceInherit IS enabled, the bridge pre-tool-use hook at
             // bridge.ts:1082-1093 strips the model param from Task calls.
             // This works correctly.
-            process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+            process.env.QODER_USE_BEDROCK = '1';
             const { loadConfig } = await import('../config/loader.js');
             const config = loadConfig();
             expect(config.routing?.forceInherit).toBe(true);
@@ -233,8 +233,8 @@ describe('Bedrock model routing repro', () => {
             const taskInput = {
                 description: 'Implement feature',
                 prompt: 'Write the code',
-                subagent_type: 'oh-my-claudecode:executor',
-                model: 'sonnet', // LLM passes this based on CLAUDE.md instructions
+                subagent_type: 'oh-my-qoder:executor',
+                model: 'sonnet', // LLM passes this based on AGENTS.md instructions
             };
             // Bridge logic (bridge.ts:1082-1093):
             const nextTaskInput = { ...taskInput };
@@ -254,20 +254,20 @@ describe('Bedrock model routing repro', () => {
             const taskInput = {
                 description: 'Implement feature',
                 prompt: 'Write the code',
-                subagent_type: 'oh-my-claudecode:executor',
-                model: 'sonnet', // LLM passes this based on CLAUDE.md instructions
+                subagent_type: 'oh-my-qoder:executor',
+                model: 'sonnet', // LLM passes this based on AGENTS.md instructions
             };
             const nextTaskInput = { ...taskInput };
             if (nextTaskInput.model && config.routing?.forceInherit) {
                 delete nextTaskInput.model;
             }
-            // Model NOT stripped → 'sonnet' passes through to Claude Code
+            // Model NOT stripped → 'sonnet' passes through to Qoder
             expect(nextTaskInput.model).toBe('sonnet');
-            // Claude Code resolves 'sonnet' → 'claude-sonnet-4-6' → Bedrock 400
+            // Qoder resolves 'sonnet' → 'claude-sonnet-4-6' → Bedrock 400
         });
         it('even when enforceModel strips, LLM can still pass model directly', async () => {
             // The LLM can pass model: "sonnet" in the Task call because the
-            // CLAUDE.md instructions say: "Pass model on Task calls: haiku, sonnet, opus"
+            // AGENTS.md instructions say: "Pass model on Task calls: haiku, sonnet, opus"
             //
             // enforceModel only runs when model is NOT specified (it injects default).
             // If the LLM explicitly passes model, enforceModel preserves it (line 83-90).
@@ -277,13 +277,13 @@ describe('Bedrock model routing repro', () => {
             const result = enforceModel({
                 description: 'Implement feature',
                 prompt: 'Write the code',
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
                 model: 'sonnet', // LLM passes this explicitly
             });
             // enforceModel preserves explicit model (doesn't override it)
             expect(result.injected).toBe(false);
             expect(result.modifiedInput.model).toBe('sonnet');
-            // → Claude Code resolves 'sonnet' → Bedrock can't handle it → 400
+            // → Qoder resolves 'sonnet' → Bedrock can't handle it → 400
         });
     });
     // ── Summary: which scenario matches the reported error? ────────────────────
@@ -293,7 +293,7 @@ describe('Bedrock model routing repro', () => {
             const result = enforceModel({
                 description: 'test',
                 prompt: 'test',
-                subagent_type: 'oh-my-claudecode:executor',
+                subagent_type: 'oh-my-qoder:executor',
             });
             // This is exactly the model ID from the error report
             expect(result.modifiedInput.model).toBe('sonnet');
@@ -302,7 +302,7 @@ describe('Bedrock model routing repro', () => {
     // ── FIX VERIFICATION ──────────────────────────────────────────────────────
     describe('FIX: PreToolUse hook denies Task calls with model on Bedrock', () => {
         it('returns permissionDecision:deny when Task has model and forceInherit is enabled', async () => {
-            process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+            process.env.QODER_USE_BEDROCK = '1';
             // Import the bridge processPreToolUse indirectly by calling processHookBridge
             const bridge = await import('../hooks/bridge.js');
             // Simulate a PreToolUse hook input for a Task call with model
@@ -312,7 +312,7 @@ describe('Bedrock model routing repro', () => {
                 toolInput: {
                     description: 'Implement feature',
                     prompt: 'Write the code',
-                    subagent_type: 'oh-my-claudecode:executor',
+                    subagent_type: 'oh-my-qoder:executor',
                     model: 'claude-sonnet-4-6',
                 },
                 directory: process.cwd(),
@@ -325,7 +325,7 @@ describe('Bedrock model routing repro', () => {
             expect(parsed.hookSpecificOutput?.permissionDecisionReason).toContain('model');
         });
         it('allows Task calls without model even on Bedrock', async () => {
-            process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+            process.env.QODER_USE_BEDROCK = '1';
             const bridge = await import('../hooks/bridge.js');
             const hookInput = {
                 sessionId: 'test-session',
@@ -333,7 +333,7 @@ describe('Bedrock model routing repro', () => {
                 toolInput: {
                     description: 'Implement feature',
                     prompt: 'Write the code',
-                    subagent_type: 'oh-my-claudecode:executor',
+                    subagent_type: 'oh-my-qoder:executor',
                     // No model param — this is the correct behavior
                 },
                 directory: process.cwd(),
@@ -352,7 +352,7 @@ describe('Bedrock model routing repro', () => {
                 toolInput: {
                     description: 'Implement feature',
                     prompt: 'Write the code',
-                    subagent_type: 'oh-my-claudecode:executor',
+                    subagent_type: 'oh-my-qoder:executor',
                     model: 'sonnet',
                 },
                 directory: process.cwd(),
@@ -365,7 +365,7 @@ describe('Bedrock model routing repro', () => {
     });
     describe('FIX: SessionStart injects Bedrock model routing override', () => {
         it('injects override message when forceInherit is enabled', async () => {
-            process.env.CLAUDE_CODE_USE_BEDROCK = '1';
+            process.env.QODER_USE_BEDROCK = '1';
             const bridge = await import('../hooks/bridge.js');
             const hookInput = {
                 sessionId: 'test-session',

@@ -13,17 +13,17 @@ export const AUTO_SLASH_COMMAND_TAG_CLOSE = '</auto-slash-command>';
 export const SLASH_COMMAND_PATTERN = /^\/([a-zA-Z][\w-]*)\s*(.*)/;
 /**
  * Commands that should NOT be auto-expanded
- * (they have special handling elsewhere or are now skills with oh-my-claudecode: prefix)
+ * (they have special handling elsewhere or are now skills with oh-my-qoder: prefix)
  */
 export const EXCLUDED_COMMANDS = new Set([
     'ralph',
-    'oh-my-claudecode:ralplan',
-    'oh-my-claudecode:ultraqa',
-    'oh-my-claudecode:skillify',
-    'oh-my-claudecode:learner',
-    'oh-my-claudecode:plan',
-    'oh-my-claudecode:cancel',
-    // Claude Code built-in commands that shouldn't be expanded
+    'oh-my-qoder:ralplan',
+    'oh-my-qoder:ultraqa',
+    'oh-my-qoder:skillify',
+    'oh-my-qoder:learner',
+    'oh-my-qoder:plan',
+    'oh-my-qoder:cancel',
+    // Qoder built-in commands that shouldn't be expanded
     'help',
     'clear',
     'compact',

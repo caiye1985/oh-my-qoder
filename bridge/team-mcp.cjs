@@ -17866,11 +17866,11 @@ var import_node_crypto = require("node:crypto");
 var import_child_process5 = require("child_process");
 var import_path10 = require("path");
 var import_url = require("url");
-var import_fs9 = require("fs");
+var import_fs10 = require("fs");
 var import_promises3 = require("fs/promises");
 
 // src/team/tmux-session.ts
-var import_fs2 = require("fs");
+var import_fs3 = require("fs");
 var import_crypto2 = require("crypto");
 var import_child_process3 = require("child_process");
 var import_util6 = require("util");
@@ -17891,13 +17891,14 @@ function validateTeamName(teamName) {
 // src/lib/worktree-paths.ts
 var import_crypto = require("crypto");
 var import_child_process = require("child_process");
-var import_fs = require("fs");
+var import_fs2 = require("fs");
 var import_os2 = require("os");
 var import_path2 = require("path");
 
 // src/utils/config-dir.ts
 var import_path = require("path");
 var import_os = require("os");
+var import_fs = require("fs");
 
 // src/lib/worktree-paths.ts
 var WORKSPACE_MARKER = ".omc-workspace";
@@ -17947,7 +17948,7 @@ function findWorkspaceRoot(startDir) {
   let result = null;
   while (true) {
     if (home && cursor === home) break;
-    if ((0, import_fs.existsSync)((0, import_path2.join)(cursor, WORKSPACE_MARKER))) {
+    if ((0, import_fs2.existsSync)((0, import_path2.join)(cursor, WORKSPACE_MARKER))) {
       result = cursor;
       break;
     }
@@ -17964,7 +17965,7 @@ function findWorkspaceRoot(startDir) {
 }
 function readWorkspaceMarkerConfig(workspaceRoot) {
   try {
-    const raw = (0, import_fs.readFileSync)((0, import_path2.join)(workspaceRoot, WORKSPACE_MARKER), "utf-8").trim();
+    const raw = (0, import_fs2.readFileSync)((0, import_path2.join)(workspaceRoot, WORKSPACE_MARKER), "utf-8").trim();
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
@@ -18058,7 +18059,7 @@ function getOmcRoot(worktreeRoot) {
     const centralizedPath = (0, import_path2.join)(customDir, projectId);
     const legacyPath = (0, import_path2.join)(root2, OmcPaths.ROOT);
     const warningKey = `${legacyPath}:${centralizedPath}`;
-    if (!dualDirWarnings.has(warningKey) && (0, import_fs.existsSync)(legacyPath) && (0, import_fs.existsSync)(centralizedPath)) {
+    if (!dualDirWarnings.has(warningKey) && (0, import_fs2.existsSync)(legacyPath) && (0, import_fs2.existsSync)(centralizedPath)) {
       dualDirWarnings.add(warningKey);
       console.warn(
         `[omc] Both legacy state dir (${legacyPath}) and centralized state dir (${centralizedPath}) exist. Using centralized dir. Consider migrating data from the legacy dir and removing it.`
@@ -18501,7 +18502,7 @@ async function killTeamSession(sessionName, workerPaneIds, leaderPaneId, options
 }
 
 // src/team/monitor.ts
-var import_fs3 = require("fs");
+var import_fs4 = require("fs");
 var import_promises2 = require("fs/promises");
 var import_path6 = require("path");
 
@@ -18686,7 +18687,7 @@ function canonicalizeTeamConfigWorkers(config2) {
 // src/team/monitor.ts
 async function readJsonSafe(filePath) {
   try {
-    if (!(0, import_fs3.existsSync)(filePath)) return null;
+    if (!(0, import_fs4.existsSync)(filePath)) return null;
     const raw = await (0, import_promises2.readFile)(filePath, "utf-8");
     return JSON.parse(raw);
   } catch {
@@ -18824,7 +18825,7 @@ var NudgeTracker = class {
 };
 
 // src/mcp/team-job-convergence.ts
-var import_fs7 = require("fs");
+var import_fs8 = require("fs");
 var import_path8 = require("path");
 
 // src/team/git-worktree.ts
@@ -18833,32 +18834,32 @@ var import_node_path2 = require("node:path");
 var import_node_child_process = require("node:child_process");
 
 // src/team/fs-utils.ts
-var import_fs4 = require("fs");
+var import_fs5 = require("fs");
 var import_path7 = require("path");
 function atomicWriteJson(filePath, data, mode = 384) {
   const dir = (0, import_path7.dirname)(filePath);
-  if (!(0, import_fs4.existsSync)(dir)) (0, import_fs4.mkdirSync)(dir, { recursive: true, mode: 448 });
+  if (!(0, import_fs5.existsSync)(dir)) (0, import_fs5.mkdirSync)(dir, { recursive: true, mode: 448 });
   const tmpPath = `${filePath}.tmp.${process.pid}.${Date.now()}`;
-  (0, import_fs4.writeFileSync)(tmpPath, JSON.stringify(data, null, 2) + "\n", { encoding: "utf-8", mode });
-  (0, import_fs4.renameSync)(tmpPath, filePath);
+  (0, import_fs5.writeFileSync)(tmpPath, JSON.stringify(data, null, 2) + "\n", { encoding: "utf-8", mode });
+  (0, import_fs5.renameSync)(tmpPath, filePath);
 }
 function ensureDirWithMode(dirPath, mode = 448) {
-  if (!(0, import_fs4.existsSync)(dirPath)) (0, import_fs4.mkdirSync)(dirPath, { recursive: true, mode });
+  if (!(0, import_fs5.existsSync)(dirPath)) (0, import_fs5.mkdirSync)(dirPath, { recursive: true, mode });
 }
 function safeRealpath(p) {
   try {
-    return (0, import_fs4.realpathSync)(p);
+    return (0, import_fs5.realpathSync)(p);
   } catch {
     const segments = [];
     let current = (0, import_path7.resolve)(p);
-    while (!(0, import_fs4.existsSync)(current)) {
+    while (!(0, import_fs5.existsSync)(current)) {
       segments.unshift((0, import_path7.basename)(current));
       const parent = (0, import_path7.dirname)(current);
       if (parent === current) break;
       current = parent;
     }
     try {
-      return (0, import_path7.join)((0, import_fs4.realpathSync)(current), ...segments);
+      return (0, import_path7.join)((0, import_fs5.realpathSync)(current), ...segments);
     } catch {
       return (0, import_path7.resolve)(p);
     }
@@ -18958,7 +18959,7 @@ function validateWorktreeRemovalTarget(options) {
 }
 
 // src/lib/file-lock.ts
-var import_fs6 = require("fs");
+var import_fs7 = require("fs");
 var path3 = __toESM(require("path"), 1);
 
 // src/lib/atomic-write.ts
@@ -18982,7 +18983,7 @@ function ensureDirSync(dir) {
 
 // src/platform/index.ts
 var path2 = __toESM(require("path"), 1);
-var import_fs5 = require("fs");
+var import_fs6 = require("fs");
 
 // src/platform/process-utils.ts
 var import_child_process4 = require("child_process");
@@ -19010,11 +19011,11 @@ var DEFAULT_STALE_LOCK_MS = 3e4;
 var DEFAULT_RETRY_DELAY_MS = 50;
 function isLockStale(lockPath, staleLockMs) {
   try {
-    const stat = (0, import_fs6.statSync)(lockPath);
+    const stat = (0, import_fs7.statSync)(lockPath);
     const ageMs = Date.now() - stat.mtimeMs;
     if (ageMs < staleLockMs) return false;
     try {
-      const raw = (0, import_fs6.readFileSync)(lockPath, "utf-8");
+      const raw = (0, import_fs7.readFileSync)(lockPath, "utf-8");
       const payload = JSON.parse(raw);
       if (payload.pid && isProcessAlive(payload.pid)) return false;
     } catch {
@@ -19027,21 +19028,21 @@ function isLockStale(lockPath, staleLockMs) {
 function tryAcquireSync(lockPath, staleLockMs) {
   ensureDirSync(path3.dirname(lockPath));
   try {
-    const fd = (0, import_fs6.openSync)(
+    const fd = (0, import_fs7.openSync)(
       lockPath,
-      import_fs6.constants.O_CREAT | import_fs6.constants.O_EXCL | import_fs6.constants.O_WRONLY,
+      import_fs7.constants.O_CREAT | import_fs7.constants.O_EXCL | import_fs7.constants.O_WRONLY,
       384
     );
     try {
       const payload = JSON.stringify({ pid: process.pid, timestamp: Date.now() });
-      (0, import_fs6.writeSync)(fd, payload, null, "utf-8");
+      (0, import_fs7.writeSync)(fd, payload, null, "utf-8");
     } catch (writeErr) {
       try {
-        (0, import_fs6.closeSync)(fd);
+        (0, import_fs7.closeSync)(fd);
       } catch {
       }
       try {
-        (0, import_fs6.unlinkSync)(lockPath);
+        (0, import_fs7.unlinkSync)(lockPath);
       } catch {
       }
       throw writeErr;
@@ -19051,25 +19052,25 @@ function tryAcquireSync(lockPath, staleLockMs) {
     if (err && typeof err === "object" && "code" in err && err.code === "EEXIST") {
       if (isLockStale(lockPath, staleLockMs)) {
         try {
-          (0, import_fs6.unlinkSync)(lockPath);
+          (0, import_fs7.unlinkSync)(lockPath);
         } catch {
         }
         try {
-          const fd = (0, import_fs6.openSync)(
+          const fd = (0, import_fs7.openSync)(
             lockPath,
-            import_fs6.constants.O_CREAT | import_fs6.constants.O_EXCL | import_fs6.constants.O_WRONLY,
+            import_fs7.constants.O_CREAT | import_fs7.constants.O_EXCL | import_fs7.constants.O_WRONLY,
             384
           );
           try {
             const payload = JSON.stringify({ pid: process.pid, timestamp: Date.now() });
-            (0, import_fs6.writeSync)(fd, payload, null, "utf-8");
+            (0, import_fs7.writeSync)(fd, payload, null, "utf-8");
           } catch (writeErr) {
             try {
-              (0, import_fs6.closeSync)(fd);
+              (0, import_fs7.closeSync)(fd);
             } catch {
             }
             try {
-              (0, import_fs6.unlinkSync)(lockPath);
+              (0, import_fs7.unlinkSync)(lockPath);
             } catch {
             }
             throw writeErr;
@@ -19109,11 +19110,11 @@ function acquireFileLockSync(lockPath, opts) {
 }
 function releaseFileLockSync(handle) {
   try {
-    (0, import_fs6.closeSync)(handle.fd);
+    (0, import_fs7.closeSync)(handle.fd);
   } catch {
   }
   try {
-    (0, import_fs6.unlinkSync)(handle.path);
+    (0, import_fs7.unlinkSync)(handle.path);
   } catch {
   }
 }
@@ -19417,10 +19418,10 @@ function cleanupTeamWorktrees(teamName, repoRoot) {
 // src/mcp/team-job-convergence.ts
 function readResultArtifact(omcJobsDir, jobId) {
   const artifactPath = (0, import_path8.join)(omcJobsDir, `${jobId}-result.json`);
-  if (!(0, import_fs7.existsSync)(artifactPath)) return { kind: "none" };
+  if (!(0, import_fs8.existsSync)(artifactPath)) return { kind: "none" };
   let raw;
   try {
-    raw = (0, import_fs7.readFileSync)(artifactPath, "utf-8");
+    raw = (0, import_fs8.readFileSync)(artifactPath, "utf-8");
   } catch {
     return { kind: "none" };
   }
@@ -19507,10 +19508,10 @@ function clearScopedTeamState(job) {
     };
   }
   try {
-    if (!(0, import_fs7.existsSync)(stateDir)) {
+    if (!(0, import_fs8.existsSync)(stateDir)) {
       return { ok: true, message: `${worktreeMessage} team state dir not found at ${stateDir}.` };
     }
-    (0, import_fs7.rmSync)(stateDir, { recursive: true, force: true });
+    (0, import_fs8.rmSync)(stateDir, { recursive: true, force: true });
     return { ok: true, message: `${worktreeMessage} team state dir removed at ${stateDir}.` };
   } catch (error2) {
     const message = error2 instanceof Error ? error2.message : String(error2);
@@ -19524,7 +19525,7 @@ function clearScopedTeamState(job) {
 
 // src/utils/paths.ts
 var import_path9 = require("path");
-var import_fs8 = require("fs");
+var import_fs9 = require("fs");
 var import_os3 = require("os");
 function getStateDir() {
   if (process.platform === "win32") {
@@ -19655,14 +19656,14 @@ function createDeprecatedCliOnlyEnvelopeWithArgs(toolName, args) {
 }
 function persistJob(jobId, job) {
   try {
-    if (!(0, import_fs9.existsSync)(OMC_JOBS_DIR)) (0, import_fs9.mkdirSync)(OMC_JOBS_DIR, { recursive: true });
-    (0, import_fs9.writeFileSync)((0, import_path10.join)(OMC_JOBS_DIR, `${jobId}.json`), JSON.stringify(job), "utf-8");
+    if (!(0, import_fs10.existsSync)(OMC_JOBS_DIR)) (0, import_fs10.mkdirSync)(OMC_JOBS_DIR, { recursive: true });
+    (0, import_fs10.writeFileSync)((0, import_path10.join)(OMC_JOBS_DIR, `${jobId}.json`), JSON.stringify(job), "utf-8");
   } catch {
   }
 }
 function loadJobFromDisk(jobId) {
   try {
-    return JSON.parse((0, import_fs9.readFileSync)((0, import_path10.join)(OMC_JOBS_DIR, `${jobId}.json`), "utf-8"));
+    return JSON.parse((0, import_fs10.readFileSync)((0, import_path10.join)(OMC_JOBS_DIR, `${jobId}.json`), "utf-8"));
   } catch {
     return void 0;
   }

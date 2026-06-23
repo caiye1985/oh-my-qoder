@@ -1,8 +1,8 @@
 /**
- * Regression test: skill markdown files must use CLAUDE_CONFIG_DIR
+ * Regression test: skill markdown files must use QODER_CONFIG_DIR
  *
  * Ensures that bash code blocks in skill files never hardcode $HOME/.claude
- * without a ${CLAUDE_CONFIG_DIR:-...} fallback. This prevents skills from
+ * without a ${QODER_CONFIG_DIR:-...} fallback. This prevents skills from
  * ignoring the user's custom config directory.
  */
 import { describe, it, expect } from 'vitest';
@@ -38,7 +38,7 @@ function extractBashBlocks(filePath) {
 }
 /**
  * Find lines in bash blocks that use $HOME/.claude without the
- * ${CLAUDE_CONFIG_DIR:-$HOME/.claude} pattern.
+ * ${QODER_CONFIG_DIR:-$HOME/.claude} pattern.
  */
 function findHardcodedHomeClaude(filePath) {
     const blocks = extractBashBlocks(filePath);
@@ -47,8 +47,8 @@ function findHardcodedHomeClaude(filePath) {
         const lines = block.content.split('\n');
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            // Match $HOME/.claude that is NOT inside ${CLAUDE_CONFIG_DIR:-$HOME/.claude}
-            if (/\$HOME\/\.claude/.test(line) && !/\$\{CLAUDE_CONFIG_DIR:-\$HOME\/\.claude\}/.test(line)) {
+            // Match $HOME/.claude that is NOT inside ${QODER_CONFIG_DIR:-$HOME/.claude}
+            if (/\$HOME\/\.qoder/.test(line) && !/\$\{QODER_CONFIG_DIR:-\$HOME\/\.claude\}/.test(line)) {
                 violations.push({
                     line: block.startLine + i,
                     text: line.trim(),
@@ -73,8 +73,8 @@ function findMarkdownFiles(dir) {
     return results;
 }
 /**
- * Find lines in full skill content (not just bash blocks) that use ~/.claude
- * without portable notation like [$CLAUDE_CONFIG_DIR|~/.claude].
+ * Find lines in full skill content (not just bash blocks) that use ~/.qoder
+ * without portable notation like [$QODER_CONFIG_DIR|~/.qoder].
  * Issue #2155 §16 — LLMs read prose and use literal paths in tool calls.
  */
 function findHardcodedTildeClaude(filePath) {
@@ -83,14 +83,14 @@ function findHardcodedTildeClaude(filePath) {
     const violations = [];
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        // Match ~/.claude (tilde form) used in prose/tool directives
-        if (!/~\/\.claude/.test(line))
+        // Match ~/.qoder (tilde form) used in prose/tool directives
+        if (!/~\/\.qoder/.test(line))
             continue;
-        // Allow: portable notation [$CLAUDE_CONFIG_DIR|~/.claude]
-        if (/\[\$CLAUDE_CONFIG_DIR\|~\/\.claude\]/.test(line))
+        // Allow: portable notation [$QODER_CONFIG_DIR|~/.qoder]
+        if (/\[\$QODER_CONFIG_DIR\|~\/\.claude\]/.test(line))
             continue;
-        // Allow: env-var fallback ${CLAUDE_CONFIG_DIR:-...}
-        if (/\$\{CLAUDE_CONFIG_DIR:-/.test(line))
+        // Allow: env-var fallback ${QODER_CONFIG_DIR:-...}
+        if (/\$\{QODER_CONFIG_DIR:-/.test(line))
             continue;
         // Allow: lines inside bash code blocks (covered by the other test)
         // Allow: comment lines and frontmatter
@@ -99,10 +99,10 @@ function findHardcodedTildeClaude(filePath) {
             continue; // frontmatter/comments
         if (trimmed.startsWith('<!--') && trimmed.endsWith('-->'))
             continue;
-        // Allow: lines that mention CLAUDE_CONFIG_DIR (explaining the config dir system)
-        if (/CLAUDE_CONFIG_DIR/i.test(line))
+        // Allow: lines that mention QODER_CONFIG_DIR (explaining the config dir system)
+        if (/QODER_CONFIG_DIR/i.test(line))
             continue;
-        // Allow: glob patterns like ~/.claude/** (permission patterns, not path resolution)
+        // Allow: glob patterns like ~/.qoder/** (permission patterns, not path resolution)
         if (/~\/\.claude\/\*/.test(line))
             continue;
         violations.push({ line: i + 1, text: trimmed });
@@ -110,23 +110,23 @@ function findHardcodedTildeClaude(filePath) {
     return violations;
 }
 const ALL_FILES = findMarkdownFiles(SKILLS_ROOT);
-describe('skill markdown bash blocks must respect CLAUDE_CONFIG_DIR', () => {
+describe('skill markdown bash blocks must respect QODER_CONFIG_DIR', () => {
     it.each(ALL_FILES.map((f) => [f.replace(/.*skills\//, 'skills/'), f]))('%s has no hardcoded $HOME/.claude in bash blocks', (_label, filePath) => {
         const violations = findHardcodedHomeClaude(filePath);
         if (violations.length > 0) {
             const details = violations
                 .map((v) => `  line ${v.line}: ${v.text}`)
                 .join('\n');
-            expect.fail(`Found $HOME/.claude without CLAUDE_CONFIG_DIR fallback:\n${details}\n` +
-                `Replace with: \${CLAUDE_CONFIG_DIR:-$HOME/.claude}`);
+            expect.fail(`Found $HOME/.claude without QODER_CONFIG_DIR fallback:\n${details}\n` +
+                `Replace with: \${QODER_CONFIG_DIR:-$HOME/.claude}`);
         }
     });
 });
-describe('skill markdown prose must not use raw ~/.claude (Contract 6, issue #2155 §16)', () => {
+describe('skill markdown prose must not use raw ~/.qoder (Contract 6, issue #2155 §16)', () => {
     // Known existing violations per skill directory (baseline snapshot).
     // These are real issues documented in #2155 §16 but predate this regression test.
     // This test prevents NEW violations from being introduced.
-    // To reduce the baseline: fix the skill prose to use [$CLAUDE_CONFIG_DIR|~/.claude] notation,
+    // To reduce the baseline: fix the skill prose to use [$QODER_CONFIG_DIR|~/.qoder] notation,
     // then lower the count here.
     const KNOWN_VIOLATION_BASELINE = {
         'skills/cancel/SKILL.md': 4,
@@ -140,15 +140,15 @@ describe('skill markdown prose must not use raw ~/.claude (Contract 6, issue #21
         'skills/skill/SKILL.md': 8,
         'skills/team/SKILL.md': 6,
     };
-    it.each(ALL_FILES.map((f) => [f.replace(/.*skills\//, 'skills/'), f]))('%s has no new unguarded ~/.claude in prose', (label, filePath) => {
+    it.each(ALL_FILES.map((f) => [f.replace(/.*skills\//, 'skills/'), f]))('%s has no new unguarded ~/.qoder in prose', (label, filePath) => {
         const violations = findHardcodedTildeClaude(filePath);
         const baseline = KNOWN_VIOLATION_BASELINE[label] ?? 0;
         if (violations.length > baseline) {
             const details = violations
                 .map((v) => `  line ${v.line}: ${v.text}`)
                 .join('\n');
-            expect.fail(`Found ${violations.length} ~/.claude violations (baseline: ${baseline}, new: ${violations.length - baseline}):\n${details}\n` +
-                `Replace with: [$CLAUDE_CONFIG_DIR|~/.claude] or use \${CLAUDE_CONFIG_DIR:-$HOME/.claude} in code`);
+            expect.fail(`Found ${violations.length} ~/.qoder violations (baseline: ${baseline}, new: ${violations.length - baseline}):\n${details}\n` +
+                `Replace with: [$QODER_CONFIG_DIR|~/.qoder] or use \${QODER_CONFIG_DIR:-$HOME/.claude} in code`);
         }
     });
     it('total baseline should not increase (tracks overall progress)', () => {

@@ -1,5 +1,5 @@
 /**
- * Agent Definitions for Oh-My-ClaudeCode
+ * Agent Definitions for Oh-My-Qoder
  *
  * This module provides:
  * 1. Re-exports of base agents from individual files
@@ -70,7 +70,7 @@ export declare const tddGuideAgentAlias: AgentConfig;
  * Workflow: explore → analyst → planner → critic → executor → architect (verify)
  */
 /**
- * Get all agent definitions as a record for use with Claude Agent SDK
+ * Get all agent definitions as a record for use with Qoder Agent SDK
  */
 export declare function getAgentDefinitions(options?: {
     overrides?: Partial<Record<string, Partial<AgentConfig>>>;

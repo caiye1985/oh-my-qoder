@@ -750,7 +750,7 @@ function runSessionEndCleanupWorkerAndExit(payload) {
  */
 export async function processSessionEnd(input) {
     // Normalize cwd to the git worktree root so .omc/state/ is always resolved
-    // from the repo root, even when Claude Code is running from a subdirectory (issue #891).
+    // from the repo root, even when Qoder is running from a subdirectory (issue #891).
     const directory = resolveToWorktreeRoot(input.cwd);
     // Record and export session metrics to disk
     const metrics = recordSessionMetrics(directory, input);

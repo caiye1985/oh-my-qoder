@@ -37,7 +37,7 @@ const modelContractMocks = vi.hoisted(() => ({
     getWorkerEnv: vi.fn(() => ({ OMC_TEAM_WORKER: 'dispatch-team/worker-1' })),
     isPromptModeAgent: vi.fn(() => false),
     getPromptModeArgs: vi.fn((_agentType, instruction) => [instruction]),
-    resolveClaudeWorkerModel: vi.fn(() => undefined),
+    resolveQoderWorkerModel: vi.fn(() => undefined),
 }));
 vi.mock('child_process', async (importOriginal) => {
     const actual = await importOriginal();
@@ -60,7 +60,7 @@ vi.mock('../model-contract.js', () => ({
     getWorkerEnv: modelContractMocks.getWorkerEnv,
     isPromptModeAgent: modelContractMocks.isPromptModeAgent,
     getPromptModeArgs: modelContractMocks.getPromptModeArgs,
-    resolveClaudeWorkerModel: modelContractMocks.resolveClaudeWorkerModel,
+    resolveQoderWorkerModel: modelContractMocks.resolveQoderWorkerModel,
     assertHeadlessSupported: () => { },
     isHeadlessSupportedOnPlatform: () => true,
 }));
@@ -113,7 +113,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         modelContractMocks.getWorkerEnv.mockReset();
         modelContractMocks.isPromptModeAgent.mockReset();
         modelContractMocks.getPromptModeArgs.mockReset();
-        modelContractMocks.resolveClaudeWorkerModel.mockReset();
+        modelContractMocks.resolveQoderWorkerModel.mockReset();
         mergeMocks.startMergeOrchestrator.mockReset();
         mergeMocks.recoverFromRestart.mockReset();
         mergeMocks.registerWorker.mockReset();
@@ -133,8 +133,8 @@ describe('runtime v2 startup inbox dispatch', () => {
         mocks.sendToWorker.mockResolvedValue(true);
         mocks.applyMainVerticalLayout.mockResolvedValue(undefined);
         mocks.spawnSync.mockReturnValue({ status: 0 });
-        modelContractMocks.buildWorkerArgv.mockImplementation((agentType) => [`/usr/bin/${agentType ?? 'claude'}`]);
-        modelContractMocks.resolveValidatedBinaryPath.mockImplementation((agentType) => `/usr/bin/${agentType ?? 'claude'}`);
+        modelContractMocks.buildWorkerArgv.mockImplementation((agentType) => [`/usr/bin/${agentType ?? 'qoder'}`]);
+        modelContractMocks.resolveValidatedBinaryPath.mockImplementation((agentType) => `/usr/bin/${agentType ?? 'qoder'}`);
         modelContractMocks.getWorkerEnv.mockImplementation((...args) => {
             const teamName = typeof args[0] === 'string' ? args[0] : 'dispatch-team';
             const workerName = typeof args[1] === 'string' ? args[1] : 'worker-1';
@@ -142,7 +142,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         });
         modelContractMocks.isPromptModeAgent.mockReturnValue(false);
         modelContractMocks.getPromptModeArgs.mockImplementation((_agentType, instruction) => [instruction]);
-        modelContractMocks.resolveClaudeWorkerModel.mockReturnValue(undefined);
+        modelContractMocks.resolveQoderWorkerModel.mockReturnValue(undefined);
         mergeMocks.recoverFromRestart.mockResolvedValue(undefined);
         mergeMocks.registerWorker.mockResolvedValue(undefined);
         mergeMocks.unregisterWorker.mockResolvedValue(undefined);
@@ -186,7 +186,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify startup dispatch evidence' }],
             cwd,
         });
@@ -222,7 +222,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{
                     subject: 'Investigate flaky runtime behavior',
                     description: 'Investigate flaky runtime behavior across the team runtime',
@@ -258,7 +258,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             pluginConfig: { team: { ops: { worktreeMode: 'named' } } },
             tasks: [{ subject: 'Worktree contract', description: 'Verify runtime-v2 worktree metadata' }],
             cwd,
@@ -306,7 +306,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         await expect(startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Auto merge fail', description: 'Registration failure must abort startup' }],
             cwd,
             autoMerge: true,
@@ -316,7 +316,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         expect(cadenceMocks.installCommitCadence).toHaveBeenCalledWith(expect.objectContaining({
             teamName: 'dispatch-team',
             workerName: 'worker-1',
-            agentType: 'claude',
+            agentType: 'qoder',
             enabled: true,
         }));
         expect(cadenceMocks.uninstallCommitCadence).toHaveBeenCalledWith(expect.objectContaining({
@@ -407,7 +407,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         await expect(startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             pluginConfig: { team: { ops: { worktreeMode: 'named' } } },
             tasks: [{ subject: 'Worktree rollback', description: 'Fail after tmux session starts' }],
             cwd,
@@ -434,7 +434,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         await expect(startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             pluginConfig: { team: { ops: { worktreeMode: 'named' } } },
             tasks: [{ subject: 'Worktree rollback', description: 'Fail before config persists' }],
             cwd,
@@ -452,7 +452,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 2,
-            agentTypes: ['claude', 'claude'],
+            agentTypes: ['qoder', 'qoder'],
             tasks: [
                 { subject: 'Owner-routed task', description: 'Should start on worker-2', owner: 'worker-2' },
                 { subject: 'Fallback task', description: 'Should start on worker-1' },
@@ -525,7 +525,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Review component naming', description: 'code review pass for PR' }],
             cwd,
         });
@@ -538,7 +538,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify new-window startup wiring' }],
             cwd,
             newWindow: true,
@@ -570,7 +570,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify worker pane is preserved for leader cleanup' }],
             cwd,
         });
@@ -585,7 +585,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify notify failure leaves pane for leader action' }],
             cwd,
         });
@@ -604,7 +604,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify Claude startup evidence gate' }],
             cwd,
         });
@@ -636,7 +636,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify Claude mailbox ack evidence' }],
             cwd,
         });
@@ -660,7 +660,7 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify Claude claim evidence' }],
             cwd,
         });
@@ -683,14 +683,14 @@ describe('runtime v2 startup inbox dispatch', () => {
         const runtime = await startTeamV2({
             teamName: 'dispatch-team',
             workerCount: 1,
-            agentTypes: ['claude'],
+            agentTypes: ['qoder'],
             tasks: [{ subject: 'Dispatch test', description: 'Verify Claude status evidence' }],
             cwd,
         });
         expect(runtime.config.workers[0]?.assigned_tasks).toEqual(['1']);
         expect(mocks.sendToWorker).toHaveBeenCalledTimes(1);
     });
-    it('direct grok launch resolves model from grok env vars and never calls resolveClaudeWorkerModel', async () => {
+    it('direct grok launch resolves model from grok env vars and never calls resolveQoderWorkerModel', async () => {
         cwd = await mkdtemp(join(tmpdir(), 'omc-runtime-v2-grok-direct-'));
         const originalGrokModel = process.env.OMC_GROK_DEFAULT_MODEL;
         const originalGrokExternal = process.env.OMC_EXTERNAL_MODELS_DEFAULT_GROK_MODEL;
@@ -708,7 +708,7 @@ describe('runtime v2 startup inbox dispatch', () => {
             // DIRECT grok launch: no grok env set → model is undefined (NOT a Claude id).
             expect(modelContractMocks.buildWorkerArgv).toHaveBeenCalledWith('grok', expect.objectContaining({ model: undefined }));
             // crucially, a grok worker must never fall through to the Claude/Bedrock resolver.
-            expect(modelContractMocks.resolveClaudeWorkerModel).not.toHaveBeenCalled();
+            expect(modelContractMocks.resolveQoderWorkerModel).not.toHaveBeenCalled();
         }
         finally {
             if (originalGrokModel === undefined)
@@ -737,7 +737,7 @@ describe('runtime v2 startup inbox dispatch', () => {
                 cwd,
             });
             expect(modelContractMocks.buildWorkerArgv).toHaveBeenCalledWith('grok', expect.objectContaining({ model: 'grok-4-fast' }));
-            expect(modelContractMocks.resolveClaudeWorkerModel).not.toHaveBeenCalled();
+            expect(modelContractMocks.resolveQoderWorkerModel).not.toHaveBeenCalled();
         }
         finally {
             if (originalGrokModel === undefined)

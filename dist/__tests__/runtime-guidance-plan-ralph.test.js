@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 const availability = vi.hoisted(() => ({
-    claude: true,
+    qoder: true,
     codex: false,
     gemini: false,
     cursor: false,
@@ -13,7 +13,7 @@ vi.mock('../team/model-contract.js', () => ({
 import { detectSkillRuntimeAvailability, renderSkillRuntimeGuidance, } from '../features/builtin-skills/runtime-guidance.js';
 describe('runtime-guidance: ralplan/plan/ralph Codex availability', () => {
     beforeEach(() => {
-        availability.claude = true;
+        availability.qoder = true;
         availability.codex = false;
         availability.gemini = false;
         availability.cursor = false;
@@ -63,10 +63,10 @@ describe('runtime-guidance: ralplan/plan/ralph Codex availability', () => {
                 if (agentType === 'codex') {
                     throw new Error('External LLM provider "codex" is blocked by security policy (disableExternalLLM).');
                 }
-                return agentType === 'claude';
+                return agentType === 'qoder';
             };
             const result = detectSkillRuntimeAvailability(throwingDetector);
-            expect(result.claude).toBe(true);
+            expect(result.qoder).toBe(true);
             expect(result.codex).toBe(false);
             expect(result.gemini).toBe(false);
         });
@@ -75,14 +75,14 @@ describe('runtime-guidance: ralplan/plan/ralph Codex availability', () => {
                 throw new Error('everything is broken');
             };
             const result = detectSkillRuntimeAvailability(alwaysThrows);
-            expect(result.claude).toBe(false);
+            expect(result.qoder).toBe(false);
             expect(result.codex).toBe(false);
             expect(result.gemini).toBe(false);
         });
         it('returns correct values when detector does not throw', () => {
             availability.codex = true;
             const result = detectSkillRuntimeAvailability();
-            expect(result.claude).toBe(true);
+            expect(result.qoder).toBe(true);
             expect(result.codex).toBe(true);
             expect(result.gemini).toBe(false);
         });

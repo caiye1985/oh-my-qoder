@@ -8,10 +8,10 @@ const NODE = process.execPath;
 /**
  * Integration tests for the plugin cache cleanup logic in session-start.mjs.
  *
- * The script's cleanup block scans ~/.claude/plugins/cache/omc/oh-my-claudecode/
+ * The script's cleanup block scans ~/.qoder/plugins/cache/omc/oh-my-qoder/
  * for version directories, keeps the latest 2 real directories, and replaces
  * older versions with symlinks pointing to the latest version. This prevents
- * "Cannot find module" errors when a running session's CLAUDE_PLUGIN_ROOT
+ * "Cannot find module" errors when a running session's QODER_PLUGIN_ROOT
  * still points to an old (now-removed) version directory.
  */
 describe('session-start.mjs — plugin cache cleanup uses symlinks', () => {
@@ -22,7 +22,7 @@ describe('session-start.mjs — plugin cache cleanup uses symlinks', () => {
     beforeEach(() => {
         tmpDir = mkdtempSync(join(tmpdir(), 'omc-cache-test-'));
         fakeHome = join(tmpDir, 'home');
-        fakeCacheBase = join(fakeHome, '.claude', 'plugins', 'cache', 'omc', 'oh-my-claudecode');
+        fakeCacheBase = join(fakeHome, '.claude', 'plugins', 'cache', 'omc', 'oh-my-qoder');
         fakeProject = join(tmpDir, 'project');
         // Create fake project directory with .omc
         mkdirSync(join(fakeProject, '.omc', 'state'), { recursive: true });
@@ -58,8 +58,8 @@ describe('session-start.mjs — plugin cache cleanup uses symlinks', () => {
                     ...process.env,
                     HOME: fakeHome,
                     USERPROFILE: fakeHome, // Windows compat
-                    CLAUDE_CONFIG_DIR: join(fakeHome, '.claude'), // Override to use fake home
-                    CLAUDE_PLUGIN_ROOT: join(fakeCacheBase, '4.4.3'),
+                    QODER_CONFIG_DIR: join(fakeHome, '.claude'), // Override to use fake home
+                    QODER_PLUGIN_ROOT: join(fakeCacheBase, '4.4.3'),
                     ...env,
                 },
                 timeout: 15000,
@@ -90,7 +90,7 @@ describe('session-start.mjs — plugin cache cleanup uses symlinks', () => {
             currentVersion: '4.14.4',
             updateAvailable: true,
         }));
-        const output = runSessionStart({ CLAUDE_PLUGIN_ROOT: externalRoot });
+        const output = runSessionStart({ QODER_PLUGIN_ROOT: externalRoot });
         const parsed = JSON.parse(output);
         expect(parsed.systemMessage).toContain('[OMC UPDATE AVAILABLE]');
         expect(parsed.systemMessage).toContain('current: v4.14.4');
@@ -106,7 +106,7 @@ describe('session-start.mjs — plugin cache cleanup uses symlinks', () => {
             currentVersion: '4.14.4',
             updateAvailable: true,
         }));
-        const output = runSessionStart({ CLAUDE_PLUGIN_ROOT: join(fakeCacheBase, '4.14.4') });
+        const output = runSessionStart({ QODER_PLUGIN_ROOT: join(fakeCacheBase, '4.14.4') });
         const parsed = JSON.parse(output);
         expect(parsed.systemMessage).toBeUndefined();
     });

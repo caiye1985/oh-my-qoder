@@ -13,8 +13,7 @@
   },
   "bin": {
     "oh-my-qoder": "bin/oh-my-qoder.js",
-    "omq": "bin/oh-my-qoder.js",
-    "omc-cli": "bridge/cli.cjs"
+    "omq": "bin/oh-my-qoder.js"
   },
   "files": [
     "dist",
@@ -102,13 +101,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yeachan-Heo/oh-my-qoder.git"
+    "url": "git+https://github.com/caiye1985/oh-my-qoder.git"
   },
-  "homepage": "https://github.com/Yeachan-Heo/oh-my-qoder#readme",
+  "homepage": "https://github.com/caiye1985/oh-my-qoder#readme",
   "bugs": {
-    "url": "https://github.com/Yeachan-Heo/oh-my-qoder/issues"
+    "url": "https://github.com/caiye1985/oh-my-qoder/issues"
   },
-  "author": "Yeachan Heo",
+  "author": "caiye1985",
   "license": "MIT",
   "keywords": [
     "ai",

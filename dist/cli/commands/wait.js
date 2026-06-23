@@ -3,7 +3,7 @@
  *
  * CLI commands for rate limit wait and auto-resume functionality.
  *
- * Design Philosophy (aligned with oh-my-claudecode values):
+ * Design Philosophy (aligned with oh-my-qoder values):
  * - Zero learning curve: `omc wait` just works
  * - Smart defaults: Auto-detects tmux and daemon status
  * - Minimal commands: Most users only need `omc wait`
@@ -13,7 +13,7 @@
  *   omc wait status        - Show current rate limit and daemon status
  *   omc wait daemon start  - Start the background daemon
  *   omc wait daemon stop   - Stop the daemon
- *   omc wait detect        - Scan for blocked Claude Code sessions
+ *   omc wait detect        - Scan for blocked Qoder sessions
  */
 import chalk from 'chalk';
 import { checkRateLimitStatus, formatRateLimitStatus, isRateLimitStatusDegraded, isTmuxAvailable, isInsideTmux, getDaemonStatus, startDaemon, stopDaemon, detectBlockedPanes, runDaemonForeground, isDaemonRunning, } from '../../features/rate-limit-wait/index.js';
@@ -180,7 +180,7 @@ export async function waitDaemonCommand(action, options) {
                 console.log(chalk.green(`✓ ${result.message}`));
                 console.log(chalk.gray('\nThe daemon will:'));
                 console.log(chalk.gray('  • Poll rate limit status every minute'));
-                console.log(chalk.gray('  • Track blocked Claude Code sessions in tmux'));
+                console.log(chalk.gray('  • Track blocked Qoder sessions in tmux'));
                 console.log(chalk.gray('  • Auto-resume sessions when rate limit clears'));
                 console.log(chalk.gray('\nUse "omc wait status" to check daemon status'));
                 console.log(chalk.gray('Use "omc wait daemon stop" to stop the daemon'));
@@ -209,7 +209,7 @@ export async function waitDaemonCommand(action, options) {
     }
 }
 /**
- * Detect blocked Claude Code sessions
+ * Detect blocked Qoder sessions
  */
 export async function waitDetectCommand(options) {
     if (!isTmuxAvailable()) {
@@ -217,7 +217,7 @@ export async function waitDetectCommand(options) {
         console.log(chalk.gray('Install tmux to use session detection and auto-resume'));
         process.exit(1);
     }
-    console.log(chalk.blue('Scanning for blocked Claude Code sessions...\n'));
+    console.log(chalk.blue('Scanning for blocked Qoder sessions...\n'));
     const config = {
         paneLinesToCapture: options.lines,
     };

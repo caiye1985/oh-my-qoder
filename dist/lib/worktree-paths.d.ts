@@ -190,7 +190,7 @@ export declare function clearWorktreeCache(): void;
  * Format: `pid-{PID}-{startTimestamp}`
  * Example: `pid-12345-1707350400000`
  *
- * This prevents concurrent Claude Code instances in the same repo from
+ * This prevents concurrent Qoder instances in the same repo from
  * sharing state files (Issue #456). The ID is stable for the process
  * lifetime and unique across concurrent processes.
  *
@@ -334,23 +334,23 @@ export declare function ensureSessionStateDir(sessionId: string, worktreeRoot?: 
  */
 export declare function resolveToWorktreeRoot(directory?: string): string;
 /**
- * Resolve a Claude Code transcript path that may be mismatched in worktree sessions.
+ * Resolve a Qoder transcript path that may be mismatched in worktree sessions.
  *
- * When Claude Code runs inside a worktree (.claude/worktrees/X), it encodes the
+ * When Qoder runs inside a worktree (.qoder/worktrees/X), it encodes the
  * worktree CWD into the project directory path, creating a transcript_path like:
- *   ~/.claude/projects/-path-to-project--claude-worktrees-X/<session>.jsonl
+ *   ~/.qoder/projects/-path-to-project--claude-worktrees-X/<session>.jsonl
  *
  * But the actual transcript lives at the original project's path:
- *   ~/.claude/projects/-path-to-project/<session>.jsonl
+ *   ~/.qoder/projects/-path-to-project/<session>.jsonl
  *
- * Claude Code encodes `/` and `.` as `-`. The `.claude/worktrees/`
+ * Qoder encodes `/` and `.` as `-`. The `.qoder/worktrees/`
  * segment becomes `-claude-worktrees-`, preceded by a `-` from the path
  * separator, yielding the distinctive `--claude-worktrees-` pattern in the
  * encoded directory name.
  *
  * This function detects the mismatch and resolves to the correct path.
  *
- * @param transcriptPath - The transcript_path from Claude Code hook input
+ * @param transcriptPath - The transcript_path from Qoder hook input
  * @param cwd - Optional CWD for fallback detection
  * @returns The resolved transcript path (original if already correct or no resolution found)
  */

@@ -13,11 +13,11 @@ describe('WorkerInfo.worker_cli round-trip', () => {
             name: 'worker-1',
             index: 1,
             role: 'executor',
-            worker_cli: 'claude',
+            worker_cli: 'qoder',
             assigned_tasks: ['1', '2'],
         };
         const out = roundtrip(w);
-        expect(out.worker_cli).toBe('claude');
+        expect(out.worker_cli).toBe('qoder');
         expect(out.assigned_tasks).toEqual(['1', '2']);
     });
     it('preserves worker_cli=codex through JSON serialization', () => {

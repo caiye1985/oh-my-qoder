@@ -29,7 +29,7 @@ export declare function isThinkModeActive(sessionId: string): boolean;
  */
 export declare function processThinkMode(sessionId: string, promptText: string): ThinkModeState;
 /**
- * Create the think mode hook for Claude Code integration.
+ * Create the think mode hook for Qoder integration.
  */
 export declare function createThinkModeHook(): {
     /**

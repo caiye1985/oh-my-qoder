@@ -87,12 +87,12 @@ describe('ultragoal artifacts — multi-repo workspace anchor', () => {
             const started = await startNextUltragoal(subDir);
             expect(started.goal?.id).toBe('G001-ship-it');
             expect(started.goal?.status).toBe('in_progress');
-            const objective = started.plan.claudeObjective;
+            const objective = started.plan.qoderObjective;
             await checkpointUltragoal(subDir, {
                 goalId: started.goal.id,
                 status: 'complete',
                 evidence: 'planned work done; tests passed clean; review APPROVED CLEAR',
-                claudeGoal: { goal: { objective, status: 'complete' } },
+                qoderGoal: { goal: { objective, status: 'complete' } },
                 qualityGate: cleanQualityGate(),
             });
             const plan = await readUltragoalPlan(subDir);

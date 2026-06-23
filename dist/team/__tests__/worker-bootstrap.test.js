@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, it, expect } from 'vitest';
 import { generateMailboxTriggerMessage, generatePromptModeStartupPrompt, generateTriggerMessage, generateWorkerOverlay, getWorkerEnv, } from '../worker-bootstrap.js';
 describe('worker-bootstrap', () => {
-    const originalPluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+    const originalPluginRoot = process.env.QODER_PLUGIN_ROOT;
     const originalPath = process.env.PATH;
     const baseParams = {
         teamName: 'test-team',
@@ -14,10 +14,10 @@ describe('worker-bootstrap', () => {
     };
     beforeEach(() => {
         if (originalPluginRoot === undefined) {
-            delete process.env.CLAUDE_PLUGIN_ROOT;
+            delete process.env.QODER_PLUGIN_ROOT;
         }
         else {
-            process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+            process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
         }
         if (originalPath === undefined) {
             delete process.env.PATH;
@@ -28,10 +28,10 @@ describe('worker-bootstrap', () => {
     });
     afterEach(() => {
         if (originalPluginRoot === undefined) {
-            delete process.env.CLAUDE_PLUGIN_ROOT;
+            delete process.env.QODER_PLUGIN_ROOT;
         }
         else {
-            process.env.CLAUDE_PLUGIN_ROOT = originalPluginRoot;
+            process.env.QODER_PLUGIN_ROOT = originalPluginRoot;
         }
         if (originalPath === undefined) {
             delete process.env.PATH;
@@ -154,12 +154,12 @@ describe('worker-bootstrap', () => {
             expect(overlay).not.toContain('Read your task file at');
         });
         it('renders plugin-safe CLI lifecycle examples when omc is unavailable in plugin installs', () => {
-            process.env.CLAUDE_PLUGIN_ROOT = '/plugin-root';
+            process.env.QODER_PLUGIN_ROOT = '/plugin-root';
             process.env.PATH = '';
             const overlay = generateWorkerOverlay(baseParams);
-            expect(overlay).toContain('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs team api read-task');
-            expect(overlay).toContain('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs team api claim-task');
-            expect(overlay).toContain('node "$CLAUDE_PLUGIN_ROOT"/bridge/cli.cjs team api transition-task-status');
+            expect(overlay).toContain('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs team api read-task');
+            expect(overlay).toContain('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs team api claim-task');
+            expect(overlay).toContain('node "$QODER_PLUGIN_ROOT"/bridge/cli.cjs team api transition-task-status');
         });
     });
     describe('getWorkerEnv', () => {

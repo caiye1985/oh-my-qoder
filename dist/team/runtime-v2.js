@@ -28,7 +28,7 @@ import { appendTeamEvent, emitMonitorDerivedEvents } from './events.js';
 import { DEFAULT_TEAM_GOVERNANCE, DEFAULT_TEAM_TRANSPORT_POLICY, getConfigGovernance, } from './governance.js';
 import { inferPhase } from './phase-controller.js';
 import { validateTeamName } from './team-name.js';
-import { buildWorkerArgv, getContract, resolveValidatedBinaryPath, getWorkerEnv as getModelWorkerEnv, isPromptModeAgent, getPromptModeArgs, resolveClaudeWorkerModel, assertHeadlessSupported, isHeadlessSupportedOnPlatform, } from './model-contract.js';
+import { buildWorkerArgv, getContract, resolveValidatedBinaryPath, getWorkerEnv as getModelWorkerEnv, isPromptModeAgent, getPromptModeArgs, resolveQoderWorkerModel, assertHeadlessSupported, isHeadlessSupportedOnPlatform, } from './model-contract.js';
 import { createTeamSession, spawnWorkerInPane, sendToWorker, killTeamSession, waitForPaneReady, paneHasActiveTask, paneLooksReady, applyMainVerticalLayout, getWorkerLiveness, captureTeamPane, sendTeamPaneKey, splitTeamWorkerPane, } from './tmux-session.js';
 import { composeInitialInbox, ensureWorkerStateDir, writeWorkerOverlay, generateTriggerMessage, generatePromptModeStartupPrompt, } from './worker-bootstrap.js';
 import { queueInboxInstruction } from './mcp-comm.js';
@@ -176,7 +176,7 @@ export function resolveTaskAssignment(task, resolvedRouting, roleRoutingConfig, 
     // opt into resolved_routing, whose default executor primary is Claude — silently
     // launching Claude instead of the requested CLI provider. When `team.roleRouting`
     // *is* configured for the role, that deliberate config still wins (below).
-    if (hasExplicitRole && !hasConfigForRole && fallbackAgent !== 'claude') {
+    if (hasExplicitRole && !hasConfigForRole && fallbackAgent !== 'qoder') {
         return { agentType: fallbackAgent, model: '', role: canonical };
     }
     const pair = resolvedRouting[canonical];
@@ -367,7 +367,7 @@ async function spawnV2Worker(opts) {
     }
     const usePromptMode = isPromptModeAgent(opts.agentType);
     // AC-7: render the CLI-worker output contract when a reviewer-style role
-    // is routed to an external provider (codex/gemini/grok). Claude workers speak
+    // is routed to an external provider (codex/gemini/grok). Qoder workers speak
     // through the team messaging API and do not use the verdict-file contract.
     const injectContract = shouldInjectContract(opts.role ?? null, opts.agentType);
     const outputFile = injectContract && opts.role
@@ -424,7 +424,7 @@ async function spawnV2Worker(opts) {
             return undefined;
         }
         // Claude agents: resolve Bedrock/Vertex model when on those providers
-        return resolveClaudeWorkerModel();
+        return resolveQoderWorkerModel();
     })();
     const [launchBinary, ...launchArgs] = buildWorkerArgv(opts.agentType, {
         teamName: opts.teamName,
@@ -510,9 +510,9 @@ async function spawnV2Worker(opts) {
             startupFailureReason: dispatchOutcome.reason,
         };
     }
-    if (opts.agentType === 'claude') {
+    if (opts.agentType === 'qoder') {
         let settled = await waitForWorkerStartupEvidence(opts.teamName, opts.workerName, opts.taskId, opts.cwd, 6);
-        // Claude Code v2.1.x sometimes swallows the Enter key sent immediately
+        // Qoder v2.1.x sometimes swallows the Enter key sent immediately
         // after a fresh pane reports ready — the TUI is still binding input
         // handlers, so the dispatch message lands in the input buffer but is
         // never submitted. By the time the evidence wait above finishes, the
@@ -643,7 +643,7 @@ export async function startTeamV2(config) {
     const agentTypes = declaredAgentTypes.map((t) => {
         if (!isHeadlessSupportedOnPlatform(t)) {
             process.stderr.write(`[team/runtime-v2] ${t} headless mode is unsupported on this platform — using claude fallback for direct workers\n`);
-            return 'claude';
+            return 'qoder';
         }
         return t;
     });
@@ -678,9 +678,9 @@ export async function startTeamV2(config) {
     // AC-8: guarantee at least the Claude fallback CLI is resolvable. If every
     // declared provider is unavailable AND Claude is not resolvable either, the
     // caller gets a loud error rather than a silently-broken team.
-    if (!resolvedBinaryPaths.claude) {
+    if (!resolvedBinaryPaths.qoder) {
         try {
-            resolvedBinaryPaths.claude = resolveValidatedBinaryPath('claude');
+            resolvedBinaryPaths.qoder = resolveValidatedBinaryPath('qoder');
         }
         catch {
             // Keep going — startup will emit warnings below and spawnV2Worker may
@@ -762,7 +762,7 @@ export async function startTeamV2(config) {
         const allocationWorkers = workerNames.map((name, i) => ({
             name,
             role: config.workerRoles?.[i]
-                ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'claude'),
+                ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'qoder'),
             currentLoad: 0,
         }));
         for (const r of allocateTasksToWorkers(allocationTasks, allocationWorkers)) {
@@ -773,7 +773,7 @@ export async function startTeamV2(config) {
     try {
         for (let i = 0; i < workerNames.length; i++) {
             const wName = workerNames[i];
-            const agentType = (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'claude');
+            const agentType = (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'qoder');
             await ensureWorkerStateDir(sanitized, wName, leaderCwd);
             const overlayPath = await writeWorkerOverlay({
                 teamName: sanitized, workerName: wName, agentType,
@@ -817,7 +817,7 @@ export async function startTeamV2(config) {
             name: wName,
             index: i + 1,
             role: config.workerRoles?.[i]
-                ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'claude'),
+                ?? (agentTypes[i % agentTypes.length] ?? agentTypes[0] ?? 'qoder'),
             assigned_tasks: [],
             working_dir: worktree?.path ?? leaderCwd,
             team_state_root: teamStateRoot(leaderCwd, sanitized),
@@ -834,7 +834,7 @@ export async function startTeamV2(config) {
     const teamConfig = {
         name: sanitized,
         task: config.tasks.map(t => t.subject).join('; '),
-        agent_type: agentTypes[0] || 'claude',
+        agent_type: agentTypes[0] || 'qoder',
         worker_launch_mode: 'interactive',
         policy: DEFAULT_TEAM_TRANSPORT_POLICY,
         governance: DEFAULT_TEAM_GOVERNANCE,
@@ -939,7 +939,7 @@ export async function startTeamV2(config) {
             // Route the task through the team's immutable snapshot (Option E).
             // Falls back to the round-robin agentType when the inferred role is
             // outside the canonical vocabulary (preserves pre-patch behavior).
-            const fallbackAgent = (agentTypes[workerIndex % agentTypes.length] ?? agentTypes[0] ?? 'claude');
+            const fallbackAgent = (agentTypes[workerIndex % agentTypes.length] ?? agentTypes[0] ?? 'qoder');
             const assignment = resolveTaskAssignment(task, resolvedRouting, pluginCfg.team?.roleRouting, resolvedBinaryPaths, fallbackAgent);
             const workerLaunch = await spawnV2Worker({
                 sessionName,

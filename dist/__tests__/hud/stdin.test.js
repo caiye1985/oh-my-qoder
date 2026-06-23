@@ -301,7 +301,7 @@ describe('HUD stdin rate limits', () => {
 describe('HUD stdin cache path is session-scoped', () => {
     let tmpRoot;
     let originalCwd;
-    const envKeys = ['CLAUDE_SESSION_ID', 'CLAUDECODE_SESSION_ID'];
+    const envKeys = ['CLAUDE_SESSION_ID', 'QODER_SESSION_ID'];
     const savedEnv = {};
     beforeEach(() => {
         tmpRoot = mkdtempSync(join(tmpdir(), 'omc-hud-stdin-cache-'));
@@ -345,8 +345,8 @@ describe('HUD stdin cache path is session-scoped', () => {
         const sessionScoped = join(tmpRoot, '.omc', 'state', 'sessions');
         expect(existsSync(sessionScoped)).toBe(false);
     });
-    it('accepts CLAUDECODE_SESSION_ID as the session id source', () => {
-        process.env.CLAUDECODE_SESSION_ID = 'test-session-bbb';
+    it('accepts QODER_SESSION_ID as the session id source', () => {
+        process.env.QODER_SESSION_ID = 'test-session-bbb';
         const stdin = makeStdin({ cwd: tmpRoot });
         writeStdinCache(stdin);
         const expected = join(tmpRoot, '.omc', 'state', 'sessions', 'test-session-bbb', 'hud-stdin-cache.json');
@@ -414,23 +414,23 @@ describe('HUD stdin cache path is session-scoped', () => {
         const legacy = join(tmpRoot, '.omc', 'state', 'hud-stdin-cache.json');
         expect(existsSync(legacy)).toBe(true);
     });
-    it('falls through to CLAUDECODE_SESSION_ID when CLAUDE_SESSION_ID is empty', () => {
+    it('falls through to QODER_SESSION_ID when CLAUDE_SESSION_ID is empty', () => {
         // Regression for Codex review P2: `??` alone would accept "" as defined
         // and never consult the secondary variable.
         process.env.CLAUDE_SESSION_ID = '';
-        process.env.CLAUDECODE_SESSION_ID = 'secondary-session';
+        process.env.QODER_SESSION_ID = 'secondary-session';
         const stdin = makeStdin({ cwd: tmpRoot });
         writeStdinCache(stdin);
         const expected = join(tmpRoot, '.omc', 'state', 'sessions', 'secondary-session', 'hud-stdin-cache.json');
         expect(existsSync(expected)).toBe(true);
     });
-    it('falls through to CLAUDECODE_SESSION_ID when CLAUDE_SESSION_ID is present but invalid', () => {
+    it('falls through to QODER_SESSION_ID when CLAUDE_SESSION_ID is present but invalid', () => {
         // Regression for Codex review P2 (v2): a non-empty-but-invalid primary
         // must not silently bypass a valid secondary. The previous implementation
         // resolved the primary first, then fell straight to the legacy path when
         // validation threw, never giving the secondary a chance.
         process.env.CLAUDE_SESSION_ID = '../../../etc/passwd';
-        process.env.CLAUDECODE_SESSION_ID = 'valid-secondary';
+        process.env.QODER_SESSION_ID = 'valid-secondary';
         const stdin = makeStdin({ cwd: tmpRoot });
         writeStdinCache(stdin);
         const expectedSecondary = join(tmpRoot, '.omc', 'state', 'sessions', 'valid-secondary', 'hud-stdin-cache.json');
@@ -445,7 +445,7 @@ describe('HUD stdin cache path is session-scoped', () => {
     });
     it('falls back to the legacy path only when every candidate is invalid', () => {
         process.env.CLAUDE_SESSION_ID = '../traverse';
-        process.env.CLAUDECODE_SESSION_ID = 'foo/bar';
+        process.env.QODER_SESSION_ID = 'foo/bar';
         const stdin = makeStdin({ cwd: tmpRoot });
         writeStdinCache(stdin);
         const legacy = join(tmpRoot, '.omc', 'state', 'hud-stdin-cache.json');
@@ -457,7 +457,7 @@ describe('HUD stdin cache path is session-scoped', () => {
 describe('readStdinCache — env-less reader fallback to most recent session cache', () => {
     let tmpRoot;
     let originalCwd;
-    const envKeys = ['CLAUDE_SESSION_ID', 'CLAUDECODE_SESSION_ID'];
+    const envKeys = ['CLAUDE_SESSION_ID', 'QODER_SESSION_ID'];
     const savedEnv = {};
     beforeEach(() => {
         tmpRoot = mkdtempSync(join(tmpdir(), 'omc-hud-stdin-read-'));
@@ -535,7 +535,7 @@ describe('readStdinCache — env-less reader fallback to most recent session cac
             // Env-less reader must still surface the same payload via the
             // shared helper, not via a hard-coded worktree-local path.
             delete process.env.CLAUDE_SESSION_ID;
-            delete process.env.CLAUDECODE_SESSION_ID;
+            delete process.env.QODER_SESSION_ID;
             const got = readStdinCache();
             expect(got?.transcript_path).toBe('/tmp/central.jsonl');
         }

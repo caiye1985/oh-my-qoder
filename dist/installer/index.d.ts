@@ -2,13 +2,13 @@
  * Installer Module
  *
  * Handles installation of OMC agents, commands, and configuration
- * into the Claude Code config directory (~/.claude/).
+ * into the Qoder config directory (~/.qoder/).
  *
  * Cross-platform support via Node.js-based hook scripts (.mjs).
  * Bash hook scripts were removed in v3.9.0.
  */
-/** Claude Code configuration directory */
-export declare const CLAUDE_CONFIG_DIR: string;
+/** Qoder configuration directory */
+export declare const QODER_CONFIG_DIR: string;
 export declare const AGENTS_DIR: string;
 export declare const COMMANDS_DIR: string;
 export declare const SKILLS_DIR: string;
@@ -18,8 +18,8 @@ export declare const SETTINGS_FILE: string;
 export declare const VERSION_FILE: string;
 /**
  * Core commands - DISABLED for v3.0+
- * All commands are now plugin-scoped skills managed by Claude Code.
- * The installer no longer copies commands to ~/.claude/commands/
+ * All commands are now plugin-scoped skills managed by Qoder.
+ * The installer no longer copies commands to ~/.qoder/commands/
  */
 export declare const CORE_COMMANDS: string[];
 /** Current version */
@@ -51,8 +51,8 @@ export interface InstallOptions {
     /**
      * Dev plugin-dir mode: skip copying agents and bundled skills into
      * `<configDir>` because the user is launching OMC via
-     * `claude --plugin-dir <path>` (or `omc --plugin-dir <path>`) and the
-     * plugin already provides them at runtime. HUD, hooks, CLAUDE.md, and
+     * `qodercli --plugin-dir <path>` (or `omc --plugin-dir <path>`) and the
+     * plugin already provides them at runtime. HUD, hooks, AGENTS.md, and
      * `.omc-config.json` are still installed. Mutually exclusive with
      * `noPlugin` (the CLI gives `noPlugin` precedence).
      */
@@ -64,7 +64,7 @@ export interface InstallOptions {
  */
 export declare function isHudEnabledInConfig(): boolean;
 /**
- * Detect whether a statusLine config belongs to oh-my-claudecode.
+ * Detect whether a statusLine config belongs to oh-my-qoder.
  *
  * Checks the command string for known OMC HUD paths so that custom
  * (non-OMC) statusLine configurations are preserved during forced
@@ -75,12 +75,12 @@ export declare function isHudEnabledInConfig(): boolean;
  */
 export declare function isOmcStatusLine(statusLine: unknown): boolean;
 /**
- * Detect whether a hook command belongs to oh-my-claudecode.
+ * Detect whether a hook command belongs to oh-my-qoder.
  *
  * Recognition strategy (any match is sufficient):
  * 1. Command path contains "omc" as a path/word segment (e.g. `omc-hook.mjs`, `/omc/`)
- * 2. Command path contains "oh-my-claudecode"
- * 3. Command references a known OMC hook filename inside .claude/hooks/
+ * 2. Command path contains "oh-my-qoder"
+ * 3. Command references a known OMC hook filename inside .qoder/hooks/
  *
  * @param command - The hook command string
  * @returns true if the command belongs to OMC
@@ -95,19 +95,19 @@ export declare function checkNodeVersion(): {
     required: number;
 };
 /**
- * Check if Claude Code is installed
+ * Check if Qoder is installed
  * Uses 'where' on Windows, 'which' on Unix
  */
 export declare function isClaudeInstalled(): boolean;
 /**
- * Check if we're running in Claude Code plugin context
+ * Check if we're running in Qoder plugin context
  *
- * When installed as a plugin, we should NOT copy files to ~/.claude/
- * because the plugin system already handles file access via ${CLAUDE_PLUGIN_ROOT}.
+ * When installed as a plugin, we should NOT copy files to ~/.qoder/
+ * because the plugin system already handles file access via ${QODER_PLUGIN_ROOT}.
  *
  * Detection method:
- * - Check if CLAUDE_PLUGIN_ROOT environment variable is set (primary method)
- * - This env var is set by the Claude Code plugin system when running plugin hooks
+ * - Check if QODER_PLUGIN_ROOT environment variable is set (primary method)
+ * - This env var is set by the Qoder plugin system when running plugin hooks
  *
  * @returns true if running in plugin context, false otherwise
  */
@@ -115,10 +115,10 @@ export declare function isRunningAsPlugin(): boolean;
 /**
  * Check if we're running as a project-scoped plugin (not global)
  *
- * Project-scoped plugins are installed in the project's .claude/plugins/ directory,
- * while global plugins are installed in ~/.claude/plugins/.
+ * Project-scoped plugins are installed in the project's .qoder/plugins/ directory,
+ * while global plugins are installed in ~/.qoder/plugins/.
  *
- * When project-scoped, we should NOT modify global settings (like ~/.claude/settings.json)
+ * When project-scoped, we should NOT modify global settings (like ~/.qoder/settings.json)
  * because the user explicitly chose project-level installation.
  *
  * @returns true if running as a project-scoped plugin, false otherwise
@@ -128,7 +128,7 @@ export declare function isProjectScopedPlugin(): boolean;
  * Remove stale OMC-created agent files from the config agents directory.
  *
  * When OMC drops an agent definition in a new version, the old .md file
- * lingers in ~/.claude/agents/. This function compares the installed files
+ * lingers in ~/.qoder/agents/. This function compares the installed files
  * against the current package's agent definitions and removes any that:
  *   1. Are .md files (OMC agent naming convention)
  *   2. Were previously shipped by OMC (match the frontmatter `name:` pattern)
@@ -142,7 +142,7 @@ export declare function cleanupStaleAgents(log: (msg: string) => void): string[]
  * Remove standalone agent files that duplicate plugin-provided agents (#2252).
  *
  * When the plugin is the canonical agent source, standalone copies in
- * ~/.claude/agents/ from a prior `omc setup` cause agent definitions to
+ * ~/.qoder/agents/ from a prior `omc setup` cause agent definitions to
  * appear twice. Removes standalone copies with OMC frontmatter whose
  * filename matches a current package agent.
  */
@@ -159,7 +159,7 @@ export declare function cleanupStaleSkills(log: (msg: string) => void): string[]
  * Remove standalone skill directories that duplicate plugin-provided skills.
  *
  * When the plugin is the canonical skill source, standalone copies in
- * ~/.claude/skills/ from a prior `omc setup` cause every command to appear
+ * ~/.qoder/skills/ from a prior `omc setup` cause every command to appear
  * twice (#2252). This function removes standalone copies whose SKILL.md
  * content-hashes match any installed plugin version, preserving user-authored
  * skills that happen to share a name.
@@ -186,8 +186,8 @@ export declare function syncInstalledPluginPayload(): {
     targetRoots: string[];
 };
 /**
- * Detect whether an installed Claude Code plugin already provides OMC agent
- * markdown files, so the legacy ~/.claude/agents copy can be skipped.
+ * Detect whether an installed Qoder plugin already provides OMC agent
+ * markdown files, so the legacy ~/.qoder/agents copy can be skipped.
  */
 export declare function hasPluginProvidedAgentFiles(): boolean;
 export declare function hasPluginProvidedSkillFiles(): boolean;
@@ -195,7 +195,7 @@ export declare function hasPluginProvidedHookFiles(): boolean;
 export declare function hasEnabledOmcPlugin(): boolean;
 export declare function getRuntimePackageRoot(): string;
 /**
- * Extract the embedded OMC version from a CLAUDE.md file.
+ * Extract the embedded OMC version from a AGENTS.md file.
  *
  * Primary source of truth is the injected `<!-- OMC:VERSION:x.y.z -->` marker.
  * Falls back to legacy headings that may include a version string inline.
@@ -215,12 +215,22 @@ export declare function syncPersistedSetupVersion(options?: {
     onlyIfConfigured?: boolean;
 }): boolean;
 /**
- * Merge OMC content into existing CLAUDE.md using markers
- * @param existingContent - Existing CLAUDE.md content (null if file doesn't exist)
+ * Merge OMC content into existing AGENTS.md using markers
+ * @param existingContent - Existing AGENTS.md content (null if file doesn't exist)
  * @param omcContent - New OMC content to inject
  * @returns Merged content with markers
  */
 export declare function mergeClaudeMd(existingContent: string | null, omcContent: string, version?: string): string;
+/**
+ * Ensure AGENTS.local.md is listed in the project's .gitignore.
+ *
+ * AGENTS.local.md is machine-specific and should never be committed to git.
+ * This function creates or appends to .gitignore in the given project root.
+ *
+ * @param projectRoot - The project root directory containing .git/
+ * @param log - Logging function
+ */
+export declare function ensureAgentsLocalGitignore(projectRoot: string, log: (msg: string) => void): void;
 /**
  * Install OMC agents, commands, skills, and hooks
  */

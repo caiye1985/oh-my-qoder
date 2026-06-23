@@ -144,10 +144,10 @@ describe('Rate Limit Wait Integration Tests', () => {
         });
     });
     describe('Scenario: tmux pane analysis accuracy', () => {
-        it('should correctly identify Claude Code rate limit message', () => {
+        it('should correctly identify Qoder rate limit message', () => {
             const realWorldContent = `
 ╭─────────────────────────────────────────────────────────────────╮
-│  Claude Code                                                     │
+│  Qoder                                                     │
 ╰─────────────────────────────────────────────────────────────────╯
 
 You've reached your usage limit for the 5-hour period.
@@ -169,7 +169,7 @@ What would you like to do?
         });
         it('should correctly identify weekly rate limit message', () => {
             const weeklyLimitContent = `
-Claude Code v1.0.0
+Qoder v1.0.0
 
 ⚠️  Weekly usage limit reached
 
@@ -187,9 +187,9 @@ Enter choice: `;
             expect(result.isBlocked).toBe(true);
             expect(result.rateLimitType).toBe('weekly');
         });
-        it('should NOT flag normal Claude Code output as blocked', () => {
+        it('should NOT flag normal Qoder output as blocked', () => {
             const normalContent = `
-Claude Code
+Qoder
 
 > What would you like to build today?
 
@@ -263,7 +263,7 @@ Assistant: I can help with more tasks.
                         id: '%0',
                         session: 'dev',
                         windowIndex: 0,
-                        windowName: 'claude',
+                        windowName: 'qoder',
                         paneIndex: 0,
                         isActive: true,
                         analysis: {
@@ -362,7 +362,7 @@ Assistant: I can help with more tasks.
     describe('Scenario: Confidence scoring', () => {
         it('should give higher confidence for multiple indicators', () => {
             const highConfidenceContent = `
-Claude Code
+Qoder
 Rate limit reached
 5-hour usage limit
 [1] Continue

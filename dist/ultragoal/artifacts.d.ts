@@ -21,7 +21,7 @@ export declare const ULTRAGOAL_PLANS_SUBDIR = "plans";
  *   3. zero or many → caller must pass planId
  */
 export type UltragoalStatus = 'pending' | 'in_progress' | 'complete' | 'failed' | 'review_blocked';
-export type UltragoalClaudeGoalMode = 'aggregate' | 'per_story';
+export type UltragoalQoderGoalMode = 'aggregate' | 'per_story';
 export interface UltragoalItem {
     id: string;
     title: string;
@@ -42,7 +42,7 @@ export interface UltragoalAggregateCompletion {
     status: 'complete';
     completedAt: string;
     evidence: string;
-    claudeGoal?: unknown;
+    qoderGoal?: unknown;
 }
 export interface UltragoalPlan {
     version: 1;
@@ -57,8 +57,8 @@ export interface UltragoalPlan {
     briefPath: string;
     goalsPath: string;
     ledgerPath: string;
-    claudeGoalMode?: UltragoalClaudeGoalMode;
-    claudeObjective?: string;
+    qoderGoalMode?: UltragoalQoderGoalMode;
+    qoderObjective?: string;
     aggregateCompletion?: UltragoalAggregateCompletion;
     activeGoalId?: string;
     goals: UltragoalItem[];
@@ -69,7 +69,7 @@ export interface UltragoalLedgerEntry {
     goalId?: string;
     status?: UltragoalStatus;
     message?: string;
-    claudeGoal?: unknown;
+    qoderGoal?: unknown;
     evidence?: string;
     qualityGate?: UltragoalQualityGate;
 }
@@ -80,7 +80,7 @@ export interface CreateUltragoalOptions {
         objective: string;
         tokenBudget?: number;
     }>;
-    claudeGoalMode?: UltragoalClaudeGoalMode;
+    qoderGoalMode?: UltragoalQoderGoalMode;
     now?: Date;
     force?: boolean;
     /**
@@ -104,9 +104,9 @@ export interface CheckpointOptions {
     goalId: string;
     status: Extract<UltragoalStatus, 'complete' | 'failed'> | 'blocked';
     evidence?: string;
-    claudeGoal?: unknown;
+    qoderGoal?: unknown;
     qualityGate?: unknown;
-    allowActiveFinalClaudeGoal?: boolean;
+    allowActiveFinalQoderGoal?: boolean;
     now?: Date;
     planId?: string;
 }
@@ -119,7 +119,7 @@ export interface AddUltragoalGoalOptions {
 }
 export interface RecordFinalReviewBlockersOptions extends AddUltragoalGoalOptions {
     goalId: string;
-    claudeGoal?: unknown;
+    qoderGoal?: unknown;
 }
 export interface UltragoalQualityGate {
     aiSlopCleaner: {
@@ -191,5 +191,5 @@ export declare function recordFinalReviewBlockers(cwd: string, options: RecordFi
     blockedGoal: UltragoalItem;
     addedGoal: UltragoalItem;
 }>;
-export declare function buildClaudeGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string;
+export declare function buildQoderGoalInstruction(goal: UltragoalItem, plan: UltragoalPlan): string;
 //# sourceMappingURL=artifacts.d.ts.map

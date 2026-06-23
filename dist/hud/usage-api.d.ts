@@ -5,8 +5,8 @@
  * Based on claude-hud implementation by jarrodwatts.
  *
  * Authentication:
- * - macOS: Reads from Keychain "Claude Code-credentials"
- * - Linux/fallback: Reads from ~/.claude/.credentials.json
+ * - macOS: Reads from Keychain "Qoder-credentials"
+ * - Linux/fallback: Reads from ~/.qoder/.credentials.json
  *
  * API: api.anthropic.com/api/oauth/usage
  * Response: { five_hour: { utilization }, seven_day: { utilization } }

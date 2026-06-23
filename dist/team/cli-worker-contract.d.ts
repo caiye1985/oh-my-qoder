@@ -9,7 +9,7 @@
  *
  * Applies to roles in CONTRACT_ROLES (critic, code-reviewer,
  * security-reviewer, test-engineer) when the resolved provider is
- * `codex` or `gemini`. Claude workers participate in team messaging
+ * `codex` or `gemini`. Qoder workers participate in team messaging
  * directly and do not use this contract. Codex team workers are launched as
  * persistent `codex` panes, not `codex exec`; they still receive this verdict
  * contract in their inbox when assigned reviewer-style roles.

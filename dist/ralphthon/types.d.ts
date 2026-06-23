@@ -132,7 +132,7 @@ export interface RalphthonState {
     prdPath: string;
     /** Tmux session name */
     tmuxSession: string;
-    /** Tmux pane ID for the leader (Claude Code instance) */
+    /** Tmux pane ID for the leader (Qoder instance) */
     leaderPaneId: string;
     /** When the session started */
     startedAt: string;
