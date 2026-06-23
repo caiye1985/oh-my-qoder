@@ -238,19 +238,29 @@ export async function spawnParallelTeam(config: SubagentTeamConfig): Promise<voi
 /**
  * Determine the best orchestration mode for a team config.
  *
- * Pipeline mode when:
- *   - Workers have sequential/dependent tasks (default)
- *   - 2-6 workers (manageable for one main agent)
+ * Parallel mode (default) when:
+ *   - Workers have independent tasks (typical team/ultrawork scenario)
+ *   - Any worker uses worktree isolation
+ *   - More than 3 workers
+ *   Each worker gets its own qodercli process with independent TodoWrite,
+ *   enabling true parallel execution without shared-state conflicts.
  *
- * Parallel mode when:
- *   - Explicitly requested (useWorktree on any worker)
- *   - More than 6 workers (context window pressure)
+ * Pipeline mode when:
+ *   - Explicitly requested via environment variable OMC_PIPELINE_MODE=1
+ *   - 2-3 workers with known sequential dependencies
+ *   Subagents share the main agent's session (including TodoWrite),
+ *   so only one subagent can be in_progress at a time.
  */
 export function resolveOrchestrationMode(config: SubagentTeamConfig): OrchestrationMode {
+  // Explicit pipeline opt-in
+  if (process.env.OMC_PIPELINE_MODE === '1') return 'pipeline';
+
+  // Worktree always needs separate processes
   const hasWorktree = config.workers.some(w => w.useWorktree);
   if (hasWorktree) return 'parallel';
-  if (config.workers.length > 6) return 'parallel';
-  return 'pipeline';
+
+  // Default: parallel for team scenarios (independent tasks, separate TodoWrite per worker)
+  return 'parallel';
 }
 
 // ---------------------------------------------------------------------------
