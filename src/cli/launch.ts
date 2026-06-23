@@ -578,8 +578,8 @@ function runQoderOutsideTmux(
       .filter(([, value]) => value !== undefined),
   ) as Record<string, string>;
   const rawClaudeCmd = isNativeWindowsShell()
-    ? buildTmuxShellCommandWithEnv('qoder', args, forwardedEnv)
-    : buildTmuxShellCommand('qoder', args);
+    ? buildTmuxShellCommandWithEnv('qodercli', args, forwardedEnv)
+    : buildTmuxShellCommand('qodercli', args);
   const envPrefix = !isNativeWindowsShell() && Object.keys(forwardedEnv).length > 0
     ? buildEnvExportPrefix(TMUX_ENV_FORWARD)
     : '';

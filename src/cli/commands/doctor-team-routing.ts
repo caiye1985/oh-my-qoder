@@ -21,7 +21,7 @@ interface ProviderProbe {
 }
 
 const PROVIDER_BINARY: Record<TeamRoleProvider, string> = {
-  qoder: 'qoder',
+  qoder: 'qodercli',
   codex: 'codex',
   gemini: 'gemini',
   grok: 'grok',
