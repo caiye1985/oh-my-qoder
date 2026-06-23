@@ -16,6 +16,15 @@ import { join } from 'node:path';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { resolveCliBinaryPath } from './model-contract.js';
 
+
+/** Validate and sanitize agent name to prevent path traversal and YAML injection. */
+function sanitizeAgentName(name: string): string {
+  if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
+    throw new Error(`Invalid agent name "${name}": only alphanumeric, hyphens, and underscores allowed.`);
+  }
+  return name;
+}
+
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
@@ -67,8 +76,8 @@ export function generateSubagentConfig(
 
   return [
     '---',
-    `name: ${role}`,
-    `description: OMC team worker — ${role}`,
+    `name: ${sanitizeAgentName(role)}`,
+    `description: OMC team worker — ${sanitizeAgentName(role)}`,
     'tools:',
     toolsYaml,
     '---',
@@ -216,6 +225,11 @@ export async function createSubagentTeam(config: SubagentTeamConfig): Promise<vo
     child.unref();
 
     activeProcesses.set(key, child);
+
+    child.on('error', (err) => {
+      console.error(`[omc:subagent] Worker ${key} spawn error: ${err.message}`);
+      activeProcesses.delete(key);
+    });
 
     // Clean up on exit
     child.on('exit', () => {

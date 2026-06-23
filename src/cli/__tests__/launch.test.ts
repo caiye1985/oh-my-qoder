@@ -100,25 +100,25 @@ describe('extractNotifyFlag', () => {
 // normalizeQoderLaunchArgs
 // ---------------------------------------------------------------------------
 describe('normalizeQoderLaunchArgs', () => {
-  it('maps --madmax to --dangerously-skip-permissions', () => {
+  it('maps --madmax to --yolo', () => {
     expect(normalizeQoderLaunchArgs(['--madmax'])).toEqual([
-      '--dangerously-skip-permissions',
+      '--yolo',
     ]);
   });
 
-  it('maps --yolo to --dangerously-skip-permissions', () => {
+  it('maps --yolo to --yolo', () => {
     expect(normalizeQoderLaunchArgs(['--yolo'])).toEqual([
-      '--dangerously-skip-permissions',
+      '--yolo',
     ]);
   });
 
-  it('deduplicates --dangerously-skip-permissions', () => {
+  it('deduplicates --yolo', () => {
     const result = normalizeQoderLaunchArgs([
       '--madmax',
-      '--dangerously-skip-permissions',
+      '--yolo',
     ]);
     expect(
-      result.filter((a) => a === '--dangerously-skip-permissions'),
+      result.filter((a) => a === '--yolo'),
     ).toHaveLength(1);
   });
 
@@ -413,10 +413,10 @@ describe('runQoder outside-tmux — mouse scrolling (issue #890)', () => {
       return '';
     });
 
-    runQoder('/tmp', ['--dangerously-skip-permissions'], 'sid');
+    runQoder('/tmp', ['--yolo'], 'sid');
 
     expect(vi.mocked(tmuxExec).mock.calls).toHaveLength(1);
-    expect(vi.mocked(execFileSync).mock.calls.find(([cmd, args]) => cmd === 'qoder' && (args as string[])[0] === '--dangerously-skip-permissions')).toBeDefined();
+    expect(vi.mocked(execFileSync).mock.calls.find(([cmd, args]) => cmd === 'qoder' && (args as string[])[0] === '--yolo')).toBeDefined();
   });
 });
 
@@ -1283,7 +1283,7 @@ describe('runQoder — print mode bypasses tmux (issue #1665)', () => {
   it('runs claude directly when --print is present (inside-tmux policy)', () => {
     (resolveLaunchPolicy as ReturnType<typeof vi.fn>).mockReturnValue('inside-tmux');
 
-    runQoder('/tmp', ['--dangerously-skip-permissions', '--print', 'say hello'], 'sid');
+    runQoder('/tmp', ['--yolo', '--print', 'say hello'], 'sid');
 
     const calls = vi.mocked(execFileSync).mock.calls;
     // Should NOT call tmux set-option (mouse config), just claude directly
@@ -1294,7 +1294,7 @@ describe('runQoder — print mode bypasses tmux (issue #1665)', () => {
   it('does not bypass tmux when --print is absent', () => {
     (resolveLaunchPolicy as ReturnType<typeof vi.fn>).mockReturnValue('outside-tmux');
 
-    runQoder('/tmp', ['--dangerously-skip-permissions'], 'sid');
+    runQoder('/tmp', ['--yolo'], 'sid');
 
     // tmux calls go through tmuxExec, not execFileSync
     expect(vi.mocked(tmuxExec).mock.calls.length).toBeGreaterThan(0);
@@ -1509,7 +1509,7 @@ describe('hasMadmaxFlag', () => {
   });
 
   it('returns false when neither flag is present', () => {
-    expect(hasMadmaxFlag(['--print', '--dangerously-skip-permissions'])).toBe(false);
+    expect(hasMadmaxFlag(['--print', '--yolo'])).toBe(false);
   });
 
   it('returns false for empty args', () => {

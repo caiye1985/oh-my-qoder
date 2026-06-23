@@ -24,7 +24,7 @@ import {
 import { buildTmuxShellCommand, buildTmuxShellCommandWithEnv, isTmuxAvailable, quoteShellArg, tmuxExec, wrapWithLoginShell } from './tmux-utils.js';
 import { configureTmuxClipboardForSession } from './tmux-clipboard.js';
 
-const QODER_BYPASS_FLAG = '--dangerously-skip-permissions';
+const QODER_BYPASS_FLAG = '--yolo';
 const AUTORESEARCH_SETUP_SLASH_COMMAND = '/deep-interview --autoresearch';
 
 export interface InitAutoresearchOptions {
