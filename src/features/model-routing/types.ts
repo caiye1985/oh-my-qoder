@@ -24,12 +24,16 @@ export type ComplexityTier = 'LOW' | 'MEDIUM' | 'HIGH';
 export const TIER_MODELS: Record<ComplexityTier, string> = getDefaultTierModels();
 
 /**
- * Model tier to simple model type mapping
+ * Model tier to Qoder model type mapping.
+ *
+ * LOW complexity tasks route to 'efficient' (lightweight, fast).
+ * MEDIUM complexity tasks route to 'auto' (balanced reasoning).
+ * HIGH complexity tasks route to 'performance' (deep reasoning).
  */
 export const TIER_TO_MODEL_TYPE: Record<ComplexityTier, ModelType> = {
-  LOW: 'haiku',
-  MEDIUM: 'sonnet',
-  HIGH: 'opus',
+  LOW: 'efficient',
+  MEDIUM: 'auto',
+  HIGH: 'performance',
 };
 
 /**

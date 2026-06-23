@@ -80,22 +80,66 @@ function getCachedConfig(): PluginConfig {
 }
 
 
-/** Map Claude model family to CC-supported alias */
-const FAMILY_TO_ALIAS: Record<string, string> = {
-  SONNET: 'sonnet',
-  OPUS: 'opus',
-  HAIKU: 'haiku',
-  FABLE: 'fable',
+/**
+ * Map QoderModelTier keys to the CLI tier name passed via --model.
+ *
+ * Qoder tier names (lite, efficient, auto, performance, ultimate) are the
+ * primary identifiers. Legacy Claude keys (SONNET, OPUS, HAIKU, FABLE)
+ * are retained for backward compatibility with existing agent definitions.
+ */
+const QODER_TIER_TO_ALIAS: Record<string, string> = {
+  LITE: 'lite',
+  EFFICIENT: 'efficient',
+  AUTO: 'auto',
+  PERFORMANCE: 'performance',
+  ULTIMATE: 'ultimate',
+  // Backward compat: legacy Claude family keys map to Qoder equivalents
+  HAIKU: 'efficient',
+  SONNET: 'auto',
+  OPUS: 'performance',
+  FABLE: 'ultimate',
 };
 
-/** Normalize a model ID to a CC-supported alias (sonnet/opus/haiku/fable) if possible */
+/** Known Qoder tier names and frontier model prefixes that pass through as-is. */
+const QODER_PASSTHROUGH_NAMES = new Set([
+  'lite', 'efficient', 'auto', 'performance', 'ultimate',
+]);
+
+/** Frontier model name prefixes recognized by Qoder CLI. */
+const QODER_FRONTIER_PREFIXES = [
+  'qwen', 'glm', 'kimi', 'deepseek', 'minimax',
+];
+
+/**
+ * Normalize a model ID to a Qoder-supported tier name or frontier model name.
+ *
+ * Resolution order:
+ * 1. Provider-specific IDs (Bedrock, Vertex) — pass through unchanged
+ * 2. Qoder tier names (lite, efficient, auto, performance, ultimate) — pass through
+ * 3. Frontier model names (Qwen3.7-Max-DogFooding, GLM-5.2, etc.) — pass through
+ * 4. Legacy Claude names (haiku → efficient, sonnet → auto, opus → performance)
+ * 5. Anything else — resolve via resolveQoderFamily, fall through to original
+ */
 export function normalizeToQoderAlias(model: string): string {
   if (isProviderSpecificModelId(model)) {
     return model;
   }
 
+  const lower = model.toLowerCase();
+
+  // Qoder tier names pass through directly
+  if (QODER_PASSTHROUGH_NAMES.has(lower)) {
+    return lower;
+  }
+
+  // Frontier model names pass through (case-preserved)
+  if (QODER_FRONTIER_PREFIXES.some(prefix => lower.startsWith(prefix))) {
+    return model;
+  }
+
+  // Legacy Claude names and full model IDs — resolve via family lookup
   const family = resolveQoderFamily(model);
-  return family ? (FAMILY_TO_ALIAS[family] ?? model) : model;
+  return family ? (QODER_TIER_TO_ALIAS[family] ?? model) : model;
 }
 
 /**

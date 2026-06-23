@@ -135,10 +135,23 @@ function createDecision(
 }
 
 /**
- * Convert ModelType to ComplexityTier
+ * Convert ModelType to ComplexityTier.
+ *
+ * Recognizes both Qoder tier names (efficient, auto, performance, ultimate)
+ * and legacy Claude names (haiku, sonnet, opus) for backward compatibility.
  */
 function modelTypeToTier(modelType: string): ComplexityTier {
   switch (modelType) {
+    // Qoder tier names
+    case 'performance':
+    case 'ultimate':
+      return 'HIGH';
+    case 'efficient':
+    case 'lite':
+      return 'LOW';
+    case 'auto':
+      return 'MEDIUM';
+    // Legacy Claude names (backward compat)
     case 'opus':
       return 'HIGH';
     case 'haiku':
@@ -282,13 +295,13 @@ export function getModelForTask(
   agentType: string,
   taskPrompt: string,
   config: Partial<RoutingConfig> = {}
-): { model: 'haiku' | 'sonnet' | 'opus'; tier: ComplexityTier; reason: string } {
+): { model: 'efficient' | 'auto' | 'performance' | 'haiku' | 'sonnet' | 'opus'; tier: ComplexityTier; reason: string } {
   // All agents are adaptive based on task complexity
   // Use agent-specific rules for advisory agents, general rules for others
   const decision = routeTask({ taskPrompt, agentType }, config);
 
   return {
-    model: decision.modelType as 'haiku' | 'sonnet' | 'opus',
+    model: decision.modelType as 'efficient' | 'auto' | 'performance' | 'haiku' | 'sonnet' | 'opus',
     tier: decision.tier,
     reason: decision.reasons[0] ?? 'Complexity analysis',
   };

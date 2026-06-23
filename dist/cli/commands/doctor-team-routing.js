@@ -9,7 +9,7 @@ import { execSync } from 'child_process';
 import { colors } from '../utils/formatting.js';
 import { loadConfig } from '../../config/loader.js';
 const PROVIDER_BINARY = {
-    qoder: 'qoder',
+    qoder: 'qodercli',
     codex: 'codex',
     gemini: 'gemini',
     grok: 'grok',

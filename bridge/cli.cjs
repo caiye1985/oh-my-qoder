@@ -89390,7 +89390,7 @@ var import_child_process32 = require("child_process");
 init_formatting();
 init_loader();
 var PROVIDER_BINARY = {
-  qoder: "qoder",
+  qoder: "qodercli",
   codex: "codex",
   gemini: "gemini",
   grok: "grok",
@@ -93949,7 +93949,7 @@ function runQoderOutsideTmux(cwd2, args, _sessionId, options = {}) {
   const forwardedEnv = Object.fromEntries(
     TMUX_ENV_FORWARD.map((name) => [name, process.env[name]]).filter(([, value]) => value !== void 0)
   );
-  const rawClaudeCmd = isNativeWindowsShell() ? buildTmuxShellCommandWithEnv("qoder", args, forwardedEnv) : buildTmuxShellCommand("qoder", args);
+  const rawClaudeCmd = isNativeWindowsShell() ? buildTmuxShellCommandWithEnv("qodercli", args, forwardedEnv) : buildTmuxShellCommand("qodercli", args);
   const envPrefix = !isNativeWindowsShell() && Object.keys(forwardedEnv).length > 0 ? buildEnvExportPrefix(TMUX_ENV_FORWARD) : "";
   const preflight = isNativeWindowsShell() ? envPrefix : `${envPrefix}sleep 0.3; perl -e 'use POSIX;tcflush(0,TCIFLUSH)' 2>/dev/null; `;
   const claudeCmd = wrapWithLoginShell(`${preflight}${rawClaudeCmd}`);

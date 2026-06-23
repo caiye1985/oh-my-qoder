@@ -42,10 +42,10 @@ function normalizeModelId(modelId: string): string {
  * Claude variants come from centralized family defaults.
  */
 const HIGH_VARIANT_MAP: Record<string, string> = {
-  // Claude canonical families
-  [QODER_FAMILY_DEFAULTS.SONNET]: QODER_FAMILY_HIGH_VARIANTS.SONNET,
-  [QODER_FAMILY_DEFAULTS.OPUS]: QODER_FAMILY_HIGH_VARIANTS.OPUS,
-  [QODER_FAMILY_DEFAULTS.HAIKU]: QODER_FAMILY_HIGH_VARIANTS.HAIKU,
+  // Qoder tier families (auto -> performance, performance -> ultimate, efficient -> auto)
+  [QODER_FAMILY_DEFAULTS.AUTO]: QODER_FAMILY_HIGH_VARIANTS.AUTO,
+  [QODER_FAMILY_DEFAULTS.PERFORMANCE]: QODER_FAMILY_HIGH_VARIANTS.PERFORMANCE,
+  [QODER_FAMILY_DEFAULTS.EFFICIENT]: QODER_FAMILY_HIGH_VARIANTS.EFFICIENT,
   // GPT-4
   'gpt-4': 'gpt-4-high',
   'gpt-4-turbo': 'gpt-4-turbo-high',

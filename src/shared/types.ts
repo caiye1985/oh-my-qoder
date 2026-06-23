@@ -2,7 +2,15 @@
  * Shared types for Oh-My-Qoder
  */
 
-export type ModelType = "sonnet" | "opus" | "haiku" | "inherit";
+/**
+ * Model type accepted by the routing system.
+ *
+ * Primary values are Qoder tier names: 'efficient' (LOW), 'auto' (MEDIUM),
+ * 'performance' (HIGH), 'ultimate' (max). Legacy Claude names ('haiku',
+ * 'sonnet', 'opus') are retained for backward compatibility and are mapped
+ * to their Qoder equivalents at normalization time.
+ */
+export type ModelType = "efficient" | "auto" | "performance" | "ultimate" | "lite" | "sonnet" | "opus" | "haiku" | "inherit";
 
 export interface AgentConfig {
   name: string;
@@ -163,7 +171,7 @@ export interface PluginConfig {
      *
      * Env: OMC_MODEL_ALIAS_HAIKU, OMC_MODEL_ALIAS_SONNET, OMC_MODEL_ALIAS_OPUS
      */
-    modelAliases?: Partial<Record<"haiku" | "sonnet" | "opus", ModelType>>;
+    modelAliases?: Partial<Record<"haiku" | "sonnet" | "opus" | "efficient" | "auto" | "performance" | "ultimate" | "lite", ModelType>>;
     /** Keywords that force escalation to higher tier */
     escalationKeywords?: string[];
     /** Keywords that suggest lower tier */
