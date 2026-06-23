@@ -217,7 +217,7 @@ source: extracted
 | 关键词 | 效果 | 示例 |
 |---------|--------|---------|
 | `team` | 标准 Team 编排 | `/team 3:executor "fix all TypeScript errors"` |
-| `omc-teams` | tmux CLI 工作者 (codex/gemini/claude) | `/omc-teams 2:codex "security review"` |
+| `omc-teams` | tmux CLI 工作者 (codex/gemini/qoder) | `/omc-teams 2:codex "security review"` |
 | `ccg` | 三模型 Codex+Gemini 编排 | `/ccg review this PR` |
 | `autopilot` | 全自动执行 | `autopilot: build a todo app` |
 | `ralph` | 持久模式 | `ralph: refactor auth` |

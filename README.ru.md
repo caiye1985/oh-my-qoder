@@ -86,7 +86,7 @@ Team работает как поэтапный pipeline:
 /oh-my-qoder:omc-doctor
 ```
 
-<h1 align="center">Ваш Claude только что получил суперсилу.</h1>
+<h1 align="center">Ваш Qoder только что получил суперсилу.</h1>
 
 <p align="center">
   <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
@@ -274,9 +274,9 @@ omc config-stop-callback discord --clear-tags
 | Событие | Триггер | Основные переменные шаблона |
 |---------|---------|----------------------------|
 | `session-start` | Начало сессии | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | Завершение ответа Claude | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | Завершение ответа Qoder | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | При каждой отправке промпта | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude запрашивает ввод пользователя | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder запрашивает ввод пользователя | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | Перед вызовом инструмента (высокая частота) | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | После вызова инструмента (высокая частота) | `{{toolName}}`, `{{sessionId}}` |
 

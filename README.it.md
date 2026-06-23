@@ -86,7 +86,7 @@ Se riscontri problemi dopo l'aggiornamento, svuota la vecchia cache del plugin:
 /oh-my-qoder:omc-doctor
 ```
 
-<h1 align="center">Il tuo Claude ha appena ricevuto dei superpoteri.</h1>
+<h1 align="center">Il tuo Qoder ha appena ricevuto dei superpoteri.</h1>
 
 <p align="center">
   <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
@@ -265,9 +265,9 @@ Inoltra gli eventi di sessione di Qoder a un gateway [OpenClaw](https://openclaw
 | Evento | Trigger | Variabili template principali |
 |--------|---------|-------------------------------|
 | `session-start` | La sessione inizia | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | La risposta di Claude è completata | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | La risposta di Qoder è completata | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | A ogni invio di prompt | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude richiede input dall'utente | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder richiede input dall'utente | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | Prima dell'invocazione dello strumento (alta frequenza) | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | Dopo l'invocazione dello strumento (alta frequenza) | `{{toolName}}`, `{{sessionId}}` |
 

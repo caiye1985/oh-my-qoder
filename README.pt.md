@@ -122,7 +122,7 @@ Se você tiver problemas depois de atualizar, limpe o cache antigo do plugin:
 /omc-doctor
 ```
 
-<h1 align="center">Seu Claude acabou de tomar esteroides.</h1>
+<h1 align="center">Seu Qoder acabou de tomar esteroides.</h1>
 
 <p align="center">
   <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
@@ -151,8 +151,8 @@ Múltiplas estratégias para diferentes casos de uso — da orquestração com T
 | Modo | O que é | Usar para |
 |------|---------|-----------|
 | **Team (recommended)** | Pipeline canônico em estágios (`team-plan → team-prd → team-exec → team-verify → team-fix`) | Agentes coordenados trabalhando em uma lista de tarefas compartilhada |
-| **omc-teams** | Trabalhadores CLI tmux — processos reais `claude`/`codex`/`gemini` em painéis divididos | Tarefas Codex/Gemini CLI; criados sob demanda, encerrados ao terminar |
-| **ccg** | Tri-modelo: Codex (analítico) + Gemini (design) em paralelo, Claude sintetiza | Trabalho misto de backend+UI que precisa de Codex e Gemini |
+| **omc-teams** | Trabalhadores CLI tmux — processos reais `qoder`/`codex`/`gemini` em painéis divididos | Tarefas Codex/Gemini CLI; criados sob demanda, encerrados ao terminar |
+| **ccg** | Tri-modelo: Codex (analítico) + Gemini (design) em paralelo, Qoder sintetiza | Trabalho misto de backend+UI que precisa de Codex e Gemini |
 | **Autopilot** | Execução autônoma (um único agente líder) | Trabalho de feature ponta a ponta com cerimônia mínima |
 | **Ultrawork** | Paralelismo máximo (sem Team) | Rajadas de correções/refatorações paralelas quando Team não é necessário |
 | **Ralph** | Modo persistente com loops de verify/fix | Tarefas que precisam ser concluídas por completo (sem parciais silenciosos) |
@@ -217,7 +217,7 @@ Atalhos opcionais para usuários avançados. Linguagem natural funciona bem sem 
 | Palavra-chave | Efeito | Exemplo |
 |---------------|--------|---------|
 | `team` | Orquestração canônica com Team | `/team 3:executor "fix all TypeScript errors"` |
-| `omc-teams` | Trabalhadores CLI tmux (codex/gemini/claude) | `/omc-teams 2:codex "security review"` |
+| `omc-teams` | Trabalhadores CLI tmux (codex/gemini/qoder) | `/omc-teams 2:codex "security review"` |
 | `ccg` | Orquestação tri-modelo Codex+Gemini | `/ccg review this PR` |
 | `autopilot` | Execução autônoma completa | `autopilot: build a todo app` |
 | `ralph` | Modo persistente | `ralph: refactor auth` |
@@ -312,9 +312,9 @@ Encaminhe eventos de sessão do Qoder para um gateway do [OpenClaw](https://open
 | Evento | Gatilho | Variáveis de template principais |
 |--------|---------|----------------------------------|
 | `session-start` | Sessão inicia | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | Resposta do Claude concluída | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | Resposta do Qoder concluída | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | A cada envio de prompt | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude solicita input do usuário | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder solicita input do usuário | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | Antes da invocação de ferramenta (alta frequência) | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | Após a invocação de ferramenta (alta frequência) | `{{toolName}}`, `{{sessionId}}` |
 

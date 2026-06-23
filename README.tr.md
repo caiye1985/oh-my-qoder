@@ -86,7 +86,7 @@ Güncellemeden sonra sorun yaşarsanız, eski plugin önbelleğini temizleyin:
 /oh-my-qoder:omc-doctor
 ```
 
-<h1 align="center">Claude'unuz süper güçlere kavuştu.</h1>
+<h1 align="center">Qoder'unuz süper güçlere kavuştu.</h1>
 
 <p align="center">
   <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
@@ -274,9 +274,9 @@ Qoder oturum olaylarını bir [OpenClaw](https://openclaw.ai/) ağ geçidine ile
 | Olay | Tetikleyici | Ana şablon değişkenleri |
 |------|------------|------------------------|
 | `session-start` | Oturum başladığında | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | Claude yanıtı tamamlandığında | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | Qoder yanıtı tamamlandığında | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | Her prompt gönderiminde | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude kullanıcı girişi istediğinde | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder kullanıcı girişi istediğinde | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | Araç çağrısından önce (yüksek sıklık) | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | Araç çağrısından sonra (yüksek sıklık) | `{{toolName}}`, `{{sessionId}}` |
 

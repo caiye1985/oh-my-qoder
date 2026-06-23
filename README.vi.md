@@ -122,7 +122,7 @@ Nếu gặp sự cố sau khi cập nhật, hãy xóa cache plugin cũ:
 /omc-doctor
 ```
 
-<h1 align="center">Your Claude Just Have been Steroided.</h1>
+<h1 align="center">Your Qoder Just Have been Steroided.</h1>
 
 <p align="center">
   <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
@@ -151,8 +151,8 @@ Nhiều chiến lược cho nhiều tình huống — từ điều phối dựa 
 | Mode | Nó là gì | Dùng cho |
 |------|------------|---------|
 | **Team (khuyến nghị)** | Pipeline chuẩn theo giai đoạn (`team-plan → team-prd → team-exec → team-verify → team-fix`) | Các tác tử phối hợp trên một danh sách nhiệm vụ chung |
-| **omc-teams** | Công nhân CLI tmux — tiến trình `claude`/`codex`/`gemini` thực trong pane chia | Tác vụ Codex/Gemini CLI; tạo theo yêu cầu, tắt khi xong |
-| **ccg** | Tri-model: Codex (phân tích) + Gemini (thiết kế) song song, Claude tổng hợp | Công việc backend+UI cần cả Codex và Gemini |
+| **omc-teams** | Công nhân CLI tmux — tiến trình `qoder`/`codex`/`gemini` thực trong pane chia | Tác vụ Codex/Gemini CLI; tạo theo yêu cầu, tắt khi xong |
+| **ccg** | Tri-model: Codex (phân tích) + Gemini (thiết kế) song song, Qoder tổng hợp | Công việc backend+UI cần cả Codex và Gemini |
 | **Autopilot** | Thực thi tự động (một tác tử dẫn dắt) | Làm tính năng end-to-end với ít thao tác phụ |
 | **Ultrawork** | Song song tối đa (không dùng team) | Sửa lỗi/refactor kiểu burst song song khi không cần Team |
 | **Ralph** | Chế độ bền bỉ với vòng lặp verify/fix | Tác vụ bắt buộc hoàn tất đầy đủ (không có hoàn thành một phần âm thầm) |
@@ -217,7 +217,7 @@ Các phím tắt tùy chọn cho người dùng nâng cao. Không dùng chúng t
 | Keyword | Hiệu ứng | Ví dụ |
 |---------|--------|---------|
 | `team` | Điều phối Team chuẩn | `/team 3:executor "fix all TypeScript errors"` |
-| `omc-teams` | Công nhân CLI tmux (codex/gemini/claude) | `/omc-teams 2:codex "security review"` |
+| `omc-teams` | Công nhân CLI tmux (codex/gemini/qoder) | `/omc-teams 2:codex "security review"` |
 | `ccg` | Điều phối tri-model Codex+Gemini | `/ccg review this PR` |
 | `autopilot` | Thực thi tự động toàn phần | `autopilot: build a todo app` |
 | `ralph` | Chế độ bền bỉ | `ralph: refactor auth` |
@@ -312,9 +312,9 @@ Chuyển tiếp các sự kiện phiên Qoder đến gateway [OpenClaw](https://
 | Sự kiện | Kích hoạt | Biến template chính |
 |---------|----------|-------------------|
 | `session-start` | Phiên bắt đầu | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | Phản hồi Claude hoàn tất | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | Phản hồi Qoder hoàn tất | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | Mỗi lần gửi prompt | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude yêu cầu nhập liệu từ người dùng | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder yêu cầu nhập liệu từ người dùng | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | Trước khi gọi công cụ (tần suất cao) | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | Sau khi gọi công cụ (tần suất cao) | `{{toolName}}`, `{{sessionId}}` |
 

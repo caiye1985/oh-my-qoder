@@ -112,7 +112,7 @@ OMC exposes two different surfaces:
 | Feature                                        | Terminal CLI                                  | In-session skill                                                        | Notes                                                                                                                                |
 | ---------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Setup                                          | `omc setup`                                   | `/setup` or `/omc-setup`                                                | Both are real entrypoints. `/setup` is the easiest plugin-first path.                                                                |
-| Ask providers                                  | `omc ask codex "review this patch"`           | `/ask codex "review this patch"`                                        | Both route through the same advisor flow. Providers: `claude`, `codex`, `gemini`, `antigravity`, `grok`, `cursor`.                                            |
+| Ask providers                                  | `omc ask codex "review this patch"`           | `/ask codex "review this patch"`                                        | Both route through the same advisor flow. Providers: `qoder`, `codex`, `gemini`, `antigravity`, `grok`, `cursor`.                                            |
 | Team orchestration                             | `omc team 2:codex "review auth flow"`         | `/team 3:executor "fix all TypeScript errors"`                          | Both exist, but they are different runtimes: `omc team` launches tmux CLI workers; `/team` runs the in-session native team workflow. |
 | Autopilot / Ralph / Ultrawork / Deep Interview | —                                             | `/autopilot ...`, `/ralph ...`, `/ultrawork ...`, `/deep-interview ...` | These are in-session skills. There is no `omc autopilot` / `omc ralph` / `omc ultrawork` CLI subcommand in this repo.                |
 | Autoresearch                                   | `omc autoresearch` (**hard-deprecated shim**) | `/deep-interview --autoresearch ...` + `/oh-my-qoder:autoresearch` | Setup stays in deep-interview; execution now belongs to the stateful skill.                                                          |
@@ -141,7 +141,7 @@ Starting in **v4.1.7**, **Team** is the canonical orchestration surface in OMC. 
 /team 3:executor "fix all TypeScript errors"
 ```
 
-Use `/team ...` when you want Qoder's in-session native team workflow. Use `omc team ...` when you want terminal-launched tmux CLI workers (`claude` / `codex` / `gemini` panes).
+Use `/team ...` when you want Qoder's in-session native team workflow. Use `omc team ...` when you want terminal-launched tmux CLI workers (`qoder` / `codex` / `gemini` panes).
 
 Team runs as a staged pipeline:
 
@@ -175,7 +175,7 @@ omc team shutdown auth-review
 
 `/omc-teams` remains as a legacy compatibility skill and now routes to `omc team ...`.
 
-For mixed Codex + Gemini work in one command, use the **`/ccg`** skill (routes via `/ask codex` + `/ask gemini`, then Claude synthesizes):
+For mixed Codex + Gemini work in one command, use the **`/ccg`** skill (routes via `/ask codex` + `/ask gemini`, then Qoder synthesizes):
 
 ```bash
 /ccg Review this PR — architecture (Codex) and UI components (Gemini)
@@ -193,7 +193,7 @@ For mixed Codex + Gemini work in one command, use the **`/ccg`** skill (routes v
 
 Workers spawn on-demand and die when their task completes — no idle resource usage. Requires the selected CLI (`codex`, `gemini`, `agy` (antigravity), `grok`, or `cursor-agent`) installed/authenticated and an active tmux session.
 
-Autopilot can prefer Cursor executor workers during team execution via `.claude/omc.jsonc`:
+Autopilot can prefer Cursor executor workers during team execution via `.qoder/omc.jsonc`:
 
 ```jsonc
 {
@@ -204,7 +204,7 @@ Autopilot can prefer Cursor executor workers during team execution via `.claude/
 }
 ```
 
-This config makes the autopilot execution stage use `omc team 1:cursor "..."` or `/omc-teams 1:cursor "..."` for executor-style implementation work. Reviewer, critic, security-review, validation verdict, and final approval roles remain native Claude/OMC reviewer roles; Cursor requires an installed/authenticated `cursor-agent`.
+This config makes the autopilot execution stage use `omc team 1:cursor "..."` or `/omc-teams 1:cursor "..."` for executor-style implementation work. Reviewer, critic, security-review, validation verdict, and final approval roles remain native Qoder/OMQ reviewer roles; Cursor requires an installed/authenticated `cursor-agent`.
 
 Native team worker worktrees are being added behind an opt-in/config gate. See [Native Team Worktree Mode](docs/TEAM-WORKTREE-MODE.md) for the workspace contract, canonical state-root rules, dirty-worktree preservation policy, and verification checklist.
 
@@ -240,7 +240,7 @@ If you experience issues after updating, clear the old plugin cache:
 /omc-doctor
 ```
 
-<h1 align="center">Your Claude Just Have been Steroided.</h1>
+<h1 align="center">Your Qoder Just Have been Steroided.</h1>
 
 <p align="center">
   <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
@@ -269,9 +269,9 @@ Multiple strategies for different use cases — from Team-backed orchestration t
 
 | Mode                        | What it is                                                                              | Use For                                                                 |
 | --------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| **Team (recommended)**      | Canonical staged pipeline (`team-plan → team-prd → team-exec → team-verify → team-fix`) | Coordinated Claude agents on a shared task list                         |
-| **omc team (CLI)**          | tmux CLI workers — real `claude`/`codex`/`gemini`/`antigravity`/`grok`/`cursor-agent` processes in split-panes       | Codex/Gemini/Antigravity/Grok/Cursor CLI tasks; on-demand spawn, die when done             |
-| **ccg**                     | Tri-model advisors via `/ask codex` + `/ask gemini`, Claude synthesizes                 | Mixed backend+UI work needing both Codex and Gemini                     |
+| **Team (recommended)**      | Canonical staged pipeline (`team-plan → team-prd → team-exec → team-verify → team-fix`) | Coordinated Qoder agents on a shared task list                         |
+| **omc team (CLI)**          | tmux CLI workers — real `qoder`/`codex`/`gemini`/`antigravity`/`grok`/`cursor-agent` processes in split-panes       | Codex/Gemini/Antigravity/Grok/Cursor CLI tasks; on-demand spawn, die when done             |
+| **ccg**                     | Tri-model advisors via `/ask codex` + `/ask gemini`, Qoder synthesizes                 | Mixed backend+UI work needing both Codex and Gemini                     |
 | **Autopilot**               | Autonomous execution (single lead agent)                                                | End-to-end feature work with minimal ceremony                           |
 | **Ultrawork**               | Maximum parallelism (non-team)                                                          | Burst parallel fixes/refactors where Team isn't needed                  |
 | **Ralph**                   | Persistent mode with verify/fix loops                                                   | Tasks that must complete fully (no silent partials)                     |
@@ -331,7 +331,7 @@ Wrap handler at server.py:42 in try/except ClientDisconnectedError...
 **Skillify:** `/skillify` extracts reusable patterns with strict quality gates
 **Auto-inject:** Matching skills load into context automatically — no manual recall needed
 
-Project-scoped OMC-authored skills are stored in `.omc/skills/` and are intended to be committed when you want them shared. During slash/skill execution OMC also reads Qoder workspace skills from `.claude/skills/` and compatibility skills from `.agents/skills/`, so existing workspace-local `SKILL.md` packages remain callable without copying them into user-global skills. If you create project-local skills inside a linked git worktree and do not commit them, they disappear when that worktree is removed.
+Project-scoped OMC-authored skills are stored in `.omc/skills/` and are intended to be committed when you want them shared. During slash/skill execution OMC also reads Qoder workspace skills from `.qoder/skills/` and compatibility skills from `.agents/skills/`, so existing workspace-local `SKILL.md` packages remain callable without copying them into user-global skills. If you create project-local skills inside a linked git worktree and do not commit them, they disappear when that worktree is removed.
 
 ### `.omc/` state and git
 
@@ -389,16 +389,16 @@ Run local provider CLIs and save a markdown artifact under `.omc/artifacts/ask/`
 
 ```bash
 # Terminal CLI
-omc ask claude "review this migration plan"
+omc ask qoder "review this migration plan"
 omc ask codex --prompt "identify architecture risks"
 omc ask gemini --prompt "propose UI polish ideas"
 omc ask antigravity --prompt "propose UI polish ideas"
 omc ask grok --prompt "cross-check this code review"
 omc ask cursor --prompt "apply this implementation plan"
-omc ask claude --agent-prompt executor --prompt "draft implementation steps"
+omc ask qoder --agent-prompt executor --prompt "draft implementation steps"
 
 # Inside a Qoder / OMC session
-/ask claude "review this migration plan"
+/ask qoder "review this migration plan"
 /ask codex "identify architecture risks"
 /ask antigravity "propose UI polish ideas"
 /ask cursor "apply this implementation plan"
@@ -522,9 +522,9 @@ Forward Qoder session events to an [OpenClaw](https://openclaw.ai/) gateway to e
 | Event               | Trigger                                 | Key template variables                                |
 | ------------------- | --------------------------------------- | ----------------------------------------------------- |
 | `session-start`     | Session begins                          | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop`              | Claude response completes               | `{{sessionId}}`, `{{projectName}}`                    |
+| `stop`              | Qoder response completes               | `{{sessionId}}`, `{{projectName}}`                    |
 | `keyword-detector`  | Every prompt submission                 | `{{prompt}}`, `{{sessionId}}`                         |
-| `ask-user-question` | Claude requests user input              | `{{question}}`, `{{sessionId}}`                       |
+| `ask-user-question` | Qoder requests user input              | `{{question}}`, `{{sessionId}}`                       |
 | `pre-tool-use`      | Before tool invocation (high frequency) | `{{toolName}}`, `{{sessionId}}`                       |
 | `post-tool-use`     | After tool invocation (high frequency)  | `{{toolName}}`, `{{sessionId}}`                       |
 
@@ -589,7 +589,7 @@ OMC can optionally orchestrate external AI providers for cross-validation and de
 
 > **Migrating from Gemini CLI:** Per Google's announcement, the Gemini CLI is being superseded by the Antigravity CLI (`agy`); see the [official Antigravity docs](https://antigravity.google). Use `omc team N:antigravity` and `omc ask antigravity` wherever you previously used `gemini`. Windows headless support for `agy` is unknown/untested — report issues upstream.
 
-**Cost:** 3 Pro plans (Claude + Antigravity/Gemini + ChatGPT) cover everything for ~$60/month.
+**Cost:** 3 Pro plans (Qoder + Antigravity/Gemini + ChatGPT) cover everything for ~$60/month.
 
 ---
 

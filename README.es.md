@@ -122,7 +122,7 @@ Si experimentas problemas despues de actualizar, limpia la cache antigua del plu
 /omc-doctor
 ```
 
-<h1 align="center">Tu Claude acaba de recibir esteroides.</h1>
+<h1 align="center">Tu Qoder acaba de recibir esteroides.</h1>
 
 <p align="center">
   <img src="assets/omc-character.jpg" alt="oh-my-qoder" width="400" />
@@ -150,9 +150,9 @@ Múltiples estrategias para diferentes casos de uso - desde construcciones compl
 
 | Modo | Característica | Usar Para |
 |------|---------|---------|
-| **Team (recomendado)** | Pipeline por etapas | Agentes Claude coordinados en una lista de tareas compartida |
+| **Team (recomendado)** | Pipeline por etapas | Agentes Qoder coordinados en una lista de tareas compartida |
 | **omc-teams** | Trabajadores CLI tmux | Tareas Codex/Gemini CLI; se inician bajo demanda, terminan al completar |
-| **ccg** | Tri-modelo en paralelo | Codex (analítico) + Gemini (diseño), Claude sintetiza |
+| **ccg** | Tri-modelo en paralelo | Codex (analítico) + Gemini (diseño), Qoder sintetiza |
 | **Autopilot** | Ejecución autónoma | Trabajo de feature end-to-end con mínima ceremonia |
 | **Ultrawork** | Máximo paralelismo | Correcciones/refactorizaciones en ráfaga cuando Team no es necesario |
 | **Ralph** | Modo persistente | Tareas que deben completarse totalmente |
@@ -208,7 +208,7 @@ Atajos opcionales para usuarios avanzados. El lenguaje natural funciona bien sin
 | Palabra Clave | Efecto | Ejemplo |
 |---------|--------|---------|
 | `team` | Orquestación canónica con Team | `/team 3:executor "fix all TypeScript errors"` |
-| `omc-teams` | Trabajadores CLI tmux (codex/gemini/claude) | `/omc-teams 2:codex "security review"` |
+| `omc-teams` | Trabajadores CLI tmux (codex/gemini/qoder) | `/omc-teams 2:codex "security review"` |
 | `ccg` | Orquestación tri-modelo Codex+Gemini | `/ccg review this PR` |
 | `autopilot` | Ejecución completamente autónoma | `autopilot: build a todo app` |
 | `ralph` | Modo persistencia | `ralph: refactor auth` |
@@ -305,9 +305,9 @@ Reenvía eventos de sesión de Qoder a un gateway de [OpenClaw](https://openclaw
 | Evento | Disparador | Variables de plantilla principales |
 |--------|-----------|-----------------------------------|
 | `session-start` | La sesión comienza | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | La respuesta de Claude se completa | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | La respuesta de Qoder se completa | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | Cada envío de prompt | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude solicita entrada del usuario | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder solicita entrada del usuario | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | Antes de la invocación de herramienta (alta frecuencia) | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | Después de la invocación de herramienta (alta frecuencia) | `{{toolName}}`, `{{sessionId}}` |
 

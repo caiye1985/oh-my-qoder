@@ -274,9 +274,9 @@ Transmettez les événements de session Qoder vers une passerelle [OpenClaw](htt
 | Événement | Déclencheur | Variables de template principales |
 |-----------|------------|----------------------------------|
 | `session-start` | La session démarre | `{{sessionId}}`, `{{projectName}}`, `{{projectPath}}` |
-| `stop` | La réponse de Claude est terminée | `{{sessionId}}`, `{{projectName}}` |
+| `stop` | La réponse de Qoder est terminée | `{{sessionId}}`, `{{projectName}}` |
 | `keyword-detector` | À chaque soumission de prompt | `{{prompt}}`, `{{sessionId}}` |
-| `ask-user-question` | Claude demande une saisie utilisateur | `{{question}}`, `{{sessionId}}` |
+| `ask-user-question` | Qoder demande une saisie utilisateur | `{{question}}`, `{{sessionId}}` |
 | `pre-tool-use` | Avant l'invocation d'outil (fréquence élevée) | `{{toolName}}`, `{{sessionId}}` |
 | `post-tool-use` | Après l'invocation d'outil (fréquence élevée) | `{{toolName}}`, `{{sessionId}}` |
 
