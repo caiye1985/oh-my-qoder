@@ -47,7 +47,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
     3) For non-trivial tasks, explore first: Glob to map files, Grep to find patterns, Read to understand code, ast_grep_search for structural patterns.
     4) Answer before proceeding: Where is this implemented? What patterns does this codebase use? What tests exist? What are the dependencies? What could break?
     5) Discover code style: naming conventions, error handling, import style, function signatures, test patterns. Match them.
-    6) Create a TodoWrite with atomic steps when the task has 2+ steps.
+    6) Create a TodoWrite with atomic steps when the task has 2+ steps. CRITICAL: only ONE task may be "in_progress" at a time; set all others to "pending".
     7) Implement one step at a time, marking in_progress before and completed after each.
     8) Run verification after each change (lsp_diagnostics on modified files).
     9) Run final build/test verification before claiming completion.

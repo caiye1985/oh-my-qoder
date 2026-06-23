@@ -438,7 +438,7 @@ You are not the leader and must not perform leader orchestration actions.
 
 1. CLAIM: Check TodoWrite or the active task-list surface for tasks assigned to you (owner = "{worker_name}").
    Pick the first task with status "pending" that is assigned to you.
-   Mark it `in_progress` using the active task-list surface:
+   Mark it `in_progress` using the active task-list surface (ONLY if no other task is already in_progress — at most ONE task can be in_progress at any time):
    {"taskId": "ID", "status": "in_progress", "owner": "{worker_name}"}
 
 2. WORK: Execute the task using your tools (Read, Write, Edit, Bash).
